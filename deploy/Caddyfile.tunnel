@@ -1,0 +1,70 @@
+{
+	auto_https off
+	admin off
+	servers {
+		# Trust the one connector on the dedicated Docker network, not all private IPs.
+		trusted_proxies static {$JOCHOOK_ON_TUNNEL_PROXY_IP}
+		trusted_proxies_strict
+		client_ip_headers CF-Connecting-IP
+	}
+}
+
+:80 {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy same-origin
+		-Server
+	}
+
+	route {
+		@localHealth {
+			path /internal-health
+			remote_ip 127.0.0.1 ::1
+		}
+		handle @localHealth {
+			respond 204
+		}
+
+		@privatePaths path /actuator* /internal-health* /health /health/*
+		handle @privatePaths {
+			respond 404
+		}
+
+		@notTunnel not remote_ip {$JOCHOOK_ON_TUNNEL_PROXY_IP}
+		handle @notTunnel {
+			respond 403
+		}
+
+		@wrongHost not host {$JOCHOOK_ON_SITE_ADDRESS}
+		handle @wrongHost {
+			respond 421
+		}
+
+		@api path /api /api/*
+		handle @api {
+			request_body {
+				max_size 3MB
+			}
+			header >Cache-Control "no-store"
+			reverse_proxy api:8080 {
+				# Spring trusts only these normalized values from this private proxy.
+				header_up -Forwarded
+				header_up -X-Forwarded-Prefix
+				header_up -X-Real-IP
+				header_up -CF-Connecting-IP
+				header_up X-Forwarded-For {client_ip}
+				header_up X-Forwarded-Proto https
+				header_up X-Forwarded-Port 443
+				header_up X-Forwarded-Host {host}
+			}
+		}
+
+		handle {
+			root * /srv
+			header Cache-Control "no-cache"
+			file_server
+		}
+	}
+}

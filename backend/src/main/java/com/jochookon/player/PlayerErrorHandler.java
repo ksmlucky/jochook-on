@@ -27,7 +27,8 @@ public class PlayerErrorHandler {
     ResponseEntity<ApiError> databaseConstraint(org.springframework.dao.DataIntegrityViolationException exception) {
         // 사전 조회 직후 다른 요청이 같은 번호를 저장한 경우에도 DB UNIQUE가 최종 차단한다.
         for (Throwable cause = exception; cause != null; cause = cause.getCause()) {
-            if (cause.getMessage() != null && cause.getMessage().contains("uq_players_active_shirt")) return duplicateShirt();
+            if (cause.getMessage() != null && (cause.getMessage().contains("uq_players_team_active_shirt")
+                    || cause.getMessage().contains("uq_players_active_shirt"))) return duplicateShirt();
         }
         return ResponseEntity.badRequest().body(new ApiError("DATA_CONSTRAINT", "저장할 수 없는 선수 정보입니다. 입력 내용을 확인해 주세요.", Map.of()));
     }

@@ -1,5 +1,10 @@
-import { fetchWithCsrf, SessionExpiredError } from '../auth/api'
+import { SessionExpiredError } from '../auth/api'
+import { captureTeamScope, readTeamJson, readTeamBlob, teamFetch, teamFetchWithCsrf } from '../auth/teamRequest'
+import type { TeamRequestScope } from '../auth/teamRequest'
 import { serviceBrand } from '../../app/brand'
+import { ageGroupOptions, playerQueryParams } from './query'
+import type { AgeGroup, PlayerQuery } from './query'
+export type { PlayerQuery } from './query'
 
 export type Position = 'GK' | 'DF' | 'MF' | 'FW' | 'UN'
 export const preferredPositions = ['LB', 'CB', 'RB', 'CDM', 'CM', 'LW', 'ST', 'RW', 'GK'] as const
@@ -44,6 +49,7 @@ export interface PlayerPage {
   size: number
   totalElements: number
   totalPages: number
+  availableAgeGroups: AgeGroup[]
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -68,7 +74,7 @@ async function checkResponse(response: Response): Promise<void> {
   if (response.status === 401) throw new SessionExpiredError()
   if (!response.ok) {
     if (response.status === 403) throw new PlayerRequestError('운영진 권한 또는 요청 유효 기간을 확인해 주세요. 필요하면 다시 로그인해 주세요.', 403)
-    const error: unknown = await response.json().catch(() => null)
+    const error: unknown = await readTeamJson(response).catch(() => null)
     const fields: Record<string, string> = {}
     if (isRecord(error) && isRecord(error.fieldErrors)) {
       for (const [key, value] of Object.entries(error.fieldErrors)) if (typeof value === 'string') fields[key] = value
@@ -79,7 +85,7 @@ async function checkResponse(response: Response): Promise<void> {
 
 async function readPlayer(response: Response): Promise<Player> {
   await checkResponse(response)
-  const data: unknown = await response.json()
+  const data: unknown = await readTeamJson(response)
   if (!isPlayer(data)) throw new Error('선수 정보 형식을 확인할 수 없습니다. 목록을 다시 확인해 주세요.')
   return data
 }
@@ -93,40 +99,40 @@ export interface ImportPreview { rows: ImportRow[]; valid: boolean }
 
 async function readPreview(response: Response): Promise<ImportPreview> {
   await checkResponse(response)
-  return response.json() as Promise<ImportPreview>
+  return readTeamJson<ImportPreview>(response)
 }
 export async function previewBulk(rows: BulkPlayerRow[]): Promise<ImportPreview> {
-  return readPreview(await fetchWithCsrf('/api/v1/players/bulk/preview', {
+  return readPreview(await teamFetchWithCsrf('/api/v1/players/bulk/preview', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows }),
   }))
 }
 export async function uploadWorkbook(file: File): Promise<ImportPreview> {
   const body = new FormData(); body.append('file', file)
-  return readPreview(await fetchWithCsrf('/api/v1/players/import/preview', { method: 'POST', body }))
+  return readPreview(await teamFetchWithCsrf('/api/v1/players/import/preview', { method: 'POST', body }))
 }
 export async function registerBulk(rows: BulkPlayerRow[]): Promise<Player[]> {
-  const response = await fetchWithCsrf('/api/v1/players/bulk', {
+  const response = await teamFetchWithCsrf('/api/v1/players/bulk', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rows }),
   })
   await checkResponse(response)
-  const data: unknown = await response.json()
+  const data: unknown = await readTeamJson(response)
   if (!Array.isArray(data) || !data.every(isPlayer)) throw new Error('등록 결과를 확인하지 못했습니다. 재등록하기 전에 선수 목록을 확인해 주세요.')
   return data
 }
 export async function downloadPlayerTemplate(): Promise<void> {
-  const response = await fetch('/api/v1/players/import/template')
+  const response = await teamFetch('/api/v1/players/import/template')
   await checkResponse(response)
-  const url = URL.createObjectURL(await response.blob())
+  const url = URL.createObjectURL(await readTeamBlob(response))
   const link = document.createElement('a'); link.href = url; link.download = `${serviceBrand.slug}-players.xlsx`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 export async function fetchPlayer(id: number): Promise<Player> {
-  return readPlayer(await fetch(`/api/v1/players/${id}`, { cache: 'no-store' }))
+  return readPlayer(await teamFetch(`/api/v1/players/${id}`, { cache: 'no-store' }))
 }
 
 export async function savePlayer(details: PlayerDetails, existing: Player | null): Promise<Player> {
-  return readPlayer(await fetchWithCsrf(existing ? `/api/v1/players/${existing.id}` : '/api/v1/players', {
+  return readPlayer(await teamFetchWithCsrf(existing ? `/api/v1/players/${existing.id}` : '/api/v1/players', {
     method: existing ? 'PUT' : 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(existing ? { ...details, version: existing.version } : details),
@@ -135,16 +141,16 @@ export async function savePlayer(details: PlayerDetails, existing: Player | null
 
 export type GuestDetails = Pick<Player, 'name' | 'shirtNumber' | 'birthYear' | 'firstChoice' | 'secondChoice' | 'thirdChoice'>
 export async function createGuest(details: GuestDetails): Promise<Player> {
-  return readPlayer(await fetchWithCsrf('/api/v1/players/guests', {
+  return readPlayer(await teamFetchWithCsrf('/api/v1/players/guests', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details),
   }))
 }
-export async function fetchGuests(signal: AbortSignal): Promise<Player[]> {
+export async function fetchGuests(signal: AbortSignal, scope: TeamRequestScope = captureTeamScope()): Promise<Player[]> {
   const guests: Player[] = []
   for (let page = 0; ; page++) {
-    const response = await fetch(`/api/v1/players/guests?page=${page}&size=100`, { signal, cache: 'no-store' })
+    const response = await teamFetch(`/api/v1/players/guests?page=${page}&size=100`, { signal, cache: 'no-store' }, scope)
     await checkResponse(response)
-    const data: unknown = await response.json()
+    const data: unknown = await readTeamJson(response)
     if (!isPlayerPage(data)) throw new Error('용병 목록을 확인하지 못했습니다.')
     guests.push(...data.items)
     if (page + 1 >= data.totalPages) return guests
@@ -155,18 +161,18 @@ function isPlayerPage(value: unknown): value is PlayerPage {
   return isRecord(value)
     && Array.isArray(value.items)
     && value.items.every(isPlayer)
+    && Array.isArray(value.availableAgeGroups)
+    && value.availableAgeGroups.every(group => ageGroupOptions.some(([code]) => code === group))
     && ['page', 'size', 'totalElements', 'totalPages'].every(key =>
       typeof value[key] === 'number' && Number.isSafeInteger(value[key]) && value[key] >= 0)
 }
 
-export interface PlayerQuery { size: number; sort: 'shirtNumber' | 'age' | 'name' | 'id' | 'preferredPosition'; direction: 'asc' | 'desc' }
-
-export async function fetchPlayers(page: number, signal: AbortSignal, query: PlayerQuery = { size: 20, sort: 'id', direction: 'asc' }): Promise<PlayerPage> {
-  const params = new URLSearchParams({ page: String(page), size: String(query.size), sort: query.sort, direction: query.direction })
-  const response = await fetch(`/api/v1/players?${params}`, { signal })
+export async function fetchPlayers(page: number, signal: AbortSignal, query: PlayerQuery = { size: 20, sort: 'id', direction: 'asc' }, scope: TeamRequestScope = captureTeamScope()): Promise<PlayerPage> {
+  const params = playerQueryParams(page, query)
+  const response = await teamFetch(`/api/v1/players?${params}`, { signal }, scope)
   if (response.status === 401) throw new SessionExpiredError()
   if (!response.ok) throw new Error(`Player request failed: ${response.status}`)
-  const data: unknown = await response.json()
+  const data: unknown = await readTeamJson(response)
   if (!isPlayerPage(data)) throw new Error('Unexpected player response')
   return data
 }

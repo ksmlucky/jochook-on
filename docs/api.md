@@ -1,6 +1,8 @@
 # 현재 API
 
-## 세션 로그인
+## 팀 접속과 세션 로그인
+
+팀 생성·운영진 지정·초대·조회 코드 API는 [팀 접속 API 계약](team-access-api.md)을 따른다. 아래 선수·경기 API에도 **`X-Team-Id: 현재 선택 팀 ID`** 헤더가 필수다. 서버가 세션의 선택 팀 및 현재 소속과 검증하므로 헤더만 바꿔 다른 팀에 접근할 수 없다. 누락·불일치는 409 `TEAM_CHANGED`, 다른 팀의 상세 ID는 404다. 팀 없는 서비스 관리자는 서비스 관리 API만 사용할 수 있다.
 
 로그인은 브라우저의 HttpOnly `JSESSIONID` 쿠키를 사용합니다. 프론트와 API는 같은 출처의 `/api` 프록시로 통신하고, 토큰이나 비밀번호를 localStorage에 저장하지 않습니다.
 
@@ -8,12 +10,12 @@
 | --- | --- | --- |
 | `GET /api/v1/auth/csrf` | 불필요 | `{headerName, token}` 반환, CSRF 토큰을 세션에 저장 |
 | `POST /api/v1/auth/login` | 불필요, CSRF 필요 | 성공 204, 아이디·비밀번호 불일치 401 |
-| `GET /api/v1/auth/me` | 필요 | `{username, role}` 반환, 미로그인 401 |
+| `GET /api/v1/auth/me` | 필요 | `{username, role, authType, serviceAdmin, team, teams}` 반환, 미접속 401 |
 | `POST /api/v1/auth/logout` | CSRF 필요 | 세션 무효화·쿠키 삭제 후 204 |
 
 로그인 본문은 `application/x-www-form-urlencoded`의 `username`, `password`입니다. CSRF 응답의 `headerName`을 헤더 이름으로, `token`을 값으로 전달합니다. 로그인과 로그아웃 후 CSRF 토큰이 바뀌므로 각 변경 요청 전에 다시 조회합니다. 누락되거나 유효하지 않은 CSRF 토큰은 403입니다.
 
-로그인 성공 시 세션 ID를 바꾸며, 세션은 30분간 요청이 없으면 만료됩니다. 역할은 ADMIN(운영진), MEMBER(회원)입니다. `/api/v1/admin/**`는 ADMIN만 접근할 수 있도록 보호하지만, 관리 기능 API 자체는 아직 없습니다. 계정 생성·비밀번호 변경 API도 아직 제공하지 않습니다.
+개인 로그인 성공 시 세션 ID를 바꾸며, 세션은 30분간 요청이 없으면 만료됩니다. 역할은 선택한 팀의 DIRECTOR(감독), COACH(코치), MEMBER(조회 회원)이며 `serviceAdmin`은 별도 서비스 관리 권한입니다. 새 운영진 계정은 24시간짜리 일회용 초대 수락으로 생성합니다. 임의 회원 가입·비밀번호 변경 API는 제공하지 않습니다. 회원 코드는 해당 팀의 조회 전용 세션을 만들며, 24시간 유휴 또는 생성 후 7일에 만료됩니다. 코드 자체는 발급 후 90일이며 코드 재발급·폐기 시 이전 코드 세션은 다음 요청부터 종료됩니다.
 
 ## 활동 중인 선수 목록
 
@@ -62,15 +64,15 @@
 
 position은 GK·DF·MF·FW 또는 UN(미확인)입니다. 등번호 null은 미등록이며 0번은 허용하지 않습니다. 이름은 선수의 고유 식별자로 사용하지 않으며 동명이인을 허용합니다.
 
-ADMIN 또는 MEMBER로 로그인해야 조회할 수 있습니다. 미로그인은 401이며, 그 외 미구현 API는 기본적으로 차단됩니다.
+DIRECTOR, COACH 또는 MEMBER로 로그인해야 조회할 수 있습니다. 미로그인은 401이며, 그 외 미구현 API는 기본적으로 차단됩니다.
 
 ## 선수 상세·등록·수정
 
 | 요청 | 권한 | 성공 |
 | --- | --- | --- |
-| `GET /api/v1/players/{id}` | ADMIN / MEMBER | 200, 선수 응답 |
-| `POST /api/v1/players` | ADMIN + CSRF | 201, 선수 응답과 Location 헤더 |
-| `PUT /api/v1/players/{id}` | ADMIN + CSRF | 200, 저장 후 선수 응답 |
+| `GET /api/v1/players/{id}` | DIRECTOR / COACH / MEMBER | 200, 선수 응답 |
+| `POST /api/v1/players` | DIRECTOR 또는 COACH + CSRF | 201, 선수 응답과 Location 헤더 |
+| `PUT /api/v1/players/{id}` | DIRECTOR 또는 COACH + CSRF | 200, 저장 후 선수 응답 |
 
 등록 본문 (`application/json`, 설명용 예시):
 
@@ -97,7 +99,7 @@ ADMIN 또는 MEMBER로 로그인해야 조회할 수 있습니다. 미로그인�
 
 ## 외부 용병
 
-ADMIN 전용 `GET /api/v1/players/guests?page=0&size=100`은 활동 용병을 이름순으로 페이지 조회합니다. page는 0 이상, size는 1~100이며 응답 구조는 선수 목록과 같습니다.
+DIRECTOR 또는 COACH 전용 `GET /api/v1/players/guests?page=0&size=100`은 활동 용병을 이름순으로 페이지 조회합니다. page는 0 이상, size는 1~100이며 응답 구조는 선수 목록과 같습니다.
 
 `POST /api/v1/players/guests`는 CSRF가 필요하며 `{name, shirtNumber, birthYear, firstChoice, secondChoice, thirdChoice}`를 받습니다. 이름만 필수이고 등번호는 1~99 또는 NULL, 생년은 1900~현재 연도 또는 NULL입니다. 선호는 중복 없이 순서대로 선택하며 모두 NULL이면 미확인(UN)으로 저장합니다. 201 선수 응답과 Location을 반환하며 type은 서버가 GUEST로 설정합니다. 기존 활동 선수와 등번호가 겹치면 409입니다. 가입일은 NULL, 기존 선수 등록/일괄 등록은 MEMBER입니다.
 
@@ -105,7 +107,7 @@ ADMIN 전용 `GET /api/v1/players/guests?page=0&size=100`은 활동 용병을 �
 
 ## 여러 선수 등록과 Excel
 
-모든 아래 경로는 ADMIN 전용입니다. POST에는 CSRF 토큰이 필요합니다.
+모든 아래 경로는 DIRECTOR 또는 COACH 전용입니다. POST에는 CSRF 토큰이 필요합니다.
 
 | 요청 | 결과 |
 | --- | --- |
@@ -126,10 +128,10 @@ bulk 저장은 같은 검증을 다시 수행한 뒤 하나의 트랜잭션에�
 
 | 요청 | 권한·결과 |
 | --- | --- |
-| GET /api/v1/matches?page=0&size=10 | ADMIN/MEMBER. 날짜 내림차순, 동일 날짜는 ID 내림차순. size 기본 10, 1~100 허용. UI는 10개씩. `{items,page,totalPages,totalElements}` |
-| GET /api/v1/matches/{id} | ADMIN/MEMBER. 기본 정보·참가자 이름/등번호·투표/출석·4쿼터 기록 |
-| POST /api/v1/matches | ADMIN + CSRF. 전체 경기 생성, 201 + Location |
-| PUT /api/v1/matches/{id} | ADMIN + CSRF. 전체 경기 수정, version 필수, 성공 시 갱신 버전 반환 |
+| GET /api/v1/matches?page=0&size=10 | DIRECTOR/COACH/MEMBER. 날짜 내림차순, 동일 날짜는 ID 내림차순. size 기본 10, 1~100 허용. UI는 10개씩. `{items,page,totalPages,totalElements}` |
+| GET /api/v1/matches/{id} | DIRECTOR/COACH/MEMBER. 기본 정보·참가자 이름/등번호·투표/출석·4쿼터 기록 |
+| POST /api/v1/matches | DIRECTOR 또는 COACH + CSRF. 전체 경기 생성, 201 + Location |
+| PUT /api/v1/matches/{id} | DIRECTOR 또는 COACH + CSRF. 전체 경기 수정, version 필수, 성공 시 갱신 버전 반환 |
 
 투표만 입력한 경기 요청 예시 (선수 ID는 실제 등록된 ID를 사용):
 
@@ -163,13 +165,14 @@ V13부터 요청·상세·목록에 `kind: "EXTERNAL" | "INTERNAL"`을 사용합
 - 400은 입력 오류, 404는 없는 경기, 409는 수정 충돌입니다. 한 경기 전체를 트랜잭션으로 저장하며 실패 시 일부 기록만 남기지 않습니다.
 - 새 경기 version은 null/생략, 수정은 조회한 version을 보냅니다. 기본 정보가 같고 하위 배치만 바뀌어도 버전이 증가합니다.
 - 신규 생성의 서버 멱등성 키는 아직 없습니다. UI는 연타를 막고 네트워크 오류 등으로 결과가 불확실하면 재전송을 차단하고 목록 확인을 안내합니다.
-- 삭제, 카카오톡 자동 수집, 모임 묶음, 기록 확정과 시즌 순위 API는 아직 없습니다.
+- `DELETE /api/v1/matches/{id}?version={version}`은 현재 팀의 DIRECTOR·COACH만 사용할 수 있으며 CSRF와 `X-Team-Id`가 필요합니다. version은 조회한 0 이상 정수로 필수입니다. 성공은 204, 없는 경기·타 팀 ID는 404, 수정 충돌은 409입니다. 투표·출석·계획·쿼터·출전 기록을 함께 삭제하고 선수 명부는 보존합니다. [삭제 정책·화면 흐름](match-deletion.md)
+- 카카오톡 자동 수집, 모임 묶음, 기록 확정과 시즌 순위 API는 아직 없습니다.
 
 ### 경기 엑셀 가져오기
 
 자체전 UI는 기존 양식을 A팀·B팀별로 업로드합니다. 미리보기의 team은 A이며 UI에서 선택한 팀으로 명시적으로 변환합니다. 선택한 팀의 4쿼터만 대체하며 상대 팀은 보존하고, 같은 쿼터의 양 팀 중복 선수가 있으면 초안에 반영하지 않습니다.
 
-ADMIN 전용이며 POST에는 CSRF가 필요합니다.
+DIRECTOR 또는 COACH 전용이며 POST에는 CSRF가 필요합니다.
 
 | 요청 | 결과 |
 | --- | --- |
@@ -192,7 +195,7 @@ DB를 포함한 애플리케이션의 상태를 반환합니다. 정상일 때 `
 
 ### 자동 편성 계산
 
-`POST /api/v1/matches/lineup-suggestion` — ADMIN 세션과 CSRF 필요. DB 쓰기 없음.
+`POST /api/v1/matches/lineup-suggestion` — DIRECTOR 또는 COACH 세션과 CSRF 필요. DB 쓰기 없음.
 
 ```json
 {"playedOn":"2026-10-18","playerIds":[1,2,3],"matchId":null,"seed":123}
@@ -211,6 +214,14 @@ ID는 설명용이다. 날짜·playerIds(중복 없는 활동 선수 1~200명)·
 실제 `quarters`와 별도로 저장하며 계획만 있어도 실제 creditedQuarters는 0입니다. 계획 변경도 경기 version을 증가시키며 오래된 PUT은 409입니다. 계획을 실제 기록으로 복사하는 것은 프론트의 명시적 초안 변경이고, 기존 저장 API의 실제 참석·지각 검증을 그대로 받습니다.
 
 ## 생년과 팀 직책 입력 규칙
+
+### 선수단 필터와 경기 이력
+
+`GET /api/v1/players`는 `ageGroup=UNDER_20|20|30|40|50|60|70|80|90|100_PLUS|UNKNOWN`, `clubRole=정회원|코치|감독|총무|회장`, `positionGroup=FW|MF|DF|GK`를 선택적으로 받습니다. 포지션 그룹은 1지망 기준으로 FW=LW/ST/RW, MF=CM/CDM, DF=LB/CB/RB, GK=GK입니다. 기존 `firstChoice=GK|LB|CB|RB|CDM|CM|LW|ST|RW|UNKNOWN`도 호환됩니다. 빈 값·생략은 전체이며 조건은 AND입니다. 한국 현재 연도 기준 나이로 DB 필터링 후 정렬·건수·페이징을 적용합니다.
+
+선수 페이지 응답에는 `availableAgeGroups: string[]`가 추가됩니다. 현재 팀의 전체 활동 MEMBER에게 실제 존재하는 연령대만 오름차순으로 반환하며 UNKNOWN은 마지막입니다. 현재 페이지·다른 필터에 영향받지 않고, 생년 미입력 회원이 없으면 UNKNOWN도 제외됩니다. 용병 목록은 빈 배열을 반환합니다.
+
+감독·코치 전용 `GET /api/v1/matches/history?page=0&size=10`(선택 matchId)과 `GET /api/v1/matches/history/{eventId}`로 등록·수정·삭제 이력을 조회합니다. 삭제된 경기도 남으며 회원 조회에는 노출하지 않습니다. [응답 형식·이력 정책](player-filters-and-match-history.md)
 
 선수 등록·수정·조회에 birthYear(INT 또는 null), clubRole을 사용합니다. 생년은 1900~현재 한국 연도의 정수이며 소수·미래 연도는 거부합니다. PUT에서 생년을 생략하거나 null로 보내면 비웁니다. 직책은 정회원/코치/감독/총무/회장만 허용하며 null·빈 문자열·생략은 정회원으로 정규화합니다. 팀 직책으로 로그인 권한을 부여하지 않습니다. UI 나이는 기준 연도 − 생년으로 계산하며 생일은 사용하지 않습니다.
 

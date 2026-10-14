@@ -3,6 +3,7 @@
 .env.*
 !.env.example
 !.env.production.example
+!.env.oracle.example
 # Private exports, backups and signing/SSH keys must never be published.
 backups/
 *.sql.gz

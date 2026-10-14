@@ -1,0 +1,74 @@
+# Overlay only: use after compose.production.yaml and with .env.oracle.
+# The tunnel starts only with --profile tunnel; never use a Quick Tunnel for real data.
+name: jochook-on-oracle
+
+services:
+  mysql:
+    ports: !reset []
+    mem_limit: 2g
+
+  api:
+    ports: !reset []
+    mem_limit: 2g
+    environment:
+      SESSION_COOKIE_SECURE: 'true'
+
+  web:
+    ports: !reset []
+    mem_limit: 256m
+    environment:
+      JOCHOOK_ON_TUNNEL_PROXY_IP: ${JOCHOOK_ON_TUNNEL_PROXY_IP:-172.30.72.2}
+    volumes:
+      - type: bind
+        source: ./deploy/Caddyfile.tunnel
+        target: /etc/caddy/Caddyfile
+        read_only: true
+        bind:
+          create_host_path: false
+    networks:
+      default: {}
+      tunnel:
+        ipv4_address: ${JOCHOOK_ON_TUNNEL_WEB_IP:-172.30.72.3}
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--spider', 'http://127.0.0.1/internal-health']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  cloudflared:
+    image: cloudflare/cloudflared:2026.10.0
+    profiles: [tunnel]
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    command: ['tunnel', '--no-autoupdate', 'run', '--token-file', '/run/secrets/cloudflared_token']
+    user: '65532:65532'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    mem_limit: 256m
+    secrets:
+      - cloudflared_token
+    networks:
+      tunnel:
+        ipv4_address: ${JOCHOOK_ON_TUNNEL_PROXY_IP:-172.30.72.2}
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: '3'
+
+networks:
+  tunnel:
+    ipam:
+      config:
+        - subnet: ${JOCHOOK_ON_TUNNEL_SUBNET:-172.30.72.0/28}
+
+secrets:
+  cloudflared_token:
+    file: ${CLOUDFLARE_TUNNEL_TOKEN_FILE:-./.local/cloudflared-token}
+
+# Named volumes deliberately inherit the base file. Only a NEW Oracle installation
+# should select the explicit jochook-on-oracle_* names in .env.oracle.example.

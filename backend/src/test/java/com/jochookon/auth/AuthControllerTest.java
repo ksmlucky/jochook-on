@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.jochookon.config.SecurityConfig;
+import com.jochookon.team.TeamMvcTestSupport;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AuthController.class)
 @Import({SecurityConfig.class, AccountUserDetailsService.class})
-class AuthControllerTest {
+class AuthControllerTest extends TeamMvcTestSupport {
     @Autowired MockMvc mvc;
     @Autowired PasswordEncoder encoder;
     @MockitoBean AccountRepository accounts;
@@ -56,7 +57,7 @@ class AuthControllerTest {
         mvc.perform(get("/api/v1/auth/me").session(session))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.username").value("test-admin"))
-                .andExpect(jsonPath("$.role").value("ADMIN"))
+                .andExpect(jsonPath("$.role").value("MEMBER"))
                 .andExpect(jsonPath("$.passwordHash").doesNotExist());
         mvc.perform(post("/api/v1/auth/logout").session(session).with(csrf()))
                 .andExpect(status().isNoContent());

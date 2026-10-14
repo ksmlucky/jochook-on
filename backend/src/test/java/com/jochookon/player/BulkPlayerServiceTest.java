@@ -1,5 +1,7 @@
 package com.jochookon.player;
 
+import com.jochookon.team.TeamContext;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import jakarta.validation.Validation;
@@ -14,9 +16,11 @@ class BulkPlayerServiceTest {
     @BeforeAll static void openValidation() { validation = Validation.buildDefaultValidatorFactory(); }
     @AfterAll static void closeValidation() { validation.close(); }
     @BeforeEach void setup() {
+        TeamContext.set(1);
         players = mock(PlayerRepository.class);
         service = new BulkPlayerService(players, validation.getValidator());
     }
+    @AfterEach void clearTeamContext() { TeamContext.clear(); }
     static BulkPlayerRow row(String name, String first, String second, String third) {
         return new BulkPlayerRow(name, "MF", "", "", first, second, third, "", "");
     }
@@ -38,7 +42,7 @@ class BulkPlayerServiceTest {
         verify(players, never()).saveAllAndFlush(any());
     }
     @Test void warnsOnRepeatedAndExistingNamesWithoutRejectingNamesakes() {
-        when(players.findByNameIn(any())).thenReturn(List.of(Player.register("동명 선수", null, Position.MF, null)));
+        when(players.findByTeamIdAndNameIn(eq(1L), any())).thenReturn(List.of(Player.register("동명 선수", null, Position.MF, null).assignToTeam(1)));
         var result = service.preview(List.of(row("동명 선수", "CM", "", ""), row("동명 선수", "ST", "", "")), null);
         assertThat(result.isValid()).isTrue(); assertThat(result.rows().getFirst().warnings()).hasSize(2);
     }
@@ -66,7 +70,7 @@ class BulkPlayerServiceTest {
         assertThat(service.preview(List.of(new BulkPlayerRow("선수", "UN", "", "", "CM", "", "", "", "")), null).isValid()).isFalse();
     }
     @Test void rejectsDuplicateNumbersAcrossInputAndExistingActivePlayers() {
-        when(players.findByActiveTrueAndShirtNumberIn(any())).thenReturn(List.of(Player.register("기존 선수", 7, Position.UN, null)));
+        when(players.findByTeamIdAndActiveTrueAndShirtNumberIn(eq(1L), any())).thenReturn(List.of(Player.register("기존 선수", 7, Position.UN, null).assignToTeam(1)));
         var rows = List.of(new BulkPlayerRow("첫 선수", "UN", "07", "", "", "", "", "", ""),
                 new BulkPlayerRow("다음 선수", "UN", "7", "", "", "", "", "", ""));
         var preview = service.preview(rows, List.of(3, 8));

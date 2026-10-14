@@ -1,0 +1,23 @@
+.match-history { margin-top: 24px; }
+.match-history-list { display: grid; gap: 12px; list-style: none; margin: 22px 0; padding: 0; }
+.match-history-list > li { border: 1px solid var(--line); border-radius: 12px; background: var(--surface, white); overflow: hidden; }
+.match-history-row { display: flex; align-items: center; gap: 16px; width: 100%; padding: 18px; text-align: left; border: 0; background: transparent; color: var(--ink); }
+.match-history-row:hover, .match-history-row.selected { background: var(--canvas); }
+.history-action { padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; white-space: nowrap; background: #e7efe8; color: #365c40; }
+.history-action.updated { background: #edf0f8; color: #425778; }
+.history-action.deleted { background: #fff0eb; color: #a2473b; }
+.history-match { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.history-match strong { display: block; font-size: 14px; }
+.history-match small { display: block; margin-top: 6px; color: var(--muted); font-size: 12px; }
+.history-timestamp { display: grid; gap: 6px; flex-shrink: 0; }
+.history-timestamp > span { color: var(--muted); font-size: 12px; }
+.history-timestamp time { font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.history-detail-label { color: var(--accent); font-size: 12px; white-space: nowrap; }
+.history-detail { padding: 0 18px 18px; }
+.history-table-scroll { overflow: auto; max-height: 520px; margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; }
+.history-table { width: 100%; min-width: 580px; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+.history-table th, .history-table td { padding: 12px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: top; white-space: pre-wrap; overflow-wrap: anywhere; }
+.history-table thead th { background: var(--canvas); position: sticky; top: 0; }
+.history-table th:first-child { width: 31%; }
+.history-table td { color: var(--muted); }
+@media (max-width: 700px) { .match-history-row { gap: 10px; padding: 14px; flex-wrap: wrap; } .history-timestamp { width: 100%; padding-top: 10px; border-top: 1px solid var(--line); } .history-detail-label { width: 100%; text-align: right; } .history-detail { padding: 0 12px 12px; } }

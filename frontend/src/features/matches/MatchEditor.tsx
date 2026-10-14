@@ -14,6 +14,7 @@ import { GuestPicker } from './GuestPicker'
 import { actualFromPlan } from './plan'
 import { kickoffHours, kickoffMinutes, matchTimeRange, validKickoff } from './time'
 import { TeamSelector } from './TeamSelector'
+import { useEditGuard } from '../../app/LeaveGuard'
 
 const editorSteps = ['투표·출석', '스쿼드 계획', '실제 출전', '결과·코멘트']
 const stepHeadings = ['attendance-title', 'plan-title', 'lineup-title', 'match-totals']
@@ -33,6 +34,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   const [step, setStep] = useState(0)
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
+  useEditGuard(isAdmin && dirty, busy)
   const [blocked, setBlocked] = useState(false)
   const [error, setError] = useState('')
   const [confirmClose, setConfirmClose] = useState(false)

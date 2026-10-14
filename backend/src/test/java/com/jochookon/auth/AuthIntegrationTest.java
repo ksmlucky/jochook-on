@@ -21,11 +21,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mysql.MySQLContainer;
+import com.jochookon.team.TeamTestData;
 
 @Tag("integration")
 @Testcontainers
 @SpringBootTest(properties = {"spring.datasource.password=unused-test-password",
-        "jochookon.bootstrap.admin.username=", "jochookon.bootstrap.admin.password="})
+        "jochookon.bootstrap.admin.username=", "jochookon.bootstrap.admin.password=", "jochookon.bootstrap.service-admin-username="})
 @AutoConfigureMockMvc
 class AuthIntegrationTest {
     @Container @ServiceConnection
@@ -37,9 +38,7 @@ class AuthIntegrationTest {
 
     @BeforeEach
     void isolatedMember() {
-        jdbc.update("DELETE FROM accounts");
-        jdbc.update("INSERT INTO accounts (username, password_hash, role, enabled) VALUES (?, ?, ?, ?)",
-                "test-member", encoder.encode("test-only-password"), "MEMBER", true);
+        TeamTestData.seed(jdbc);
     }
 
     @Test
@@ -50,7 +49,7 @@ class AuthIntegrationTest {
         MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
         mvc.perform(get("/api/v1/auth/me").session(session))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.role").value("MEMBER"));
-        mvc.perform(get("/api/v1/players").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/players").session(session).header("X-Team-Id", "1")).andExpect(status().isOk());
         mvc.perform(get("/api/v1/admin/settings").session(session)).andExpect(status().isForbidden());
         mvc.perform(post("/api/v1/auth/logout").session(session).with(csrf())).andExpect(status().isNoContent());
         assertThat(session.isInvalid()).isTrue();

@@ -33,6 +33,9 @@ public class Account {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    @Column(name = "service_admin", nullable = false)
+    private boolean serviceAdmin;
+
     protected Account() { }
 
     public static Account create(String username, String passwordHash, AccountRole role) {
@@ -49,8 +52,11 @@ public class Account {
         return account;
     }
 
+    public Long getId() { return id; }
     public String getUsername() { return username; }
     public String getPasswordHash() { return passwordHash; }
     public AccountRole getRole() { return role; }
     public boolean isEnabled() { return enabled; }
+    public boolean isServiceAdmin() { return serviceAdmin; }
+    public void grantServiceAdmin() { serviceAdmin = true; }
 }

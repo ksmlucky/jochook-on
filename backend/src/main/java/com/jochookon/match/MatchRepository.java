@@ -5,8 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface MatchRepository extends JpaRepository<MatchRecord, Long> {
+    Page<MatchRecord> findByTeamId(long teamId, Pageable pageable);
+    Optional<MatchRecord> findByIdAndTeamId(long id, long teamId);
+    boolean existsByIdAndTeamId(long id, long teamId);
     interface GoalScorer {
         Long getMatchId(); Long getPlayerId(); String getName(); Integer getShirtNumber();
         com.jochookon.player.PlayerType getPlayerType(); long getGoals(); long getGoalsA(); long getGoalsB();
@@ -18,11 +24,11 @@ public interface MatchRepository extends JpaRepository<MatchRecord, Long> {
                sum(case when a.team = com.jochookon.match.MatchTeam.A then a.goals else 0 end) as goalsA,
                sum(case when a.team = com.jochookon.match.MatchTeam.B then a.goals else 0 end) as goalsB
         from MatchRecord m join m.appearances a, Player p
-        where m.id in :ids and p.id = a.playerId
+        where m.teamId = :teamId and p.teamId = :teamId and m.id in :ids and p.id = a.playerId
         group by m.id, p.id, p.name, p.shirtNumber, p.playerType
         having sum(a.goals) > 0
         """)
-    List<GoalScorer> goalScorers(Collection<Long> ids);
+    List<GoalScorer> goalScorers(long teamId, Collection<Long> ids);
     interface AttendanceHistory {
         Long getPlayerId();
         long getAttended();
@@ -33,10 +39,10 @@ public interface MatchRepository extends JpaRepository<MatchRecord, Long> {
                sum(case when p.attendance in :attended then 1 else 0 end) as attended,
                count(p) as recorded
         from MatchRecord m join m.participants p
-        where m.playedOn < :before and (:excludedId is null or m.id <> :excludedId)
+        where m.teamId = :teamId and m.playedOn < :before and (:excludedId is null or m.id <> :excludedId)
           and p.playerId in :ids and p.attendance in :confirmed
         group by p.playerId
         """)
-    List<AttendanceHistory> attendanceHistory(LocalDate before, Long excludedId, Collection<Long> ids,
+    List<AttendanceHistory> attendanceHistory(long teamId, LocalDate before, Long excludedId, Collection<Long> ids,
             Collection<Attendance> attended, Collection<Attendance> confirmed);
 }

@@ -1,5 +1,7 @@
 package com.jochookon.match;
 
+import com.jochookon.team.TeamContext;
+
 import com.jochookon.player.Player;
 import com.jochookon.player.PlayerRepository;
 import java.io.*;
@@ -59,7 +61,7 @@ public class MatchWorkbookService {
         } catch (IllegalArgumentException e) { throw e; }
         catch (Exception e) { throw new IllegalArgumentException("경기 엑셀을 읽지 못했습니다. 암호가 없는 .xlsx 양식인지 확인해 주세요."); }
         if (rows.isEmpty()) throw new IllegalArgumentException("입력한 선수가 없습니다. 이름을 입력한 뒤 올려 주세요.");
-        var candidates = players.findByNameIn(rows.stream().map(r -> r.values.get(3)).distinct().toList());
+        var candidates = players.findByTeamIdAndNameIn(TeamContext.requireTeamId(), rows.stream().map(r -> r.values.get(3)).distinct().toList());
         for (Parsed row : rows) {
             if (!row.errors.isEmpty()) continue;
             try {

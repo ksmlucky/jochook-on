@@ -4,6 +4,7 @@ import { downloadPlayerTemplate, PlayerRequestError, positionLabels, previewBulk
 import type { BulkPlayerRow, ImportPreview } from './api'
 import { PreferenceFields } from './PreferenceFields'
 import { BirthYearField, ClubRoleField } from './ProfileFields'
+import { useEditGuard } from '../../app/LeaveGuard'
 
 type Draft = BulkPlayerRow & { key: string }
 const emptyRow = (): Draft => ({ key: crypto.randomUUID(), name: '', position: '', shirtNumber: '', joinedOn: '', firstChoice: '', secondChoice: '', thirdChoice: '', birthYear: '', clubRole: '' })
@@ -19,6 +20,7 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
   const [error, setError] = useState('')
   const [fileName, setFileName] = useState('')
   const [uncertain, setUncertain] = useState(false)
+  useEditGuard(!!fileName || rows.some(({ key: _key, ...row }) => Object.values(row).some(value => value.trim())), busy)
   function fail(cause: unknown) {
     if (cause instanceof SessionExpiredError) { onSessionExpired(); return }
     setError(cause instanceof Error ? cause.message : '요청을 처리하지 못했습니다.')

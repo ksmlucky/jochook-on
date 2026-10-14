@@ -7,6 +7,7 @@ import type { PreferredPosition } from './api'
 import { PreferenceFields } from './PreferenceFields'
 import { ageDescription, seoulYear } from './age'
 import { BirthYearField, ClubRoleField } from './ProfileFields'
+import { useEditGuard } from '../../app/LeaveGuard'
 
 export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBusyChange }: {
   player: Player | null
@@ -24,6 +25,10 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
   const [clubRole, setClubRole] = useState(player?.clubRole ?? '정회원')
   const [choices, setChoices] = useState<[string, string, string]>([player?.firstChoice ?? '', player?.secondChoice ?? '', player?.thirdChoice ?? ''])
   const [busy, setBusy] = useState(false)
+  useEditGuard(name !== (baseline?.name ?? '') || position !== (baseline?.position ?? '')
+    || shirtNumber !== (baseline?.shirtNumber?.toString() ?? '') || joinedOn !== (baseline?.joinedOn ?? '')
+    || birthYear !== (baseline?.birthYear?.toString() ?? '') || clubRole !== (baseline?.clubRole ?? '정회원')
+    || choices.join('/') !== [baseline?.firstChoice ?? '', baseline?.secondChoice ?? '', baseline?.thirdChoice ?? ''].join('/'), busy)
   useEffect(() => { onBusyChange(busy); return () => onBusyChange(false) }, [busy, onBusyChange])
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})

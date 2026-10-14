@@ -1,8 +1,8 @@
 package com.jochookon.player;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static com.jochookon.player.TeamScopedRequests.get;
+import static com.jochookon.player.TeamScopedRequests.post;
+import static com.jochookon.player.TeamScopedRequests.put;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -26,7 +26,9 @@ import org.testcontainers.mysql.MySQLContainer;
 
 @Tag("integration")
 @Testcontainers
-@SpringBootTest(properties = "spring.datasource.password=unused-test-password")
+@SpringBootTest(properties = {"spring.datasource.password=unused-test-password",
+        "jochookon.bootstrap.admin.username=", "jochookon.bootstrap.admin.password=",
+        "jochookon.bootstrap.service-admin-username="})
 @AutoConfigureMockMvc
 class PlayerIntegrationTest {
     @Container
@@ -41,17 +43,18 @@ class PlayerIntegrationTest {
 
     @BeforeEach
     void seedOnlyTheIsolatedTestDatabase() {
+        com.jochookon.team.TeamTestData.seed(jdbc);
         jdbc.update("DELETE FROM players");
-        jdbc.update("INSERT INTO players (name, shirt_number, position, active) VALUES (?, ?, ?, ?)",
+        jdbc.update("INSERT INTO players(team_id,name, shirt_number, position, active) VALUES (1,?, ?, ?, ?)",
                 "첫 번째 선수", 7, "FW", true);
-        jdbc.update("INSERT INTO players (name, shirt_number, position, active) VALUES (?, ?, ?, ?)",
+        jdbc.update("INSERT INTO players(team_id,name, shirt_number, position, active) VALUES (1,?, ?, ?, ?)",
                 "활동 종료 선수", 9, "DF", false);
-        jdbc.update("INSERT INTO players (name, shirt_number, position, active) VALUES (?, ?, ?, ?)",
+        jdbc.update("INSERT INTO players(team_id,name, shirt_number, position, active) VALUES (1,?, ?, ?, ?)",
                 "두 번째 선수", null, "GK", true);
     }
 
     @Test
-    @WithMockUser(roles = "MEMBER")
+    @WithMockUser(username = "test-member", roles = "MEMBER")
     void flywaySchemaAndJpaReturnOnlyActivePlayersWithStablePagination() throws Exception {
         mvc.perform(get("/api/v1/players?page=0&size=1"))
                 .andExpect(status().isOk())
@@ -64,7 +67,7 @@ class PlayerIntegrationTest {
                 .andExpect(jsonPath("$.items[0].shirtNumber").isEmpty());
     }
 
-    @Test @WithMockUser(roles = "ADMIN") void guestsHavePersistentIdentityAndSeparateRegistryWithoutInventedShirtNumbers() throws Exception {
+    @Test @WithMockUser(username = "test-admin", roles = "DIRECTOR") void guestsHavePersistentIdentityAndSeparateRegistryWithoutInventedShirtNumbers() throws Exception {
         for (int i = 0; i < 2; i++) mvc.perform(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"검증 용병\",\"firstChoice\":\"CM\",\"secondChoice\":\"GK\"}"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.playerType").value("GUEST"))
@@ -85,7 +88,7 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void persistsEditsAndRejectsStaleVersionWithoutLosingTheNewerData() throws Exception {
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"등록 테스트","position":"MF","firstChoice":"CM","shirtNumber":1,"joinedOn":"2026-10-13"}
@@ -106,7 +109,7 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void storesUnknownPositionAndProfileAndProtectsAtomicBulkWrites() throws Exception {
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"프로필 테스트","position":"UN","birthYear":1996,"clubRole":"코치"}
@@ -131,7 +134,7 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void bulkImportIsAtomicAndPreferencesPersistWithDatabaseConstraints() throws Exception {
         long before = jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class);
         mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
@@ -154,20 +157,20 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "MEMBER")
+    @WithMockUser(username = "test-member", roles = "MEMBER")
     void sortsByFirstPreferenceGroupInBothDirectionsAcrossPages() throws Exception {
         jdbc.update("DELETE FROM players");
         String[] choices = {"ST", "RB", "CM", "GK", "LB", "LW", "CDM", "CB", "RW"};
         int[] shirts = {35, 13, 22, 1, 11, 32, 21, 12, 31};
         for (int i = 0; i < choices.length; i++) {
             // Basic position deliberately disagrees; only first preference determines the group.
-            jdbc.update("INSERT INTO players (name,shirt_number,position,first_choice,active) VALUES (?,?,'GK',?,true)",
+            jdbc.update("INSERT INTO players(team_id,name,shirt_number,position,first_choice,active) VALUES (1,?,?,'GK',?,true)",
                     "포지션 검증 " + choices[i], shirts[i], choices[i]);
         }
         jdbc.update("UPDATE players SET second_choice='GK' WHERE first_choice='ST'");
-        jdbc.update("INSERT INTO players (name,position,first_choice,active) VALUES ('번호 없는 키퍼','GK','GK',true)");
-        jdbc.update("INSERT INTO players (name,shirt_number,position,active) VALUES ('미확인',2,'UN',true),('기존 미입력',3,'GK',true)");
-        jdbc.update("INSERT INTO players (name,shirt_number,position,first_choice,active) VALUES ('활동 종료',99,'GK','GK',false)");
+        jdbc.update("INSERT INTO players(team_id,name,position,first_choice,active) VALUES (1,'번호 없는 키퍼','GK','GK',true)");
+        jdbc.update("INSERT INTO players(team_id,name,shirt_number,position,active) VALUES (1,'미확인',2,'UN',true),(1,'기존 미입력',3,'GK',true)");
+        jdbc.update("INSERT INTO players(team_id,name,shirt_number,position,first_choice,active) VALUES (1,'활동 종료',99,'GK','GK',false)");
         Integer[][] expected = {{1, null, 11, 12, 13, 21, 22, 31, 32, 35, 2, 3},
                                 {31, 32, 35, 21, 22, 11, 12, 13, 1, null, 2, 3}};
         String[] directions = {"asc", "desc"};
@@ -186,14 +189,14 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "MEMBER")
+    @WithMockUser(username = "test-member", roles = "MEMBER")
     void sortsTheEntireRosterBeforePagingAndKeepsUnknownValuesLast() throws Exception {
         jdbc.update("DELETE FROM players");
         // Insert in reverse order so that sorting only the current page would fail.
         for (int i = 31; i >= 1; i--) jdbc.update(
-                "INSERT INTO players (name,shirt_number,position,birth_year,active) VALUES (?,?,'UN',?,true)",
+                "INSERT INTO players(team_id,name,shirt_number,position,birth_year,active) VALUES (1,?,?,'UN',?,true)",
                 "가상선수%02d".formatted(i), i, 1990 + i);
-        jdbc.update("INSERT INTO players (name,position,active) VALUES ('미확인선수','UN',true)");
+        jdbc.update("INSERT INTO players(team_id,name,position,active) VALUES (1,'미확인선수','UN',true)");
         for (int size : new int[]{10, 20, 30}) {
             mvc.perform(get("/api/v1/players?size=" + size + "&sort=shirtNumber"))
                     .andExpect(jsonPath("$.items.length()").value(size))
@@ -226,7 +229,7 @@ class PlayerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void invalidClubRoleCannotBeSavedViaApiBulkOrSql() throws Exception {
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("""
@@ -245,7 +248,7 @@ class PlayerIntegrationTest {
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
     }
 
-    @Test @WithMockUser(roles = "ADMIN")
+    @Test @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void activeShirtsAreUniqueWhileUnnumberedAndInactivePlayersAreAllowed() throws Exception {
         long existingId = jdbc.queryForObject("SELECT id FROM players WHERE shirt_number=7", Long.class);
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
@@ -261,22 +264,22 @@ class PlayerIntegrationTest {
                 {"name":"중복 변경","position":"UN","shirtNumber":9,"version":1}
                 """ )).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT shirt_number FROM players WHERE id=?", Integer.class, existingId)).isEqualTo(7);
-        assertThatThrownBy(() -> jdbc.update("INSERT INTO players(name,position,shirt_number) VALUES ('DB 중복검증','UN',7)"))
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'DB 중복검증','UN',7)"))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
         assertThatThrownBy(() -> jdbc.update("UPDATE players SET active=true WHERE active=false AND shirt_number=9"))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
-        jdbc.update("INSERT INTO players(name,position,shirt_number,active) VALUES ('종료 중복 허용','UN',7,false)");
+        jdbc.update("INSERT INTO players(team_id,name,position,shirt_number,active) VALUES (1,'종료 중복 허용','UN',7,false)");
         for (int i = 0; i < 2; i++) mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"등번호 미등록","position":"UN","shirtNumber":null}
                 """ )).andExpect(status().isCreated());
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"영번 거부","position":"UN","shirtNumber":0}
                 """ )).andExpect(status().isBadRequest());
-        assertThatThrownBy(() -> jdbc.update("INSERT INTO players(name,position,shirt_number) VALUES ('영번 거부','UN',0)"))
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'영번 거부','UN',0)"))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
     }
 
-    @Test @WithMockUser(roles = "ADMIN")
+    @Test @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void bulkShirtCollisionsAreAtomicAndRecheckedAfterPreview() throws Exception {
         long before = jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class);
         for (String rows : java.util.List.of(
@@ -296,7 +299,7 @@ class PlayerIntegrationTest {
                 """;
         mvc.perform(post("/api/v1/players/bulk/preview").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree))
                 .andExpect(jsonPath("$.valid").value(true));
-        jdbc.update("INSERT INTO players(name,position,shirt_number) VALUES ('먼저 저장한 선수','UN',8)");
+        jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'먼저 저장한 선수','UN',8)");
         mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree)).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(before + 1);
     }

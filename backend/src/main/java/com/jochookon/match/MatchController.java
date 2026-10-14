@@ -23,4 +23,9 @@ public class MatchController {
     }
     @PutMapping("/{id}")
     MatchResponse update(@PathVariable @Min(1) long id, @Valid @RequestBody MatchRequest request) { return service.update(id, request); }
+    @DeleteMapping("/{id}")
+    ResponseEntity<Void> delete(@PathVariable @Min(1) long id, @RequestParam @Min(0) long version) {
+        service.delete(id, version);
+        return ResponseEntity.noContent().build();
+    }
 }

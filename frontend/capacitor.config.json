@@ -1,0 +1,7 @@
+{
+  "appId": "com.jochookon.app",
+  "appName": "조축ON",
+  "webDir": "native-preview/dist",
+  "backgroundColor": "#f7f8f4",
+  "loggingBehavior": "debug"
+}

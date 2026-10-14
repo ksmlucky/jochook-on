@@ -9,6 +9,7 @@ import java.util.*;
 @Table(name = "match_records")
 public class MatchRecord {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @Column(name = "team_id", nullable = false, updatable = false) private Long teamId;
     @Version private Long version;
     @Column(name = "played_on", nullable = false) private LocalDate playedOn;
     private LocalTime kickoff;
@@ -100,6 +101,13 @@ public class MatchRecord {
     }
     public MatchKind getKind() { return kind; }
     public Long getId() { return id; }
+    public Long getTeamId() { return teamId; }
+    MatchRecord assignToTeam(long teamId) {
+        if (teamId < 1 || (this.teamId != null && this.teamId != teamId))
+            throw new IllegalArgumentException("경기의 팀 소속을 변경할 수 없습니다.");
+        this.teamId = teamId;
+        return this;
+    }
     public Long getVersion() { return version; }
     public LocalDate getPlayedOn() { return playedOn; }
     public LocalTime getKickoff() { return kickoff; }

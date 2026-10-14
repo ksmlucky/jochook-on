@@ -1,6 +1,7 @@
 package com.jochookon.match;
 
 import com.jochookon.player.PlayerRepository;
+import com.jochookon.team.TeamContext;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.function.Function;
@@ -22,13 +23,13 @@ public class LineupSuggestionService {
             throw new IllegalArgumentException("경기 날짜는 1000~9999년 사이여야 합니다.");
         if (new HashSet<>(request.playerIds()).size() != request.playerIds().size())
             throw new IllegalArgumentException("참석 명단에 같은 선수를 두 번 넣을 수 없습니다.");
-        if (request.matchId() != null && !matches.existsById(request.matchId())) throw new MatchNotFoundException();
+        if (request.matchId() != null && !matches.existsByIdAndTeamId(request.matchId(), TeamContext.requireTeamId())) throw new MatchNotFoundException();
         if (!calculation.tryAcquire()) throw new IllegalArgumentException("다른 편성을 계산 중입니다. 잠시 후 다시 시도해 주세요.");
         try {
-            var selected = players.findAllById(request.playerIds());
+            var selected = players.findByTeamIdAndIdIn(TeamContext.requireTeamId(), request.playerIds());
             if (selected.size() != request.playerIds().size() || selected.stream().anyMatch(p -> !p.isActive()))
                 throw new IllegalArgumentException("참석 명단에 없거나 활동 종료된 선수가 있습니다. 선수단을 다시 확인해 주세요.");
-            var histories = matches.attendanceHistory(request.playedOn(), request.matchId(), request.playerIds(),
+            var histories = matches.attendanceHistory(TeamContext.requireTeamId(), request.playedOn(), request.matchId(), request.playerIds(),
                     List.of(Attendance.PRESENT, Attendance.LATE), List.of(Attendance.PRESENT, Attendance.LATE, Attendance.ABSENT))
                     .stream().collect(Collectors.toMap(MatchRepository.AttendanceHistory::getPlayerId, Function.identity()));
             var candidates = selected.stream().map(p -> {

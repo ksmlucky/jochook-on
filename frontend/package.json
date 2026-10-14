@@ -8,13 +8,24 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit",
     "test": "node --test tests/*.test.mjs",
-    "preview": "vite preview --host 127.0.0.1"
+    "preview": "vite preview --host 127.0.0.1",
+    "native:prepare": "node scripts/native-prepare.mjs",
+    "native:check": "node scripts/native-check.mjs",
+    "native:add:android": "pnpm native:prepare && cap add android",
+    "native:add:ios": "pnpm native:prepare && cap add ios",
+    "native:sync:android": "pnpm native:prepare && cap sync android",
+    "native:copy:ios": "pnpm native:prepare && cap copy ios",
+    "native:sync:ios": "pnpm native:prepare && cap sync ios"
   },
   "dependencies": {
+    "@capacitor/android": "8.5.3",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/ios": "8.5.3",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@capacitor/cli": "8.5.3",
     "@types/node": "^24.0.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",

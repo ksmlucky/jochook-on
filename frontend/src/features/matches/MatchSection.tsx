@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { SessionExpiredError } from '../auth/api'
 import type { Player } from '../players/api'
-import { fetchMatch, fetchMatches, fetchMatchPlayers, playerLabel } from './api'
+import { deleteMatch, fetchMatch, fetchMatches, fetchMatchPlayers, MatchRequestError, playerLabel } from './api'
 import { matchTimeRange } from './time'
-import type { MatchPage, MatchRecord } from './api'
+import type { MatchPage, MatchRecord, MatchSummary } from './api'
 import { MatchEditor } from './MatchEditor'
+import { MatchHistory } from './MatchHistory'
+import { ConfirmAction } from '../teams/AccessUi'
+import { useEditGuard } from '../../app/LeaveGuard'
 import type { TeamDisplay } from '../../app/team'
 
 export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDisplay; isAdmin: boolean; onSessionExpired: () => void }) {
@@ -14,10 +17,22 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
   const [data, setData] = useState<MatchPage | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<MatchSummary | null>(null)
+  const [deleteError, setDeleteError] = useState('')
+  const [history, setHistory] = useState(false)
   const [notice, setNotice] = useState<{ id: number; message: string } | null>(null)
   const noticeId = useRef(0)
   const [editor, setEditor] = useState<{ record: MatchRecord | null; players: Player[] } | null>(null)
   const opening = useRef(false)
+  const removing = useRef(false)
+  const lifetime = useRef<AbortController | null>(null)
+  useEditGuard(false, deleting)
+  useEffect(() => {
+    const controller = new AbortController(); lifetime.current = controller
+    return () => controller.abort()
+  }, [])
+  useEffect(() => { if (!isAdmin) { setDeleteTarget(null); setHistory(false) } }, [isAdmin])
   function notifySaved(message: string) { setNotice({ id: ++noticeId.current, message }) }
   useEffect(() => {
     if (!notice) return
@@ -27,7 +42,12 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
   useEffect(() => {
     const controller = new AbortController()
     setData(null); setError('')
-    fetchMatches(page, controller.signal).then(setData).catch(cause => {
+    fetchMatches(page, controller.signal).then(result => {
+      if (controller.signal.aborted) return
+      // 삭제로 마지막 페이지가 비어도 존재하는 마지막 페이지로 돌아간다.
+      if (page > 0 && page >= result.totalPages) setPage(Math.max(0, result.totalPages - 1))
+      else setData(result)
+    }).catch(cause => {
       if (controller.signal.aborted) return
       if (cause instanceof SessionExpiredError) onSessionExpired()
       else setError('경기 목록을 불러오지 못했습니다. 다시 시도해 주세요.')
@@ -35,8 +55,8 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
     return () => controller.abort()
   }, [page, revision, onSessionExpired])
   async function open(id?: number) {
-    if (opening.current) return
-    opening.current = true; setBusy(true); setError(''); setNotice(null)
+    if (opening.current || removing.current || deleteTarget) return
+    opening.current = true; setBusy(true); setError(''); setDeleteError(''); setNotice(null)
     try {
       const [record, players] = await Promise.all([id ? fetchMatch(id) : Promise.resolve(null), isAdmin ? fetchMatchPlayers(new AbortController().signal) : Promise.resolve([])])
       setEditor({ record, players })
@@ -45,23 +65,49 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
       else setError('경기 또는 선수 정보를 불러오지 못했습니다. 다시 시도해 주세요.')
     } finally { opening.current = false; setBusy(false) }
   }
+  async function remove() {
+    const signal = lifetime.current?.signal
+    if (!deleteTarget || !isAdmin || removing.current || !signal || signal.aborted) return
+    const target = deleteTarget
+    removing.current = true; setDeleting(true); setDeleteTarget(null); setDeleteError(''); setNotice(null)
+    try {
+      await deleteMatch(target, signal)
+      if (signal.aborted) return
+      notifySaved(`${target.playedOn} 경기 기록을 삭제했습니다.`)
+      setData(null); setRevision(value => value + 1)
+    } catch (cause) {
+      if (signal.aborted || cause instanceof DOMException && cause.name === 'AbortError') return
+      if (cause instanceof SessionExpiredError) onSessionExpired()
+      else {
+        const message = cause instanceof MatchRequestError && cause.status === 409
+          ? '다른 운영진이 경기 기록을 수정했습니다. 삭제하지 않았으니 최신 기록을 확인한 뒤 다시 시도해 주세요.'
+          : cause instanceof MatchRequestError && cause.status === 404
+            ? '이미 삭제되었거나 찾을 수 없는 경기입니다. 최신 목록을 확인해 주세요.'
+            : '삭제 결과를 확인하지 못했습니다. 자동으로 재시도하지 않으니 최신 목록을 확인해 주세요.'
+        setDeleteError(message); setData(null); setRevision(value => value + 1)
+      }
+    } finally { removing.current = false; if (!signal.aborted) setDeleting(false) }
+  }
+  const locked = busy || deleting || !!deleteTarget
   return <section className="directory-section" id="matches" aria-labelledby="matches-title">
-    <div className="section-heading"><div><p className="eyebrow muted">MATCH DIARY</p><h2 id="matches-title">매주의 경기, 하나의 기록</h2></div>
-      {!editor && isAdmin && <button className="primary-button" disabled={busy} onClick={() => void open()}>경기 기록 등록</button>}
+    <div className="section-heading"><div><p className="eyebrow muted">MATCH DAY</p><h2 id="matches-title">경기 기록</h2></div>
+      {!editor && !history && isAdmin && <div className="registration-actions"><button className="secondary-button" disabled={locked} onClick={() => setHistory(true)}>변경 이력</button><button className="primary-button" disabled={locked} onClick={() => void open()}>경기 기록 등록</button></div>}
     </div>
-    <p className="section-description">참불 투표부터 실제 출석, 4쿼터 출전 명단과 경기 후 이야기까지.</p>
+    <p className="section-description">참석 명단부터 스쿼드, 스코어까지. 한 경기씩 쌓아가요.</p>
     {notice && createPortal(<div key={notice.id} className="match-save-toast" role="status" aria-live="polite" aria-atomic="true">
       <span className="match-save-toast-icon" aria-hidden="true">✓</span><span>{notice.message}</span>
     </div>, document.body)}
     {error && <div className="save-notice" role="alert"><p>{error}</p><button className="secondary-button" onClick={() => setRevision(r => r + 1)}>목록 다시 불러오기</button></div>}
+    {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
+    {deleting && <p className="save-notice" role="status">경기 기록을 삭제하고 있습니다.</p>}
     {busy && <p className="save-notice" role="status">경기 입력 화면을 준비하고 있습니다.</p>}
-    {editor ? <MatchEditor key={editor.record?.id ?? 'new'} record={editor.record} players={editor.players} isAdmin={isAdmin}
+    {history && isAdmin ? <MatchHistory onClose={() => { setHistory(false); setRevision(value => value + 1) }} onSessionExpired={onSessionExpired} /> : editor ? <MatchEditor key={editor.record?.id ?? 'new'} record={editor.record} players={editor.players} isAdmin={isAdmin}
       onSessionExpired={onSessionExpired} onClose={() => { setEditor(null); setRevision(r => r + 1) }} onStepSaved={notifySaved}
       onSaved={saved => { setEditor(null); setPage(0); setRevision(r => r + 1); notifySaved(`${saved.playedOn} 경기 기록을 저장했습니다.`) }} /> : <>
       {!data && !error && <p className="save-notice" role="status">경기 목록을 불러오고 있습니다.</p>}
       {data?.items.length === 0 && <div className="empty-state"><span className="empty-number" aria-hidden="true">4Q</span><h3>첫 경기의 기록을 남겨 보세요</h3><p>투표 결과만 먼저 저장하고, 경기 후 출석과 기록을 이어서 입력할 수 있습니다.</p></div>}
-      {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id}>
-        <button className="match-card" disabled={busy} onClick={() => void open(m.id)}>
+      {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id} className={isAdmin ? 'match-list-item managed' : 'match-list-item'}>
+        <button className="match-card" disabled={locked} onClick={() => void open(m.id)}>
           <span className="match-date">{m.playedOn}<small>{matchTimeRange(m.kickoff)}</small></span>
           <span className="match-card-details"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · 4-1-2-3 · 4쿼터</small>
             <span className="match-scorers">{m.scorers.length ? <>득점 · {m.scorers.map(p => `${playerLabel(p)} ${m.kind === 'INTERNAL' ? [p.goalsA > 0 ? `A팀 ${p.goalsA}골` : '', p.goalsB > 0 ? `B팀 ${p.goalsB}골` : ''].filter(Boolean).join(' / ') : `${p.goals}골`}`).join(' · ')}{m.scorerCount > 3 && ` · 외 ${m.scorerCount - 3}명`}</> : '등록된 득점자 없음'}</span>
@@ -71,9 +117,15 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
           </span>
           <span className="match-open">기록 보기 ↗</span>
         </button>
+        {isAdmin && <div className="match-card-actions"><button type="button" className="danger-button" disabled={locked}
+          aria-label={`${m.playedOn} ${m.kind === 'INTERNAL' ? '자체전' : m.opponent || '상대 팀 미입력'} 경기 기록 삭제`}
+          onClick={() => { setDeleteError(''); setDeleteTarget(m) }}>삭제</button></div>}
       </li>)}</ul>}
-      {data && data.totalPages > 1 && <div className="pagination"><button className="secondary-button" disabled={page === 0 || busy} onClick={() => setPage(p => p - 1)}>이전 경기 목록</button>
-        <span>{page + 1} / {data.totalPages} · 총 {data.totalElements}경기 · 10개씩</span><button className="secondary-button" disabled={page + 1 >= data.totalPages || busy} onClick={() => setPage(p => p + 1)}>다음 경기 목록</button></div>}
+      {data && data.totalPages > 1 && <div className="pagination"><button className="secondary-button" disabled={page === 0 || locked} onClick={() => setPage(p => p - 1)}>이전 경기 목록</button>
+        <span>{page + 1} / {data.totalPages} · 총 {data.totalElements}경기 · 10개씩</span><button className="secondary-button" disabled={page + 1 >= data.totalPages || locked} onClick={() => setPage(p => p + 1)}>다음 경기 목록</button></div>}
     </>}
+    {deleteTarget && isAdmin && <ConfirmAction title="이 경기 기록을 정말 삭제할까요?"
+      description={`${deleteTarget.playedOn} ${matchTimeRange(deleteTarget.kickoff)} · ${deleteTarget.kind === 'INTERNAL' ? '자체전 A팀 vs B팀' : `${team.name} vs ${deleteTarget.opponent || '상대 팀 미입력'}`}. 투표·출석 명단, 1~4쿼터 스쿼드 계획과 실제 출전·득점·도움 기록이 함께 삭제됩니다. 선수 명단과 변경 이력은 유지됩니다. 삭제한 경기를 복구하는 기능은 없습니다.`}
+      confirmLabel="경기 기록 삭제" danger onCancel={() => setDeleteTarget(null)} onConfirm={() => void remove()} />}
   </section>
 }

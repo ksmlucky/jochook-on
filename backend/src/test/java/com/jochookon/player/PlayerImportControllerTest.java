@@ -2,7 +2,7 @@ package com.jochookon.player;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static com.jochookon.player.TeamScopedRequests.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import com.jochookon.auth.AccountUserDetailsService;
 import com.jochookon.config.SecurityConfig;
@@ -18,8 +18,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(PlayerImportController.class)
 @Import(SecurityConfig.class)
-@WithMockUser(roles = "ADMIN")
-class PlayerImportControllerTest {
+@WithMockUser(roles = "DIRECTOR")
+class PlayerImportControllerTest extends com.jochookon.team.TeamMvcTestSupport {
     @Autowired MockMvc mvc;
     @MockitoBean BulkPlayerService bulk;
     @MockitoBean PlayerWorkbookService workbooks;

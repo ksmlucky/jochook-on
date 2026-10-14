@@ -3,10 +3,13 @@ package com.jochookon.match;
 import static com.jochookon.match.MatchTestData.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static com.jochookon.player.TeamScopedRequests.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import java.util.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
@@ -19,8 +22,10 @@ import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.mysql.MySQLContainer;
 import tools.jackson.databind.ObjectMapper;
 
-@Tag("integration") @Testcontainers @SpringBootTest(properties = "spring.datasource.password=unused-test-password")
-@AutoConfigureMockMvc @WithMockUser(roles = "ADMIN")
+@Tag("integration") @Testcontainers @SpringBootTest(properties = {"spring.datasource.password=unused-test-password",
+        "jochookon.bootstrap.admin.username=", "jochookon.bootstrap.admin.password=",
+        "jochookon.bootstrap.service-admin-username="})
+@AutoConfigureMockMvc @WithMockUser(username = "test-admin", roles = "DIRECTOR")
 class MatchIntegrationTest {
     @Container @ServiceConnection static final MySQLContainer MYSQL = new MySQLContainer("mysql:8.4");
     @Autowired JdbcTemplate jdbc;
@@ -28,16 +33,73 @@ class MatchIntegrationTest {
     @Autowired ObjectMapper json;
     long first; long second;
     @BeforeEach void seedIsolatedDatabase() {
+        com.jochookon.team.TeamTestData.seed(jdbc);
+        jdbc.update("DELETE FROM match_record_events");
         jdbc.update("DELETE FROM match_planned_lineups");
         jdbc.update("DELETE FROM match_appearances"); jdbc.update("DELETE FROM match_quarters");
         jdbc.update("DELETE FROM match_participants"); jdbc.update("DELETE FROM match_records"); jdbc.update("DELETE FROM players");
-        jdbc.update("INSERT INTO players(name, position) VALUES ('검증 선수 A', 'FW'), ('검증 선수 B', 'GK')");
+        jdbc.update("INSERT INTO players(team_id,name, position) VALUES (1,'검증 선수 A', 'FW'),(1,'검증 선수 B', 'GK')");
         var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class); first = ids.get(0); second = ids.get(1);
     }
     long create(MatchRequest request) throws Exception {
         var response = mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(request)))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
+    }
+    private MatchRequest deletionFixture(Long version, MatchKind kind, int goals) {
+        var base = request(version, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)), List.of());
+        var secondTeam = kind == MatchKind.INTERNAL ? MatchTeam.B : MatchTeam.A;
+        var secondSlot = kind == MatchKind.INTERNAL ? LineupSlot.ST : LineupSlot.GK;
+        var lineup = List.of(new MatchRequest.Appearance(LineupSlot.ST, first, goals, 0, 0, MatchTeam.A),
+                new MatchRequest.Appearance(secondSlot, second, 0, 0, 0, secondTeam));
+        var quarters = java.util.stream.IntStream.rangeClosed(1, 4).mapToObj(q -> new MatchRequest.Quarter(q, lineup)).toList();
+        var plan = quarters.stream().flatMap(q -> q.lineup().stream().map(a ->
+                new MatchRequest.PlannedEntry(q.number(), a.slot(), a.entryOrder(), a.playerId(), a.team()))).toList();
+        return new MatchRequest(base.playedOn(), base.kickoff(), "검증 구장", "", "삭제 검증", version,
+                base.participants(), quarters, plan, goals * 4, 0, kind);
+    }
+    private Map<String, Object> savedMatchRows(long id) {
+        Map<String, Object> rows = new LinkedHashMap<>();
+        rows.put("match", jdbc.queryForMap("SELECT * FROM match_records WHERE id=?", id));
+        rows.put("participants", jdbc.queryForList("SELECT * FROM match_participants WHERE match_id=? ORDER BY player_id", id));
+        rows.put("quarters", jdbc.queryForList("SELECT * FROM match_quarters WHERE match_id=? ORDER BY quarter_number", id));
+        rows.put("appearances", jdbc.queryForList("SELECT * FROM match_appearances WHERE match_id=? ORDER BY quarter_number,team,slot,entry_order", id));
+        rows.put("plan", jdbc.queryForList("SELECT * FROM match_planned_lineups WHERE match_id=? ORDER BY quarter_number,team,slot,entry_order", id));
+        return rows;
+    }
+    @ParameterizedTest @EnumSource(MatchKind.class)
+    void deletingMatchRemovesAllFourChildCollectionsAndKeepsPlayersAndOtherMatches(MatchKind kind) throws Exception {
+        long removed = create(deletionFixture(null, kind, 2));
+        long retained = create(deletionFixture(null, kind, 1));
+        var otherRows = savedMatchRows(retained);
+        var playerRows = jdbc.queryForList("SELECT * FROM players ORDER BY id");
+        // 실제 소속 권한을 코치로 바꿔 SecurityFilter의 세션 재검증도 통과해야 한다.
+        jdbc.update("UPDATE team_memberships SET role='COACH' WHERE team_id=1 AND account_id=(SELECT id FROM accounts WHERE username='test-admin')");
+        mvc.perform(delete("/api/v1/matches/" + removed + "?version=0").header("X-Team-Id", "1").with(csrf()))
+                .andExpect(status().isNoContent()).andExpect(content().string(""));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records WHERE id=?", Integer.class, removed)).isZero();
+        for (String table : List.of("match_participants", "match_quarters", "match_appearances", "match_planned_lineups"))
+            assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM " + table + " WHERE match_id=?", Integer.class, removed)).as(table).isZero();
+        assertThat(savedMatchRows(retained)).isEqualTo(otherRows);
+        assertThat(jdbc.queryForList("SELECT * FROM players ORDER BY id")).isEqualTo(playerRows);
+        mvc.perform(get("/api/v1/matches/" + removed)).andExpect(status().isNotFound());
+        mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.items[0].id").value(retained)).andExpect(jsonPath("$.items[0].scorers[0].goals").value(4));
+        mvc.perform(delete("/api/v1/matches/" + removed + "?version=0").header("X-Team-Id", "1").with(csrf()))
+                .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("MATCH_NOT_FOUND"));
+        assertThat(savedMatchRows(retained)).isEqualTo(otherRows);
+    }
+    @Test void staleDeletionVersionPreservesTheLatestMatchAndAllChildren() throws Exception {
+        long id = create(deletionFixture(null, MatchKind.EXTERNAL, 1));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(deletionFixture(0L, MatchKind.EXTERNAL, 3))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
+        var latest = savedMatchRows(id);
+        mvc.perform(delete("/api/v1/matches/" + id + "?version=0").header("X-Team-Id", "1").with(csrf()))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("MATCH_CONFLICT"));
+        assertThat(savedMatchRows(id)).isEqualTo(latest);
+        mvc.perform(delete("/api/v1/matches/" + id + "?version=1").header("X-Team-Id", "1").with(csrf()))
+                .andExpect(status().isNoContent());
     }
     @Test void internalMatchPersistsBothTeamsAndScoresWithOneAttendanceAndProtectsAgainstInvalidEdits() throws Exception {
         var base = request(null, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)), List.of());
@@ -73,7 +135,7 @@ class MatchIntegrationTest {
         mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(updated))).andExpect(status().isConflict());
     }
     @Test void internalMatchAcceptsBothFullTeamsWithSubstitutionsInAllFourQuarters() throws Exception {
-        for (int i = 0; i < 42; i++) jdbc.update("INSERT INTO players(name,position) VALUES (?,'FW')", "정원 검증 " + i);
+        for (int i = 0; i < 42; i++) jdbc.update("INSERT INTO players(team_id,name,position) VALUES (1,?,'FW')", "정원 검증 " + i);
         var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class);
         var appearances = new ArrayList<MatchRequest.Appearance>();
         int index = 0;
@@ -90,7 +152,7 @@ class MatchIntegrationTest {
     @Test void scoresAndShirtOrderedScorersArePagedWithoutCountingPlansOrDuplicateScorers() throws Exception {
         jdbc.update("UPDATE players SET shirt_number=42 WHERE id=?", first);
         jdbc.update("UPDATE players SET shirt_number=7 WHERE id=?", second);
-        jdbc.update("INSERT INTO players(name,position,shirt_number) VALUES ('검증 삼번','FW',3),('검증 구십구번','FW',99),('검증 무번호','FW',NULL)");
+        jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'검증 삼번','FW',3),(1,'검증 구십구번','FW',99),(1,'검증 무번호','FW',NULL)");
         var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class);
         var people = ids.stream().map(id -> participant(id, Attendance.PRESENT)).toList();
         var base = request(null, people, List.of(appearance(LineupSlot.ST, first, 1, 0), appearance(LineupSlot.LW, second, 2, 0),

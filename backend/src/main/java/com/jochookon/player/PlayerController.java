@@ -31,8 +31,12 @@ public class PlayerController {
             @RequestParam(defaultValue = "0") @Min(0) int page,
             @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size,
             @RequestParam(defaultValue = "id") @Pattern(regexp = "id|shirtNumber|age|name|preferredPosition") String sort,
-            @RequestParam(defaultValue = "asc") @Pattern(regexp = "asc|desc") String direction) {
-        return playerQueryService.findActivePlayers(page, size, sort, direction);
+            @RequestParam(defaultValue = "asc") @Pattern(regexp = "asc|desc") String direction,
+            @RequestParam(defaultValue = "") @Pattern(regexp = "|UNDER_20|20|30|40|50|60|70|80|90|100_PLUS|UNKNOWN") String ageGroup,
+            @RequestParam(defaultValue = "") @Pattern(regexp = "|정회원|코치|감독|총무|회장") String clubRole,
+            @RequestParam(defaultValue = "") @Pattern(regexp = "|GK|LB|CB|RB|CDM|CM|LW|ST|RW|UNKNOWN") String firstChoice,
+            @RequestParam(defaultValue = "") @Pattern(regexp = "|FW|MF|DF|GK") String positionGroup) {
+        return playerQueryService.findActivePlayers(page, size, sort, direction, ageGroup, clubRole, firstChoice, positionGroup);
     }
 
     @GetMapping("/{id}")

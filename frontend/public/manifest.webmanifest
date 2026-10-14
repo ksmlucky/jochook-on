@@ -1,0 +1,18 @@
+{
+  "id": "/",
+  "name": "조축ON",
+  "short_name": "조축ON",
+  "description": "선수단, 스쿼드와 경기 기록을 함께 보는 우리 팀의 조기축구 앱",
+  "lang": "ko",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "theme_color": "#28624c",
+  "background_color": "#f6f7f2",
+  "prefer_related_applications": false,
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

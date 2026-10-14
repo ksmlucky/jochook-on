@@ -1,4 +1,5 @@
-import { fetchWithCsrf, SessionExpiredError } from '../auth/api'
+import { SessionExpiredError } from '../auth/api'
+import { captureTeamScope, readTeamJson, readTeamBlob, teamFetch, teamFetchWithCsrf } from '../auth/teamRequest'
 import { fetchPlayers, fetchGuests } from '../players/api'
 import type { Player } from '../players/api'
 import { serviceBrand } from '../../app/brand'
@@ -22,7 +23,7 @@ export interface LineupSuggestion {
   allocations: { playerId: number; group: 'GK' | 'FIELD' | 'UNKNOWN'; attended: number; recorded: number; quarters: number; restQuarters: number[]; nonPreferredAppearances: number }[]
 }
 export async function suggestLineup(playedOn: string, playerIds: number[], matchId: number | null, seed: number, signal: AbortSignal): Promise<LineupSuggestion> {
-  return read(await fetchWithCsrf('/api/v1/matches/lineup-suggestion', {
+  return read(await teamFetchWithCsrf('/api/v1/matches/lineup-suggestion', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, signal,
     body: JSON.stringify({ playedOn, playerIds, matchId, seed }),
   }))
@@ -38,6 +39,12 @@ export interface MatchSummary extends MatchInfo { scorers: MatchScorer[]; scorer
 export interface MatchRecord extends MatchInfo { notes: string; participants: Participant[]; quarters: Quarter[]; plannedLineup: PlannedEntry[] }
 export type MatchDraft = Omit<MatchRecord, 'id' | 'version'>
 export interface MatchPage { items: MatchSummary[]; page: number; totalPages: number; totalElements: number }
+export interface MatchHistoryEntry {
+  id: number; matchId: number; action: 'CREATED' | 'UPDATED' | 'DELETED'; actorUsername: string; occurredAt: string
+  playedOn: string; kind: MatchKind; opponent: string; beforeVersion: number | null; afterVersion: number | null
+}
+export interface MatchHistoryDetail extends MatchHistoryEntry { before: MatchRecord | null; after: MatchRecord | null }
+export interface MatchHistoryPage { items: MatchHistoryEntry[]; page: number; totalPages: number; totalElements: number }
 export class MatchRequestError extends Error {
   constructor(message: string, public status: number) { super(message) }
 }
@@ -47,33 +54,44 @@ async function read<T>(response: Response): Promise<T> {
     const error = await response.json().catch(() => null) as { message?: string } | null
     throw new MatchRequestError(response.status === 403 ? '운영진 권한 또는 로그인 유효 기간을 확인해 주세요.' : error?.message ?? '경기 기록 요청을 처리하지 못했습니다.', response.status)
   }
-  return response.json() as Promise<T>
+  return readTeamJson<T>(response)
 }
 export async function fetchMatches(page: number, signal?: AbortSignal): Promise<MatchPage> {
-  return read(await fetch(`/api/v1/matches?page=${page}&size=10`, { signal, cache: 'no-store' }))
+  return read(await teamFetch(`/api/v1/matches?page=${page}&size=10`, { signal, cache: 'no-store' }))
 }
-export async function fetchMatch(id: number): Promise<MatchRecord> { return read(await fetch(`/api/v1/matches/${id}`, { cache: 'no-store' })) }
+export async function fetchMatch(id: number): Promise<MatchRecord> { return read(await teamFetch(`/api/v1/matches/${id}`, { cache: 'no-store' })) }
+export async function deleteMatch(match: Pick<MatchInfo, 'id' | 'version'>, signal?: AbortSignal): Promise<void> {
+  const response = await teamFetchWithCsrf(`/api/v1/matches/${match.id}?version=${match.version}`, { method: 'DELETE', signal })
+  if (response.status !== 204) await read(response)
+}
+export async function fetchMatchHistory(page: number, signal?: AbortSignal): Promise<MatchHistoryPage> {
+  return read(await teamFetch(`/api/v1/matches/history?page=${page}&size=10`, { signal }))
+}
+export async function fetchMatchHistoryDetail(id: number, signal?: AbortSignal): Promise<MatchHistoryDetail> {
+  return read(await teamFetch(`/api/v1/matches/history/${id}`, { signal }))
+}
 export async function previewMatchWorkbook(file: File): Promise<MatchImportPreview> {
   const form = new FormData(); form.append('file', file)
-  return read(await fetchWithCsrf('/api/v1/matches/import/preview', { method: 'POST', body: form }))
+  return read(await teamFetchWithCsrf('/api/v1/matches/import/preview', { method: 'POST', body: form }))
 }
 export async function downloadMatchTemplate(): Promise<void> {
-  const response = await fetch('/api/v1/matches/import/template')
+  const response = await teamFetch('/api/v1/matches/import/template')
   if (!response.ok) { await read(response); return }
-  const url = URL.createObjectURL(await response.blob())
+  const url = URL.createObjectURL(await readTeamBlob(response))
   const link = document.createElement('a'); link.href = url; link.download = `${serviceBrand.slug}-match.xlsx`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 export async function fetchMatchPlayers(signal: AbortSignal): Promise<Player[]> {
+  const scope = captureTeamScope()
   const result: Player[] = []
   for (let page = 0; ; page++) {
-    const data = await fetchPlayers(page, signal)
+    const data = await fetchPlayers(page, signal, undefined, scope)
     result.push(...data.items)
-    if (page + 1 >= data.totalPages) return [...result, ...await fetchGuests(signal)]
+    if (page + 1 >= data.totalPages) return [...result, ...await fetchGuests(signal, scope)]
   }
 }
 export async function saveMatch(draft: MatchDraft, existing: MatchRecord | null): Promise<MatchRecord> {
-  return read(await fetchWithCsrf(existing ? `/api/v1/matches/${existing.id}` : '/api/v1/matches', {
+  return read(await teamFetchWithCsrf(existing ? `/api/v1/matches/${existing.id}` : '/api/v1/matches', {
     method: existing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ kind: draft.kind, playedOn: draft.playedOn, kickoff: draft.kickoff, venue: draft.venue, opponent: draft.opponent, notes: draft.notes, scoreFor: draft.scoreFor, scoreAgainst: draft.scoreAgainst,
       quarters: draft.quarters, plannedLineup: draft.plannedLineup, participants: draft.participants.map(({ playerId, vote, attendance }) => ({ playerId, vote, attendance })), version: existing?.version ?? null }),

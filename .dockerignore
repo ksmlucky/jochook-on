@@ -19,3 +19,17 @@
 **/*.log
 **/.idea
 **/*.iml
+
+# Native projects are built separately; exclude signing keys and local SDK files.
+frontend/android
+frontend/ios
+frontend/native-preview
+**/*.jks
+**/*.keystore
+**/keystore.properties
+**/*.p12
+**/*.p8
+**/*.mobileprovision
+**/*.provisionprofile
+**/*.pem
+**/*.key

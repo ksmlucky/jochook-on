@@ -5,17 +5,22 @@ import { PlayerEditor } from './PlayerEditor'
 import { BulkPlayerEditor } from './BulkPlayerEditor'
 import type { Player, PlayerQuery } from './api'
 import { usePlayers } from './usePlayers'
+import { PlayerFilters } from './PlayerFilters'
+import { hasPlayerFilters } from './query'
 
 export interface SquadNavigation { returnToList: () => boolean }
 
 export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: boolean; onSessionExpired: () => void; ref?: Ref<SquadNavigation> }) {
-  const { state, query, changeQuery, setPage, retry } = usePlayers()
+  const { state, query, availableAgeGroups, changeQuery, setPage, retry } = usePlayers()
   const [editor, setEditor] = useState<{ player: Player | null } | null>(null)
   const [notice, setNotice] = useState('')
   const [bulkMode, setBulkMode] = useState<'manual' | 'excel' | null>(null)
   const [busy, setBusy] = useState(false)
   const [view, setView] = useState<'cards' | 'table'>('cards')
+  const [optionsExpanded, setOptionsExpanded] = useState(false)
   const [confirmLeave, setConfirmLeave] = useState(false)
+  const filtered = hasPlayerFilters(query)
+  function resetFilters() { changeQuery({ ageGroup: '', clubRole: '', positionGroup: '' }) }
   function closeEditor() {
     setEditor(null); setBulkMode(null); setNotice(''); setConfirmLeave(false); retry()
     window.location.hash = 'players'
@@ -36,15 +41,15 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
   }
   return <>
     <div className="section-heading">
-      <div><p className="eyebrow muted">OUR SQUAD</p><h2 id="players-title">하나의 팀, 우리의 선수들</h2></div>
-      {state.status === 'success' && <span className="squad-count">활동 선수 <strong>{state.data.totalElements}</strong>명</span>}
+      <div><p className="eyebrow muted">SQUAD</p><h2 id="players-title">선수단</h2></div>
+      {state.status === 'success' && <span className="squad-count">{filtered ? '조건에 맞는 선수' : '활동 선수'} <strong>{state.data.totalElements}</strong>명</span>}
     </div>
-    <p className="section-description">선수들의 포지션과 등번호를 한눈에 확인하세요.</p>
-    {isAdmin && !editor && !bulkMode && <div className="squad-toolbar"><span>운영진은 선수 정보를 등록하고 수정할 수 있습니다.</span><div className="registration-actions">
+    <div className="squad-toolbar"><p className="section-description">함께 뛰는 선수들의 등번호, 포지션과 연령을 한눈에.</p>
+    {isAdmin && !editor && !bulkMode && <div className="registration-actions">
       <button className="primary-button" onClick={() => { setNotice(''); setEditor({ player: null }) }}>선수 등록</button>
       <button className="secondary-button" onClick={() => { setNotice(''); setBulkMode('manual') }}>여러 명 입력</button>
       <button className="secondary-button" onClick={() => { setNotice(''); setBulkMode('excel') }}>엑셀 업로드</button>
-    </div></div>}
+    </div>}</div>
     {notice && <p className="save-notice" role="status">{notice}</p>}
     {confirmLeave && <div className="dialog-backdrop"><div className="leave-dialog" role="alertdialog" aria-modal="true" aria-labelledby="leave-title" aria-describedby="leave-description"
       onKeyDown={event => { if (event.key === 'Escape') setConfirmLeave(false); if (event.key === 'Tab') { event.preventDefault(); const next = event.currentTarget.querySelector<HTMLButtonElement>(document.activeElement?.getAttribute('data-leave') === 'cancel' ? '[data-leave="confirm"]' : '[data-leave="cancel"]'); next?.focus() } }}>
@@ -60,11 +65,14 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
         retry()
       }} />}
     {!editor && !bulkMode && <>
+    <PlayerFilters values={query} availableAgeGroups={availableAgeGroups} onChange={changeQuery} onReset={resetFilters} />
     <div className="roster-controls" aria-label="선수 목록 보기 설정">
       <div className="view-switch" role="group" aria-label="목록 보기 방식">
         <button className="secondary-button" aria-pressed={view === 'cards'} onClick={() => setView('cards')}>카드 보기</button>
         <button className="secondary-button" aria-pressed={view === 'table'} onClick={() => setView('table')}>표 보기</button>
       </div>
+      <button className="secondary-button roster-options-toggle" aria-expanded={optionsExpanded} aria-controls="roster-options" onClick={() => setOptionsExpanded(value => !value)}>정렬·표시 <span aria-hidden="true">{optionsExpanded ? '⌃' : '⌄'}</span></button>
+      <div id="roster-options" className={`roster-options${optionsExpanded ? ' is-expanded' : ''}`}>
       <label>페이지당 인원<select value={query.size} onChange={e => changeQuery({ size: Number(e.target.value) })}>
         {[10, 20, 30].map(size => <option key={size} value={size}>{size}명</option>)}</select></label>
       <label>정렬 기준<select value={query.sort} onChange={e => changeQuery({ sort: e.target.value as PlayerQuery['sort'] })}>
@@ -72,6 +80,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
       <label>정렬 방향<select value={query.direction} onChange={e => changeQuery({ direction: e.target.value as PlayerQuery['direction'] })}>
         <option value="asc">{query.sort === 'preferredPosition' ? '골키퍼 → 수비 → 미드 → 공격' : query.sort === 'age' ? '어린 순' : query.sort === 'name' ? '가나다순' : '낮은 번호부터'}</option>
         <option value="desc">{query.sort === 'preferredPosition' ? '공격 → 미드 → 수비 → 골키퍼' : query.sort === 'age' ? '나이 많은 순' : query.sort === 'name' ? '가나다 역순' : '높은 번호부터'}</option></select></label>
+      </div>
     </div>
     <div aria-live="polite" aria-busy={state.status === 'loading'}>
       {state.status === 'loading' && <div className="empty-state"><span className="loading-dot" /><p role="status">선수단을 불러오고 있습니다.</p></div>}
@@ -79,7 +88,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
         <span className="empty-number" aria-hidden="true">!</span><h3>선수단을 불러오지 못했어요</h3>
         <p>잠시 후 다시 시도해 주세요.</p><button className="secondary-button" onClick={retry}>다시 불러오기</button>
       </div>}
-      {state.status === 'success' && <PlayerDirectory data={state.data} view={view} onPageChange={setPage}
+      {state.status === 'success' && <PlayerDirectory data={state.data} view={view} onPageChange={setPage} filtered={filtered} onResetFilters={resetFilters}
         onEdit={isAdmin && !editor && !bulkMode ? player => { setNotice(''); setEditor({ player }) } : undefined} />}
     </div>
     </>}

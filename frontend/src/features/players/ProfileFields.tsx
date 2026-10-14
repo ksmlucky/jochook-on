@@ -4,10 +4,10 @@ const clubRoles = ['정회원', '코치', '감독', '총무', '회장']
 
 export function ClubRoleField({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
   const selected = value || '정회원'
-  return <div><label htmlFor={id}>직책</label><select id={id} value={selected} onChange={e => onChange(e.target.value)}>
+  return <div><label htmlFor={id}>직책</label><select id={id} value={selected} aria-describedby={`${id}-role-help`} onChange={e => onChange(e.target.value)}>
     {!clubRoles.includes(selected) && <option value={selected} disabled>잘못된 값: {selected}</option>}
     {clubRoles.map(role => <option key={role} value={role}>{role}</option>)}
-  </select></div>
+  </select><p className="field-help" id={`${id}-role-help`}>명단에 표시할 직책입니다. 로그인 권한은 별도로 지정합니다.</p></div>
 }
 
 export function BirthYearField({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {

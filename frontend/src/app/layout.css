@@ -1,0 +1,152 @@
+/* App-level hierarchy. Feature styles and position colours stay in styles.css. */
+.app-shell { max-width: 1280px; padding: 0 40px; }
+.site-header { height: 88px; gap: 48px; border-bottom: 1px solid var(--line); }
+.club-brand { gap: 11px; font-size: 25px; letter-spacing: -1px; flex: 0 0 auto; }
+.club-brand small { margin-top: 7px; color: var(--muted); font-size: 10px; font-weight: 500; letter-spacing: 0; }
+.brand-on { color: var(--accent); }
+.brand-mark { flex-shrink: 0; width: 44px; height: 44px; border-radius: 13px; }
+.club-crest { width: 40px; height: 46px; background: var(--accent); }
+.header-note { font-size: 13px; }
+.site-header .primary-navigation { display: flex; align-self: stretch; gap: 8px; align-items: center; }
+.workspace-nav { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 11px 18px; border: 1px solid transparent; border-radius: 10px; color: var(--muted); font-size: 15px; font-weight: 700; }
+.workspace-nav svg { width: 21px; height: 21px; flex-shrink: 0; }
+.workspace-nav:hover { color: var(--ink); background: var(--soft); }
+.workspace-nav.is-current { color: var(--accent-hover); background: var(--lime); border-color: #cfddbd; }
+.account-menu { margin-left: auto; gap: 16px; }
+.account-menu strong { font-size: 13px; overflow-wrap: anywhere; }
+.account-menu small { color: var(--muted); font-size: 11px; }
+.account-menu .secondary-button { padding: 9px 14px; }
+#app-content { outline: none; min-height: 65vh; }
+.workspace-context { position: relative; display: flex; align-items: center; gap: 17px; padding: 20px 0; border-bottom: 1px solid var(--line); }
+.context-emblem { display: grid; place-items: center; flex-shrink: 0; width: 54px; height: 54px; border: 1px solid #d1dfc5; border-radius: 16px; background: var(--lime); color: var(--accent-hover); font-weight: 800; font-size: 23px; }
+.context-copy { min-width: 0; }
+.context-copy p { color: var(--muted); font-size: 11px; margin-bottom: 3px; }
+.context-copy h1 { color: var(--ink); font-size: 26px; line-height: 1.4; font-weight: 800; letter-spacing: -.9px; overflow-wrap: anywhere; }
+.workspace-access { margin-left: auto; font-size: 12px; color: var(--muted); padding: 6px 10px; border: 1px solid var(--line); border-radius: 7px; white-space: nowrap; }
+.management-menu { position: relative; width: fit-content; margin: 6px 0 0 auto; z-index: 4; font-size: 12px; }
+.management-menu > summary { display: flex; align-items: center; gap: 25px; list-style: none; padding: 9px 12px; cursor: pointer; min-height: 40px; border-radius: 8px; color: var(--muted); }
+.management-menu > summary::-webkit-details-marker { display: none; }
+.management-menu > summary:hover, .management-menu[open] > summary { color: var(--ink); background: var(--soft); }
+.management-menu[open] > summary span { transform: rotate(180deg); }
+.management-menu > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.management-menu .access-navigation { position: absolute; top: 44px; right: 0; width: 235px; display: grid; gap: 4px; margin: 0; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: white; box-shadow: 0 12px 32px #243b3217; }
+.management-menu .access-navigation button { margin: 0; text-align: left; width: 100%; border-color: transparent; font-size: 13px; }
+.management-menu .access-navigation .selected { background: var(--lime); color: var(--accent-hover); }
+.workspace-content .directory-section { padding: 0 0 20px; scroll-margin-top: 20px; }
+.workspace-content .section-heading { align-items: center; }
+.workspace-content h2 { font-size: 30px; letter-spacing: -1px; }
+.workspace-content .eyebrow { color: var(--muted); font-size: 10px; letter-spacing: 1.8px; margin-bottom: 5px; }
+.workspace-content .section-description { font-size: 14px; }
+.workspace-content .squad-toolbar { margin-top: 14px; }
+.workspace-content .squad-toolbar .section-description { margin: 0; }
+.workspace-content .roster-controls { padding: 14px 16px; margin: 16px 0; }
+.roster-options { display: flex; gap: 14px; flex-wrap: wrap; align-items: end; }
+.roster-controls .roster-options-toggle { display: none; }
+.roster-controls .secondary-button { margin: 0; }
+.workspace-content .squad-count { background: white; border: 1px solid var(--line); padding: 7px 14px; border-radius: 10px; }
+.workspace-content .squad-count strong { font-size: 20px; }
+.auto-policy { margin: 10px 0 16px; color: var(--muted); font-size: 13px; }
+.auto-policy summary { width: fit-content; min-height: 44px; padding: 10px 0; color: var(--accent); cursor: pointer; font-weight: 600; }
+.auto-policy summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.save-notice[role="alert"] { background: #fff2ef; border-color: #edc9c0; color: #963c2f; }
+.app-install-area { margin-top: 44px; }
+.site-footer { margin-top: 32px; padding: 25px 0 35px; border-top: 1px solid var(--line); }
+.site-footer > span { font-size: 15px; color: var(--accent); }
+.site-footer p { font-size: 12px; color: var(--muted); }
+
+/* Access screen: one introduction, one clear entry point. */
+.welcome-shell #access.directory-section { padding: 52px 0 0; }
+#access .login-panel { grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 60px; margin: 0; border: 0; border-radius: 0; background: transparent; padding: 0; align-items: center; }
+#access .login-intro { position: relative; padding: 20px 12px 20px 0; border: 0; background: transparent; }
+#access .login-intro .eyebrow { display: flex; align-items: center; gap: 8px; margin: 0 0 20px; font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .2px; }
+.intro-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; }
+#access .login-intro h1 { font-size: clamp(30px, 4vw, 48px); font-weight: 800; letter-spacing: -2px; line-height: 1.35; color: var(--ink); }
+#access .login-intro h1 span { color: var(--accent); }
+#access .login-intro > p:not(.eyebrow) { font-size: 15px; color: var(--muted); line-height: 1.9; margin-top: 24px; }
+.access-feature-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.access-feature-list span { font-size: 12px; color: #4f6458; border: 1px solid #dce4d4; border-radius: 7px; padding: 5px 10px; background: #edf2e5; }
+.welcome-pitch { display: block; width: min(100%, 350px); height: auto; margin-top: 32px; stroke: #bcccb5; stroke-width: 1.5px; }
+.welcome-pitch .pitch-marker { fill: #76966e; stroke: #76966e; }
+#access .login-form { display: flex; flex-direction: column; gap: 9px; padding: 34px; background: white; border: 1px solid var(--line); border-radius: 18px; box-shadow: 0 8px 30px #243b3205; }
+.access-form-title { margin-bottom: 20px; }
+.access-form-title .form-kicker { color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 10px; }
+.access-form-title h2 { font-size: 25px; color: var(--ink); line-height: 1.4; letter-spacing: -.8px; }
+.access-form-title > p:last-child { color: var(--muted); font-size: 13px; margin-top: 9px; }
+#access .login-form label { font-size: 13px; color: var(--ink); }
+#access .login-form input { min-height: 52px; padding: 13px 14px; font-size: 16px; border: 1px solid #bbc9bf; border-radius: 9px; background: #fff; }
+#access .login-form input::placeholder { color: #7d8981; }
+#access .login-form .field-help { color: var(--muted); font-size: 11px; line-height: 1.6; }
+#access .login-form .primary-button { display: flex; align-items: center; justify-content: center; gap: 16px; min-height: 50px; margin-top: 14px; font-size: 15px; border-radius: 9px; }
+.code-privacy-note { text-align: center; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.manager-entry { margin-top: 18px; padding-top: 19px; border-top: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.manager-entry > span { color: var(--muted); font-size: 12px; }
+.manager-entry .secondary-button { margin: 0; padding: 8px 11px; min-height: 40px; }
+.welcome-shell .app-install-area { margin-top: 44px; }
+.welcome-shell .install-card { background: transparent; }
+@media (max-width: 1000px) {
+  .app-shell { padding: 0 28px; }
+  .site-header { gap: 24px; }
+  .workspace-nav { padding: 10px 12px; }
+  #access .login-panel { gap: 28px; }
+  #access .login-form { padding: 26px; }
+}
+@media (max-width: 700px) {
+  .app-shell { padding: 0 20px; }
+  .site-header { height: auto; min-height: 88px; padding: 20px 0 0; gap: 20px; flex-wrap: wrap; }
+  .club-brand { font-size: 22px; }
+  .club-crest { width: 34px; height: 40px; font-size: 21px; }
+  .club-crest span { font-size: 8px; }
+  .club-brand small { font-size: 9px; }
+  .brand-mark { width: 38px; height: 38px; border-radius: 11px; }
+  .header-note { font-size: 11px; }
+  .welcome-shell .site-header { padding: 19px 0; }
+  .account-menu { max-width: 50%; gap: 10px; }
+  .account-menu > span { min-width: 0; }
+  .account-menu .secondary-button { padding: 8px 10px; font-size: 12px; flex-shrink: 0; }
+  .site-header .primary-navigation { order: 3; width: 100%; gap: 8px; padding: 0 0 14px; }
+  .workspace-nav { flex: 1; justify-content: center; font-size: 14px; }
+  .workspace-context { padding: 22px 0; gap: 12px; flex-wrap: wrap; }
+  .context-emblem { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
+  .context-copy { flex: 1; }
+  .context-copy h1 { font-size: 23px; }
+  .workspace-access { display: none; }
+  .workspace-content h2 { font-size: 26px; }
+  .workspace-content .section-description { font-size: 13px; max-width: 34em; }
+  .workspace-content .squad-count { padding: 6px 10px; }
+  .workspace-content .squad-count strong { font-size: 18px; }
+  .workspace-content .roster-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px; }
+  .roster-controls .view-switch { width: auto; margin: 0 auto 0 0; gap: 5px; }
+  .roster-controls .view-switch button, .roster-controls .roster-options-toggle { padding: 8px 10px; font-size: 12px; }
+  .roster-controls .roster-options-toggle { display: flex; align-items: center; gap: 6px; margin: 0; }
+  .roster-options { display: none; }
+  .roster-options.is-expanded { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; flex-basis: 100%; padding-top: 10px; }
+  .roster-controls label { min-width: 0; }
+  .roster-controls label:last-child { grid-column: 1 / -1; }
+  .roster-controls select { width: 100%; min-width: 0; }
+  .management-menu { margin-top: 6px; }
+  .management-menu > summary { min-height: 44px; }
+  .welcome-shell #access.directory-section, #access.directory-section { padding-top: 28px; }
+  #access .login-panel { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  #access .login-intro { padding: 0; }
+  #access .login-intro .eyebrow { margin-bottom: 12px; font-size: 11px; }
+  #access .login-intro h1 { font-size: 32px; letter-spacing: -1.2px; }
+  #access .login-intro > p:not(.eyebrow) { font-size: 13px; margin-top: 14px; line-height: 1.7; }
+  .access-feature-list, .welcome-pitch { display: none; }
+  #access .login-form { padding: 24px; border-radius: 14px; }
+  .access-form-title { margin-bottom: 12px; }
+  .access-form-title h2 { font-size: 23px; }
+  .access-form-title .form-kicker { font-size: 9px; margin-bottom: 8px; }
+  .app-install-area, .welcome-shell .app-install-area { margin-top: 28px; }
+}
+@media (max-width: 400px) {
+  .app-shell { padding: 0 16px; }
+  .header-note { display: none; }
+  .account-menu strong { font-size: 11px; }
+  .account-menu small { font-size: 10px; }
+  .workspace-access { margin-left: 56px; }
+  #access .login-form { padding: 22px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

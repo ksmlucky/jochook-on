@@ -34,6 +34,11 @@ function Import-JochookOnAdminBootstrap {
         $taskAdmin = Get-Content -LiteralPath $taskAdminFile -Raw -Encoding UTF8 | ConvertFrom-Json
         $env:JOCHOOK_ON_BOOTSTRAP_USERNAME = [string]$taskAdmin.username
         $env:JOCHOOK_ON_BOOTSTRAP_PASSWORD = [string]$taskAdmin.password
+        # 이 PC에서 직접 지정한 기존 관리자만 서비스 관리자로 초기 설정한다.
+        # 다른 ADMIN 계정 전체를 승격하거나 운영 환경의 지정값을 덮어쓰지 않는다.
+        if (-not $env:JOCHOOK_ON_SERVICE_ADMIN_USERNAME) {
+            $env:JOCHOOK_ON_SERVICE_ADMIN_USERNAME = [string]$taskAdmin.username
+        }
     }
 }
 

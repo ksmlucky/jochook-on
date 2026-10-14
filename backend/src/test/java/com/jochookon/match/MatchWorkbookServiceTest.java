@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import com.jochookon.player.Player;
 import com.jochookon.player.PlayerRepository;
+import com.jochookon.team.TeamContext;
 import java.io.*;
 import java.util.*;
 import org.apache.poi.ss.usermodel.*;
@@ -14,11 +15,13 @@ import org.springframework.mock.web.MockMultipartFile;
 class MatchWorkbookServiceTest {
     MatchWorkbookService service;
     @BeforeEach void setup() {
+        TeamContext.set(1);
         var repository = mock(PlayerRepository.class);
         var candidates = List.of(player(1, "동명 선수", 7), player(2, "동명 선수", 1), player(3, "검증 선수", null));
-        when(repository.findByNameIn(anyCollection())).thenReturn(candidates);
+        when(repository.findByTeamIdAndNameIn(eq(1L), anyCollection())).thenReturn(candidates);
         service = new MatchWorkbookService(repository);
     }
+    @AfterEach void clearTeamContext() { TeamContext.clear(); }
     Player player(long id, String name, Integer shirt) {
         var p = mock(Player.class); when(p.getId()).thenReturn(id); when(p.getName()).thenReturn(name); when(p.getShirtNumber()).thenReturn(shirt); return p;
     }

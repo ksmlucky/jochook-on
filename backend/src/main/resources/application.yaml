@@ -52,6 +52,7 @@ management:
 
 jochookon:
   bootstrap:
+    service-admin-username: ${JOCHOOK_ON_SERVICE_ADMIN_USERNAME:}
     admin:
       # Keep existing local and deployed bootstrap settings working after the rename.
       username: ${JOCHOOK_ON_BOOTSTRAP_USERNAME:${hana.bootstrap.admin.username:${HANA_BOOTSTRAP_USERNAME:}}}

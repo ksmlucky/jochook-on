@@ -1,55 +1,168 @@
+import { useEffect, useRef, useState } from 'react'
+import type { MouseEvent } from 'react'
 import { SquadSection } from './features/players/SquadSection'
 import type { SquadNavigation } from './features/players/SquadSection'
-import { useRef } from 'react'
-import type { MouseEvent } from 'react'
-import { LoginForm } from './features/auth/LoginForm'
-import { useAuth } from './features/auth/useAuth'
 import { MatchSection } from './features/matches/MatchSection'
+import { LoginForm } from './features/auth/LoginForm'
+import { TeamCodeForm } from './features/auth/TeamCodeForm'
+import { InvitationPanel } from './features/auth/InvitationPanel'
+import { useAuth } from './features/auth/useAuth'
+import { identityOf } from './features/auth/api'
+import type { CurrentUser } from './features/auth/api'
+import { ServiceTeams } from './features/teams/ServiceTeams'
+import { TeamCodeManager } from './features/teams/TeamCodeManager'
+import { MyTeams } from './features/teams/MyTeams'
+import { CoachManager } from './features/teams/CoachManager'
+import { canEditTeam, canManageCoaches, roleLabels } from './features/auth/permissions'
+import { AccessToast, ConfirmAction } from './features/teams/AccessUi'
+import { useLeaveGuard } from './app/LeaveGuard'
 import { serviceBrand } from './app/brand'
-import { currentTeam } from './app/team'
+import { InstallApp } from './features/install/InstallApp'
+
+function takeInvitationFromAddress(): string {
+  if (!window.location.hash.startsWith('#invite=')) return ''
+  const token = new URLSearchParams(window.location.hash.slice(1)).get('invite') || ''
+  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#access`)
+  return token.length <= 2048 ? token : ''
+}
+// React StrictMode의 초기화 재실행과 무관하게 원문을 주소에서 즉시 지운다.
+let invitationAtLoad = takeInvitationFromAddress()
+type Page = 'home' | 'workspace' | 'code' | 'login' | 'teams' | 'service' | 'code-management' | 'coach-management'
+type WorkspaceSection = 'players' | 'matches'
+
+function MenuIcon({ kind }: { kind: WorkspaceSection }) {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {kind === 'players' ? <><circle cx="9" cy="8" r="3" /><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2" /></> : <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M7 3v4M17 3v4M3 11h18M8 15h2M14 15h2M8 18h2" /></>}
+  </svg>
+}
 
 export function App() {
   const auth = useAuth()
+  const guard = useLeaveGuard()
   const squad = useRef<SquadNavigation>(null)
-  function showSquad(event: MouseEvent<HTMLAnchorElement>) {
-    if (squad.current && !squad.current.returnToList()) event.preventDefault()
+  const [page, setPage] = useState<Page>('home')
+  const [section, setSection] = useState<WorkspaceSection>(window.location.hash === '#matches' ? 'matches' : 'players')
+  const managementMenu = useRef<HTMLDetailsElement>(null)
+  const [inviteToken, setInviteToken] = useState(invitationAtLoad)
+  const [workspaceEpoch, setWorkspaceEpoch] = useState(0)
+  const [switchToCode, setSwitchToCode] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [rechecking, setRechecking] = useState(false)
+  const user = auth.state.status === 'authenticated' ? auth.state.user : null
+  const homePage = user ? user.team ? 'workspace' : user.serviceAdmin ? 'service' : 'teams' : 'code'
+  const requestedPage = page === 'home' ? homePage : page
+  const isAdmin = canEditTeam(user)
+  const isDirector = canManageCoaches(user)
+  const activePage = requestedPage === 'coach-management' && !isDirector || requestedPage === 'code-management' && !isAdmin
+    || requestedPage === 'service' && !user?.serviceAdmin ? homePage : requestedPage
+  const team = user?.team
+  const identity = `${identityOf(user)}:${workspaceEpoch}`
+  useEffect(() => { invitationAtLoad = '' }, [])
+  // Make the first workspace entry a real history destination as well.
+  useEffect(() => {
+    if (team && activePage === 'workspace' && !inviteToken && !auth.accessIssue) {
+      window.history.replaceState(null, '', `#${section}`)
+    }
+  }, [team?.id, activePage, section, inviteToken, auth.accessIssue])
+  useEffect(() => {
+    const readAddress = () => {
+      const token = takeInvitationFromAddress()
+      if (token) { void guard.confirmLeave().then(allowed => { if (allowed) setInviteToken(token) }); return }
+      const target = window.location.hash.slice(1)
+      if (!user?.team || auth.accessIssue || !['players', 'matches'].includes(target)) return
+      if (activePage === 'workspace' && !inviteToken && target === section) return
+      void guard.confirmLeave().then(allowed => {
+        if (allowed) { setInviteToken(''); setPage('workspace'); setSection(target as WorkspaceSection) }
+        else window.history.replaceState(null, '', `#${activePage === 'workspace' ? section : 'access'}`)
+      })
+    }
+    window.addEventListener('hashchange', readAddress)
+    return () => window.removeEventListener('hashchange', readAddress)
+  }, [guard, user?.team, auth.accessIssue, activePage, section, inviteToken])
+  function closeManagement() { if (managementMenu.current) managementMenu.current.open = false }
+  async function navigate(next: Page) {
+    if (!await guard.confirmLeave()) return
+    closeManagement(); setInviteToken(''); setPage(next)
+    window.history.replaceState(null, '', `#${next === 'home' && team ? section : 'access'}`)
+    if (next === 'teams') await auth.refresh()
   }
-
-  return <div className="app-shell">
-    <a className="skip-link" href="#players" onClick={showSquad}>선수단으로 바로가기</a>
+  function signedIn(next: CurrentUser) { auth.signedIn(next); setWorkspaceEpoch(value => value + 1); setPage('home') }
+  async function signOut() {
+    if (!await guard.confirmLeave()) return
+    if (await auth.signOut()) { setInviteToken(''); setPage('code'); setWorkspaceEpoch(value => value + 1) }
+  }
+  async function codeAccess() {
+    if (!await guard.confirmLeave()) return
+    closeManagement()
+    if (user?.authType === 'ACCOUNT') { setSwitchToCode(true); return }
+    setInviteToken(''); setPage('code')
+  }
+  async function confirmCodeAccess() {
+    setSwitchToCode(false)
+    if (await auth.signOut()) { setInviteToken(''); setPage('code'); setWorkspaceEpoch(value => value + 1) }
+  }
+  async function recheck() {
+    if (!await guard.confirmLeave()) return
+    setRechecking(true); setSwitchToCode(false)
+    try { await auth.refresh(); setWorkspaceEpoch(value => value + 1); setPage('home') }
+    finally { setRechecking(false) }
+  }
+  async function showSection(event: MouseEvent<HTMLAnchorElement>, next: WorkspaceSection) {
+    event.preventDefault()
+    if (!user?.team || auth.accessIssue) return
+    if (activePage === 'workspace' && !inviteToken && section === next) {
+      if (next === 'players' && squad.current && !squad.current.returnToList()) return
+    } else if (!await guard.confirmLeave()) return
+    closeManagement(); setInviteToken(''); setPage('workspace'); setSection(next)
+    if (window.location.hash !== `#${next}`) window.history.pushState(null, '', `#${next}`)
+    window.requestAnimationFrame(() => { document.getElementById('app-content')?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }) })
+  }
+  return <div className={`app-shell${user ? ' has-session' : ' welcome-shell'}`}>
+    <a className="skip-link" href="#app-content">주요 화면으로 바로가기</a>
     <header className="site-header">
-      <a className="club-brand" href="/" aria-label={`${serviceBrand.name} 홈`}>
-        <span className="club-crest" aria-hidden="true">{serviceBrand.crest.initial}<span>{serviceBrand.crest.suffix}</span></span>
-        <span>{serviceBrand.name}<small>{serviceBrand.englishName}</small></span>
+      <a className="club-brand" href="#access" aria-label={`${serviceBrand.name} 홈`} onClick={event => { event.preventDefault(); void navigate('home') }}>
+        <img className="brand-mark" src="/icons/jochook-on.svg" width="44" height="44" alt="" /><span>조축<span className="brand-on">ON</span><small>우리의 축구가 모이는 곳</small></span>
       </a>
-      <nav aria-label="주요 메뉴"><a className="active-nav" href="#players" onClick={showSquad}>선수단</a><a className="active-nav" href="#matches">경기 기록</a></nav>
-      {auth.state.status === 'authenticated' ? <div className="account-menu">
-        <span><strong>{auth.state.user.username}</strong><small>{auth.state.user.role === 'ADMIN' ? '운영진' : '회원'}</small></span>
-        <button className="secondary-button" onClick={auth.signOut} disabled={auth.isLoggingOut}>{auth.isLoggingOut ? '로그아웃 중…' : '로그아웃'}</button>
-      </div> : <span className="header-note">함께 뛰고, 함께 기록하다</span>}
+      {team && !auth.accessIssue && <nav className="primary-navigation" aria-label="주요 메뉴">
+        {(['players', 'matches'] as const).map(item => <a key={item} className={`workspace-nav${activePage === 'workspace' && !inviteToken && section === item ? ' is-current' : ''}`} aria-current={activePage === 'workspace' && !inviteToken && section === item ? 'page' : undefined} href={`#${item}`} onClick={event => void showSection(event, item)}><MenuIcon kind={item} />{item === 'players' ? '선수단' : '경기 기록'}</a>)}
+      </nav>}
+      {user ? <div className="account-menu"><span><strong>{user.username || '팀 회원'}</strong><small>{user.authType === 'TEAM_CODE' ? '코드 조회 접속' : `${user.team ? roleLabels[user.role] : '팀 선택 필요'}${user.serviceAdmin ? ' · 서비스관리자' : ''}`}</small></span>
+        <button className="secondary-button" onClick={() => void signOut()} disabled={auth.isLoggingOut}>{auth.isLoggingOut ? '종료 중…' : user.authType === 'TEAM_CODE' ? '나가기' : '로그아웃'}</button></div> : <span className="header-note">함께 뛰고, 함께 기록하다</span>}
     </header>
-
-    <main>
-      <section className="club-hero" aria-labelledby="hero-title">
-        <div className="hero-copy">
-          <p className="eyebrow">{auth.state.status === 'authenticated' ? `현재 팀 · ${currentTeam.name}` : '함께 뛰는 조기축구'}</p>
-          <h1 id="hero-title">우리 팀의 기록,<br /><span>함께 쌓아가는 시즌.</span></h1>
-          <p className="hero-description">매주 함께 뛰는 우리.<br className="mobile-break" /> 그 순간들을 하나씩 모읍니다.</p>
-          <a className="hero-link" href="#players" onClick={showSquad}>{auth.state.status === 'authenticated' ? '선수단 보기' : '로그인하고 선수단 보기'} <span aria-hidden="true">↗</span></a>
-        </div>
-        <div className="pitch-art" aria-hidden="true"><div className="pitch-outline"><i /><b /><em /></div><span>ONE TEAM.<br />OUR STORY.</span></div>
-      </section>
-
-      <section className="directory-section" id="players" aria-labelledby="players-title">
-        {auth.message && <p className="session-message" role="alert">{auth.message}</p>}
-        {auth.state.status !== 'authenticated' && <h2 id="players-title">{serviceBrand.name} 로그인</h2>}
-        {auth.state.status === 'loading' && <div className="empty-state" role="status">로그인 상태를 확인하고 있습니다.</div>}
-        {auth.state.status === 'error' && <div className="empty-state" role="alert"><p>서버에 연결하지 못했습니다.</p><button className="secondary-button" onClick={auth.retry}>다시 시도</button></div>}
-        {auth.state.status === 'anonymous' && <LoginForm onLogin={auth.signedIn} />}
-        {auth.state.status === 'authenticated' && <SquadSection ref={squad} isAdmin={auth.state.user.role === 'ADMIN'} onSessionExpired={auth.expired} />}
-      </section>
-      {auth.state.status === 'authenticated' && <MatchSection team={currentTeam} isAdmin={auth.state.user.role === 'ADMIN'} onSessionExpired={auth.expired} />}
+    <main id="app-content" tabIndex={-1}>
+      {user && !auth.accessIssue && !inviteToken && !['code', 'login'].includes(activePage) && <section className="workspace-context" aria-labelledby="workspace-title">
+        <div className="context-emblem" aria-hidden="true">{activePage === 'service' ? 'ON' : team?.name.slice(0, 1) || 'ON'}</div>
+        <div className="context-copy"><p>{activePage === 'service' ? '서비스 관리' : activePage === 'teams' ? '나의 팀' : '현재 함께하는 팀'}</p><h1 id="workspace-title">{activePage === 'service' ? '팀을 위한 공간을 관리해요' : activePage === 'teams' ? '함께 뛸 팀을 선택하세요' : team?.name || '조축ON'}</h1></div>
+        <span className="workspace-access">{activePage === 'service' ? '서비스관리자' : isAdmin ? `${roleLabels[user.role]} · 기록 관리` : '회원 · 기록 조회'}</span>
+      </section>}
+      {auth.message && <p className="session-message" role="alert">{auth.message}</p>}
+      {auth.accessIssue && <section className="access-section access-recheck" role="alert"><h2>접속 상태를 다시 확인해 주세요.</h2><p>{auth.accessIssue}</p><p className="access-note">이전 팀의 입력을 다른 팀으로 옮기거나 자동 저장하지 않습니다. 작성 중인 내용이 있다면 확인 후 화면을 새로 엽니다.</p><button className="primary-button" onClick={() => void recheck()} disabled={rechecking}>{rechecking ? '확인 중…' : '접속 상태 확인'}</button></section>}
+      {auth.state.status === 'loading' && <div className="empty-state" role="status">접속 상태를 확인하고 있습니다.</div>}
+      {auth.state.status === 'error' && <div className="empty-state" role="alert"><p>접속 상태를 확인하지 못했습니다.</p><button className="secondary-button" onClick={() => void recheck()} disabled={rechecking}>다시 확인</button></div>}
+      <div hidden={!!auth.accessIssue} inert={!!auth.accessIssue}>
+        {auth.state.status !== 'loading' && auth.state.status !== 'error' && (inviteToken
+          ? <InvitationPanel key={inviteToken} token={inviteToken} user={user} onLogin={auth.signedIn} onAccepted={next => { setInviteToken(''); signedIn(next); setNotice('운영진 초대를 수락했습니다.') }} onCancel={() => void navigate('home')} onSessionExpired={auth.expired} />
+          : <>
+            {user && <details className="management-menu" ref={managementMenu} onKeyDown={event => { if (event.key === 'Escape') { closeManagement(); managementMenu.current?.querySelector('summary')?.focus() } }}><summary>팀 · 접속 관리 <span aria-hidden="true">⌄</span></summary><div className="access-navigation" aria-label="접속 및 팀 관리 메뉴">
+              {user.authType === 'ACCOUNT' && <button className={`secondary-button${activePage === 'teams' ? ' selected' : ''}`} onClick={() => void navigate('teams')}>내 팀 목록</button>}
+              {user.serviceAdmin && <button className={`secondary-button${activePage === 'service' ? ' selected' : ''}`} onClick={() => void navigate('service')}>서비스 팀 관리</button>}
+              {team && isAdmin && <button className={`secondary-button${activePage === 'code-management' ? ' selected' : ''}`} onClick={() => void navigate('code-management')}>팀 접속 코드 관리</button>}
+              {team && isDirector && <button className={`secondary-button${activePage === 'coach-management' ? ' selected' : ''}`} onClick={() => void navigate('coach-management')}>코치 관리</button>}
+              <button className="access-text-button" onClick={() => void codeAccess()}>{user.authType === 'ACCOUNT' ? '회원 코드로 접속' : '다른 팀 들어가기'}</button>
+            </div></details>}
+            {activePage === 'code' && <section id="access" className="directory-section" aria-labelledby="access-title"><h2 id="access-title" className="sr-only">팀 코드로 접속</h2><TeamCodeForm key={identity} switching={user?.authType === 'TEAM_CODE'} onEntered={signedIn} onLogin={() => void navigate('login')} onCancel={user ? () => void navigate('home') : undefined} /></section>}
+            {activePage === 'login' && <section id="access" className="directory-section" aria-labelledby="access-title"><h2 id="access-title" className="sr-only">운영진 로그인</h2><LoginForm onLogin={signedIn} /><button className="access-text-button" onClick={() => void codeAccess()}>팀 코드로 접속하기</button></section>}
+            {user && activePage === 'service' && user.serviceAdmin && <ServiceTeams key={`service:${identity}`} onSessionExpired={auth.expired} onMembershipChanged={auth.refresh} />}
+            {user?.authType === 'ACCOUNT' && activePage === 'teams' && <MyTeams key={`teams:${identity}`} user={user} onSelected={signedIn} onSessionExpired={auth.expired} onRefresh={() => void auth.refresh()} />}
+            {user && team && isAdmin && activePage === 'code-management' && <TeamCodeManager key={`codes:${identity}`} team={team} onSessionExpired={auth.expired} />}
+            {user && team && isDirector && activePage === 'coach-management' && <CoachManager key={`coaches:${identity}`} team={team} onSessionExpired={auth.expired} />}
+            {user && team && activePage === 'workspace' && <div key={identity} className="workspace-content">{section === 'players' ? <section className="directory-section" id="players" aria-labelledby="players-title"><SquadSection ref={squad} isAdmin={isAdmin} onSessionExpired={auth.expired} /></section> : <MatchSection team={team} isAdmin={isAdmin} onSessionExpired={auth.expired} />}</div>}
+          </>)}
+      </div>
+      <div className="app-install-area"><InstallApp /></div>
     </main>
+    {switchToCode && !auth.accessIssue && <ConfirmAction title="개인 계정에서 로그아웃할까요?" description="회원 코드는 조회 전용입니다. 현재 개인 계정에서 로그아웃한 뒤 코드를 입력합니다. 다시 수정하려면 운영진 계정으로 로그인해 주세요." confirmLabel="로그아웃하고 코드 입력" onCancel={() => setSwitchToCode(false)} onConfirm={() => void confirmCodeAccess()} />}
+    <AccessToast message={notice} clear={() => setNotice('')} />
     <footer className="site-footer"><span>{serviceBrand.name}</span><p>우리의 축구는, 기록으로 이어집니다.</p></footer>
   </div>
 }

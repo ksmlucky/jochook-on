@@ -1,5 +1,7 @@
 package com.jochookon.player;
 
+import com.jochookon.team.TeamContext;
+
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import jakarta.validation.Validation;
@@ -16,7 +18,8 @@ class PlayerWorkbookServiceTest {
     PlayerWorkbookService service;
     @BeforeAll static void openValidation() { validation = Validation.buildDefaultValidatorFactory(); }
     @AfterAll static void closeValidation() { validation.close(); }
-    @BeforeEach void setup() { service = new PlayerWorkbookService(new BulkPlayerService(mock(PlayerRepository.class), validation.getValidator())); }
+    @BeforeEach void setup() { TeamContext.set(1); service = new PlayerWorkbookService(new BulkPlayerService(mock(PlayerRepository.class), validation.getValidator())); }
+    @AfterEach void clearTeamContext() { TeamContext.clear(); }
     MockMultipartFile file(XSSFWorkbook workbook) throws IOException {
         var bytes = new ByteArrayOutputStream(); workbook.write(bytes);
         return new MockMultipartFile("file", "players.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes.toByteArray());

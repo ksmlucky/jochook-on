@@ -3,6 +3,7 @@ import { createGuest, PlayerRequestError, preferredPositions } from '../players/
 import type { Player, PreferredPosition } from '../players/api'
 import { SessionExpiredError } from '../auth/api'
 import { playerLabel } from './api'
+import { useEditGuard } from '../../app/LeaveGuard'
 
 export function GuestPicker({ players, selectedIds, disabled, onBusy, onAdd, onSessionExpired }: {
   players: Player[]; selectedIds: number[]; disabled: boolean; onBusy: (busy: boolean) => void
@@ -17,6 +18,7 @@ export function GuestPicker({ players, selectedIds, disabled, onBusy, onAdd, onS
   const [error, setError] = useState('')
   const [blocked, setBlocked] = useState(false)
   const submitting = useRef(false)
+  useEditGuard(!!(name || shirt || birthYear || choices.some(Boolean)), submitting.current)
   const guests = players.filter(p => p.playerType === 'GUEST' && !selectedIds.includes(p.id))
   async function register() {
     if (disabled || submitting.current || blocked) return

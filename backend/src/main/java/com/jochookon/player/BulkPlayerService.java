@@ -1,5 +1,7 @@
 package com.jochookon.player;
 
+import com.jochookon.team.TeamContext;
+
 import jakarta.validation.Validator;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -25,13 +27,13 @@ public class BulkPlayerService {
             throw new IllegalArgumentException("한 번에 1~200명을 입력해 주세요.");
         }
         Set<String> names = rows.stream().filter(Objects::nonNull).map(row -> clean(row.name())).collect(Collectors.toSet());
-        Set<String> existing = players.findByNameIn(names).stream().map(Player::getName).collect(Collectors.toSet());
+        Set<String> existing = players.findByTeamIdAndNameIn(TeamContext.requireTeamId(), names).stream().map(Player::getName).collect(Collectors.toSet());
         Map<String, Long> counts = rows.stream().filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(row -> clean(row.name()), Collectors.counting()));
         Map<Integer, Long> shirtCounts = rows.stream().filter(Objects::nonNull)
                 .map(row -> comparableShirt(row.shirtNumber())).filter(Objects::nonNull)
                 .collect(Collectors.groupingBy(number -> number, Collectors.counting()));
-        Set<Integer> occupied = shirtCounts.isEmpty() ? Set.of() : players.findByActiveTrueAndShirtNumberIn(shirtCounts.keySet())
+        Set<Integer> occupied = shirtCounts.isEmpty() ? Set.of() : players.findByTeamIdAndActiveTrueAndShirtNumberIn(TeamContext.requireTeamId(), shirtCounts.keySet())
                 .stream().map(Player::getShirtNumber).collect(Collectors.toSet());
         List<PlayerImportPreview.Row> result = new ArrayList<>();
         for (int i = 0; i < rows.size(); i++) {
@@ -93,7 +95,7 @@ public class BulkPlayerService {
         CreatePlayerRequest request = new CreatePlayerRequest(clean(row.name()), shirt, position, joined, first, second, third, birthYear, clean(row.clubRole()));
         String errors = validator.validate(request).stream().map(v -> v.getMessage()).sorted().collect(Collectors.joining(" "));
         if (!errors.isEmpty()) throw new IllegalArgumentException(errors);
-        Player player = Player.register(request.name(), shirt, position, joined);
+        Player player = Player.register(request.name(), shirt, position, joined).assignToTeam(TeamContext.requireTeamId());
         player.updatePreferences(first, second, third);
         player.updateProfile(birthYear, row.clubRole());
         return player;

@@ -21,6 +21,9 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "team_id", nullable = false, updatable = false)
+    private Long teamId;
+
     @Column(nullable = false, length = 60)
     private String name;
 
@@ -38,7 +41,7 @@ public class Player {
     @Column(name = "birth_year")
     private Integer birthYear;
 
-    // 팀 내 직책이며 로그인 권한(ADMIN/MEMBER)과는 관계없다.
+    // 선수 명단의 직책이며 계정의 팀 권한(DIRECTOR/COACH/MEMBER)과는 관계없다.
     @Column(name = "club_role", nullable = false, length = 30)
     private String clubRole = ClubRoles.DEFAULT;
 
@@ -90,6 +93,14 @@ public class Player {
     }
 
     public Long getId() { return id; }
+    public Long getTeamId() { return teamId; }
+    public Player assignToTeam(long teamId) {
+        if (teamId < 1 || (this.teamId != null && this.teamId != teamId)) {
+            throw new IllegalArgumentException("선수의 팀 소속을 변경할 수 없습니다.");
+        }
+        this.teamId = teamId;
+        return this;
+    }
     public void updatePreferences(PreferredPosition first, PreferredPosition second, PreferredPosition third) {
         if (position == Position.UN) {
             if (first != null || second != null || third != null) throw new IllegalArgumentException("포지션 미확인 선수의 선호 포지션은 비워 주세요.");

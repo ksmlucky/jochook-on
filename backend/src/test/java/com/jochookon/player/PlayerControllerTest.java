@@ -1,11 +1,12 @@
 package com.jochookon.player;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static com.jochookon.player.TeamScopedRequests.get;
+import static com.jochookon.player.TeamScopedRequests.post;
+import static com.jochookon.player.TeamScopedRequests.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -30,7 +31,7 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 @WebMvcTest(PlayerController.class)
 @Import(SecurityConfig.class)
 @WithMockUser(roles = "MEMBER")
-class PlayerControllerTest {
+class PlayerControllerTest extends com.jochookon.team.TeamMvcTestSupport {
     @Autowired
     MockMvc mvc;
 
@@ -45,7 +46,7 @@ class PlayerControllerTest {
 
     @Test
     void returnsAnEmptyPageWhenNoPlayersAreRegistered() throws Exception {
-        given(playerQueryService.findActivePlayers(0, 20, "id", "asc"))
+        given(playerQueryService.findActivePlayers(0, 20, "id", "asc", "", "", "", ""))
                 .willReturn(new PlayerPageResponse(List.of(), 0, 20, 0, 0));
         mvc.perform(get("/api/v1/players"))
                 .andExpect(status().isOk())
@@ -58,6 +59,36 @@ class PlayerControllerTest {
     void rejectsInvalidPagingBeforeReachingTheDatabase(String query) throws Exception {
         mvc.perform(get("/api/v1/players?" + query)).andExpect(status().isBadRequest());
         verifyNoInteractions(playerQueryService);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ageGroup=25", "ageGroup=10", "ageGroup=100", "ageGroup=unknown",
+            "clubRole=골키퍼", "clubRole=DIRECTOR", "firstChoice=MF", "firstChoice=CM,ST",
+            "positionGroup=CM", "positionGroup=UN", "positionGroup=fw", "positionGroup=UNKNOWN"})
+    void rejectsInvalidFiltersBeforeQueryingTheDatabase(String query) throws Exception {
+        mvc.perform(get("/api/v1/players?" + query)).andExpect(status().isBadRequest());
+        verifyNoInteractions(playerQueryService);
+    }
+
+    @Test
+    void passesAllFiltersAndPagingToTheQueryService() throws Exception {
+        given(playerQueryService.findActivePlayers(1, 10, "shirtNumber", "desc", "30", "코치", "CM", "MF"))
+                .willReturn(new PlayerPageResponse(List.of(), 1, 10, 0, 0, List.of("30", "40")));
+        mvc.perform(get("/api/v1/players").param("page", "1").param("size", "10")
+                        .param("sort", "shirtNumber").param("direction", "desc")
+                        .param("ageGroup", "30").param("clubRole", "코치").param("firstChoice", "CM").param("positionGroup", "MF"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.availableAgeGroups[0]").value("30"))
+                .andExpect(jsonPath("$.availableAgeGroups[1]").value("40"));
+        verify(playerQueryService).findActivePlayers(1, 10, "shirtNumber", "desc", "30", "코치", "CM", "MF");
+    }
+
+    @Test
+    void emptyFiltersMeanTheWholeRoster() throws Exception {
+        given(playerQueryService.findActivePlayers(0, 20, "id", "asc", "", "", "", ""))
+                .willReturn(new PlayerPageResponse(List.of(), 0, 20, 0, 0));
+        mvc.perform(get("/api/v1/players?ageGroup=&clubRole=&firstChoice=&positionGroup="))
+                .andExpect(status().isOk());
+        verify(playerQueryService).findActivePlayers(0, 20, "id", "asc", "", "", "", "");
     }
 
     @Test
@@ -79,7 +110,7 @@ class PlayerControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     void createsPlayerWithTrimmedNameAndOptionalFields() throws Exception {
         given(playerCommandService.create(new CreatePlayerRequest("테스트 선수", null, Position.MF, null, PreferredPosition.CM, null, null, null, null)))
                 .willReturn(new PlayerResponse(5L, "테스트 선수", null, Position.MF, null, 0L, PreferredPosition.CM, null, null, null, null, PlayerType.MEMBER));
@@ -94,7 +125,7 @@ class PlayerControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     void updatesPlayerAndReturnsNewVersion() throws Exception {
         given(playerCommandService.update(5, new UpdatePlayerRequest("수정 선수", 1, Position.GK, LocalDate.of(2026, 10, 13), 0L, PreferredPosition.CM, null, null, null, null)))
                 .willReturn(new PlayerResponse(5L, "수정 선수", 1, Position.GK, LocalDate.of(2026, 10, 13), 1L, PreferredPosition.CM, null, null, null, null, PlayerType.MEMBER));
@@ -107,7 +138,7 @@ class PlayerControllerTest {
     }
 
     @ParameterizedTest
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     @ValueSource(strings = {
         "{\"name\":\"  \",\"position\":\"GK\"}",
         "{\"name\":\"선수\"}",
@@ -126,7 +157,7 @@ class PlayerControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     void requiresVersionForUpdates() throws Exception {
         mvc.perform(put("/api/v1/players/5").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                         .content("""
@@ -143,14 +174,14 @@ class PlayerControllerTest {
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     void adminStillNeedsCsrfToken() throws Exception {
         mvc.perform(post("/api/v1/players")).andExpect(status().isForbidden());
         verifyNoInteractions(playerCommandService);
     }
 
     @Test
-    @WithMockUser(roles = "ADMIN")
+    @WithMockUser(roles = "DIRECTOR")
     void returnsConflictInsteadOfOverwritingAnotherEdit() throws Exception {
         given(playerCommandService.update(5, new UpdatePlayerRequest("선수", null, Position.GK, null, 0L, PreferredPosition.CM, null, null, null, null)))
                 .willThrow(new ObjectOptimisticLockingFailureException(Player.class, 5L));
@@ -169,11 +200,11 @@ class PlayerControllerTest {
         mvc.perform(get("/api/v1/players/6")).andExpect(status().isNotFound());
     }
 
-    @Test @WithMockUser(roles = "ADMIN")
+    @Test @WithMockUser(roles = "DIRECTOR")
     void databaseRaceReportsTheShirtFieldWithoutExposingSql() throws Exception {
         given(playerCommandService.create(org.mockito.ArgumentMatchers.any())).willThrow(
                 new org.springframework.dao.DataIntegrityViolationException("save failed",
-                        new java.sql.SQLIntegrityConstraintViolationException("Duplicate entry for key players.uq_players_active_shirt")));
+                        new java.sql.SQLIntegrityConstraintViolationException("Duplicate entry for key players.uq_players_team_active_shirt")));
         mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("""
                 {"name":"동시 저장 선수","position":"UN","shirtNumber":7}

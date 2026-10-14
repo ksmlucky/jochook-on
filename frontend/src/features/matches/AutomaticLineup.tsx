@@ -43,14 +43,14 @@ export function AutomaticLineup({ draft, players, matchId, disabled, onBusy, onA
   return <section className="automatic-lineup" aria-labelledby="auto-title" aria-busy={pending}>
     <div className="match-block-title"><h4 id="auto-title">참석 명단 확인 · 자동 편성</h4><span>참석 예정 {selected.length}명</span></div>
     <p>선택한 명단으로 1~4쿼터 계획을 채웁니다. 모두 네 쿼터에 참여할 수 있다고 가정합니다.</p>
-    <ul className="auto-rules">
+    <details className="auto-policy"><summary>자동 편성 기준 보기</summary><ul className="auto-rules">
       <li>1~3지망에 GK가 있으면 GK 그룹으로 배정 · 한 명이면 4쿼터 전담</li>
       <li>두 쿼터 연속 휴식 방지 · 1~3쿼터 교체 최소화, 4쿼터 교체 우선</li>
       <li>그룹 안에서 출전량 차이 최대 1쿼터 · 더 뛸 인원은 과거 출석률 우선</li>
       <li>선호 점수 1지망 100 / 2지망 60 / 3지망 30</li>
-    </ul>
-    <button type="button" className="primary-button" disabled={disabled || !selected.length} onClick={() => void generate()}>{pending ? '4쿼터 편성 계산 중…' : '참석 명단 확인 · 1~4쿼터 자동 편성'}</button>
-    <p className="field-help">출석률 = 해당 경기일 이전 참석·지각 ÷ 참석·지각·불참 기록. 미확인과 현재 경기는 제외합니다. 기록 없음은 우선순위 계산에서 0%와 같으며 동률은 계산마다 추첨합니다. 계획 저장 전까지 DB에는 반영되지 않습니다.</p>
+    </ul><p className="field-help">출석률 = 해당 경기일 이전 참석·지각 ÷ 참석·지각·불참 기록. 미확인과 현재 경기는 제외합니다. 기록 없음은 우선순위 계산에서 0%와 같으며 동률은 계산마다 추첨합니다.</p></details>
+    <button type="button" className="primary-button" disabled={disabled || !selected.length} onClick={() => void generate()}>{pending ? '4쿼터 편성 계산 중…' : '1~4쿼터 자동 편성'}</button>
+    <p className="field-help">참석 명단을 확인한 뒤 눌러 주세요. 편성 후 수정할 수 있고, 계획을 저장해야 최종 반영돼요.</p>
     {confirm && <div className="conflict-notice" role="alert"><p>현재 1~4쿼터 계획을 새 자동 편성으로 교체할까요? 실제 출석·득점·도움은 그대로 유지됩니다.</p><div className="registration-actions">
       <button type="button" className="primary-button" disabled={disabled} onClick={() => void generate(true)}>계획 교체하고 자동 편성</button>
       <button type="button" className="secondary-button" disabled={disabled} onClick={() => setConfirm(false)}>기존 계획 유지</button>
