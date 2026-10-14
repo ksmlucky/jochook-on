@@ -13,6 +13,7 @@ backups/
 
 # Dependencies, build products and local verification tools
 node_modules/
+.pnpm-store/
 dist/
 *.tsbuildinfo
 .gradle/
