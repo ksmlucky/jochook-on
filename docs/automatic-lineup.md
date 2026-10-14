@@ -28,7 +28,7 @@
 
 - `LineupSuggestionController` → `LineupSuggestionService`가 DB의 선호 포지션과 출석 집계를 읽는다. `QuarterSchedule`과 `LineupOptimizer`는 DB 없이 검증 가능한 순수 계산 코드다.
 - 휴식·교체·균등 배분이 동시에 걸린 정수 제약 문제여서 [Google OR-Tools CP-SAT의 Java API](https://developers.google.com/optimization/scheduling/employee_scheduling)를 사용한다. 두 단계로 나눠 자리 변수 전체를 처음부터 탐색하는 비용을 줄였다.
-- 라이브러리는 Gradle이 Maven Central에서 받는다. 별도 프로그램이나 유료 서비스는 필요 없다. 운영체제별 네이티브 라이브러리가 포함되어 JAR 크기가 커지고 첫 실행 때 임시 디렉터리에 로드된다. 계산기는 Windows x64에서, DB 연동은 Docker MySQL로 검증했다. Linux 서버에서의 계산기 실행은 이번 로컬 검증에 포함되지 않았으며 배포 환경의 네이티브 호환성을 확인해야 한다.
+- 라이브러리는 Gradle이 Maven Central에서 받는다. 별도 프로그램이나 유료 서비스는 필요 없다. 운영체제별 네이티브 라이브러리가 포함되어 JAR 크기가 커지고 첫 실행 때 임시 디렉터리에 로드된다. 계산기는 Windows x64와 GitHub Actions의 Linux x64에서, DB 연동은 Docker MySQL로 검증했다. ARM 등 다른 배포 환경은 네이티브 호환성을 별도로 확인해야 한다.
 - 그룹별 각 단계에 최대 3초 및 deterministic time 1의 제한을 두고 한 작업 스레드를 사용한다. 동일 입력/시드로 재현하기 쉽게 했지만 시간 제한이 먼저 걸리면 환경에 따라 결과가 달라질 수 있다. 동시에 한 요청만 계산한다.
 - 정확히 두 조(GK 2명 또는 필드 20명)는 두 조가 번갈아 2쿼터씩 출전하는 교체 없는 최적 출전표를 바로 만든다. 이 경우 서버 속도나 탐색 시간에 따라 불필요한 앞 쿼터 교체가 생기지 않는다. 그 출전량 아래에서 선호 포지션 배치를 최적화하는 다음 단계는 동일하다.
 - 자리 탐색 시간이 끝나면 찾은 유효한 해를 사용하고, 없으면 앞 단계의 출전표를 유효한 자리 배치로 바꿔 반환한다. 이 경우 선호 배치와 최적 여부에 대한 경고를 보여준다. 출전표 자체를 못 찾으면 실패 응답이며 화면의 기존 계획을 유지한다.

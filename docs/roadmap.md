@@ -12,7 +12,7 @@
 - [x] 구조·실행·학습 안내
 - [x] Docker Desktop 엔진 기동 및 일회용 MySQL Testcontainers 통합 테스트 5개 통과
 - [ ] 필요 시 기존 DB 백업·이전 후 Compose 개발 DB로 전환 (현재 앱은 Windows MySQL 사용)
-- [ ] 실제 GitHub에서 CI 실행 결과 확인
+- [x] 실제 GitHub에서 Linux 단위/API 151개·MySQL 통합 25개·프론트 15개 및 빌드 통과 확인
 
 완료 기준: 실행 환경을 준비한 PC에서 빈 선수 목록을 조회하고, 전체 테스트가 통과한다. 위 체크는 구현 상태이며 각 실행 검증 결과는 별도로 기록한다.
 
