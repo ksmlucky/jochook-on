@@ -1,4 +1,5 @@
 import type { MatchRecord, Participant, Slot } from './api'
+import { recordingStageLabel } from './recordingProgress.ts'
 
 export interface HistoryChange { label: string; before: string; after: string }
 const votes: Record<string, string> = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' }
@@ -18,6 +19,7 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
   add('장소', before?.venue, after?.venue); add('상대팀', before?.opponent, after?.opponent)
   const score = (m: MatchRecord | null) => m?.scoreFor === null || !m ? null : `${m.kind === 'INTERNAL' ? 'A팀 : B팀' : '우리 팀 : 상대 팀'} · ${m.scoreFor} : ${m.scoreAgainst}`
   add('스코어', score(before), score(after)); add('코멘트', before?.notes, after?.notes)
+  add('작성 상태', before ? recordingStageLabel(before.recordingStage) : null, after ? recordingStageLabel(after.recordingStage) : null)
   const oldPlayers = new Map((before?.participants ?? []).map(p => [p.playerId, p]))
   const newPlayers = new Map((after?.participants ?? []).map(p => [p.playerId, p]))
   const status = (p?: Participant) => p ? `${votes[p.vote]} · 실제 ${attendance[p.attendance]}` : null

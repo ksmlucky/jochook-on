@@ -3,6 +3,7 @@ import { captureTeamScope, readTeamJson, readTeamBlob, teamFetch, teamFetchWithC
 import { fetchPlayers, fetchGuests } from '../players/api'
 import type { Player } from '../players/api'
 import { serviceBrand } from '../../app/brand'
+import type { RecordingStage } from './recordingProgress'
 
 export const voteLabels = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' } as const
 export const attendanceLabels = { PRESENT: '참석', LATE: '지각', ABSENT: '불참', UNCONFIRMED: '미확인' } as const
@@ -33,7 +34,7 @@ export interface MatchImportPreview {
   valid: boolean; quarters: Quarter[]
   rows: { rowNumber: number; values: string[]; playerId: number | null; name: string | null; shirtNumber: number | null; birthYear: number | null; errors: string[]; playerType: 'MEMBER' | 'GUEST' | null }[]
 }
-export interface MatchInfo { id: number; version: number; kind: MatchKind; playedOn: string; kickoff: string | null; venue: string; opponent: string; scoreFor: number | null; scoreAgainst: number | null }
+export interface MatchInfo { id: number; version: number; kind: MatchKind; playedOn: string; kickoff: string | null; venue: string; opponent: string; scoreFor: number | null; scoreAgainst: number | null; recordingStage?: RecordingStage | null }
 export interface MatchScorer { playerId: number; name: string; shirtNumber: number | null; playerType: 'MEMBER' | 'GUEST'; goals: number; goalsA: number; goalsB: number }
 export interface MatchSummary extends MatchInfo { scorers: MatchScorer[]; scorerCount: number }
 export interface MatchRecord extends MatchInfo { notes: string; participants: Participant[]; quarters: Quarter[]; plannedLineup: PlannedEntry[] }
@@ -93,7 +94,7 @@ export async function fetchMatchPlayers(signal: AbortSignal): Promise<Player[]> 
 export async function saveMatch(draft: MatchDraft, existing: MatchRecord | null): Promise<MatchRecord> {
   return read(await teamFetchWithCsrf(existing ? `/api/v1/matches/${existing.id}` : '/api/v1/matches', {
     method: existing ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ kind: draft.kind, playedOn: draft.playedOn, kickoff: draft.kickoff, venue: draft.venue, opponent: draft.opponent, notes: draft.notes, scoreFor: draft.scoreFor, scoreAgainst: draft.scoreAgainst,
+    body: JSON.stringify({ kind: draft.kind, playedOn: draft.playedOn, kickoff: draft.kickoff, venue: draft.venue, opponent: draft.opponent, notes: draft.notes, scoreFor: draft.scoreFor, scoreAgainst: draft.scoreAgainst, recordingStage: draft.recordingStage,
       quarters: draft.quarters, plannedLineup: draft.plannedLineup, participants: draft.participants.map(({ playerId, vote, attendance }) => ({ playerId, vote, attendance })), version: existing?.version ?? null }),
   }))
 }

@@ -1,0 +1,141 @@
+/* Keep native date controls within the grid, including iOS intrinsic sizing. */
+.match-basics input[type="date"] {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.match-basics input[type="date"]::-webkit-date-and-time-value { min-width: 0; text-align: left; }
+.planner-preferences .planner-age::before { content: ' · '; }
+.planner-preference-list { display: inline-flex; flex-wrap: wrap; }
+.planner-preference-list > span { white-space: nowrap; }
+.attendee-preferences { display: inline-flex; flex-wrap: wrap; }
+.attendee-preferences > span { white-space: nowrap; }
+.attendee-age::before { content: ' · '; }
+.attendee-choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mobile-lineup-help { display: none; }
+.match-editor .plan-place.is-substitute.is-empty-substitute > button:first-child {
+  display: block;
+  width: auto;
+  min-width: min(56px, 100%);
+  max-width: 100%;
+  min-height: 28px;
+  margin-inline: auto;
+  padding: 4px 7px;
+  border-style: dashed;
+  border-radius: 7px;
+  background: #ffffff66;
+  color: var(--position-ink);
+  font-size: 10px;
+  line-height: 1.4;
+}
+.match-editor .plan-place.is-substitute.is-empty-substitute > button.plan-drop-hover { background: var(--lime); }
+
+.lineup-position-dialog {
+  width: min(440px, calc(100% - 24px));
+  max-height: calc(100dvh - 40px);
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 24px 80px #182b2433;
+  overscroll-behavior: contain;
+}
+.lineup-position-dialog::backdrop { background: #182b2477; }
+.lineup-dialog-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.lineup-dialog-heading h3 { margin: 0; font-size: 18px; }
+.lineup-dialog-fields .lineup-entry { margin-top: 18px; }
+.lineup-dialog-fields .lineup-entry > label { font-size: 13px; }
+.lineup-dialog-fields select, .lineup-dialog-fields input {
+  width: 100%; min-width: 0; min-height: 44px; padding: 8px;
+  border: 1px solid var(--line); border-radius: 8px;
+  background: white; color: var(--ink); font: inherit; font-size: 16px;
+}
+.lineup-dialog-fields .lineup-stats label { font-size: 13px; }
+.lineup-dialog-done { width: 100%; }
+body:has(.lineup-position-dialog[open]) { overflow: hidden; }
+
+@media (max-width: 700px) {
+  .match-editor .quarter-tabs { gap: 5px; margin: 16px 0 12px; }
+  .match-editor .quarter-tabs button { padding: 8px 2px; font-size: 12px; line-height: 1.4; }
+  .match-editor .quarter-tabs small { font-size: 10px; }
+  .match-editor .match-step-tabs button { min-height: 48px; padding: 6px 2px; }
+  .match-editor .match-step-tabs button span { margin-bottom: 1px; }
+  .match-editor .match-save-bar { gap: 6px; padding-top: 8px; }
+  .match-editor .match-save-bar > span { font-size: 11px; line-height: 1.4; }
+  .match-editor .match-save-bar > button { min-height: 44px; padding: 10px 12px; }
+
+  .match-editor .attendee-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px; padding: 4px; align-content: start; overscroll-behavior: contain;
+  }
+  .match-editor .attendee-choice {
+    position: relative; display: block; min-width: 0;
+    padding: 8px 5px; border-left-width: 3px; border-radius: 8px;
+    font-size: 12px; line-height: 1.4; overflow-wrap: anywhere;
+    touch-action: pan-y;
+  }
+  .match-editor .attendee-choice > input {
+    position: absolute; top: 7px; right: 5px; width: 17px; height: 17px; margin: 0;
+  }
+  .attendee-name, .attendee-name > span { display: block; }
+  .attendee-name .attendee-number {
+    min-height: 20px; margin-bottom: 3px; padding-right: 20px;
+    color: var(--position-ink); font-size: 10px; font-weight: 600;
+  }
+  .match-editor .attendee-choice small { margin-top: 4px; font-size: 10px; line-height: 1.35; }
+  .attendee-age { display: block; margin-top: 2px; }
+  .attendee-age::before { content: ''; }
+
+  .match-editor .planner-bench {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px; padding: 8px; max-height: 310px;
+    align-content: start; overscroll-behavior: contain;
+  }
+  .planner-bench > h5 { margin: 0; }
+  .planner-bench > .field-help { margin: 0 0 4px; font-size: 11px; }
+  .match-editor .planner-candidate {
+    min-width: 0; padding: 8px 4px; border-left-width: 3px;
+    border-radius: 8px; font-size: 12px; line-height: 1.4;
+    touch-action: pan-y;
+  }
+  .planner-player-name { display: block; overflow-wrap: anywhere; }
+  .planner-player-name > span { display: block; }
+  .planner-player-name .planner-player-number { margin-bottom: 2px; color: var(--position-ink); font-size: 10px; font-weight: 600; }
+  .match-editor .planner-candidate small { margin-top: 4px; font-size: 10px; line-height: 1.35; overflow-wrap: anywhere; }
+  .planner-preferences .planner-age { display: block; }
+  .planner-preferences .planner-age::before { content: ''; }
+  .match-editor .planner-assignment { display: block; margin-top: 6px; padding: 3px; font-size: 10px; line-height: 1.4; }
+
+  .match-editor .lineup-pitch { padding: 12px 5px 4px; }
+  .match-editor .attack-direction { margin: 0 0 12px; font-size: 10px; }
+  .match-editor .lineup-row { flex-wrap: nowrap; align-items: flex-start; gap: 5px; margin-bottom: 12px; }
+  .match-editor .plan-position { width: calc((100% - 15px) / 4); }
+  .match-editor .plan-pitch .lineup-row { margin-bottom: 8px; }
+  .match-editor .plan-position > .position-badge { padding: 2px 4px; min-height: 20px; line-height: 1.2; font-size: 10px; white-space: nowrap; }
+  .match-editor .plan-place { margin-top: 4px; }
+  .match-editor .plan-place > button:first-child { min-height: 50px; padding: 4px 3px; gap: 2px; border-radius: 8px; font-size: 11px; line-height: 1.35; }
+  .match-editor .plan-place small { font-size: 9px; }
+  .match-editor .plan-place.is-substitute > button:first-child { min-height: 36px; padding: 3px 2px; font-size: 10px; }
+  .match-editor .plan-place.is-substitute small { font-size: 9px; }
+  .match-editor .plan-remove { width: 24px; height: 24px; right: -3px; top: -8px; padding: 0; }
+
+  .mobile-lineup-help { display: block; font-size: 12px; }
+  .match-editor .lineup-player.is-compact { flex: 0 1 100px; width: calc((100% - 10px) / 3); padding: 0; border: 0; background: transparent; }
+  .lineup-summary { width: 100%; min-height: 88px; padding: 5px 3px; text-align: center; background: white; color: var(--ink); border: 1px solid var(--position-border); border-radius: 9px; }
+  .lineup-summary .position-badge { padding: 3px 1px; font-size: 10px; white-space: nowrap; }
+  .lineup-summary-person { display: block; padding: 7px 0 3px; }
+  .lineup-summary-person > strong { display: block; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+  .lineup-summary-person > small { display: block; margin-top: 3px; font-size: 9px; line-height: 1.4; color: var(--muted); }
+  .lineup-summary-person.is-substitute { border-top: 1px dashed var(--position-border); margin-top: 4px; padding-top: 3px; }
+  .lineup-summary-stats > span { display: block; }
+  .lineup-summary-stats > span:last-child { font-size: 10px; }
+}
+
+@media (max-width: 359px) {
+  .match-editor .planner-bench { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .match-editor .attendee-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}

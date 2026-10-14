@@ -1,0 +1,12 @@
+.recording-status { display: inline-flex; align-items: center; gap: 5px; width: fit-content; padding: 5px 9px; border: 1px solid #e1c88c; border-radius: 7px; background: #fff6df; color: #77541b; font-size: 12px; font-weight: 650; line-height: 1.4; }
+.recording-status.is-completed { background: #e6f4eb; color: #235b42; border-color: #acd3ba; }
+.recording-status.is-legacy { background: var(--soft); color: var(--muted); border-color: var(--line); }
+.match-card-details .recording-status { display: flex; margin-bottom: 8px; }
+.recording-checkpoint { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 12px 0 18px; }
+.recording-checkpoint > small { color: var(--muted); font-size: 12px; }
+.match-complete-action { padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+.match-complete-action > p { margin: 0 0 12px; }
+@media (max-width: 700px) {
+  .recording-status { font-size: 11px; }
+  .match-complete-action > button { width: 100%; min-height: 44px; }
+}

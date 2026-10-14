@@ -1,7 +1,35 @@
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react'
+import type { ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { canPlay, playerLabel, quarterShare, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, Quarter, Slot } from './api'
 import { ageBand } from '../players/age'
+
+const mobileQuery = '(max-width: 700px)'
+function subscribeMobile(callback: () => void) {
+  const query = window.matchMedia(mobileQuery)
+  query.addEventListener('change', callback)
+  return () => query.removeEventListener('change', callback)
+}
+const isMobile = () => window.matchMedia(mobileQuery).matches
+
+function PositionDialog({ title, isAdmin, onClose, children }: { title: string; isAdmin: boolean; onClose: () => void; children: ReactNode }) {
+  const dialog = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
+  useEffect(() => {
+    const element = dialog.current!
+    element.showModal()
+    return () => element.close()
+  }, [])
+  const close = () => { dialog.current?.close(); onClose() }
+  return createPortal(<dialog ref={dialog} className="lineup-position-dialog" aria-labelledby={titleId}
+    onCancel={event => { event.preventDefault(); close() }}>
+    <div className="lineup-dialog-heading"><h3 id={titleId}>{title}</h3><button type="button" className="secondary-button" onClick={close}>닫기</button></div>
+    {children}
+    {isAdmin && <p className="field-help">입력 완료는 창을 닫는 동작입니다. 변경한 내용은 단계별 저장 또는 ‘중간 저장 · 목록으로’를 눌러 저장하세요.</p>}
+    <button type="button" className="primary-button lineup-dialog-done" onClick={close}>{isAdmin ? '입력 완료' : '확인'}</button>
+  </dialog>, document.body)
+}
 
 export function LineupPosition({ slot, quarter, participants, referenceYear, isAdmin, editable, onChange, team, internal }: {
   slot: Slot; quarter: Quarter; participants: Participant[]; referenceYear: number; isAdmin: boolean; editable: boolean
@@ -9,9 +37,11 @@ export function LineupPosition({ slot, quarter, participants, referenceYear, isA
   team: MatchTeam; internal: boolean
 }) {
   const [addingSubstitute, setAddingSubstitute] = useState(false)
+  const compact = useSyncExternalStore(subscribeMobile, isMobile, () => false)
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const starter = quarter.lineup.find(a => a.team === team && a.slot === slot && a.entryOrder === 0)
   const group = slot === 'GK' ? 'GK' : ['LB', 'LCB', 'RCB', 'RB'].includes(slot) ? 'DF' : ['CDM', 'LCM', 'RCM'].includes(slot) ? 'MF' : 'FW'
-  return <div className={`lineup-player position-${group}`}><strong className="lineup-position-label position-badge">{slotLabels[slot]}</strong>{([0, 1] as const).map(order => {
+  const entries = () => ([0, 1] as const).map(order => {
     const a = quarter.lineup.find(a => a.team === team && a.slot === slot && a.entryOrder === order)
     const selected = participants.find(p => p.playerId === a?.playerId)
     if (order === 1 && !a) {
@@ -33,5 +63,24 @@ export function LineupPosition({ slot, quarter, participants, referenceYear, isA
         <label>도움<input aria-label={`${label} 도움`} type="number" min={0} max={99} required disabled={!editable || !a} value={a?.assists ?? 0} onChange={e => onChange(slot, order, { assists: Number(e.target.value) })} /></label></div>}
       {order === 1 && !a && <button type="button" className="lineup-add-substitute" disabled={!editable} onClick={() => setAddingSubstitute(false)}>추가 취소</button>}
     </div>
-  })}</div>
+  })
+  const positionTitle = `${quarter.number}쿼터 ${internal ? `${team}팀 ` : ''}${slotLabels[slot]}`
+  return <div className={`lineup-player position-${group}${compact ? ' is-compact' : ''}`} data-position={slot}>
+    {compact ? <>
+      <button type="button" className="lineup-summary" aria-label={`${positionTitle} ${isAdmin ? '선수·기록 입력' : '출전 기록 보기'}`} aria-haspopup="dialog" onClick={() => setDetailsOpen(true)}>
+        <strong className="lineup-position-label position-badge">{slotLabels[slot]}</strong>
+        {([0, 1] as const).map(order => {
+          const entry = quarter.lineup.find(a => a.team === team && a.slot === slot && a.entryOrder === order)
+          const person = participants.find(p => p.playerId === entry?.playerId)
+          if (order === 1 && !entry) return null
+          return <span key={order} className={`lineup-summary-person${order === 1 ? ' is-substitute' : ''}`}>
+            {order === 1 && <small>↳ 교체</small>}
+            <strong>{person ? playerLabel(person) : isAdmin ? '+ 선수 선택' : '미기록'}</strong>
+            {entry && <small className="lineup-summary-stats"><span>{quarterShare(quarter, entry)}Q</span><span>골{entry.goals} · 도움{entry.assists}</span></small>}
+          </span>
+        })}
+      </button>
+      {detailsOpen && <PositionDialog title={positionTitle} isAdmin={isAdmin} onClose={() => setDetailsOpen(false)}><div className={`lineup-dialog-fields position-${group}`}>{entries()}</div></PositionDialog>}
+    </> : <><strong className="lineup-position-label position-badge">{slotLabels[slot]}</strong>{entries()}</>}
+  </div>
 }

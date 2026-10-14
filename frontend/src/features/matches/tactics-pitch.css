@@ -1,0 +1,57 @@
+/* Shared spatial 4-1-2-3 board. Intrinsic grid rows expand for substitutes/long names. */
+.match-editor .tactics-pitch {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(21, minmax(18px, auto));
+  gap: 4px;
+  padding: 40px 16px 24px;
+  border: 1px solid #b7cbb6;
+  border-radius: 16px;
+  background: repeating-linear-gradient(180deg, #eef5e8 0%, #eef5e8 12.5%, #e5efdf 12.5%, #e5efdf 25%);
+}
+.match-editor .tactics-pitch .attack-direction {
+  position: absolute; top: 10px; inset-inline: 0;
+  margin: 0; text-align: center; color: #55785c; font-size: 10px;
+}
+.match-editor .tactics-pitch .lineup-row { display: contents; }
+.match-editor .tactics-pitch [data-position] {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 150px; min-width: 0;
+  justify-self: center; align-self: start;
+}
+.match-editor .tactics-pitch .plan-position { max-width: 112px; }
+.tactics-pitch [data-position="ST"] { grid-area: 1 / 5 / span 3 / span 4; }
+.tactics-pitch [data-position="LW"] { grid-area: 2 / 1 / span 3 / span 3; }
+.tactics-pitch [data-position="RW"] { grid-area: 2 / 10 / span 3 / span 3; }
+.tactics-pitch [data-position="LCM"] { grid-area: 6 / 3 / span 3 / span 3; }
+.tactics-pitch [data-position="RCM"] { grid-area: 6 / 8 / span 3 / span 3; }
+.tactics-pitch [data-position="CDM"] { grid-area: 10 / 5 / span 3 / span 4; }
+.tactics-pitch [data-position="LB"] { grid-area: 14 / 1 / span 3 / span 3; }
+.tactics-pitch [data-position="RB"] { grid-area: 14 / 10 / span 3 / span 3; }
+.tactics-pitch [data-position="LCB"] { grid-area: 15 / 4 / span 3 / span 3; }
+.tactics-pitch [data-position="RCB"] { grid-area: 15 / 7 / span 3 / span 3; }
+.tactics-pitch [data-position="GK"] { grid-area: 19 / 5 / span 3 / span 4; }
+.tactics-pitch .lineup-summary { box-shadow: 0 3px 8px #243b3210; }
+
+.pitch-markings { position: absolute; inset: 30px 9px 10px; border: 1px solid #8eaf9299; pointer-events: none; z-index: 0; }
+.pitch-markings > span { position: absolute; display: block; border-color: #8eaf9299; }
+.pitch-halfway { top: 50%; left: 0; right: 0; border-top: 1px solid; }
+.pitch-center-circle { left: 50%; top: 50%; width: 42%; aspect-ratio: 1; border: 1px solid; border-radius: 50%; transform: translate(-50%, -50%); }
+.pitch-center-spot { top: 50%; left: 50%; width: 4px; height: 4px; background: #8eaf92; border-radius: 50%; transform: translate(-50%, -50%); }
+.pitch-penalty-area { left: 26%; width: 48%; height: 12%; border: 1px solid; }
+.pitch-goal-area { left: 38%; width: 24%; height: 4.5%; border: 1px solid; }
+.pitch-markings .at-top { top: -1px; border-top: 0; }
+.pitch-markings .at-bottom { bottom: -1px; border-bottom: 0; }
+
+@media (max-width: 700px) {
+  .match-editor .tactics-pitch {
+    grid-template-rows: repeat(21, minmax(16px, auto));
+    gap: 3px; padding: 36px 8px 20px;
+  }
+  .match-editor .tactics-pitch [data-position] { max-width: 82px; }
+  .match-editor .tactics-pitch .plan-position { max-width: 76px; }
+  .match-editor .tactics-pitch .lineup-player.is-compact { width: 100%; }
+  .pitch-markings { inset-inline: 5px; }
+}

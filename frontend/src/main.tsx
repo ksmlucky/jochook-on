@@ -5,6 +5,8 @@ import { LeaveGuardProvider } from './app/LeaveGuard'
 import { registerServiceWorker } from './app/registerServiceWorker'
 import './styles.css'
 import './app/layout.css'
+import './features/matches/match-mobile.css'
+import './features/matches/tactics-pitch.css'
 
 registerServiceWorker()
 

@@ -46,6 +46,36 @@ class MatchIntegrationTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
     }
+    @ParameterizedTest @EnumSource(MatchKind.class)
+    void writingCheckpointRoundTripsWithHistoryAndVersionProtection(MatchKind kind) throws Exception {
+        var base = deletionFixture(null, kind, 0);
+        long id = create(base);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.recordingStage").value("ATTENDANCE"));
+        long version = 0;
+        for (var stage : List.of(RecordingStage.PLAN, RecordingStage.ACTUAL, RecordingStage.RESULT,
+                RecordingStage.COMPLETED, RecordingStage.ACTUAL)) {
+            var update = new MatchRequest(base.playedOn(), base.kickoff(), base.venue(), base.opponent(), base.notes(), version,
+                    base.participants(), base.quarters(), base.plannedLineup(), 0, 0, kind, stage);
+            mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(update)))
+                    .andExpect(status().isOk()).andExpect(jsonPath("$.recordingStage").value(stage.name()));
+            version++;
+            mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.recordingStage").value(stage.name()));
+            mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.items[0].recordingStage").value(stage.name()));
+            assertThat(jdbc.queryForObject("SELECT recording_stage FROM match_records WHERE id=?", String.class, id)).isEqualTo(stage.name());
+        }
+        var latest = savedMatchRows(id);
+        var stale = new MatchRequest(base.playedOn(), base.kickoff(), base.venue(), base.opponent(), "", 0L,
+                base.participants(), base.quarters(), base.plannedLineup(), 0, 0, kind, RecordingStage.COMPLETED);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(stale)))
+                .andExpect(status().isConflict());
+        assertThat(savedMatchRows(id)).isEqualTo(latest);
+        var event = jdbc.queryForMap("SELECT before_snapshot, after_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", id);
+        assertThat(json.readTree(event.get("before_snapshot").toString()).get("recordingStage").asText()).isEqualTo("COMPLETED");
+        assertThat(json.readTree(event.get("after_snapshot").toString()).get("recordingStage").asText()).isEqualTo("ACTUAL");
+        var invalid = json.writeValueAsString(stale).replace("COMPLETED", "NOT_A_STAGE");
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(invalid)).andExpect(status().isBadRequest());
+        assertThat(savedMatchRows(id)).isEqualTo(latest);
+    }
     private MatchRequest deletionFixture(Long version, MatchKind kind, int goals) {
         var base = request(version, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)), List.of());
         var secondTeam = kind == MatchKind.INTERNAL ? MatchTeam.B : MatchTeam.A;

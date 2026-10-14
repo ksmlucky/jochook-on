@@ -17,6 +17,8 @@ public class MatchRecord {
     @Column(name = "score_against") private Integer scoreAgainst;
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "match_kind", nullable = false, length = 16) private MatchKind kind;
+    @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Column(name = "recording_stage", length = 16) private RecordingStage recordingStage;
     @Column(nullable = false, length = 100) private String venue;
     @Column(nullable = false, length = 100) private String opponent;
     @Column(nullable = false, length = 3000) private String notes;
@@ -30,11 +32,16 @@ public class MatchRecord {
     @ElementCollection @CollectionTable(name = "match_planned_lineups", joinColumns = @JoinColumn(name = "match_id"))
     private List<PlannedLineup> plannedLineup = new ArrayList<>();
     protected MatchRecord() { }
-    static MatchRecord create(MatchRequest request) { var match = new MatchRecord(); match.replace(request); return match; }
+    static MatchRecord create(MatchRequest request) {
+        var match = new MatchRecord(); match.recordingStage = RecordingStage.ATTENDANCE;
+        match.replace(request); return match;
+    }
     void replace(MatchRequest request) {
         validateRules(request);
         if (id != null && kind != request.kind()) throw new IllegalArgumentException("저장한 경기의 유형은 변경할 수 없습니다. 별도 경기로 등록해 주세요.");
         kind = request.kind();
+        // Older clients omit this field: preserve the saved checkpoint, including legacy NULL.
+        if (request.recordingStage() != null) recordingStage = request.recordingStage();
         playedOn = request.playedOn(); kickoff = request.kickoff();
         scoreFor = request.scoreFor(); scoreAgainst = request.scoreAgainst();
         venue = request.venue().strip(); opponent = request.opponent().strip(); notes = request.notes().strip();
@@ -100,6 +107,7 @@ public class MatchRecord {
         if (kind == MatchKind.EXTERNAL && team != MatchTeam.A) throw new IllegalArgumentException("외부 경기는 우리 팀(A)만 배치할 수 있습니다.");
     }
     public MatchKind getKind() { return kind; }
+    public RecordingStage getRecordingStage() { return recordingStage; }
     public Long getId() { return id; }
     public Long getTeamId() { return teamId; }
     MatchRecord assignToTeam(long teamId) {

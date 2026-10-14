@@ -7,6 +7,8 @@ import { matchTimeRange } from './time'
 import type { MatchPage, MatchRecord, MatchSummary } from './api'
 import { MatchEditor } from './MatchEditor'
 import { MatchHistory } from './MatchHistory'
+import { RecordingStatus } from './RecordingStatus'
+import { recordingStageLabel } from './recordingProgress'
 import { ConfirmAction } from '../teams/AccessUi'
 import { useEditGuard } from '../../app/LeaveGuard'
 import type { TeamDisplay } from '../../app/team'
@@ -103,19 +105,19 @@ export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDi
     {busy && <p className="save-notice" role="status">경기 입력 화면을 준비하고 있습니다.</p>}
     {history && isAdmin ? <MatchHistory onClose={() => { setHistory(false); setRevision(value => value + 1) }} onSessionExpired={onSessionExpired} /> : editor ? <MatchEditor key={editor.record?.id ?? 'new'} record={editor.record} players={editor.players} isAdmin={isAdmin}
       onSessionExpired={onSessionExpired} onClose={() => { setEditor(null); setRevision(r => r + 1) }} onStepSaved={notifySaved}
-      onSaved={saved => { setEditor(null); setPage(0); setRevision(r => r + 1); notifySaved(`${saved.playedOn} 경기 기록을 저장했습니다.`) }} /> : <>
+      onSaved={saved => { setEditor(null); setPage(0); setRevision(r => r + 1); notifySaved(`${saved.playedOn} · ${recordingStageLabel(saved.recordingStage)} 상태로 저장했습니다.`) }} /> : <>
       {!data && !error && <p className="save-notice" role="status">경기 목록을 불러오고 있습니다.</p>}
       {data?.items.length === 0 && <div className="empty-state"><span className="empty-number" aria-hidden="true">4Q</span><h3>첫 경기의 기록을 남겨 보세요</h3><p>투표 결과만 먼저 저장하고, 경기 후 출석과 기록을 이어서 입력할 수 있습니다.</p></div>}
       {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id} className={isAdmin ? 'match-list-item managed' : 'match-list-item'}>
         <button className="match-card" disabled={locked} onClick={() => void open(m.id)}>
           <span className="match-date">{m.playedOn}<small>{matchTimeRange(m.kickoff)}</small></span>
-          <span className="match-card-details"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · 4-1-2-3 · 4쿼터</small>
+          <span className="match-card-details"><RecordingStatus stage={m.recordingStage} /><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · 4-1-2-3 · 4쿼터</small>
             <span className="match-scorers">{m.scorers.length ? <>득점 · {m.scorers.map(p => `${playerLabel(p)} ${m.kind === 'INTERNAL' ? [p.goalsA > 0 ? `A팀 ${p.goalsA}골` : '', p.goalsB > 0 ? `B팀 ${p.goalsB}골` : ''].filter(Boolean).join(' / ') : `${p.goals}골`}`).join(' · ')}{m.scorerCount > 3 && ` · 외 ${m.scorerCount - 3}명`}</> : '등록된 득점자 없음'}</span>
           </span>
           <span className={`match-score${m.scoreFor === null ? ' unrecorded' : ''}`} aria-label={m.scoreFor === null ? '스코어 미입력' : `${m.kind === 'INTERNAL' ? 'A팀' : '우리 팀'} ${m.scoreFor} 대 ${m.kind === 'INTERNAL' ? 'B팀' : '상대 팀'} ${m.scoreAgainst}`}>
             {m.scoreFor === null ? '스코어 미입력' : `${m.scoreFor} : ${m.scoreAgainst}`}<small>{m.kind === 'INTERNAL' ? 'A팀 : B팀' : '우리 팀 : 상대 팀'}</small>
           </span>
-          <span className="match-open">기록 보기 ↗</span>
+          <span className="match-open">{isAdmin && m.recordingStage && m.recordingStage !== 'COMPLETED' ? '이어서 작성 ↗' : '기록 보기 ↗'}</span>
         </button>
         {isAdmin && <div className="match-card-actions"><button type="button" className="danger-button" disabled={locked}
           aria-label={`${m.playedOn} ${m.kind === 'INTERNAL' ? '자체전' : m.opponent || '상대 팀 미입력'} 경기 기록 삭제`}

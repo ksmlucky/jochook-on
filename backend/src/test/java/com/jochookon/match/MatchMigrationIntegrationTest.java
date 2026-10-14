@@ -39,6 +39,9 @@ class MatchMigrationIntegrationTest {
         assertThat(jdbc.queryForObject("SELECT kickoff FROM match_records WHERE id=1", java.sql.Time.class)).isNull();
         assertThat(jdbc.queryForObject("SELECT kickoff FROM match_records WHERE id=2", java.sql.Time.class).toLocalTime()).isEqualTo(java.time.LocalTime.of(11, 15));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records WHERE score_for IS NULL AND score_against IS NULL", Integer.class)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records WHERE recording_stage IS NULL", Integer.class)).isEqualTo(2);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET recording_stage='INVALID' WHERE id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_quarters", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='match_quarters' AND column_name='duration_minutes'", Integer.class)).isZero();
     }
@@ -65,7 +68,7 @@ class MatchMigrationIntegrationTest {
 
         for (String table : tables) {
             var after = jdbc.queryForList("SELECT * FROM " + table);
-            after.forEach(row -> { row.remove("team_id"); row.remove("service_admin"); });
+            after.forEach(row -> { row.remove("team_id"); row.remove("service_admin"); row.remove("recording_stage"); });
             assertThat(after).as("existing values in %s", table).containsExactlyInAnyOrderElementsOf(before.get(table));
         }
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM teams WHERE id=1 AND name='HANA FC' AND status='ACTIVE'", Integer.class)).isEqualTo(1);

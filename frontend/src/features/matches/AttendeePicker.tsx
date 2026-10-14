@@ -3,7 +3,6 @@ import type { Player } from '../players/api'
 import { preferredPositionGroup } from '../players/api'
 import { ageBand } from '../players/age'
 import type { Participant } from './api'
-import { playerLabel } from './api'
 
 export function AttendeePicker({ players, participants, editable, referenceYear, onSelect }: {
   players: Player[]; participants: Participant[]; editable: boolean; referenceYear: number
@@ -21,7 +20,10 @@ export function AttendeePicker({ players, participants, editable, referenceYear,
     <p className="field-help">참석에 투표한 선수를 체크하세요. 체크 해제는 미투표로 돌리며 실제 출석은 바꾸지 않습니다. 불참·미정은 아래 상세 표에서 입력할 수 있습니다.</p>
     <div className="attendee-grid">{candidates.map(p => <label className={`attendee-choice position-${preferredPositionGroup(p.firstChoice)}${attending.has(p.id) ? ' is-selected' : ''}`} key={p.id}>
       <input type="checkbox" checked={attending.has(p.id)} disabled={!editable} onChange={e => onSelect(p, e.target.checked)} aria-label={`${p.name} ${p.shirtNumber === null ? '등번호 없음' : p.shirtNumber + '번'} 참석 예정`} />
-      <span><strong>{playerLabel(p)}</strong><small>{[p.firstChoice, p.secondChoice, p.thirdChoice].filter(Boolean).join(' / ') || '포지션 미확인'} · {ageBand(p.birthYear, referenceYear)}</small></span>
+      <span className="attendee-details">
+        <strong className="attendee-name"><span className="attendee-number">{p.shirtNumber === null ? '등번호 없음' : `#${p.shirtNumber}`}</span>{' '}<span>{p.name}{p.playerType === 'GUEST' ? ' (용병)' : ''}</span></strong>
+        <small><span className="attendee-preferences">{[p.firstChoice, p.secondChoice, p.thirdChoice].filter(Boolean).map((position, index) => <span key={position}>{index > 0 ? '/' : ''}{position}</span>)}{!p.firstChoice && !p.secondChoice && !p.thirdChoice && '포지션 미확인'}</span><span className="attendee-age">{ageBand(p.birthYear, referenceYear)}</span></small>
+      </span>
     </label>)}</div>
     {!candidates.length && <p className="field-help">조건에 맞는 선수가 없습니다.</p>}
   </div>

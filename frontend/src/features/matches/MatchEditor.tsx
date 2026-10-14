@@ -6,6 +6,7 @@ import { attendanceLabels, canPlay, emptyMatch, MatchRequestError, pitchRows, pl
 import type { Appearance, Attendance, MatchDraft, MatchImportPreview, MatchKind, MatchRecord, MatchTeam, Participant, Slot, Vote } from './api'
 import { MatchWorkbookImport } from './MatchWorkbookImport'
 import { LineupPosition } from './LineupPosition'
+import { PitchMarkings } from './PitchMarkings'
 import { ageBand, ageDescription } from '../players/age'
 import { AttendeePicker } from './AttendeePicker'
 import { MatchPlanner } from './MatchPlanner'
@@ -15,6 +16,8 @@ import { actualFromPlan } from './plan'
 import { kickoffHours, kickoffMinutes, matchTimeRange, validKickoff } from './time'
 import { TeamSelector } from './TeamSelector'
 import { useEditGuard } from '../../app/LeaveGuard'
+import { RecordingStatus } from './RecordingStatus'
+import { recordingStageLabel, recordingStages, resumeStep, stageOnSave } from './recordingProgress'
 
 const editorSteps = ['투표·출석', '스쿼드 계획', '실제 출전', '결과·코멘트']
 const stepHeadings = ['attendance-title', 'plan-title', 'lineup-title', 'match-totals']
@@ -31,7 +34,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   const [kickoffMinute, setKickoffMinute] = useState(() => validKickoff(initialRecord?.kickoff ?? null) ? initialRecord!.kickoff!.slice(3, 5) : '')
   const [quarter, setQuarter] = useState(1)
   const [team, setTeam] = useState<MatchTeam>('A')
-  const [step, setStep] = useState(0)
+  const [step, setStep] = useState(() => resumeStep(initialRecord?.recordingStage))
   const [dirty, setDirty] = useState(false)
   const [busy, setBusy] = useState(false)
   useEditGuard(isAdmin && dirty, busy)
@@ -126,7 +129,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    const destination = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value || 'finish'
+    const destination = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value || 'save'
     await persist(draft, destination)
   }
   async function persist(next: MatchDraft, destination: string) {
@@ -152,13 +155,13 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     }
     submitting.current = true; setBusy(true); setError('')
     try {
-      const saved = await saveMatch(next, record)
+      const saved = await saveMatch({ ...next, recordingStage: stageOnSave(step, destination) }, record)
       setRecord(saved); setDraft(saved); setDirty(false); setConfirmClose(false)
-      if (destination === 'finish') onSaved(saved)
+      if (destination === 'save' || destination === 'complete') onSaved(saved)
       else {
-        onStepSaved(destination === 'lineup' ? '스쿼드 계획을 저장했습니다.' : destination === 'actual-from-plan' ? '계획대로 참석·출전 기록을 저장했습니다.' : '실제 출전 기록을 저장했습니다.')
+        onStepSaved(destination === 'plan' ? '투표·출석을 저장했습니다. 스쿼드 계획을 이어서 작성하세요.' : destination === 'lineup' ? '스쿼드 계획을 저장했습니다. 실제 출전을 이어서 작성하세요.' : destination === 'actual-from-plan' ? '계획대로 참석·출전 기록을 저장했습니다.' : '실제 출전 기록을 저장했습니다. 경기 결과를 확인하세요.')
         if (destination === 'actual-from-plan') setQuarter(1)
-        goToStep(destination === 'lineup' || destination === 'actual-from-plan' ? 'lineup-title' : 'match-totals')
+        goToStep(stepHeadings[resumeStep(saved.recordingStage)])
       }
     }
     catch (cause) {
@@ -174,18 +177,19 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     const appearances = draft.quarters.flatMap(q => q.lineup.filter(a => a.playerId === p.playerId).map(a => ({ ...a, quarter: q.number, share: quarterShare(q, a) })))
     return { ...p, appearances, credited: appearances.reduce((s, a) => s + a.share, 0), goals: appearances.reduce((s, a) => s + a.goals, 0), assists: appearances.reduce((s, a) => s + a.assists, 0) }
   })
-  function stepActions(destination: 'lineup' | 'totals') {
-    const label = destination === 'lineup' ? '계획 저장 · 실제 기록으로' : '출전 기록 저장 · 집계 확인'
+  function stepActions(destination: 'plan' | 'lineup' | 'totals') {
+    const label = destination === 'plan' ? '투표 저장 · 스쿼드 계획으로' : destination === 'lineup' ? '계획 저장 · 실제 기록으로' : '출전 기록 저장 · 집계 확인'
     return <div className="match-step-actions">
       <p className="field-help">{isAdmin ? '현재 입력한 경기 내용 전체를 저장하고 다음 단계로 이동합니다.' : '다음 단계의 기록을 확인하세요.'}</p>
       {isAdmin ? <button type="submit" value={destination} className="primary-button" disabled={!editable}>{busy ? '처리 중…' : label}</button>
-        : <button type="button" className="secondary-button" onClick={() => goToStep(destination === 'lineup' ? 'lineup-title' : 'match-totals')}>{destination === 'lineup' ? '실제 기록 보기' : '집계 보기'}</button>}
+        : <button type="button" className="secondary-button" onClick={() => goToStep(destination === 'plan' ? 'plan-title' : destination === 'lineup' ? 'lineup-title' : 'match-totals')}>{destination === 'plan' ? '스쿼드 계획 보기' : destination === 'lineup' ? '실제 기록 보기' : '집계 보기'}</button>}
     </div>
   }
   const enteredGoals = (value: MatchTeam) => draft.quarters.flatMap(q => q.lineup).filter(a => a.team === value).reduce((sum, a) => sum + a.goals, 0)
   return <form className="match-editor" noValidate onSubmit={submit} aria-busy={busy}>
     <div className="match-editor-heading"><div><p className="eyebrow muted">{record ? 'MATCH RECORD' : 'NEW MATCH'}</p><h3 id="match-editor-title">{record ? `${record.playedOn} 경기 기록` : '새 경기 기록'}</h3></div>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => dirty ? setConfirmClose(true) : onClose()}>목록으로</button></div>
+    {record && <div className="recording-checkpoint"><RecordingStatus stage={record.recordingStage} /><small>마지막 저장 기준 · 탭 이동만으로 상태가 바뀌지는 않습니다.</small></div>}
     {confirmClose && <div className="conflict-notice"><p>저장하지 않은 입력이 있습니다. 목록으로 돌아가면 이 입력은 사라집니다.</p><div className="registration-actions"><button type="button" className="secondary-button" onClick={onClose}>입력 취소하고 목록으로</button><button type="button" className="secondary-button" onClick={() => setConfirmClose(false)}>계속 작성</button></div></div>}
     <fieldset disabled={!editable} className="player-fields match-basics"><legend className="sr-only">경기 기본 정보</legend>
       <div className="match-kind-field"><label htmlFor="match-kind">경기 유형</label><select id="match-kind" value={draft.kind} disabled={kindLocked} onChange={e => { change({ ...draft, kind: e.target.value as MatchKind, opponent: '' }); setTeam('A') }}><option value="EXTERNAL">외부 경기</option><option value="INTERNAL">자체전 · A팀 vs B팀</option></select>
@@ -228,7 +232,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
           change({ ...draft, participants: [...draft.participants, { playerId: p.id, name: p.name, shirtNumber: p.shirtNumber, birthYear: p.birthYear, playerType: p.playerType, vote: 'UNANSWERED', attendance: 'UNCONFIRMED' }] }); setAddedPlayer('')
         }}>명단에 추가</button></div>}
     </section>
-    <div className="match-step-actions"><p className="field-help">입력은 탭을 옮겨도 유지됩니다. 저장 버튼을 누르면 DB에 반영됩니다.</p><button type="button" className="secondary-button" disabled={busy} onClick={() => goToStep('plan-title')}>02 스쿼드 계획으로</button></div>
+    {stepActions('plan')}
     </div>
     <div role="tabpanel" id="match-panel-1" aria-labelledby="match-tab-1" hidden={step !== 1}>
     {isAdmin && !internal && <AutomaticLineup draft={draft} players={players} matchId={record?.id ?? null} disabled={!editable} onBusy={setBusy} onSessionExpired={onSessionExpired}
@@ -254,7 +258,8 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       {isAdmin && <MatchWorkbookImport key={`${draft.kind}-${team}`} teamLabel={internal ? `${team}팀` : undefined} disabled={!editable} onBusy={setBusy} onApply={applyWorkbook} onSessionExpired={onSessionExpired} />}
       <div className="quarter-summary"><strong>{quarter}쿼터 {internal && `${team}팀`} · 득점 {teamLineup.reduce((s, a) => s + a.goals, 0)} / 도움 {teamLineup.reduce((s, a) => s + a.assists, 0)}</strong>
         <span>기록 인원 {teamLineup.length}명</span></div>
-      <div className={`lineup-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} aria-label={`${quarter}쿼터 ${internal ? `${team}팀 ` : ''}4-1-2-3 출전 명단`}><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>{pitchRows.map((row, i) => <div className="lineup-row" key={i}>{row.map(slot =>
+      <p className="mobile-lineup-help field-help">{isAdmin ? '자리를 누르면 선수·교체·골·도움을 입력할 수 있어요.' : '자리를 누르면 선수별 상세 기록을 볼 수 있어요.'}</p>
+      <div className={`lineup-pitch tactics-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} aria-label={`${quarter}쿼터 ${internal ? `${team}팀 ` : ''}4-1-2-3 출전 명단`}><PitchMarkings /><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>{pitchRows.map((row, i) => <div className="lineup-row" key={i}>{row.map(slot =>
         <LineupPosition key={`${quarter}-${team}-${slot}`} team={team} internal={internal} slot={slot} quarter={q} participants={draft.participants} referenceYear={referenceYear} isAdmin={isAdmin} editable={editable} onChange={appearance} />
       )}</div>)}</div>
       <p className="field-help">이번 쿼터에 배치되지 않은 참석자: {eligible.filter(p => !q.lineup.some(a => a.playerId === p.playerId)).map(playerLabel).join(', ') || '없음'}</p>
@@ -276,8 +281,12 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       <div className="match-table-scroll"><table className="match-table"><thead><tr><th scope="col">선수</th><th scope="col">출석</th><th scope="col">출전 쿼터</th><th scope="col">득점</th><th scope="col">도움</th></tr></thead><tbody>
         {totals.map(p => <tr key={p.playerId}><th scope="row">{p.playerType === 'GUEST' && '용병 · '}{p.name}<small>{shirtLabel(p.shirtNumber)} · {ageBand(p.birthYear, referenceYear)}</small></th><td>{attendanceLabels[p.attendance]}</td><td>{p.appearances.length ? <>{p.appearances.map(a => `${a.quarter}Q${internal ? ` ${a.team}팀` : ''}(${a.share})`).join(' · ')}<small>합계 {p.credited}쿼터</small></> : '출전 기록 없음'}</td><td>{p.goals}</td><td>{p.assists}</td></tr>)}
       </tbody></table></div>
+      {isAdmin && <div className="match-step-actions match-complete-action">
+        <p className="field-help">입력한 기록을 확인했다면 완료로 표시하세요. 미입력 항목이 있어도 직접 완료할 수 있습니다. 완료 후에도 감독·코치는 수정할 수 있으며, 중간 저장하면 다시 작성 중이 됩니다.</p>
+        <button type="submit" value="complete" className="primary-button" disabled={!editable}>{busy ? '처리 중…' : '기록 완료 · 목록으로'}</button>
+      </div>}
     </section>
     </div>
-    {isAdmin && <div className="match-save-bar"><span>{dirty ? '저장하지 않은 변경 사항이 있습니다.' : '투표만 먼저 저장해도 됩니다. 나머지 기록은 나중에 수정하세요.'}</span><button type="submit" className="primary-button" disabled={busy || blocked}>{busy ? '처리 중…' : '경기 기록 저장'}</button></div>}
+    {isAdmin && <div className="match-save-bar"><span>{dirty ? '저장하지 않은 변경 사항이 있습니다. ' : ''}{record?.recordingStage === 'COMPLETED' ? '중간 저장하면 다시 작성 중으로 바뀝니다.' : `중간 저장 시 ‘${recordingStageLabel(recordingStages[step])}’로 표시됩니다.`}</span><button type="submit" value="save" className="primary-button" disabled={busy || blocked}>{busy ? '처리 중…' : '중간 저장 · 목록으로'}</button></div>}
   </form>
 }

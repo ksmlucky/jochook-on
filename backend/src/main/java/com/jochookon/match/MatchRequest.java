@@ -15,10 +15,16 @@ public record MatchRequest(
         @NotNull @Size(max = 200) List<@NotNull @Valid Participant> participants,
         @NotNull @Size(min = 4, max = 4) List<@NotNull @Valid Quarter> quarters,
         @Size(max = 176) List<@NotNull @Valid PlannedEntry> plannedLineup,
-        @Min(0) @Max(99) Integer scoreFor, @Min(0) @Max(99) Integer scoreAgainst, MatchKind kind) {
+        @Min(0) @Max(99) Integer scoreFor, @Min(0) @Max(99) Integer scoreAgainst, MatchKind kind,
+        RecordingStage recordingStage) {
     public MatchRequest {
         plannedLineup = plannedLineup == null ? List.of() : plannedLineup;
         kind = kind == null ? MatchKind.EXTERNAL : kind;
+    }
+    public MatchRequest(LocalDate playedOn, LocalTime kickoff, String venue, String opponent, String notes,
+                        Long version, List<Participant> participants, List<Quarter> quarters, List<PlannedEntry> plannedLineup,
+                        Integer scoreFor, Integer scoreAgainst, MatchKind kind) {
+        this(playedOn, kickoff, venue, opponent, notes, version, participants, quarters, plannedLineup, scoreFor, scoreAgainst, kind, null);
     }
     public MatchRequest(LocalDate playedOn, LocalTime kickoff, String venue, String opponent, String notes,
                         Long version, List<Participant> participants, List<Quarter> quarters, List<PlannedEntry> plannedLineup,
