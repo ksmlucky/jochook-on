@@ -29,6 +29,8 @@ ENTRYPOINT ["java", "-XX:MaxRAMPercentage=60.0", "-jar", "/app/app.jar"]
 
 FROM caddy:2-alpine AS web-northflank
 COPY deploy/Caddyfile.northflank /etc/caddy/Caddyfile
+RUN JOCHOOK_ON_SITE_HOST=check.invalid JOCHOOK_ON_API_UPSTREAM=api:8080 JOCHOOK_ON_TRUSTED_PROXY_CIDRS=127.0.0.1/32 \
+    caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 COPY --from=frontend-build /src/frontend/dist /srv
 EXPOSE 8080
 

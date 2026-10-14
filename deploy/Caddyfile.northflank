@@ -10,6 +10,16 @@
 }
 
 :8080 {
+	log {
+		format filter {
+			wrap json
+			fields {
+				request>headers delete
+				request>uri delete
+			}
+		}
+	}
+	log_skip /healthz
 	encode zstd gzip
 	header {
 		X-Content-Type-Options nosniff
