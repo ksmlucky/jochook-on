@@ -1,0 +1,277 @@
+package com.hanafc.match;
+
+import static com.hanafc.match.MatchTestData.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import java.util.*;
+import org.junit.jupiter.api.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.http.MediaType;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.junit.jupiter.*;
+import org.testcontainers.mysql.MySQLContainer;
+import tools.jackson.databind.ObjectMapper;
+
+@Tag("integration") @Testcontainers @SpringBootTest(properties = "spring.datasource.password=unused-test-password")
+@AutoConfigureMockMvc @WithMockUser(roles = "ADMIN")
+class MatchIntegrationTest {
+    @Container @ServiceConnection static final MySQLContainer MYSQL = new MySQLContainer("mysql:8.4");
+    @Autowired JdbcTemplate jdbc;
+    @Autowired MockMvc mvc;
+    @Autowired ObjectMapper json;
+    long first; long second;
+    @BeforeEach void seedIsolatedDatabase() {
+        jdbc.update("DELETE FROM match_planned_lineups");
+        jdbc.update("DELETE FROM match_appearances"); jdbc.update("DELETE FROM match_quarters");
+        jdbc.update("DELETE FROM match_participants"); jdbc.update("DELETE FROM match_records"); jdbc.update("DELETE FROM players");
+        jdbc.update("INSERT INTO players(name, position) VALUES ('검증 선수 A', 'FW'), ('검증 선수 B', 'GK')");
+        var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class); first = ids.get(0); second = ids.get(1);
+    }
+    long create(MatchRequest request) throws Exception {
+        var response = mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(request)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
+        return json.readTree(response.getContentAsString()).get("id").asLong();
+    }
+    @Test void internalMatchPersistsBothTeamsAndScoresWithOneAttendanceAndProtectsAgainstInvalidEdits() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)), List.of());
+        var quarters = new ArrayList<>(base.quarters());
+        quarters.set(0, new MatchRequest.Quarter(1, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 2, 0, 0, MatchTeam.A), new MatchRequest.Appearance(LineupSlot.ST, second, 1, 0, 0, MatchTeam.B))));
+        quarters.set(1, new MatchRequest.Quarter(2, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 1, 0, 0, MatchTeam.B))));
+        var plan = List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, first, MatchTeam.A), new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, second, MatchTeam.B));
+        var internal = new MatchRequest(base.playedOn(), base.kickoff(), "검증 구장", "", "자체전", null, base.participants(), quarters, plan, 2, 2, MatchKind.INTERNAL);
+        long id = create(internal);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.kind").value("INTERNAL"))
+                .andExpect(jsonPath("$.scoreFor").value(2)).andExpect(jsonPath("$.scoreAgainst").value(2))
+                .andExpect(jsonPath("$.quarters[0].lineup[0].team").value("A")).andExpect(jsonPath("$.quarters[0].lineup[1].team").value("B"))
+                .andExpect(jsonPath("$.plannedLineup[1].team").value("B"))
+                .andExpect(jsonPath("$.participants[0].creditedQuarters").value(2)).andExpect(jsonPath("$.participants[1].creditedQuarters").value(1));
+        mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.items[0].kind").value("INTERNAL"))
+                .andExpect(jsonPath("$.items[0].scorers[0].goals").value(3))
+                .andExpect(jsonPath("$.items[0].scorers[0].goalsA").value(2)).andExpect(jsonPath("$.items[0].scorers[0].goalsB").value(1));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_participants WHERE match_id=?", Integer.class, id)).isEqualTo(2);
+        // SQL 자체에서도 양 팀의 선수 중복을 막되, 같은 포지션의 양 팀 기록은 허용한다.
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists,team) VALUES (?,1,'GK',?,0,0,'B')", id, first)).isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,slot,entry_order,player_id,team) VALUES (?,1,'GK',0,?,'B')", id, first)).isInstanceOf(org.springframework.dao.DataAccessException.class);
+        var duplicated = new ArrayList<>(quarters);
+        duplicated.set(0, new MatchRequest.Quarter(1, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 2, 0, 0, MatchTeam.A), new MatchRequest.Appearance(LineupSlot.ST, first, 1, 0, 0, MatchTeam.B))));
+        var invalid = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 0L, base.participants(), duplicated, plan, 3, 2, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(invalid))).andExpect(status().isBadRequest());
+        var changedKind = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 0L, base.participants(), base.quarters(), List.of(), 0, 0, MatchKind.EXTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(changedKind))).andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT version FROM match_records WHERE id=?", Long.class, id)).isZero();
+        assertThat(jdbc.queryForObject("SELECT SUM(goals) FROM match_appearances WHERE match_id=?", Integer.class, id)).isEqualTo(4);
+        var updated = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "수정", 0L, base.participants(), quarters, plan, 3, 2, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(updated)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1)).andExpect(jsonPath("$.kind").value("INTERNAL"));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(updated))).andExpect(status().isConflict());
+    }
+    @Test void internalMatchAcceptsBothFullTeamsWithSubstitutionsInAllFourQuarters() throws Exception {
+        for (int i = 0; i < 42; i++) jdbc.update("INSERT INTO players(name,position) VALUES (?,'FW')", "정원 검증 " + i);
+        var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class);
+        var appearances = new ArrayList<MatchRequest.Appearance>();
+        int index = 0;
+        for (var team : MatchTeam.values()) for (var slot : LineupSlot.values()) for (int order = 0; order <= 1; order++)
+            appearances.add(new MatchRequest.Appearance(slot, ids.get(index++), 0, 0, order, team));
+        var quarters = java.util.stream.IntStream.rangeClosed(1, 4).mapToObj(q -> new MatchRequest.Quarter(q, appearances)).toList();
+        var plan = quarters.stream().flatMap(q -> q.lineup().stream().map(a -> new MatchRequest.PlannedEntry(q.number(), a.slot(), a.entryOrder(), a.playerId(), a.team()))).toList();
+        var input = new MatchRequest(java.time.LocalDate.of(2026, 10, 18), java.time.LocalTime.of(11, 0), "", "", "", null,
+                ids.stream().map(id -> participant(id, Attendance.PRESENT)).toList(), quarters, plan, 0, 0, MatchKind.INTERNAL);
+        long id = create(input);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.quarters[0].lineup.length()").value(44))
+                .andExpect(jsonPath("$.plannedLineup.length()").value(176)).andExpect(jsonPath("$.participants[0].creditedQuarters").value(2));
+    }
+    @Test void scoresAndShirtOrderedScorersArePagedWithoutCountingPlansOrDuplicateScorers() throws Exception {
+        jdbc.update("UPDATE players SET shirt_number=42 WHERE id=?", first);
+        jdbc.update("UPDATE players SET shirt_number=7 WHERE id=?", second);
+        jdbc.update("INSERT INTO players(name,position,shirt_number) VALUES ('검증 삼번','FW',3),('검증 구십구번','FW',99),('검증 무번호','FW',NULL)");
+        var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class);
+        var people = ids.stream().map(id -> participant(id, Attendance.PRESENT)).toList();
+        var base = request(null, people, List.of(appearance(LineupSlot.ST, first, 1, 0), appearance(LineupSlot.LW, second, 2, 0),
+                appearance(LineupSlot.RW, ids.get(2), 1, 0), appearance(LineupSlot.GK, ids.get(3), 4, 0), appearance(LineupSlot.LCM, ids.get(4), 2, 0)));
+        var quarters = new ArrayList<>(base.quarters());
+        quarters.set(1, new MatchRequest.Quarter(2, List.of(appearance(LineupSlot.ST, first, 5, 0))));
+        long id = create(new MatchRequest(base.playedOn(), java.time.LocalTime.of(11, 30), "", "검증 상대", "메모", null,
+                people, quarters, List.of(new MatchRequest.PlannedEntry(4, LineupSlot.GK, 0, first)), 20, 2));
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.scoreFor").value(20)).andExpect(jsonPath("$.scoreAgainst").value(2));
+        mvc.perform(get("/api/v1/matches")).andExpect(status().isOk())
+                .andExpect(jsonPath("$.items[0].scorerCount").value(5)).andExpect(jsonPath("$.items[0].scorers.length()").value(3))
+                .andExpect(jsonPath("$.items[0].scorers[0].shirtNumber").value(3))
+                .andExpect(jsonPath("$.items[0].scorers[1].shirtNumber").value(7))
+                .andExpect(jsonPath("$.items[0].scorers[2].shirtNumber").value(42))
+                .andExpect(jsonPath("$.items[0].scorers[2].goals").value(6));
+        for (int i = 0; i < 10; i++) create(request(null, List.of(participant(ids.get(4), Attendance.PRESENT)),
+                i == 9 ? List.of(appearance(LineupSlot.ST, ids.get(4), 1, 0)) : List.of()));
+        mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.items.length()").value(10))
+                .andExpect(jsonPath("$.totalElements").value(11)).andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.items[0].scorers[0].playerId").value(ids.get(4)))
+                .andExpect(jsonPath("$.items[0].scorers[0].shirtNumber").isEmpty())
+                .andExpect(jsonPath("$.items[0].scoreFor").isEmpty())
+                .andExpect(jsonPath("$.items[1].scorerCount").value(0));
+        mvc.perform(get("/api/v1/matches?page=1")).andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].id").value(id)).andExpect(jsonPath("$.items[0].scoreFor").value(20));
+        var correction = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 0L, people, quarters, List.of(), 0, 0);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(correction)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.scoreFor").value(0)).andExpect(jsonPath("$.version").value(1));
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET score_for=NULL WHERE id=?", id)).isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET score_for=-1 WHERE id=?", id)).isInstanceOf(org.springframework.dao.DataAccessException.class);
+    }
+    @Test void rejectsMissingOrNonHalfHourTimeAndPartialScoresWithoutWriting() throws Exception {
+        var base = request(null, List.of(), List.of());
+        for (var time : Arrays.asList(null, java.time.LocalTime.of(11, 15), java.time.LocalTime.of(11, 30, 1))) {
+            var input = new MatchRequest(base.playedOn(), time, "", "", "", null, base.participants(), base.quarters());
+            mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input))).andExpect(status().isBadRequest());
+        }
+        var partial = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null, base.participants(), base.quarters(), List.of(), 1, null);
+        mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(partial))).andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Integer.class)).isZero();
+    }
+    @Test void suggestionUsesOnlyEarlierConfirmedAttendanceExcludesEditedMatchAndDoesNotWrite() throws Exception {
+        jdbc.update("UPDATE players SET first_choice='CB' WHERE id=?", first);
+        jdbc.update("UPDATE players SET first_choice='CB', second_choice='GK' WHERE id=?", second);
+        var states = List.of(Attendance.PRESENT, Attendance.LATE, Attendance.ABSENT, Attendance.UNCONFIRMED, Attendance.PRESENT, Attendance.PRESENT);
+        var days = List.of("2026-10-01", "2026-10-02", "2026-10-03", "2026-10-04", "2026-10-18", "2026-10-19");
+        long editedId = 0;
+        for (int i = 0; i < states.size(); i++) {
+            long id = create(request(null, List.of(participant(first, states.get(i)), participant(second, Attendance.UNCONFIRMED)), List.of()));
+            jdbc.update("UPDATE match_records SET played_on=? WHERE id=?", days.get(i), id);
+            if (i == 0) editedId = id;
+        }
+        var input = new LineupSuggestionRequest(java.time.LocalDate.of(2026, 10, 18), List.of(first, second), editedId, 10);
+        var response = mvc.perform(post("/api/v1/matches/lineup-suggestion").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.allocations[0].attended").value(1))
+                .andExpect(jsonPath("$.allocations[0].recorded").value(2)).andExpect(jsonPath("$.allocations[1].recorded").value(0))
+                .andExpect(jsonPath("$.allocations[1].group").value("GK")).andReturn().getResponse();
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isEqualTo(6);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_planned_lineups", Long.class)).isZero();
+        assertThat(jdbc.queryForObject("SELECT SUM(version) FROM match_records", Long.class)).isZero();
+        var suggestion = json.readValue(response.getContentAsString(), LineupSuggestion.class);
+        var base = request(null, List.of(participant(first, Attendance.UNCONFIRMED), participant(second, Attendance.UNCONFIRMED)), List.of());
+        create(new MatchRequest(base.playedOn(), base.kickoff(), base.venue(), base.opponent(), base.notes(), null,
+                base.participants(), base.quarters(), suggestion.plannedLineup()));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_planned_lineups", Long.class)).isEqualTo(8);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_appearances", Long.class)).isZero();
+    }
+    @Test void guestCanBeSuggestedPlannedAndRecordedWithTheSameIdentity() throws Exception {
+        var guestResponse = mvc.perform(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content("{\"name\":\"검증 용병\",\"firstChoice\":\"GK\"}"))
+                .andExpect(status().isCreated()).andReturn().getResponse();
+        long guestId = json.readTree(guestResponse.getContentAsString()).get("id").asLong();
+        var input = new LineupSuggestionRequest(java.time.LocalDate.of(2026, 10, 18), List.of(guestId), null, 10);
+        var response = mvc.perform(post("/api/v1/matches/lineup-suggestion").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.allocations[0].group").value("GK")).andReturn().getResponse();
+        var plan = json.readValue(response.getContentAsString(), LineupSuggestion.class).plannedLineup();
+        assertThat(plan).hasSize(4);
+        var base = request(null, List.of(participant(guestId, Attendance.UNCONFIRMED)), List.of());
+        long id = create(new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null, base.participants(), base.quarters(), plan));
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.plannedLineup.length()").value(4))
+                .andExpect(jsonPath("$.participants[0].playerType").value("GUEST"))
+                .andExpect(jsonPath("$.participants[0].attendance").value("UNCONFIRMED"))
+                .andExpect(jsonPath("$.participants[0].creditedQuarters").value(0));
+        var quarters = java.util.stream.IntStream.rangeClosed(1, 4).mapToObj(q -> new MatchRequest.Quarter(q,
+                List.of(appearance(LineupSlot.GK, guestId, 0, 0)))).toList();
+        var actual = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 0L,
+                List.of(participant(guestId, Attendance.PRESENT)), quarters, plan);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(actual)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1))
+                .andExpect(jsonPath("$.participants[0].playerId").value(guestId))
+                .andExpect(jsonPath("$.participants[0].playerType").value("GUEST"))
+                .andExpect(jsonPath("$.participants[0].attendance").value("PRESENT"))
+                .andExpect(jsonPath("$.participants[0].creditedQuarters").value(4));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players WHERE player_type='GUEST'", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_planned_lineups WHERE match_id=?", Integer.class, id)).isEqualTo(4);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_appearances WHERE match_id=?", Integer.class, id)).isEqualTo(4);
+    }
+    @Test void suggestionRejectsDuplicateMissingAndInactivePlayersWithoutWriting() throws Exception {
+        for (var ids : List.of(List.of(first, first), List.of(Long.MAX_VALUE))) {
+            var input = new LineupSuggestionRequest(java.time.LocalDate.of(2026, 10, 18), ids, null, 1);
+            mvc.perform(post("/api/v1/matches/lineup-suggestion").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
+                    .andExpect(status().isBadRequest());
+        }
+        jdbc.update("UPDATE players SET active=false WHERE id=?", first);
+        var input = new LineupSuggestionRequest(java.time.LocalDate.of(2026, 10, 18), List.of(first), null, 1);
+        mvc.perform(post("/api/v1/matches/lineup-suggestion").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
+                .andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isZero();
+    }
+    @Test void persistsPollAttendanceFourQuartersAndCommentsThenReplacesOnlyChildData() throws Exception {
+        var people = List.of(participant(first, Attendance.PRESENT), new MatchRequest.Participant(second, Vote.ABSENT, Attendance.LATE));
+        long id = create(request(null, people, List.of(appearance(LineupSlot.ST, first, 1, 0), appearance(LineupSlot.GK, second, 0, 1))));
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.quarters.length()").value(4)).andExpect(jsonPath("$.participants[1].vote").value("ABSENT"))
+                .andExpect(jsonPath("$.participants[1].attendance").value("LATE")).andExpect(jsonPath("$.notes").value("후반 압박 연습"));
+        // 기본 정보가 같고 배치만 바뀌어도 version 증가, 자리 교환 시 UNIQUE 충돌 없음.
+        var changed = request(0L, people, List.of(appearance(LineupSlot.GK, first, 0, 0), appearance(LineupSlot.ST, second, 2, 0)));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(changed)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(changed)))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("SELECT SUM(goals) FROM match_appearances WHERE match_id=?", Integer.class, id)).isEqualTo(2);
+        assertThat(jdbc.queryForObject("SELECT player_id FROM match_appearances WHERE match_id=? AND slot='ST'", Long.class, id)).isEqualTo(second);
+        mvc.perform(get("/api/v1/matches?size=1")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
+    }
+    @Test void invalidAttendanceAndUnknownPlayerDoNotPartiallyOverwriteStoredRecords() throws Exception {
+        long id = create(request(null, List.of(participant(first, Attendance.PRESENT)), List.of(appearance(LineupSlot.ST, first, 3, 0))));
+        var invalid = request(0L, List.of(participant(first, Attendance.ABSENT)), List.of(appearance(LineupSlot.ST, first, 1, 0)));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(invalid))).andExpect(status().isBadRequest());
+        mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(request(null, List.of(participant(Long.MAX_VALUE, Attendance.PRESENT)), List.of())))).andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT version FROM match_records WHERE id=?", Long.class, id)).isZero();
+        assertThat(jdbc.queryForObject("SELECT SUM(goals) FROM match_appearances WHERE match_id=?", Integer.class, id)).isEqualTo(3);
+    }
+    @Test void allowsDraftWithoutAttendanceAndDatabaseRejectsDuplicatePlayerAndInvalidSlot() throws Exception {
+        long id = create(request(null, List.of(participant(first, Attendance.UNCONFIRMED)), List.of()));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_quarters WHERE match_id=?", Integer.class, id)).isEqualTo(4);
+        jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,1,'ST',?,0,0)", id, first);
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,1,'LW',?,0,0)", id, first))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,2,'CAM',?,0,0)", id, first))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("DELETE FROM players WHERE id=?", first))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+    }
+    @Test void persistsSubstitutionsAndRecalculatesSharesAfterRemovingSubstitute() throws Exception {
+        var people = List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT));
+        long id = create(request(null, people, List.of(appearance(LineupSlot.ST, first, 2, 0), new MatchRequest.Appearance(LineupSlot.ST, second, 1, 1, 1))));
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.quarters[0].durationMinutes").doesNotExist())
+                .andExpect(jsonPath("$.quarters[0].lineup[1].entryOrder").value(1))
+                .andExpect(jsonPath("$.participants[0].creditedQuarters").value(0.5))
+                .andExpect(jsonPath("$.participants[1].creditedQuarters").value(0.5));
+        var replacement = request(0L, people, List.of(appearance(LineupSlot.ST, first, 2, 0)));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(replacement)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.participants[0].creditedQuarters").value(1.0))
+                .andExpect(jsonPath("$.participants[1].creditedQuarters").value(0.0));
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='match_quarters' AND column_name='duration_minutes'", Integer.class)).isZero();
+    }
+
+    @Test void plansPersistSeparatelyAndPlanEditsUseTheSameVersionGuard() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.UNCONFIRMED), participant(second, Attendance.UNCONFIRMED)), List.of());
+        var plan = List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, first), new MatchRequest.PlannedEntry(1, LineupSlot.ST, 1, second));
+        var initial = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null, base.participants(), base.quarters(), plan);
+        long id = create(initial);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.plannedLineup.length()").value(2))
+                .andExpect(jsonPath("$.quarters[0].lineup").isEmpty()).andExpect(jsonPath("$.participants[0].creditedQuarters").value(0))
+                .andExpect(jsonPath("$.participants[0].attendance").value("UNCONFIRMED"));
+        var swapped = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 0L, base.participants(), base.quarters(),
+                List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, second), new MatchRequest.PlannedEntry(1, LineupSlot.ST, 1, first)));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(swapped)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1));
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(swapped)))
+                .andExpect(status().isConflict());
+        assertThat(jdbc.queryForObject("SELECT player_id FROM match_planned_lineups WHERE match_id=? AND entry_order=0", Long.class, id)).isEqualTo(second);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_appearances", Integer.class)).isZero();
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,slot,entry_order,player_id) VALUES (?,1,'GK',0,?)", id, second))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,slot,entry_order,player_id) VALUES (?,5,'GK',0,?)", id, second))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+    }
+}

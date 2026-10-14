@@ -1,0 +1,30 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.production.example
+# Private exports, backups and signing/SSH keys must never be published.
+backups/
+*.sql.gz
+*.dump
+*.bak
+*.pem
+*.key
+
+# Dependencies, build products and local verification tools
+node_modules/
+dist/
+*.tsbuildinfo
+.gradle/
+build/
+work/
+.local/
+outputs/
+*.log
+
+# Editors and operating system
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db

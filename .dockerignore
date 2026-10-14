@@ -1,0 +1,21 @@
+# Build context is an allowlist: no local database, secrets, backups or screenshots.
+**
+!Dockerfile
+!package.json
+!pnpm-lock.yaml
+!pnpm-workspace.yaml
+!.npmrc
+!frontend/
+!frontend/**
+!backend/
+!backend/**
+!deploy/
+!deploy/Caddyfile
+**/node_modules
+**/dist
+**/build
+**/.gradle
+**/.env*
+**/*.log
+**/.idea
+**/*.iml

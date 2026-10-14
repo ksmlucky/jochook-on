@@ -1,0 +1,12 @@
+{
+  "name": "hana-fc-transfermarkt",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@11.25.0",
+  "engines": { "node": ">=24 <25" },
+  "scripts": {
+    "dev": "pnpm --filter @hana-fc/web dev",
+    "build": "pnpm --filter @hana-fc/web build",
+    "typecheck": "pnpm --filter @hana-fc/web typecheck"
+  }
+}

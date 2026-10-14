@@ -1,0 +1,28 @@
+{$HANA_SITE_ADDRESS} {
+    encode zstd gzip
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy same-origin
+        -Server
+    }
+
+    @api path /api /api/*
+    handle @api {
+        request_body {
+            max_size 3MB
+        }
+        reverse_proxy api:8080
+    }
+
+    # Health checks stay inside Docker; only the app API is proxied publicly.
+    handle /actuator* {
+        respond 404
+    }
+
+    handle {
+        root * /srv
+        header Cache-Control "no-cache"
+        file_server
+    }
+}
