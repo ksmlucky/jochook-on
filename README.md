@@ -1,10 +1,12 @@
-# HANA FC Transfermarkt
+# 조축ON
 
-[GitHub 저장소](https://github.com/ksmlucky/hana-fc-transfermarkt) · [자동 검증](https://github.com/ksmlucky/hana-fc-transfermarkt/actions) · [배포 안내](docs/deployment.md)
+[GitHub 저장소](https://github.com/ksmlucky/jochook-on) · [자동 검증](https://github.com/ksmlucky/jochook-on/actions) · [배포 안내](docs/deployment.md)
 
 조기축구팀의 선수·출석·경기 기록을 모으는 웹 앱입니다. 운영진이 입력하고 회원이 조회하는 서비스를 단계적으로 만듭니다. 현재 **로그인·선수 관리와 경기별 투표·출석·4쿼터 기록**을 구현했습니다.
 
-**이 PC에서는 `Start-HANA.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.
+제품명은 **조축ON**, 현재 사용하는 팀명은 **HANA FC**입니다. 영문 코드명 `jochookOn`, 저장소·패키지 slug `jochook-on`으로 통일합니다. 이름 변경은 여러 팀을 지원할 준비이며, 실제 팀별 데이터 분리·공유 코드 기능은 후속 단계입니다. [브랜드 변경 명세와 화면 흐름](docs/rebranding.md)에 적용 범위와 호환성 기준을 정리했습니다.
+
+**이 PC에서는 `Start-JochookON.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.
 
 ## 지금 구현한 범위
 
@@ -36,7 +38,8 @@ HANA FC Transfermarkt/
 │  ├─ gradle/wrapper/           # 팀원이 같은 Gradle 버전으로 실행
 │  ├─ build.gradle             # Java 버전·의존성·테스트 작업
 │  └─ src/
-│     ├─ main/java/com/hanafc/
+│     ├─ main/java/com/jochookon/
+│     │  ├─ JochookOnApplication.java # Spring Boot 시작점
 │     │  ├─ auth/              # 계정, 비밀번호 조회, 초기 관리자, 로그인 정보 API
 │     │  ├─ config/            # 공통 보안 설정
 │     │  ├─ player/            # 선수 기능의 Controller·Service·Repository·Entity
@@ -58,6 +61,8 @@ HANA FC Transfermarkt/
 ```
 
 `outputs/`에는 화면 검증 등의 최종 산출물을 보관합니다. 경기 기록은 `match` 기능에서 투표·출석·쿼터 기록과 함께 처리합니다.
+
+폴더 트리의 최상위 이름은 이 PC의 실제 경로입니다. 로컬 폴더 이동 없이 제품·코드 명칭만 변경하며, 기존 MySQL DB·사용자·볼륨 이름은 연결 호환성을 위해 유지합니다. Java 기본 패키지는 `com.jochookon`, 프론트 패키지는 `@jochook-on/web`입니다.
 
 ## 준비물
 
@@ -158,7 +163,7 @@ MySQL 포트는 기존 3306과 충돌할 가능성을 줄이도록 3307을 사�
 .\scripts\Start-Backend.ps1 -Task integrationTest
 
 # 연령대 경계·한국 기준 연도 계산 테스트 (Node 24)
-pnpm --filter @hana-fc/web test
+pnpm --filter @jochook-on/web test
 
 # 배포용 파일 생성
 .\scripts\Start-Backend.ps1 -Task bootJar
@@ -172,6 +177,8 @@ Java 결과물은 `backend/build/libs/`, 화면 결과물은 `frontend/dist/`에
 이번 설정 작업에서 실제로 통과한 검증과 아직 실행하지 못한 항목은 [초기 검증 기록](docs/verification.md)에 구분해 적었습니다.
 
 ## 함께 배우는 순서
+
+기능을 추가할 때는 기획이 간단한 기능 명세·스토리보드를 작성하고, 디자인·퍼블리싱·프론트와 백엔드가 API 형식과 담당 파일을 합의해 구현합니다. 총괄이 통합과 검증을 조율하고 사용자는 실제 팀 운영 흐름으로 확인합니다. 작은 수정은 문서를 간소화하며, 세부 협업 기준은 [AGENTS.md](AGENTS.md)를 따릅니다.
 
 선수단 조회는 **등번호 오름차순·20명·카드 보기**가 기본입니다. 목록 위에서 카드/표, 10/20/30명, 등번호/나이/이름/선호 포지션과 정렬 방향을 선택하세요. 선호 포지션순은 **1지망 기준 골키퍼 → 수비 → 미드 → 공격** 또는 역순이며, 같은 그룹은 등번호 오름차순입니다. 정렬·페이지 크기를 바꾸면 첫 페이지부터 표시합니다. 서버가 전체 명단을 먼저 정렬하므로 다음 페이지에서도 순서가 이어집니다. 생년·등번호·1지망 미입력은 해당 정렬의 양방향 모두 마지막에 표시합니다. 표는 좁은 화면에서 가로 스크롤할 수 있습니다.
 

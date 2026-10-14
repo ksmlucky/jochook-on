@@ -1,3 +1,3 @@
 @echo off
-cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -NoExit -File "%~dp0scripts\Enter-DevShell.ps1"
+rem Compatibility launcher. Use Dev-JochookON.cmd for JochookON.
+call "%~dp0Dev-JochookON.cmd" %*

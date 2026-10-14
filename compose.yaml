@@ -1,4 +1,4 @@
-name: hana-fc
+name: jochook-on
 
 services:
   mysql:
@@ -24,3 +24,5 @@ services:
 
 volumes:
   mysql-data:
+    # Preserve the existing database volume when the Compose project name changes.
+    name: ${JOCHOOK_ON_MYSQL_VOLUME:-hana-fc_mysql-data}

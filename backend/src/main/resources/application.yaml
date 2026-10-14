@@ -1,6 +1,6 @@
 spring:
   application:
-    name: hana-fc-api
+    name: jochook-on-api
   servlet:
     multipart:
       max-file-size: 2MB
@@ -50,8 +50,9 @@ management:
     health:
       show-details: never
 
-hana:
+jochookon:
   bootstrap:
     admin:
-      username: ${HANA_BOOTSTRAP_USERNAME:}
-      password: ${HANA_BOOTSTRAP_PASSWORD:}
+      # Keep existing local and deployed bootstrap settings working after the rename.
+      username: ${JOCHOOK_ON_BOOTSTRAP_USERNAME:${hana.bootstrap.admin.username:${HANA_BOOTSTRAP_USERNAME:}}}
+      password: ${JOCHOOK_ON_BOOTSTRAP_PASSWORD:${hana.bootstrap.admin.password:${HANA_BOOTSTRAP_PASSWORD:}}}

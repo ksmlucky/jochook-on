@@ -1,4 +1,3 @@
 @echo off
-cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dp0scripts\Stop-Local.ps1"
-pause
+rem Compatibility launcher. Use Stop-JochookON.cmd for JochookON.
+call "%~dp0Stop-JochookON.cmd" %*

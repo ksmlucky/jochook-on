@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $taskRoot = Split-Path -Parent $PSScriptRoot
 
 if ($Task -eq 'bootRun') {
-    Import-HanaAdminBootstrap
+    Import-JochookOnAdminBootstrap
     $taskEnvPath = Join-Path $taskRoot '.env'
     if (-not (Test-Path -LiteralPath $taskEnvPath)) {
         throw 'Run scripts/Initialize-Local.ps1 first, then docker compose up -d --wait.'

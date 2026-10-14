@@ -1,4 +1,3 @@
 @echo off
-cd /d "%~dp0"
-powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -File "%~dp0scripts\Start-Local.ps1" -OpenBrowser
-if errorlevel 1 pause
+rem Compatibility launcher. Use Start-JochookON.cmd for JochookON.
+call "%~dp0Start-JochookON.cmd" %*

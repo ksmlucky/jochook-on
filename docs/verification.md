@@ -2,6 +2,18 @@
 
 확인일: 2026-10-14 (한국 시간)
 
+## 조축ON 이름·팀 표시 분리 (2026-10-14)
+
+- 기능 명세·스토리보드와 협업 기준을 작성했다. 제품명은 조축ON, 현재 소속 팀명은 HANA FC이며 팀 생성·공유 코드·팀별 데이터 분리는 이번 범위에 포함하지 않는다.
+- 표준 이름은 `jochookOn` / `jochook-on` / `@jochook-on/web` / `com.jochookon.JochookOnApplication`이다. 기존 실제 폴더 경로, DB·사용자·볼륨과 적용된 Flyway SQL은 보존 대상이다.
+- Docker 없이 `clean test bootJar`로 Java 단위/API **151개**, 프론트 테스트 **15개**, TypeScript/Vite 빌드를 통과했다. Java 패키지 이동 전의 클래스·JAR를 clean으로 제거하고 새 `jochook-on-api` JAR를 생성했다.
+- Docker MySQL Testcontainers **25개** 통과. 실패·건너뜀 0. 기존 Flyway V1~V13 파일의 Git 차이가 없고, 실제 DB 연결로 기존 선수 37명·경기 2건을 조회했다. 실데이터를 수정하는 API는 호출하지 않았다.
+- 새 JAR와 프론트 빌드로 로컬 실행기를 검증했다. 브라우저에서 조축ON 제목·로고·로그인, 로그인 후 HANA FC 팀 표시와 선수·경기 목록을 확인했다. 팀 표시 정보는 `frontend/src/app/team.ts`, 제품 이름은 `brand.ts`에서 구분한다. 화면 증빙은 Git 제외 `outputs/jochook-on-branding.png`에 보관한다.
+- 선수·경기 Excel 응답 파일명이 각각 `jochook-on-players.xlsx`, `jochook-on-match.xlsx`임을 확인했다. pnpm은 패키지 변경 후 `CI=true`로 의존성 연결을 갱신했고 lockfile 변경 없이 설치·테스트·빌드에 성공했다.
+- 새/구 환경변수로 운영 Compose 설정 검증을 통과했다. 새 Docker 이미지와 빈 QA MySQL에서 초기 관리자 생성, 프록시 로그인·세션·로그아웃, 익명 조회 401·CSRF 누락 403·외부 health 404를 확인했다. QA에서는 세 볼륨을 모두 고유 이름으로 override하고 확인 후 해당 임시 자원만 정리했다.
+- GitHub 저장소를 `ksmlucky/jochook-on`으로 변경했고 저장소 ID·비공개 설정과 이력이 유지됨을 확인했다. 커밋 대상에서 로컬 비밀번호·실제 회원 이름 37개 및 비공개 경로가 포함되지 않았음을 검사했다. 원격 소스 업로드와 해당 커밋의 CI 결과는 후속 확인한다.
+- IntelliJ 프로젝트 표시명은 조축ON으로 설정했다. 로컬 작업 폴더와 Codex에 연결된 경로는 기존 경로다. AWS 배포와 아이폰의 외부 서버 접속은 후속 작업이다.
+
 ## GitHub 업로드·배포 이미지 검증 (2026-10-14)
 
 - Git 포함 대상 177개 파일에서 현재 로컬 DB/관리자 비밀번호 및 전달받은 실제 회원 이름이 포함되지 않았음을 검사했다. `.env`, `.local`, `work`, `outputs`, DB 백업은 Git 제외다.
@@ -11,7 +23,7 @@
 - 배포 이미지 검증은 Docker를 사용했고 아래의 단위·MySQL 통합 검증과 구분한다. 공개 도메인 인증서, 실제 클라우드, ARM 환경은 아직 검증하지 않았다.
 - GitHub Actions 실행 결과는 저장소의 Actions에서 확인한다. 로컬 Docker 검증 통과만으로 원격 CI나 회원용 배포가 완료된 것은 아니다.
 - 첫 Linux CI에서 20명 편성의 앞 쿼터 교체 검사 한 건이 실패했다. 탐색 제한 시간 안에 교체 없는 최적해까지 도달하지 못한 문제여서, 정확히 두 조인 경우 교체 없이 번갈아 뛰는 최적 출전표를 직접 계산하도록 수정했다. 수정 후 로컬 단위/API 151개를 다시 통과했다. 기존 선수·경기 데이터와 스키마는 변경하지 않았다.
-- 수정 커밋 `352b957`의 [GitHub Actions](https://github.com/ksmlucky/hana-fc-transfermarkt/actions/runs/38508525408)가 성공했다. Linux Java 단위/API 151개, Docker MySQL 통합 25개 모두 실패·건너뜀 0이며 프론트 테스트 15개와 빌드, bootJar도 통과했다. 이 최종 결과 기록은 문서만 변경하므로 별도 테스트 재실행을 생략했다.
+- 수정 커밋 `352b957`의 [GitHub Actions](https://github.com/ksmlucky/jochook-on/actions/runs/38508525408)가 성공했다. Linux Java 단위/API 151개, Docker MySQL 통합 25개 모두 실패·건너뜀 0이며 프론트 테스트 15개와 빌드, bootJar도 통과했다. 이 최종 결과 기록은 문서만 변경하므로 별도 테스트 재실행을 생략했다.
 
 ## 자체전 A/B팀 기록 검증 (현재, V13 · 2026-10-14)
 
@@ -95,7 +107,7 @@
 
 - `scripts/Start-Backend.ps1 -Task test`: **Docker 없이 97개 통과**, 실패·건너뜀 0. 기존 92개 + 생년/직책/UN 도메인 3개, 일괄 입력 1개, 새 엑셀 프로필 1개. 기존 7열 Excel 호환과 새 9열 필수/선택 헤더도 검증했다.
 - `scripts/Start-Backend.ps1 -Task integrationTest`: **Docker MySQL 11개 통과**, 실패·건너뜀 0. 생년·직책·UN 저장/조회/수정/NULL 초기화와 version 증가, UN+선호 및 범위 밖 생년 DB CHECK, 일괄 입력 오류 시 전체 취소 확인. 기존 경기·교체·마이그레이션 테스트도 통과했다. Hikari 종료 시 연결 실행기 타임아웃 경고가 한 번 있었으나 테스트 실패는 없었다.
-- `pnpm --filter @hana-fc/web test`: **3개 통과**. 1996년생의 2025년 20대→2026년 30대, 미확인·미래 생년, 한국 자정의 연도 변경 검증. `pnpm build`, `bootJar` 성공. Node/Vite의 샌드박스 EPERM 후 승인된 같은 테스트·빌드로 실행했다. 프론트 테스트 명령을 CI 정의에도 추가했으나 GitHub 실제 실행은 미확인이다.
+- 프론트 테스트 **3개 통과** (현재 패키지 명령: `pnpm --filter @jochook-on/web test`). 1996년생의 2025년 20대→2026년 30대, 미확인·미래 생년, 한국 자정의 연도 변경 검증. `pnpm build`, `bootJar` 성공. Node/Vite의 샌드박스 EPERM 후 승인된 같은 테스트·빌드로 실행했다. 프론트 테스트 명령을 CI 정의에도 추가했으나 이 단계 당시 GitHub 실제 실행은 미확인이었다.
 - 격리된 5174 UI와 Windows MySQL 임시 DB에서 가상 선수 3명을 사용했다. 1996년생 30대와 NULL 미확인 표시, UN 선수의 생년·직책 수정 저장, 선호 미입력 유지, 저장된 경기 명단·선발/교체 카드에 현재 프로필의 연령대 반영을 확인했다. QA DB·계정·프로세스를 정리했다.
 - 실제 DB를 Git 제외 work 폴더에 백업한 뒤 V6 적용 및 health UP 확인. 사용자 제공 명단 **37명**을 인증된 일괄 등록 API의 한 트랜잭션으로 저장하고, 각 선수 상세를 재조회해 이름·등번호·기본/선호 포지션·생년·직책·가입일을 원본과 비교했다. DB 직접 조회에서도 37명 모두 활동, 생년 NULL 4명, 포지션 UN 2명, 경기 0건 확인.
 - 현재 한국 연도 기준 선수단과 경기 연도 기준 스쿼드에 나이·연령대를 표시한다. 생일은 쓰지 않고 기준 연도 − 생년을 사용한다. 실제 UI에서 선수 37명, 2페이지 조회, 1996년생 30대와 포지션 미확인을 확인했다. 실제 명단과 등록 후 백업·화면 증빙은 Git 제외 work/outputs에만 보관한다. 실제 정보는 테스트·마이그레이션·공개 문서에 넣지 않았다.

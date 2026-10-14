@@ -6,8 +6,9 @@ import { fetchMatch, fetchMatches, fetchMatchPlayers, playerLabel } from './api'
 import { matchTimeRange } from './time'
 import type { MatchPage, MatchRecord } from './api'
 import { MatchEditor } from './MatchEditor'
+import type { TeamDisplay } from '../../app/team'
 
-export function MatchSection({ isAdmin, onSessionExpired }: { isAdmin: boolean; onSessionExpired: () => void }) {
+export function MatchSection({ team, isAdmin, onSessionExpired }: { team: TeamDisplay; isAdmin: boolean; onSessionExpired: () => void }) {
   const [page, setPage] = useState(0)
   const [revision, setRevision] = useState(0)
   const [data, setData] = useState<MatchPage | null>(null)
@@ -62,7 +63,7 @@ export function MatchSection({ isAdmin, onSessionExpired }: { isAdmin: boolean; 
       {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id}>
         <button className="match-card" disabled={busy} onClick={() => void open(m.id)}>
           <span className="match-date">{m.playedOn}<small>{matchTimeRange(m.kickoff)}</small></span>
-          <span className="match-card-details"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>HANA FC <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · 4-1-2-3 · 4쿼터</small>
+          <span className="match-card-details"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · 4-1-2-3 · 4쿼터</small>
             <span className="match-scorers">{m.scorers.length ? <>득점 · {m.scorers.map(p => `${playerLabel(p)} ${m.kind === 'INTERNAL' ? [p.goalsA > 0 ? `A팀 ${p.goalsA}골` : '', p.goalsB > 0 ? `B팀 ${p.goalsB}골` : ''].filter(Boolean).join(' / ') : `${p.goals}골`}`).join(' · ')}{m.scorerCount > 3 && ` · 외 ${m.scorerCount - 3}명`}</> : '등록된 득점자 없음'}</span>
           </span>
           <span className={`match-score${m.scoreFor === null ? ' unrecorded' : ''}`} aria-label={m.scoreFor === null ? '스코어 미입력' : `${m.kind === 'INTERNAL' ? 'A팀' : '우리 팀'} ${m.scoreFor} 대 ${m.kind === 'INTERNAL' ? 'B팀' : '상대 팀'} ${m.scoreAgainst}`}>

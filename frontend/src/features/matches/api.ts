@@ -1,6 +1,7 @@
 import { fetchWithCsrf, SessionExpiredError } from '../auth/api'
 import { fetchPlayers, fetchGuests } from '../players/api'
 import type { Player } from '../players/api'
+import { serviceBrand } from '../../app/brand'
 
 export const voteLabels = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' } as const
 export const attendanceLabels = { PRESENT: '참석', LATE: '지각', ABSENT: '불참', UNCONFIRMED: '미확인' } as const
@@ -60,7 +61,7 @@ export async function downloadMatchTemplate(): Promise<void> {
   const response = await fetch('/api/v1/matches/import/template')
   if (!response.ok) { await read(response); return }
   const url = URL.createObjectURL(await response.blob())
-  const link = document.createElement('a'); link.href = url; link.download = 'hana-fc-match.xlsx'; link.click()
+  const link = document.createElement('a'); link.href = url; link.download = `${serviceBrand.slug}-match.xlsx`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 export async function fetchMatchPlayers(signal: AbortSignal): Promise<Player[]> {

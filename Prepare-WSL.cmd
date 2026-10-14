@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-echo HANA FC - Prepare WSL for Docker Desktop
+echo JochookON - Prepare WSL for Docker Desktop
 echo This installs Windows Subsystem for Linux without an Ubuntu distribution.
 echo It does not restart this PC automatically.
 echo.
@@ -12,15 +12,15 @@ if errorlevel 1 (
   exit /b 1
 )
 wsl.exe --install --no-distribution --web-download
-set "HANA_WSL_EXIT=%ERRORLEVEL%"
+set "JOCHOOK_ON_WSL_EXIT=%ERRORLEVEL%"
 echo.
-if "%HANA_WSL_EXIT%"=="0" (
+if "%JOCHOOK_ON_WSL_EXIT%"=="0" (
   echo WSL installation command completed. Follow any restart instructions above.
-) else if "%HANA_WSL_EXIT%"=="3010" (
+) else if "%JOCHOOK_ON_WSL_EXIT%"=="3010" (
   echo Installation completed. Save your work and restart Windows.
 ) else (
-  echo WSL installation returned code %HANA_WSL_EXIT%.
-  echo Keep the message above and send it to the HANA FC conversation.
+  echo WSL installation returned code %JOCHOOK_ON_WSL_EXIT%.
+  echo Keep the message above and send it to the JochookON conversation.
 )
 echo After any required restart, double-click Install-Docker.cmd in this folder.
 pause

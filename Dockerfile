@@ -18,7 +18,7 @@ RUN --mount=type=cache,target=/root/.gradle bash ./gradlew --no-daemon bootJar
 FROM eclipse-temurin:21-jre-jammy AS api
 RUN apt-get update && apt-get install --no-install-recommends -y curl \
     && rm -rf /var/lib/apt/lists/* \
-    && groupadd --gid 10001 hana && useradd --uid 10001 --gid hana --no-create-home hana
+    && groupadd --gid 10001 jochookon && useradd --uid 10001 --gid jochookon --no-create-home jochookon
 WORKDIR /app
 COPY --from=backend-build /src/build/libs/*-SNAPSHOT.jar ./app.jar
 USER 10001:10001

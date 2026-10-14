@@ -1,4 +1,4 @@
-name: hana-fc-production
+name: jochook-on-production
 
 x-logging: &logging
   driver: json-file
@@ -44,8 +44,8 @@ services:
       SERVER_PORT: '8080'
       SERVER_FORWARD_HEADERS_STRATEGY: framework
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-true}
-      HANA_BOOTSTRAP_USERNAME: ${HANA_BOOTSTRAP_USERNAME:-}
-      HANA_BOOTSTRAP_PASSWORD: ${HANA_BOOTSTRAP_PASSWORD:-}
+      JOCHOOK_ON_BOOTSTRAP_USERNAME: ${JOCHOOK_ON_BOOTSTRAP_USERNAME:-${HANA_BOOTSTRAP_USERNAME:-}}
+      JOCHOOK_ON_BOOTSTRAP_PASSWORD: ${JOCHOOK_ON_BOOTSTRAP_PASSWORD:-${HANA_BOOTSTRAP_PASSWORD:-}}
     logging: *logging
 
   web:
@@ -57,10 +57,10 @@ services:
       api:
         condition: service_healthy
     environment:
-      HANA_SITE_ADDRESS: ${HANA_SITE_ADDRESS:?Set your domain in HANA_SITE_ADDRESS}
+      JOCHOOK_ON_SITE_ADDRESS: ${JOCHOOK_ON_SITE_ADDRESS:-${HANA_SITE_ADDRESS:?Set your domain in JOCHOOK_ON_SITE_ADDRESS}}
     ports:
-      - '${HANA_BIND_ADDRESS:-127.0.0.1}:${HANA_HTTP_PORT:-80}:80'
-      - '${HANA_BIND_ADDRESS:-127.0.0.1}:${HANA_HTTPS_PORT:-443}:443'
+      - '${JOCHOOK_ON_BIND_ADDRESS:-${HANA_BIND_ADDRESS:-127.0.0.1}}:${JOCHOOK_ON_HTTP_PORT:-${HANA_HTTP_PORT:-80}}:80'
+      - '${JOCHOOK_ON_BIND_ADDRESS:-${HANA_BIND_ADDRESS:-127.0.0.1}}:${JOCHOOK_ON_HTTPS_PORT:-${HANA_HTTPS_PORT:-443}}:443'
     volumes:
       - caddy-data:/data
       - caddy-config:/config
@@ -68,5 +68,8 @@ services:
 
 volumes:
   mysql-data:
+    name: ${JOCHOOK_ON_MYSQL_VOLUME:-hana-fc-production_mysql-data}
   caddy-data:
+    name: ${JOCHOOK_ON_CADDY_DATA_VOLUME:-hana-fc-production_caddy-data}
   caddy-config:
+    name: ${JOCHOOK_ON_CADDY_CONFIG_VOLUME:-hana-fc-production_caddy-config}

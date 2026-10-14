@@ -1,10 +1,10 @@
 # 이 PC에서 실행하기
 
-설정일: 2026-10-13. 프로젝트: `%USERPROFILE%\Documents\ChatGPT\HANA FC Transfermarkt`.
+설정일: 2026-10-13. 제품명 변경: 2026-10-14. 제품은 **조축ON**이며 실제 프로젝트 경로는 `%USERPROFILE%\Documents\ChatGPT\HANA FC Transfermarkt`를 유지합니다.
 
 ## 화면 보기
 
-브라우저에서 <http://127.0.0.1:5173>에 접속합니다. 실제 Spring Boot API와 MySQL 8.4에 연결된 로그인 화면입니다. 로그인 후 선수 0명은 아직 선수를 등록하지 않았기 때문입니다.
+브라우저에서 <http://127.0.0.1:5173>에 접속합니다. 실제 Spring Boot API와 MySQL 8.4에 연결된 로그인 화면입니다. 로그인하면 기존 DB에 저장한 선수와 경기 기록을 조회합니다. 새 개발 환경의 빈 DB에는 예시 선수를 자동으로 넣지 않습니다.
 
 ## 최초 관리자 로그인
 
@@ -22,13 +22,13 @@
 
 | 파일 | 동작 |
 | --- | --- |
-| `Start-HANA.cmd` | 로컬 MySQL → API → 이미 빌드한 화면을 실행하고 브라우저를 연다. |
-| `Stop-HANA.cmd` | 이 프로젝트가 실행한 화면·API를 종료하고 해당 데이터 경로의 MySQL을 정상 종료한다. DB 파일은 유지한다. |
-| `Dev-Terminal.cmd` | 설치된 Java·Node.js·npm·pnpm·Git·MySQL 경로가 설정된 PowerShell을 연다. |
+| `Start-JochookON.cmd` | 로컬 MySQL → API → 이미 빌드한 화면을 실행하고 브라우저를 연다. |
+| `Stop-JochookON.cmd` | 이 프로젝트가 실행한 화면·API를 종료하고 해당 데이터 경로의 MySQL을 정상 종료한다. DB 파일은 유지한다. |
+| `Dev-JochookON.cmd` | 설치된 Java·Node.js·npm·pnpm·Git·MySQL 경로가 설정된 PowerShell을 연다. |
 | `Install-Docker.cmd` | 다운로드한 공식 Docker 설치기를 연다. 설치 완료는 사용자가 확인해야 한다. |
 | `Prepare-WSL.cmd` | 우클릭 → 관리자 권한으로 실행. Docker에 필요한 WSL을 설치한다. 자동 재부팅은 하지 않는다. |
 
-브라우저를 닫아도 서버는 실행됩니다. 컴퓨터를 재부팅하면 `Start-HANA.cmd`를 다시 실행합니다. 로그인 시 자동 시작이나 Windows 서비스로 등록하지 않았습니다. 모든 서비스는 이 PC의 127.0.0.1에서만 접속합니다.
+브라우저를 닫아도 서버는 실행됩니다. 컴퓨터를 재부팅하면 `Start-JochookON.cmd`를 다시 실행합니다. 로그인 시 자동 시작이나 Windows 서비스로 등록하지 않았습니다. 모든 서비스는 이 PC의 127.0.0.1에서만 접속합니다.
 
 ## 설치 위치와 상태
 
@@ -45,18 +45,18 @@
 
 원본 설치 파일은 `HanaDevTools\Installers`에 있습니다. VS Code와 IntelliJ는 기존 설치를 사용합니다. Spring Boot, React, TypeScript, JPA 등은 프로젝트 의존성이므로 별도 전역 설치가 필요 없습니다. Gradle은 프로젝트 Wrapper로 실행합니다.
 
-이 세션에서 사용자 레지스트리 변경이 거부되어 전역 `PATH`와 `JAVA_HOME`은 등록하지 못했습니다. `Dev-Terminal.cmd`와 프로젝트 실행 스크립트가 자신의 프로세스에만 경로를 설정하므로 즉시 사용할 수 있습니다. CMD 실행기는 해당 PowerShell 프로세스에서만 `RemoteSigned`를 사용하며 Windows 전체 실행 정책은 변경하지 않습니다.
+설치 당시 사용자 레지스트리 변경이 거부되어 전역 `PATH`와 `JAVA_HOME`은 등록하지 못했습니다. `Dev-JochookON.cmd`와 프로젝트 실행 스크립트가 자신의 프로세스에만 경로를 설정하므로 즉시 사용할 수 있습니다. CMD 실행기는 해당 PowerShell 프로세스에서만 `RemoteSigned`를 사용하며 Windows 전체 실행 정책은 변경하지 않습니다.
 
 ## 코드를 수정하며 개발하기
 
-`Start-HANA.cmd`는 마지막으로 빌드한 화면과 JAR를 보여 줍니다. 소스 변경이 자동 반영되지는 않습니다.
+`Start-JochookON.cmd`는 마지막으로 빌드한 화면과 JAR를 보여 줍니다. 소스 변경이 자동 반영되지는 않습니다.
 
-1. `Stop-HANA.cmd`로 미리보기 서버를 종료합니다.
-2. `Dev-Terminal.cmd`를 열어 `.\scripts\Start-MySQL.ps1`을 실행합니다.
+1. `Stop-JochookON.cmd`로 미리보기 서버를 종료합니다.
+2. `Dev-JochookON.cmd`를 열어 `.\scripts\Start-MySQL.ps1`을 실행합니다.
 3. 같은 터미널에서 `.\scripts\Start-Backend.ps1`을 실행합니다.
-4. 두 번째 `Dev-Terminal.cmd`를 열어 `pnpm dev`를 실행합니다.
+4. 두 번째 `Dev-JochookON.cmd`를 열어 `pnpm dev`를 실행합니다.
 
-빌드 결과를 갱신하려면 개발 서버를 종료한 다음 `.\scripts\Start-Backend.ps1 -Task bootJar`와 `pnpm build`를 실행합니다. 이후 `Start-HANA.cmd`를 사용합니다.
+빌드 결과를 갱신하려면 개발 서버를 종료한 다음 `.\scripts\Start-Backend.ps1 -Task bootJar`와 `pnpm build`를 실행합니다. 이후 `Start-JochookON.cmd`를 사용합니다.
 
 Codex의 제한된 실행 환경에서는 Vite의 Windows 드라이브 확인 명령에 `spawn EPERM`이 발생할 수 있습니다. 로그인 화면 작업에서는 사용자 승인 후 동일한 정식 `pnpm build`를 제한 밖에서 실행해 성공했습니다. 현재 화면은 그 빌드 파일을 사용합니다.
 
@@ -70,13 +70,14 @@ Codex의 제한된 실행 환경에서는 Vite의 Windows 드라이브 확인 �
 - `.local`과 `.env`는 Git에 포함하지 않습니다. **`.local/mysql-data`는 임시 파일이 아니라 실제 DB 데이터이므로 지우지 않습니다.**
 - 로컬 MySQL과 Docker MySQL은 모두 3307을 사용하므로 동시에 실행하지 않습니다.
 - Docker 볼륨은 별도의 DB입니다. Docker로 전환하기 전에 로컬 DB를 백업하고, 입력한 데이터가 있다면 내보내기·가져오기 작업을 해야 합니다.
+- 제품명이 조축ON으로 바뀌어도 기존 `hana_fc` DB·사용자·볼륨과 `HanaDevTools` 설치 경로, IntelliJ의 `HANA SQL` 설정은 호환성을 위해 유지합니다. 이름 변경을 이유로 `.env`나 데이터 디렉터리를 초기화하지 않습니다.
 
 ## Docker 사용하기
 
 2026-10-13 확인: WSL 3.0.3.0, 기본 WSL 버전 2, HypervisorPresent=True. Docker Desktop을 실행한 뒤 `docker version`의 Client와 Server 응답을 확인했습니다. 현재 추가 설치나 재부팅은 필요하지 않습니다. 별도 Ubuntu 배포판도 필요하지 않습니다.
 
 1. Windows 시작 메뉴에서 **Docker Desktop**을 실행하고 엔진이 시작될 때까지 기다립니다. 이미 실행 중이면 그대로 사용합니다.
-2. 프로젝트의 **Dev-Terminal.cmd**를 열고 `docker version`을 실행합니다. Client뿐 아니라 Server 정보도 나오면 준비 완료입니다. 이 터미널에는 Docker 경로도 추가했습니다.
+2. 프로젝트의 **Dev-JochookON.cmd**를 열고 `docker version`을 실행합니다. Client뿐 아니라 Server 정보도 나오면 준비 완료입니다. 이 터미널에는 Docker 경로도 추가했습니다.
 3. `./scripts/Start-Backend.ps1 -Task integrationTest`를 실행합니다. 일회용 MySQL 컨테이너가 생성·정리되며 실제 `hana_fc` DB와 분리됩니다. 이번 실행에서 5개 테스트가 통과했습니다.
 
 Codex 샌드박스에서는 named pipe 접근이 거부될 수 있어 승인된 제한 밖 실행으로 확인했습니다. 이는 WSL 재설치가 필요한 상태와 구분합니다. 일반 사용자 터미널에서 먼저 확인하세요.

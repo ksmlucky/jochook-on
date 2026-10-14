@@ -5,7 +5,12 @@ $taskMysql = Get-ChildItem -LiteralPath (Join-Path $taskPrograms 'MySQL') -Direc
 $taskBins = @()
 if ($taskJava) { $env:JAVA_HOME = $taskJava.FullName; $taskBins += Join-Path $taskJava.FullName 'bin' }
 if ($taskNode) { $taskBins += $taskNode.FullName }
-if ($taskMysql) { $env:HANA_MYSQL_HOME = $taskMysql.FullName; $taskBins += Join-Path $taskMysql.FullName 'bin' }
+if ($taskMysql) {
+    $env:JOCHOOK_ON_MYSQL_HOME = $taskMysql.FullName
+    # Older local helper scripts still use this environment variable.
+    $env:HANA_MYSQL_HOME = $taskMysql.FullName
+    $taskBins += Join-Path $taskMysql.FullName 'bin'
+}
 foreach ($taskBin in @((Join-Path $taskPrograms 'pnpm'), (Join-Path $taskPrograms 'Git\cmd'), (Join-Path $taskPrograms 'DockerDesktop\resources\bin'))) {
     if (Test-Path -LiteralPath $taskBin) { $taskBins += $taskBin }
 }
@@ -13,7 +18,7 @@ $env:Path = ($taskBins -join ';') + ';' + $env:Path
 $env:npm_config_cache = Join-Path $taskPrograms 'HanaDevTools\npm-cache'
 $env:GRADLE_USER_HOME = Join-Path (Split-Path -Parent $PSScriptRoot) 'work\gradle-cache'
 
-function Import-HanaEnvironment {
+function Import-JochookOnEnvironment {
     $taskEnvFile = Join-Path (Split-Path -Parent $PSScriptRoot) '.env'
     foreach ($taskLine in Get-Content -LiteralPath $taskEnvFile -Encoding UTF8) {
         if ($taskLine -match '^\s*(MYSQL_HOST|MYSQL_PORT|MYSQL_DATABASE|MYSQL_USER|MYSQL_PASSWORD|MYSQL_ROOT_PASSWORD)=(.*)$') {
@@ -23,11 +28,15 @@ function Import-HanaEnvironment {
     }
 }
 
-function Import-HanaAdminBootstrap {
+function Import-JochookOnAdminBootstrap {
     $taskAdminFile = Join-Path (Split-Path -Parent $PSScriptRoot) '.local\admin-bootstrap.json'
     if (Test-Path -LiteralPath $taskAdminFile) {
         $taskAdmin = Get-Content -LiteralPath $taskAdminFile -Raw -Encoding UTF8 | ConvertFrom-Json
-        $env:HANA_BOOTSTRAP_USERNAME = [string]$taskAdmin.username
-        $env:HANA_BOOTSTRAP_PASSWORD = [string]$taskAdmin.password
+        $env:JOCHOOK_ON_BOOTSTRAP_USERNAME = [string]$taskAdmin.username
+        $env:JOCHOOK_ON_BOOTSTRAP_PASSWORD = [string]$taskAdmin.password
     }
 }
+
+# Keep existing local-only helper scripts working after the service rename.
+function Import-HanaEnvironment { Import-JochookOnEnvironment }
+function Import-HanaAdminBootstrap { Import-JochookOnAdminBootstrap }

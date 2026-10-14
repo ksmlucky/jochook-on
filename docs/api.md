@@ -173,7 +173,7 @@ ADMIN 전용이며 POST에는 CSRF가 필요합니다.
 
 | 요청 | 결과 |
 | --- | --- |
-| GET /api/v1/matches/import/template | `hana-fc-match.xlsx`: 쿼터기록·작성안내 시트, 4×11×선발/교체의 빈 양식 |
+| GET /api/v1/matches/import/template | `jochook-on-match.xlsx`: 쿼터기록·작성안내 시트, 4×11×선발/교체의 빈 양식 |
 | POST /api/v1/matches/import/preview | multipart `file` → `{valid,rows,quarters}`. DB 쓰기 없음 |
 
 8개 열은 `쿼터 (필수)`, `포지션 (필수)`, `출전 구분 (필수)`, `이름 (필수)`, `등번호 (선택)`, `득점 (선택: 기본 0)`, `도움 (선택: 기본 0)`, `선수 ID (선택)` 순서입니다. 열 제목을 유지합니다. 이름·등번호·스탯·ID가 모두 빈 행은 비어 있는 배치로 제외합니다. 선발/교체 값은 한글이며 다른 선택지는 허용하지 않습니다.

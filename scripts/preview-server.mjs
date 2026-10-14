@@ -24,4 +24,4 @@ createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': types[path.extname(target)] ?? 'application/octet-stream', 'Cache-Control': 'no-cache' })
     res.end(req.method === 'HEAD' ? undefined : data)
   } catch { res.writeHead(404).end('Not found') }
-}).listen(5173, '127.0.0.1', () => console.log('HANA FC: http://127.0.0.1:5173'))
+}).listen(5173, '127.0.0.1', () => console.log('JochookON: http://127.0.0.1:5173'))

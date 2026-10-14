@@ -1,4 +1,5 @@
 import { fetchWithCsrf, SessionExpiredError } from '../auth/api'
+import { serviceBrand } from '../../app/brand'
 
 export type Position = 'GK' | 'DF' | 'MF' | 'FW' | 'UN'
 export const preferredPositions = ['LB', 'CB', 'RB', 'CDM', 'CM', 'LW', 'ST', 'RW', 'GK'] as const
@@ -116,7 +117,7 @@ export async function downloadPlayerTemplate(): Promise<void> {
   const response = await fetch('/api/v1/players/import/template')
   await checkResponse(response)
   const url = URL.createObjectURL(await response.blob())
-  const link = document.createElement('a'); link.href = url; link.download = 'hana-fc-players.xlsx'; link.click()
+  const link = document.createElement('a'); link.href = url; link.download = `${serviceBrand.slug}-players.xlsx`; link.click()
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
