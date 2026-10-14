@@ -1,0 +1,272 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON 시스템 안내도</title><style>
+*{box-sizing:border-box}body{margin:0;color:#203a33;background:#f7f8f4;font-family:'Malgun Gothic',sans-serif}header{padding:14px 22px;background:#fff;border-bottom:1px solid #d8e3dc;display:flex;gap:24px;align-items:center;flex-wrap:wrap}h1{font-size:18px;margin:0}nav{display:flex;gap:7px;flex-wrap:wrap}button,.download{font:inherit;font-size:14px;padding:10px 15px;border:1px solid #c8d8cf;border-radius:8px;background:white;color:#203a33;cursor:pointer;text-decoration:none}button[aria-selected=true]{background:#246b51;color:white;border-color:#246b51}button:focus-visible,a:focus-visible{outline:3px solid #d09b35;outline-offset:2px}main{max-width:1440px;margin:auto}section>svg{display:block;width:100%;height:auto}.downloads{display:flex;gap:10px;padding:12px 22px;flex-wrap:wrap}.note{padding:0 22px 20px;line-height:1.7;font-size:14px;color:#566d65}section[hidden]{display:none}@media(max-width:650px){section{overflow-x:auto}section>svg{min-width:1000px}.note{font-size:13px}}@media print{header,.downloads,.note{display:none}section[hidden]{display:block}section{break-after:page}section>svg{width:100%;min-width:0}@page{size:A4 landscape;margin:8mm}}
+</style></head><body><header><h1>조축ON · 시스템 안내도</h1><nav role="tablist" aria-label="구성도 선택"><button id="tab-0" role="tab" aria-controls="panel-0" aria-selected="true" type="button">시스템 구성</button><button id="tab-1" role="tab" aria-controls="panel-1" aria-selected="false" type="button">업무 흐름</button><button id="tab-2" role="tab" aria-controls="panel-2" aria-selected="false" type="button">개발·배포</button><button id="tab-3" role="tab" aria-controls="panel-3" aria-selected="false" type="button">백업·다음 과제</button></nav><button type="button" id="print">전체 인쇄 / PDF 저장</button></header><main><section id="panel-0" role="tabpanel" aria-labelledby="tab-0"><svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title-0 desc-0"><title id="title-0">시스템 아키텍처 · 어디에서 실행될까?</title><desc id="desc-0">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</desc><defs><marker id="arrow-0" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">01 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">시스템 아키텍처 · 어디에서 실행될까?</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</text>
+<rect x="365" y="164" width="980" height="478" rx="24" fill="#f0f5f0" stroke="#b8cec0" stroke-width="1.5"/>
+<text x="393" y="202" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">Northflank Cloud  /  US - Central  /  Default 프로젝트</text>
+<rect x="1090" y="221" width="225" height="34" rx="17" fill="#e7f3eb" stroke="#e7f3eb" stroke-width="1.5"/>
+<text x="1202.5" y="244" font-size="17" fill="#246b51" font-weight="600" text-anchor="middle">무료 Sandbox · 시범 운영</text>
+<rect x="54" y="285" width="240" height="239" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="305" width="5" height="199" rx="2" fill="#246b51"/>
+<text x="78" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">휴대전화 · PC</text>
+<text x="78" y="364" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">React 화면 실행</text>
+<text x="78" y="395" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Safari / Chrome</text>
+<text x="78" y="426" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">홈 화면 설치(PWA)</text>
+<text x="78" y="457" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">인터넷 연결 필요</text>
+<rect x="395" y="285" width="267" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="395" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="419" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">웹 · Caddy 2</text>
+<text x="419" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">jochook-on-web</text>
+<text x="419" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">:8080 · 내부 HTTP</text>
+<text x="419" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">React 19 + TypeScript</text>
+<text x="419" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Vite로 만든 파일 제공</text>
+<text x="419" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">/api 요청은 API로 전달</text>
+<rect x="729" y="285" width="277" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="729" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="753" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">API · Spring Boot</text>
+<text x="753" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">jochook-on-api</text>
+<text x="753" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">:8080 · 외부 직접 접근 X</text>
+<text x="753" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Java 21 / Boot 4.1.1</text>
+<text x="753" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Spring Security + JPA</text>
+<text x="753" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">팀·권한·기록 규칙 처리</text>
+<rect x="1073" y="285" width="244" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1073" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="1097" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">DB · MySQL</text>
+<text x="1097" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">MySQL 8.4.11</text>
+<text x="1097" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">hana_fc</text>
+<text x="1097" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">비공개 네트워크</text>
+<text x="1097" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">TLS 인증서 검증</text>
+<text x="1097" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선수·경기·계정 저장</text>
+<path d="M 294 386 L 393 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-0)"/>
+<text x="343.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">HTTPS</text>
+<path d="M 662 386 L 727 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-0)"/>
+<text x="694.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">/api</text>
+<path d="M 1006 386 L 1071 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-0)"/>
+<text x="1038.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">TLS</text>
+<text x="395" y="583" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">외부 HTTPS 인증서는 Northflank가 처리 · API와 DB는 내부 경로로 연결</text>
+<text x="395" y="614" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">세션 쿠키 + CSRF + 팀 범위 검증 · API는 현재 1개 인스턴스</text>
+<rect x="54" y="681" width="625" height="185" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="701" width="5" height="145" rx="2" fill="#285d86"/>
+<text x="78" y="720" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">개발 PC · 운영과 별개</text>
+<text x="78" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Vite :5173 → Spring Boot :8080 → 로컬 MySQL</text>
+<text x="78" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">이 PC는 네이티브 MySQL 사용 · Docker 구성도 보유</text>
+<text x="78" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">로컬 DB와 운영 DB는 자동 동기화되지 않음</text>
+<rect x="714" y="681" width="631" height="185" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="701" width="5" height="145" rx="2" fill="#8b5b18"/>
+<text x="738" y="720" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">아직 운영 경로에 없는 것</text>
+<text x="738" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Oracle 도쿄: 서버 확보·이전 검증 전의 후보</text>
+<text x="738" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Cloudflare: 계정 가입 완료, 운영 연결 전</text>
+<text x="738" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Capacitor: 앱 준비 단계 · 스토어/TestFlight 미배포</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg><div class="downloads"><a class="download" href="01-system-architecture.svg" download>그림 원본 SVG 저장</a></div></section><section id="panel-1" role="tabpanel" aria-labelledby="tab-1" hidden><svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title-1 desc-1"><title id="title-1">업무 흐름도 · 한 경기를 어떻게 남길까?</title><desc id="desc-1">회원은 조회하고, 감독·코치는 선수와 경기 기록을 관리합니다.</desc><defs><marker id="arrow-1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">02 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">업무 흐름도 · 한 경기를 어떻게 남길까?</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">회원은 조회하고, 감독·코치는 선수와 경기 기록을 관리합니다.</text>
+<rect x="54" y="166" width="397" height="143" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="186" width="5" height="103" rx="2" fill="#285d86"/>
+<text x="78" y="205" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">서비스 관리자</text>
+<text x="78" y="245" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">팀 생성 · 최초 감독 지정</text>
+<text x="78" y="276" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">서비스 권한과 팀 기록 권한은 별개</text>
+<rect x="501" y="166" width="397" height="143" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="501" y="186" width="5" height="103" rx="2" fill="#246b51"/>
+<text x="525" y="205" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">감독 · 코치</text>
+<text x="525" y="245" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">개인 계정 로그인 · 기록 입력/수정</text>
+<text x="525" y="276" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">감독이 코치 임명 · 팀 접속 정보 발급</text>
+<rect x="948" y="166" width="397" height="143" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="948" y="186" width="5" height="103" rx="2" fill="#246b51"/>
+<text x="972" y="205" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">회원</text>
+<text x="972" y="245" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">팀 코드 + 팀 비밀번호로 조회</text>
+<text x="972" y="276" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">선수 명단 · 경기 · 스쿼드 확인</text>
+<path d="M 452 240 L 498 240" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<path d="M 899 240 L 945 240" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<rect x="54" y="367" width="300" height="240" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="387" width="5" height="200" rx="2" fill="#246b51"/>
+<text x="78" y="406" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">01 · 투표·출석</text>
+<text x="78" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">경기 날짜·필수 시작 시간</text>
+<text x="78" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">카톡 투표 결과 직접 선택</text>
+<text x="78" y="508" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">참석 예정과 실제 출석 구분</text>
+<text x="78" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">외부 경기 / 하루 자체전</text>
+<path d="M 355 485 L 381 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<path d="M 204 608 L 204 646" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<rect x="384" y="367" width="300" height="240" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="384" y="387" width="5" height="200" rx="2" fill="#246b51"/>
+<text x="408" y="406" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">02 · 스쿼드 계획</text>
+<text x="408" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">참석 예정자 + 용병</text>
+<text x="408" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선호 1·2·3지망으로 편성</text>
+<text x="408" y="508" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">4-1-2-3 · 1~4쿼터</text>
+<text x="408" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">자동 편성 후 직접 배치</text>
+<path d="M 685 485 L 711 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<path d="M 534 608 L 534 646" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<rect x="714" y="367" width="300" height="240" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="387" width="5" height="200" rx="2" fill="#246b51"/>
+<text x="738" y="406" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">03 · 실제 출전</text>
+<text x="738" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">계획을 실제 기록으로 복사</text>
+<text x="738" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">실제 선발·교체 수정</text>
+<text x="738" y="508" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">득점·도움 입력 / 엑셀</text>
+<text x="738" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">교체 1쌍은 각 0.5쿼터</text>
+<path d="M 1015 485 L 1041 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<path d="M 864 608 L 864 646" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<rect x="1044" y="367" width="300" height="240" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1044" y="387" width="5" height="200" rx="2" fill="#246b51"/>
+<text x="1068" y="406" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">04 · 결과·코멘트</text>
+<text x="1068" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">스코어 · 간단 코멘트</text>
+<text x="1068" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">자체전은 A팀/B팀 기록</text>
+<text x="1068" y="508" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">입력한 실제 기록 집계</text>
+<text x="1068" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">기록 완료 버튼으로 확정</text>
+<path d="M 1194 608 L 1194 646" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-1)"/>
+<rect x="54" y="649" width="1291" height="73" rx="18" fill="#e7f3eb" stroke="#c9dfd0" stroke-width="1.5"/>
+<text x="699" y="681" font-size="24" fill="#203a33" font-weight="600" text-anchor="middle">각 단계에서 중간 저장 → DB 저장 → 목록에 작성 단계 / 완료 상태 표시</text>
+<text x="699" y="707" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">기록 완료는 통계 포함이나 수정 잠금을 자동으로 결정하지 않습니다.</text>
+<rect x="54" y="756" width="625" height="116" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="776" width="5" height="76" rx="2" fill="#285d86"/>
+<text x="78" y="795" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">변경 이력</text>
+<text x="78" y="835" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">등록·수정·삭제한 사람, 시각, 변경 전후 보관</text>
+<rect x="714" y="756" width="631" height="116" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="776" width="5" height="76" rx="2" fill="#246b51"/>
+<text x="738" y="795" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">현재 보호 장치</text>
+<text x="738" y="835" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">다른 팀 차단 · 동시 수정 충돌 안내 · 삭제 전 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg><div class="downloads"><a class="download" href="02-match-workflow.svg" download>그림 원본 SVG 저장</a></div></section><section id="panel-2" role="tabpanel" aria-labelledby="tab-2" hidden><svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title-2 desc-2"><title id="title-2">개발 · 검증 · 배포 흐름도</title><desc id="desc-2">GitHub는 소스와 검증 결과를 보관하고, 실제 서비스는 Northflank에서 실행됩니다.</desc><defs><marker id="arrow-2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">03 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">개발 · 검증 · 배포 흐름도</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">GitHub는 소스와 검증 결과를 보관하고, 실제 서비스는 Northflank에서 실행됩니다.</text>
+<rect x="54" y="169" width="234" height="125" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="78" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">요구사항</text>
+<text x="78" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">사용자 · 실제 운영</text>
+<path d="M 290 231 L 314 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<rect x="318" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="318" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="342" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">기획</text>
+<text x="342" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">정의서 · 스토리보드</text>
+<path d="M 554 231 L 578 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<rect x="582" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="582" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="606" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">개발</text>
+<text x="606" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">화면 / API / DB</text>
+<path d="M 818 231 L 842 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<rect x="846" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="846" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="870" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">검증</text>
+<text x="870" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">개발자 + 총괄</text>
+<path d="M 1082 231 L 1106 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<rect x="1110" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1110" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="1134" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">사용자 확인</text>
+<text x="1134" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">휴대전화 실사용</text>
+<text x="54" y="335" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">요청에 맞춰 역할을 나누고, 기능 하나씩 구현·검증합니다.</text>
+<rect x="54" y="380" width="350" height="252" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="400" width="5" height="212" rx="2" fill="#246b51"/>
+<text x="78" y="419" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">① 로컬 개발</text>
+<text x="78" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">하나의 Git 저장소</text>
+<text x="78" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">frontend/  React · TypeScript</text>
+<text x="78" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">backend/  기능별 Spring Boot</text>
+<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: DB 변경 이력 V1~V20</text>
+<text x="78" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">JUnit / 프론트 테스트</text>
+<rect x="525" y="380" width="350" height="252" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="525" y="400" width="5" height="212" rx="2" fill="#285d86"/>
+<text x="549" y="419" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">② GitHub + Actions</text>
+<text x="549" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">ksmlucky/jochook-on</text>
+<text x="549" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">push / PR 때 자동 검증</text>
+<text x="549" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Java 단위·API / 프론트 테스트</text>
+<text x="549" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Testcontainers로 MySQL 검증</text>
+<text x="549" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실행 JAR · 웹 빌드</text>
+<rect x="995" y="380" width="350" height="252" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="995" y="400" width="5" height="212" rx="2" fill="#246b51"/>
+<text x="1019" y="419" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">③ Northflank 배포</text>
+<text x="1019" y="459" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선택한 커밋을 수동 빌드·배포</text>
+<text x="1019" y="490" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Dockerfile의 2개 target</text>
+<text x="1019" y="521" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">api → Java 실행 이미지</text>
+<text x="1019" y="552" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">web-northflank → Caddy + 웹</text>
+<text x="1019" y="583" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">배포 후 HTTPS·권한·화면 확인</text>
+<path d="M 405 485 L 523 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<text x="464" y="471" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">Git push</text>
+<path d="M 876 485 L 993 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-2)"/>
+<text x="934.5" y="471" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">검증 후 배포</text>
+<rect x="54" y="686" width="625" height="183" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="706" width="5" height="143" rx="2" fill="#246b51"/>
+<text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이미 확인한 운영 버전</text>
+<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 커밋 dd67f92 · 모바일 4열·작전판·작성 상태</text>
+<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">당시 CI: Java 211 / MySQL 통합 91 / 프론트 45</text>
+<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자동 검증과 자동 배포는 별개 · 자동 배포는 꺼짐</text>
+<rect x="714" y="686" width="631" height="183" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="706" width="5" height="143" rx="2" fill="#8b5b18"/>
+<text x="738" y="725" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">현재 진행 상황</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">밤사이 보완 코드는 로컬에서 검증·검토 중</text>
+<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">그림·문서는 GitHub에 보관 · 앱 추가 배포 없음</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">인프라 후보 변경은 복구·비용·성능 검증 후 결정</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg><div class="downloads"><a class="download" href="03-development-deployment.svg" download>그림 원본 SVG 저장</a></div></section><section id="panel-3" role="tabpanel" aria-labelledby="tab-3" hidden><svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title-3 desc-3"><title id="title-3">백업 · 복구 흐름도와 다음 과제</title><desc id="desc-3">백업 파일 생성과 복원 성공을 따로 확인합니다. 자동 예약은 아직 동작하지 않습니다.</desc><defs><marker id="arrow-3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">04 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">백업 · 복구 흐름도와 다음 과제</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">백업 파일 생성과 복원 성공을 따로 확인합니다. 자동 예약은 아직 동작하지 않습니다.</text>
+<rect x="54" y="173" width="350" height="239" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="193" width="5" height="199" rx="2" fill="#246b51"/>
+<text x="78" y="212" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 MySQL</text>
+<text x="78" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Northflank 비공개 DB</text>
+<text x="78" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">native dump(gzip) 수동 백업</text>
+<text x="78" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">2026-10-15 08:38 KST 완료</text>
+<text x="78" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기존 업무 자료 변경 없음</text>
+<rect x="525" y="173" width="350" height="239" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="525" y="193" width="5" height="199" rx="2" fill="#285d86"/>
+<text x="549" y="212" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">암호화된 로컬 사본</text>
+<text x="549" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">다운로드 → 메모리에서 암호화</text>
+<text x="549" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Windows DPAPI · Git 제외</text>
+<text x="549" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">평문 SQL 파일 만들지 않음</text>
+<text x="549" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">현재 Windows 사용자에 종속</text>
+<rect x="995" y="173" width="350" height="239" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="995" y="193" width="5" height="199" rx="2" fill="#246b51"/>
+<text x="1019" y="212" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">격리된 복원 시험</text>
+<text x="1019" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">별도 localhost MySQL 8.4</text>
+<text x="1019" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">15개 테이블 무결성 확인</text>
+<text x="1019" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway V20 성공 확인</text>
+<text x="1019" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">임시 서버 종료 · 자료 정리</text>
+<path d="M 405 277 L 523 277" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-3)"/>
+<text x="464" y="263" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">보관</text>
+<path d="M 876 277 L 993 277" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-3)"/>
+<text x="934.5" y="263" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">해독·복원</text>
+<rect x="54" y="461" width="1291" height="176" rx="18" fill="#fff4df" stroke="#e1c895" stroke-width="1.5"/>
+<text x="79" y="501" font-size="27" fill="#8b5b18" font-weight="600" text-anchor="start">매일 04시 · 7일 보관 → 무료 계정에서 거절</text>
+<text x="79" y="540" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">일정 등록 API: daily 예약 불가(400) · 자동 일정 생성되지 않음</text>
+<text x="79" y="572" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">승인된 설정 권한 한 개를 잠깐 추가 → 오류 확인 → 즉시 회수 → 원래 권한과 일치 확인</text>
+<text x="79" y="604" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">무료 요금표의 백업 포함과 매일 자동 예약 허용은 다릅니다.</text>
+<text x="54" y="688" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">다음 순서 · 제안이며 아직 구현/정책 확정이 아닙니다</text>
+<rect x="54" y="721" width="300" height="151" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="741" width="5" height="111" rx="2" fill="#8b5b18"/>
+<text x="78" y="760" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">운영 자료 보호</text>
+<text x="78" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">허용되는 무료 자동화 확인</text>
+<text x="78" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">별도 사본·키·정기 복원</text>
+<path d="M 355 797 L 381 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-3)"/>
+<rect x="384" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="384" y="741" width="5" height="111" rx="2" fill="#246b51"/>
+<text x="408" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">입력 안정성</text>
+<text x="408" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">초안 복원</text>
+<text x="408" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">신규 경기 중복 저장 방지</text>
+<path d="M 685 797 L 711 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-3)"/>
+<rect x="714" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="741" width="5" height="111" rx="2" fill="#246b51"/>
+<text x="738" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">회원용 시즌 기록</text>
+<text x="738" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">득점·도움·출석·출전량</text>
+<text x="738" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">집계·동률 규칙 먼저 합의</text>
+<path d="M 1015 797 L 1041 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow-3)"/>
+<rect x="1044" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1044" y="741" width="5" height="111" rx="2" fill="#246b51"/>
+<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">포메이션 확장</text>
+<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">편성의 실전 제약 보강</text>
+<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">다른 팀 도입은 그 이후</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg><div class="downloads"><a class="download" href="04-backup-next-steps.svg" download>그림 원본 SVG 저장</a></div></section></main><p class="note">2026-10-15 기준 · 운영 경로와 개발/검토 항목을 분리했습니다. 휴대전화에서는 그림을 가로로 밀거나 SVG를 열어 확대할 수 있습니다.<br>자동 백업은 무료 계정 제한으로 미설정이며 수동 백업과 격리 복원은 완료했습니다. 원문 설계·검증 근거는 프로젝트 docs/system-overview.md에 있습니다.</p><script>
+const tabs=[...document.querySelectorAll('[role=tab]')], panels=[...document.querySelectorAll('[role=tabpanel]')];
+tabs.forEach((tab,i)=>tab.addEventListener('click',()=>{tabs.forEach((t,j)=>{t.setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j});}));
+document.getElementById('print').addEventListener('click',()=>window.print());
+</script></body></html>

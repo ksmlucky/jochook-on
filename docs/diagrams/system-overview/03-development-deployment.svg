@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">개발 · 검증 · 배포 흐름도</title><desc id="desc">GitHub는 소스와 검증 결과를 보관하고, 실제 서비스는 Northflank에서 실행됩니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">03 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">개발 · 검증 · 배포 흐름도</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">GitHub는 소스와 검증 결과를 보관하고, 실제 서비스는 Northflank에서 실행됩니다.</text>
+<rect x="54" y="169" width="234" height="125" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="78" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">요구사항</text>
+<text x="78" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">사용자 · 실제 운영</text>
+<path d="M 290 231 L 314 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="318" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="318" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="342" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">기획</text>
+<text x="342" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">정의서 · 스토리보드</text>
+<path d="M 554 231 L 578 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="582" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="582" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="606" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">개발</text>
+<text x="606" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">화면 / API / DB</text>
+<path d="M 818 231 L 842 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="846" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="846" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="870" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">검증</text>
+<text x="870" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">개발자 + 총괄</text>
+<path d="M 1082 231 L 1106 231" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<rect x="1110" y="169" width="234" height="125" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1110" y="189" width="5" height="85" rx="2" fill="#246b51"/>
+<text x="1134" y="208" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">사용자 확인</text>
+<text x="1134" y="248" font-size="19" fill="#203a33" font-weight="400" text-anchor="start">휴대전화 실사용</text>
+<text x="54" y="335" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">요청에 맞춰 역할을 나누고, 기능 하나씩 구현·검증합니다.</text>
+<rect x="54" y="380" width="350" height="252" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="400" width="5" height="212" rx="2" fill="#246b51"/>
+<text x="78" y="419" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">① 로컬 개발</text>
+<text x="78" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">하나의 Git 저장소</text>
+<text x="78" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">frontend/  React · TypeScript</text>
+<text x="78" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">backend/  기능별 Spring Boot</text>
+<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: DB 변경 이력 V1~V20</text>
+<text x="78" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">JUnit / 프론트 테스트</text>
+<rect x="525" y="380" width="350" height="252" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="525" y="400" width="5" height="212" rx="2" fill="#285d86"/>
+<text x="549" y="419" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">② GitHub + Actions</text>
+<text x="549" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">ksmlucky/jochook-on</text>
+<text x="549" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">push / PR 때 자동 검증</text>
+<text x="549" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Java 단위·API / 프론트 테스트</text>
+<text x="549" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Testcontainers로 MySQL 검증</text>
+<text x="549" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실행 JAR · 웹 빌드</text>
+<rect x="995" y="380" width="350" height="252" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="995" y="400" width="5" height="212" rx="2" fill="#246b51"/>
+<text x="1019" y="419" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">③ Northflank 배포</text>
+<text x="1019" y="459" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선택한 커밋을 수동 빌드·배포</text>
+<text x="1019" y="490" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Dockerfile의 2개 target</text>
+<text x="1019" y="521" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">api → Java 실행 이미지</text>
+<text x="1019" y="552" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">web-northflank → Caddy + 웹</text>
+<text x="1019" y="583" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">배포 후 HTTPS·권한·화면 확인</text>
+<path d="M 405 485 L 523 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="464" y="471" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">Git push</text>
+<path d="M 876 485 L 993 485" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="934.5" y="471" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">검증 후 배포</text>
+<rect x="54" y="686" width="625" height="183" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="706" width="5" height="143" rx="2" fill="#246b51"/>
+<text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이미 확인한 운영 버전</text>
+<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 커밋 dd67f92 · 모바일 4열·작전판·작성 상태</text>
+<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">당시 CI: Java 211 / MySQL 통합 91 / 프론트 45</text>
+<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자동 검증과 자동 배포는 별개 · 자동 배포는 꺼짐</text>
+<rect x="714" y="686" width="631" height="183" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="706" width="5" height="143" rx="2" fill="#8b5b18"/>
+<text x="738" y="725" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">현재 진행 상황</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">밤사이 보완 코드는 로컬에서 검증·검토 중</text>
+<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">그림·문서는 GitHub에 보관 · 앱 추가 배포 없음</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">인프라 후보 변경은 복구·비용·성능 검증 후 결정</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg>

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">시스템 아키텍처 · 어디에서 실행될까?</title><desc id="desc">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">01 / 4   ·   2026.10.15</text>
+<text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">시스템 아키텍처 · 어디에서 실행될까?</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</text>
+<rect x="365" y="164" width="980" height="478" rx="24" fill="#f0f5f0" stroke="#b8cec0" stroke-width="1.5"/>
+<text x="393" y="202" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">Northflank Cloud  /  US - Central  /  Default 프로젝트</text>
+<rect x="1090" y="221" width="225" height="34" rx="17" fill="#e7f3eb" stroke="#e7f3eb" stroke-width="1.5"/>
+<text x="1202.5" y="244" font-size="17" fill="#246b51" font-weight="600" text-anchor="middle">무료 Sandbox · 시범 운영</text>
+<rect x="54" y="285" width="240" height="239" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="305" width="5" height="199" rx="2" fill="#246b51"/>
+<text x="78" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">휴대전화 · PC</text>
+<text x="78" y="364" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">React 화면 실행</text>
+<text x="78" y="395" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Safari / Chrome</text>
+<text x="78" y="426" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">홈 화면 설치(PWA)</text>
+<text x="78" y="457" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">인터넷 연결 필요</text>
+<rect x="395" y="285" width="267" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="395" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="419" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">웹 · Caddy 2</text>
+<text x="419" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">jochook-on-web</text>
+<text x="419" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">:8080 · 내부 HTTP</text>
+<text x="419" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">React 19 + TypeScript</text>
+<text x="419" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Vite로 만든 파일 제공</text>
+<text x="419" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">/api 요청은 API로 전달</text>
+<rect x="729" y="285" width="277" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="729" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="753" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">API · Spring Boot</text>
+<text x="753" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">jochook-on-api</text>
+<text x="753" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">:8080 · 외부 직접 접근 X</text>
+<text x="753" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Java 21 / Boot 4.1.1</text>
+<text x="753" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Spring Security + JPA</text>
+<text x="753" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">팀·권한·기록 규칙 처리</text>
+<rect x="1073" y="285" width="244" height="268" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="1073" y="305" width="5" height="228" rx="2" fill="#246b51"/>
+<text x="1097" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">DB · MySQL</text>
+<text x="1097" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">MySQL 8.4.11</text>
+<text x="1097" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">hana_fc</text>
+<text x="1097" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">비공개 네트워크</text>
+<text x="1097" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">TLS 인증서 검증</text>
+<text x="1097" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선수·경기·계정 저장</text>
+<path d="M 294 386 L 393 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="343.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">HTTPS</text>
+<path d="M 662 386 L 727 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="694.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">/api</text>
+<path d="M 1006 386 L 1071 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
+<text x="1038.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">TLS</text>
+<text x="395" y="583" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">외부 HTTPS 인증서는 Northflank가 처리 · API와 DB는 내부 경로로 연결</text>
+<text x="395" y="614" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">세션 쿠키 + CSRF + 팀 범위 검증 · API는 현재 1개 인스턴스</text>
+<rect x="54" y="681" width="625" height="185" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="54" y="701" width="5" height="145" rx="2" fill="#285d86"/>
+<text x="78" y="720" font-size="25" fill="#285d86" font-weight="600" text-anchor="start">개발 PC · 운영과 별개</text>
+<text x="78" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Vite :5173 → Spring Boot :8080 → 로컬 MySQL</text>
+<text x="78" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">이 PC는 네이티브 MySQL 사용 · Docker 구성도 보유</text>
+<text x="78" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">로컬 DB와 운영 DB는 자동 동기화되지 않음</text>
+<rect x="714" y="681" width="631" height="185" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
+<rect x="714" y="701" width="5" height="145" rx="2" fill="#8b5b18"/>
+<text x="738" y="720" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">아직 운영 경로에 없는 것</text>
+<text x="738" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Oracle 도쿄: 서버 확보·이전 검증 전의 후보</text>
+<text x="738" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Cloudflare: 계정 가입 완료, 운영 연결 전</text>
+<text x="738" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Capacitor: 앱 준비 단계 · 스토어/TestFlight 미배포</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
+<text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
+</g></svg>

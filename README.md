@@ -1,5 +1,7 @@
 # 조축ON
 
+[시스템 구성도·업무 흐름도](docs/system-overview.md) — 운영 서버·기술 스택·개발 배포·백업의 현재 구조를 한눈에 봅니다.
+
 [GitHub 저장소](https://github.com/ksmlucky/jochook-on) · [자동 검증](https://github.com/ksmlucky/jochook-on/actions) · [배포 안내](docs/deployment.md) · [화면 디자인](docs/design-refresh.md)
 
 조기축구팀의 선수·출석·경기 기록을 모으는 웹 앱입니다. 감독·코치가 입력하고 회원이 조회하는 서비스를 단계적으로 만듭니다. **팀 생성·운영진 초대·회원 코드 접속, 선수 관리와 경기별 투표·출석·4쿼터 기록**을 구현하고 로컬 앱에 적용했습니다. 자동 테스트·브라우저 확인·실제 DB 적용의 최신 결과는 [검증 기록](docs/verification.md)을 따릅니다.
