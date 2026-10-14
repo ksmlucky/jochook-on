@@ -9,7 +9,7 @@
 - 배포 이미지는 `Dockerfile`, 서버 실행 구성은 `compose.production.yaml`, HTTPS 입구는 `deploy/Caddyfile`에 있다.
 - GitHub Actions는 테스트와 빌드만 한다. 서버 자동 배포는 연결하지 않았다.
 - 최신 기능은 2026-10-14 Java 단위/API 207개·MySQL 통합 89개·프론트 41개 재검증과 GitHub 업로드·CI 확인을 마쳤다. 이후 Northflank 설정 검증은 전체 기능 재검증과 구분해 [전용 안내](northflank-deployment.md)에 기록한다.
-- 현재 계획은 **Northflank Developer Sandbox 무료 범위로 HANA FC 시범 사용 서버를 배포하고 아이폰에서 접속 확인**하는 것이다. 가입·카드 확인·무료 DB 생성은 완료했으며 API/웹·실제 자료 이전·공개 HTTPS 확인은 진행 중이다. 유료 도메인은 구매하지 않았다. DB 생성만으로 회원용 앱 배포 완료로 표시하지 않는다.
+- **[Northflank 시범 서비스](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)**에 API·웹·MySQL 배포와 실제 자료 이전·공개 HTTPS 로그인·조회 검증을 완료했다. 기존 계정·코드 해시를 보존했으며 실제 입력은 공개 주소에서 진행한다. 로컬 DB와 동기화되지 않는다. 다음은 아이폰 실기기 설치와 무료 조건을 확인한 자동 백업 구성이다. 상세 결과는 [Northflank 안내](northflank-deployment.md)를 따른다. 유료 도메인은 구매하지 않았다.
 - Oracle와 Cloudflare 가입도 완료했다. Oracle 도쿄 무료 VM은 용량 부족으로 생성되지 않아 6시간 정기 확인을 유지한다. Oracle 사용 시에는 [전용 안내](oracle-cloudflare-deployment.md)를 따른다. 아래 직접 HTTPS Compose 절차는 해당 서버 구성용 참고이며 Northflank에는 [Northflank 배포 안내](northflank-deployment.md)를 적용한다.
 - 운영 확장은 **HANA FC 실사용 → 복수 포메이션 지원 → 다른 팀 시범 도입** 순서다. 팀 기능 구현 완료를 공개 팀 모집 시작으로 간주하지 않는다.
 

@@ -1,14 +1,15 @@
 # Northflank 무료 시범 배포
 
-2026-10-14 사용자 요청으로 Oracle 용량 대기와 별개로 Northflank Developer Sandbox 배포를 시작했다. 이 문서는 진행 중인 설정이며 회원용 공개 배포 완료를 의미하지 않는다. Oracle 6시간 정기 확인은 유지한다. Oracle 서버를 확보하면 성능·운영 부담과 DB 복구를 검증한 뒤 이전 여부를 결정한다.
+2026-10-14 Northflank Developer Sandbox에서 API·웹·MySQL 실행, 실제 DB 이전, 공개 HTTPS 로그인·조회 검증을 완료했다. **[조축ON 접속](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)**. 아이폰 실기기 설치와 팀원 시범 사용은 다음 확인 단계다. Oracle 6시간 정기 확인은 유지하며, 서버 확보 후 성능·운영 부담과 DB 복구를 검증한 뒤 이전 여부를 결정한다.
 
 ## 실제 계정에서 확인한 상태
 
 - 사용자가 가입과 0달러 카드 인증을 완료했다. 카드 원문은 프로젝트에 보관하지 않는다.
 - 무료 계정에서 선택 가능한 리전은 US - Central과 Europe - West였다. 아시아 리전은 유료 전환이 필요하여 US - Central을 선택했다.
-- `jochook-on-mysql`은 Free 표시로 생성됐고 Running 상태를 확인했다. MySQL 8.4.11, 0.2 vCPU / 512MB, NVMe 6GB, 인스턴스 1개, TLS 사용, Private networking only 구성이다. 실제 데이터는 아직 이전하지 않았다.
+- `jochook-on-mysql`은 Free 표시의 Running 상태다. MySQL 8.4.11, 0.2 vCPU / 512MB, NVMe 6GB, 인스턴스 1개, TLS 사용, Private networking only 구성이다. 실제 자료 복구 후 15개 테이블의 모든 행을 원본 SHA-256 지문과 대조해 일치했다.
 - GitHub 앱의 기존 전체 저장소 접근을 `ksmlucky/jochook-on` 한 개로 줄이고 Northflank 연결 목록에서 확인했다.
-- API 생성 화면에서 무료 `nf-compute-20` (0.2 shared CPU / 512MB), 인스턴스 1개를 선택했다. API와 화면 서비스는 아직 생성 전이며 입력 중인 폼은 배포 완료가 아니다. 다른 계정이나 향후 무료 한도가 같다고 가정하지 않는다. 업그레이드·유료 자원은 선택하지 않는다.
+- API는 `nf-compute-20` (0.2 shared CPU / 512MB), 웹은 `nf-compute-10` (0.1 shared CPU / 256MB)이며 각각 1개 인스턴스로 Running이다. 유료 업그레이드·도메인 구매는 하지 않았다. 무료 한도는 실제 계정에서 확인한 값이며 향후 정책 변경을 보장하지 않는다.
+- 공식 CLI에 연결한 `jochook-on-deploy` 권한은 Default 프로젝트 한정, 토큰 만료는 발급 후 1일이다. GitHub 앱은 해당 저장소만 접근한다. 토큰·DB 비밀번호·실제 선수 정보는 Git에 넣지 않는다.
 
 ## 배포 구성
 
@@ -40,11 +41,33 @@ web에는 다음 값을 지정한다.
 
 | 이름 | 값의 의미 |
 | --- | --- |
-| `JOCHOOK_ON_SITE_HOST` | 발급받은 웹 호스트명, 프로토콜·경로 제외 |
-| `JOCHOOK_ON_API_UPSTREAM` | 실제 API 비공개 DNS 이름과 포트 |
-| `JOCHOOK_ON_TRUSTED_PROXY_CIDRS` | 배포 환경에서 확인한 ingress 프록시 주소 범위만 지정 |
+| `JOCHOOK_ON_SITE_HOST` | `http--jochook-on-web--wmjz5mzg84j4.code.run` |
+| `JOCHOOK_ON_API_UPSTREAM` | `jochook-on-api:8080` |
+| `JOCHOOK_ON_TRUSTED_PROXY_CIDRS` | `private_ranges` — 실제 ingress 사설 주소 확인 및 프로젝트 내부 격리를 전제로 사용 |
 
-Caddy는 전달 헤더를 정규화하고, 신뢰한 프록시에서 온 IP 목록만 오른쪽부터 판별한다. 임의의 `0.0.0.0/0`이나 `::/0`을 신뢰하지 않는다. 실제 ingress 경로와 위조 헤더 처리 검증이 끝나기 전 회원용 공개를 완료로 표시하지 않는다. `/actuator*`는 외부에 전달하지 않고 API 응답은 `no-store`로 처리한다.
+Caddy는 전달 헤더를 정규화하고, 신뢰한 프록시에서 온 IP 목록만 오른쪽부터 판별한다. 임의의 `0.0.0.0/0`이나 `::/0`은 신뢰하지 않는다. 실제 ingress peer가 사설 주소임을 확인했고, 외부 요청에 위조 X-Forwarded-For·Forwarded·X-Real-IP·CF-Connecting-IP·Host/Proto 전달 헤더를 넣어도 실제 외부 접속 IP가 유지되는 것을 확인했다. 이 신뢰 설정은 현재 프로젝트 내부의 서비스들을 신뢰한다는 전제이므로 다른 조직·미신뢰 서비스와 네트워크를 공유할 때 다시 검토한다. `/actuator*`는 외부에 전달하지 않고 API 응답은 `no-store`로 처리한다. 요청 로그에서는 모든 요청 헤더와 URI를 제거해 쿠키·인증 정보·초대 URL을 기록하지 않는다.
+
+실제 JDBC 연결은 `sslMode=VERIFY_IDENTITY`로 인증서와 호스트명을 검증한다. Flyway는 19개 마이그레이션 검증 후 현재 버전 19를 확인했다. 최초 API 기동은 약 83초였다. 서비스 재배포 시 메모리 세션은 사라지므로 재로그인이 필요하다.
+
+## 완료한 클라우드 검증과 다음 확인
+
+- API 이미지 `9f580c4`, 웹 이미지 `a21ce3d` 빌드·배포 성공. 웹 빌드에서 `caddy validate` 실행도 성공했다. 두 커밋의 GitHub Actions가 success다. Northflank 자동 Git 빌드는 꺼 두었으므로 이후 코드 push만으로 운영 서버가 바뀌지 않는다. 테스트 후 서비스별 Build에서 검증할 커밋을 지정한다.
+- HTTPS 홈 200, HTTP→HTTPS 전환, 익명 선수 조회 401, 외부 actuator 404, manifest·Service Worker 200을 확인했다.
+- 기존 감독 계정 로그인 204, Secure·HttpOnly·SameSite=Lax 세션 쿠키, 활동 선수 39명·경기 2건·변경 이력 조회를 확인했다. CSRF 없는 빈 수정 요청은 403, 다른 팀 ID의 조회는 409로 차단됐다. 실제 경기·선수 수정이나 삭제는 시험하지 않았다.
+- 브라우저에서 기존 계정 로그인·선수단·경기 목록·로그아웃을 확인했다. 폭 390px 설정에서 콘텐츠 폭 375px(스크롤바 제외)와 가로 넘침 없음, 모바일 경기 카드를 확인했다. 아이폰 Safari 실제 설치·standalone·카메라/파일 선택 및 다중 사용자 부하는 미확인이다.
+- 현재 클라우드 DB의 복구 직후 화면 지표는 메모리 평균 약 244MB/최대 285MB, 저장 약 135MB/6GB였다. 장기 부하 검증 수치가 아니다.
+
+**실제 입력은 공개 주소에서만 진행한다.** 로컬 Windows DB는 이전 시점의 원본으로 보존했으며 클라우드와 동기화되지 않는다. 로컬에서 실제 경기를 계속 입력하면 기록이 두 곳으로 갈라진다.
+
+## 백업과 복구
+
+이전 전 백업은 평문 SQL 파일을 만들지 않고 메모리에서 Windows DPAPI(CurrentUser)로 암호화했다. 비공개 CLI 터널과 인증서 검증 TLS로 새 MySQL에 복구했고, 모든 테이블의 행 수와 SHA-256 지문을 대조했다. 선수 40명(활동 39명), 경기 2건, 기존 ID·소속·계정 해시·코드 해시·Flyway 이력을 보존했다. 기존 팀 코드와 비밀번호를 재발급하지 않았다.
+
+암호화 파일·매니페스트는 Git에서 제외한 `backups/northflank/20261014-initial/`에 보관하며, 작업 포인터는 `work/northflank-migration-latest.json`에 있다. DPAPI 파일은 현재 Windows 사용자에 연결되므로 PC 교체용 독립 백업으로 간주하면 안 된다. 로컬 Docker 복구 시험은 엔진 시작 오류로 중단됐고, 이후 실제 클라우드 복구·대조를 통과했다.
+
+**자동 백업 일정은 아직 설정하지 않았다.** 시범 기록 입력을 확대하기 전에 Northflank 백업 저장의 무료 적용 조건을 확인하고, 매일 백업·짧은 보관 기간과 별도 복구 시험을 구성한다. 현재 암호화 백업은 최초 이전 시점만 보호하며 이후 클라우드 변경은 포함하지 않는다. 무료 여부가 불명확한 백업 저장소나 유료 옵션은 만들지 않았다.
+
+복구가 필요하면 입력을 먼저 중단하고 현재 클라우드 DB도 백업한다. 빈 별도 대상에 복구해 행·권한·API를 비교한 뒤 연결을 전환한다. 현재 운영 DB에 예전 파일을 바로 덮어쓰지 않는다.
 
 ## 검증·실제 자료 이전 순서
 

@@ -14,7 +14,7 @@
 
 ## Oracle 대기 중 무료 대안 (2026-10-14 검토)
 
-현재 Java 21 / Spring Boot / React / MySQL 구성과 자동 편성의 OR-Tools, 엑셀 처리의 Apache POI를 기준으로 비교했다. 이후 사용자가 Northflank를 선택해 가입·무료 DB 생성을 완료했고 시범 배포를 진행 중이다. 실제 회원 DB 이전과 회원용 공개는 미완료이며 [현재 진행 상태](northflank-deployment.md)를 따른다. 아래 표는 선택 당시 후보 비교다.
+현재 Java 21 / Spring Boot / React / MySQL 구성과 자동 편성의 OR-Tools, 엑셀 처리의 Apache POI를 기준으로 비교했다. 이후 사용자가 Northflank를 선택했고 2026-10-14 API·웹·무료 DB·실제 자료 이전·HTTPS 로그인 검증을 완료했다. [현재 서비스와 운영 안내](northflank-deployment.md)를 따른다. Oracle 이전은 별도 검증 후 결정하며 아래 표는 선택 당시 후보 비교다.
 
 | 후보 | 확인한 무료 조건 | 조축ON에 적용할 때 |
 | --- | --- | --- |
