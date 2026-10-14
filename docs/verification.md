@@ -11,7 +11,7 @@
 - 새 JAR와 프론트 빌드로 로컬 실행기를 검증했다. 브라우저에서 조축ON 제목·로고·로그인, 로그인 후 HANA FC 팀 표시와 선수·경기 목록을 확인했다. 팀 표시 정보는 `frontend/src/app/team.ts`, 제품 이름은 `brand.ts`에서 구분한다. 화면 증빙은 Git 제외 `outputs/jochook-on-branding.png`에 보관한다.
 - 선수·경기 Excel 응답 파일명이 각각 `jochook-on-players.xlsx`, `jochook-on-match.xlsx`임을 확인했다. pnpm은 패키지 변경 후 `CI=true`로 의존성 연결을 갱신했고 lockfile 변경 없이 설치·테스트·빌드에 성공했다.
 - 새/구 환경변수로 운영 Compose 설정 검증을 통과했다. 새 Docker 이미지와 빈 QA MySQL에서 초기 관리자 생성, 프록시 로그인·세션·로그아웃, 익명 조회 401·CSRF 누락 403·외부 health 404를 확인했다. QA에서는 세 볼륨을 모두 고유 이름으로 override하고 확인 후 해당 임시 자원만 정리했다.
-- GitHub 저장소를 `ksmlucky/jochook-on`으로 변경했고 저장소 ID·비공개 설정과 이력이 유지됨을 확인했다. 커밋 대상에서 로컬 비밀번호·실제 회원 이름 37개 및 비공개 경로가 포함되지 않았음을 검사했다. 원격 소스 업로드와 해당 커밋의 CI 결과는 후속 확인한다.
+- GitHub 저장소를 `ksmlucky/jochook-on`으로 변경했고 저장소 ID·비공개 설정과 이력이 유지됨을 확인했다. 커밋 대상에서 로컬 비밀번호·실제 회원 이름 37개 및 비공개 경로가 포함되지 않았음을 검사했다. 소스 변경 커밋 `70e443c`의 [GitHub Actions](https://github.com/ksmlucky/jochook-on/actions/runs/38514014892)에서 백엔드와 프론트 테스트·빌드가 모두 성공했다. 이후 검증 결과와 QA 볼륨 안내는 문서만 추가하므로 CI를 재실행하지 않았다.
 - IntelliJ 프로젝트 표시명은 조축ON으로 설정했다. 로컬 작업 폴더와 Codex에 연결된 경로는 기존 경로다. AWS 배포와 아이폰의 외부 서버 접속은 후속 작업이다.
 
 ## GitHub 업로드·배포 이미지 검증 (2026-10-14)

@@ -50,6 +50,8 @@ docker compose --env-file .env.production -f compose.production.yaml ps
 
 Compose 프로젝트 이름은 개발 `jochook-on`, 운영 `jochook-on-production`이다. 데이터 연결을 유지하기 위해 실제 Docker 볼륨 이름은 기존 개발 `hana-fc_mysql-data`, 운영 `hana-fc-production_mysql-data`·`hana-fc-production_caddy-data`·`hana-fc-production_caddy-config`를 명시적으로 사용한다. 기존 DB·사용자 이름도 유지한다. 다른 Compose 프로젝트 이름으로 운영하던 환경은 실제 볼륨 이름을 먼저 대조해야 하며, 새 볼륨에 연결된 빈 DB를 기존 데이터 삭제로 오인하지 않는다.
 
+같은 Docker 호스트에서 별도 QA 환경을 만들 때는 `-p`만 바꾸지 말고 `JOCHOOK_ON_MYSQL_VOLUME`, `JOCHOOK_ON_CADDY_DATA_VOLUME`, `JOCHOOK_ON_CADDY_CONFIG_VOLUME`도 각각 QA 전용 고유 이름으로 지정한다. 볼륨 이름이 명시되어 있으므로 `-p`만 바꾸면 같은 저장소를 공유한다. 테스트 종료 시에는 실제로 연결된 볼륨 이름을 확인한 뒤 그 QA 자원만 정리한다.
+
 최초 배포 DB는 비어 있다. 실제 데이터를 옮길 때는 로컬 DB의 비공개 백업을 먼저 만들고, 서버 DB와 스키마 버전을 확인한 뒤 이전한다. 백업은 Git 외부에서 암호화해 보관한다. 기존 회원 정보가 들어 있는 SQL을 seed나 Flyway 마이그레이션으로 만들지 않는다.
 
 Linux 서버의 백업 예시는 다음과 같다. 프로젝트 루트에서 실행하고, 생성한 파일은 서버 외부의 접근 제한된 저장소에도 보관한다. 실제 운영 전에 별도 DB에 복구가 되는지 확인한다.
