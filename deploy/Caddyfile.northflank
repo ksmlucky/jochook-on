@@ -1,0 +1,61 @@
+{
+	auto_https off
+	admin off
+	servers {
+		# Set only the ingress proxy ranges verified for this deployment.
+		trusted_proxies static {$JOCHOOK_ON_TRUSTED_PROXY_CIDRS}
+		trusted_proxies_strict
+		client_ip_headers X-Forwarded-For
+	}
+}
+
+:8080 {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy same-origin
+		-Server
+	}
+
+	route {
+		# Platform readiness only; no application or database details are returned.
+		handle /healthz {
+			respond 204
+		}
+
+		@privatePaths path /actuator* /internal-health*
+		handle @privatePaths {
+			respond 404
+		}
+
+		@wrongHost not host {$JOCHOOK_ON_SITE_HOST}
+		handle @wrongHost {
+			respond 421
+		}
+
+		@api path /api /api/*
+		handle @api {
+			request_body {
+				max_size 3MB
+			}
+			header >Cache-Control "no-store"
+			reverse_proxy {$JOCHOOK_ON_API_UPSTREAM} {
+				header_up -Forwarded
+				header_up -X-Forwarded-Prefix
+				header_up -X-Real-IP
+				header_up -CF-Connecting-IP
+				header_up X-Forwarded-For {client_ip}
+				header_up X-Forwarded-Proto https
+				header_up X-Forwarded-Port 443
+				header_up X-Forwarded-Host {host}
+			}
+		}
+
+		handle {
+			root * /srv
+			header Cache-Control "no-cache"
+			file_server
+		}
+	}
+}

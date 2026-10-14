@@ -11,6 +11,7 @@
 !backend/**
 !deploy/
 !deploy/Caddyfile
+!deploy/Caddyfile.northflank
 **/node_modules
 **/dist
 **/build

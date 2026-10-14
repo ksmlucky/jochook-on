@@ -27,6 +27,11 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=90s --retries=5 \
     CMD curl --fail --silent http://127.0.0.1:8080/actuator/health > /dev/null || exit 1
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=60.0", "-jar", "/app/app.jar"]
 
+FROM caddy:2-alpine AS web-northflank
+COPY deploy/Caddyfile.northflank /etc/caddy/Caddyfile
+COPY --from=frontend-build /src/frontend/dist /srv
+EXPOSE 8080
+
 FROM caddy:2-alpine AS web
 COPY deploy/Caddyfile /etc/caddy/Caddyfile
 COPY --from=frontend-build /src/frontend/dist /srv

@@ -4,13 +4,13 @@
 
 ## 현재 상태와 순서
 
-- 서비스명은 **조축ON**이며 기존 팀은 **HANA FC**다. 팀 생성·운영진 지정·초대·공유 코드 접속·팀별 데이터 분리와 코드 이력을 구현하고 로컬 V16 적용·통합 검증을 마쳤다. 실제 회원 코드는 아직 미발급이며 가상 검증 팀은 실제 DB에 없다.
+- 서비스명은 **조축ON**이며 기존 팀은 **HANA FC**다. 팀 생성·운영진 지정·초대·코드와 비밀번호 접속·팀별 데이터 분리·감독/코치 권한·경기 변경 이력을 구현했다. 현재 로컬 적용 상태와 검증은 [검증 기록](verification.md)을 따른다.
 - 저장소 표준 주소는 [ksmlucky/jochook-on](https://github.com/ksmlucky/jochook-on)이다. 원격 이름 변경의 확인 결과는 [검증 기록](verification.md)을 따른다.
 - 배포 이미지는 `Dockerfile`, 서버 실행 구성은 `compose.production.yaml`, HTTPS 입구는 `deploy/Caddyfile`에 있다.
 - GitHub Actions는 테스트와 빌드만 한다. 서버 자동 배포는 연결하지 않았다.
-- 팀 접속 기능은 Java 단위/API 159개·MySQL 통합 46개·프론트 19개, 별도 API QA와 브라우저 흐름·데이터 보존을 검증했다. 실행 결과는 [검증 기록](verification.md)을 따른다. 이번 변경은 아직 GitHub에 push하지 않았다.
-- 현재 계획은 **Oracle Cloud·Cloudflare의 무료 범위로 HANA FC 실사용 서버를 준비하고 아이폰에서 접속 확인**하는 것이다. 두 계정은 아직 없으며 사용자가 직접 가입한다. 유료 도메인은 가격 검토만 허용됐고 구매하지 않았다. 자원 생성·요금·DNS·HTTPS·외부 접속을 확인하기 전 배포 완료로 표시하지 않는다.
-- 이전에는 AWS 배포를 계획했으나 이번 요청으로 위 계획으로 변경했다. 현재 배포 준비는 [Oracle Cloud·Cloudflare Tunnel 안내](oracle-cloudflare-deployment.md)를 따른다. 아래 호스팅 후보 검토와 직접 HTTPS Compose 절차는 기존 검토·기술 참고이며 현재 서버가 생성됐다는 뜻은 아니다.
+- 최신 기능은 2026-10-14 Java 단위/API 207개·MySQL 통합 89개·프론트 41개 재검증과 GitHub 업로드·CI 확인을 마쳤다. 이후 Northflank 설정 검증은 전체 기능 재검증과 구분해 [전용 안내](northflank-deployment.md)에 기록한다.
+- 현재 계획은 **Northflank Developer Sandbox 무료 범위로 HANA FC 시범 사용 서버를 배포하고 아이폰에서 접속 확인**하는 것이다. 가입·카드 확인·무료 DB 생성은 완료했으며 API/웹·실제 자료 이전·공개 HTTPS 확인은 진행 중이다. 유료 도메인은 구매하지 않았다. DB 생성만으로 회원용 앱 배포 완료로 표시하지 않는다.
+- Oracle와 Cloudflare 가입도 완료했다. Oracle 도쿄 무료 VM은 용량 부족으로 생성되지 않아 6시간 정기 확인을 유지한다. Oracle 사용 시에는 [전용 안내](oracle-cloudflare-deployment.md)를 따른다. 아래 직접 HTTPS Compose 절차는 해당 서버 구성용 참고이며 Northflank에는 [Northflank 배포 안내](northflank-deployment.md)를 적용한다.
 - 운영 확장은 **HANA FC 실사용 → 복수 포메이션 지원 → 다른 팀 시범 도입** 순서다. 팀 기능 구현 완료를 공개 팀 모집 시작으로 간주하지 않는다.
 
 ## 결정한 접속 방식

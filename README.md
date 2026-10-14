@@ -6,7 +6,7 @@
 
 제품명은 **조축ON**, 기존 팀명은 **HANA FC**입니다. 영문 코드명 `jochookOn`, 저장소·패키지 slug `jochook-on`으로 통일합니다. 화면에는 현재 접속한 팀명을 표시하며 선수·경기를 팀별로 분리합니다. 이름 변경의 이력은 [브랜드 변경 명세와 화면 흐름](docs/rebranding.md)에 정리했습니다.
 
-접속 흐름은 **서비스 관리자의 팀 생성·감독 지정 → 감독의 코치 임명 → 감독·코치의 코드와 비밀번호 발급 → 회원 조회**입니다. [요구사항 정의서](docs/team-access-requirements.md), [스토리보드](docs/team-access-storyboard.md), [API 계약](docs/team-access-api.md)에 승인된 정책과 화면·서버 동작을 정리했습니다. 당분간 HANA FC에서 사용하고 복수 포메이션을 지원한 뒤 다른 팀을 도입합니다. 실제 클라우드는 [Oracle Cloud·Cloudflare 배포 준비](docs/oracle-cloudflare-deployment.md) 단계이며 아직 배포하지 않았습니다.
+접속 흐름은 **서비스 관리자의 팀 생성·감독 지정 → 감독의 코치 임명 → 감독·코치의 코드와 비밀번호 발급 → 회원 조회**입니다. [요구사항 정의서](docs/team-access-requirements.md), [스토리보드](docs/team-access-storyboard.md), [API 계약](docs/team-access-api.md)에 승인된 정책과 화면·서버 동작을 정리했습니다. 당분간 HANA FC에서 사용하고 복수 포메이션을 지원한 뒤 다른 팀을 도입합니다. 현재 [Northflank 무료 시범 배포](docs/northflank-deployment.md)를 진행 중이며, Oracle 무료 서버 용량 확인은 병행합니다. DB 생성과 회원용 서비스 배포 완료는 구분합니다.
 
 **이 PC에서는 `Start-JochookON.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.
 

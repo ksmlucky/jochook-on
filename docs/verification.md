@@ -2,6 +2,13 @@
 
 확인일: 2026-10-14 (한국 시간)
 
+## Northflank 무료 사양 배포 준비 (2026-10-14)
+
+- `docker build --target web-northflank -t jochook-on-web:northflank-check .` 성공. 기존 `web`/`api` target과 실제 데이터 경로는 유지했다.
+- 실제 회원 DB와 분리한 임시 Docker MySQL에서 가상 선수 13명으로 API 0.2 CPU / 512MiB 제한을 검증했다. 기동·코치 로그인·팀 세션·선수 조회·자동 편성이 통과했다. 전체 초기 기동 약 102초, 자동 편성 약 6.3초(최적해), 마지막 API 메모리 약 338MiB를 확인했다. 로컬 임시 MySQL 메모리가 약 505MiB로 제한에 가까워 실제 관리형 DB에서 별도 확인한다.
+- 엑셀 양식 다운로드·빈 양식 읽기 후 400 검증 응답을 확인했다. 내용이 있는 파일의 등록 성공·동시 사용자 부하·실제 클라우드 TLS/프록시/실기기는 아직 확인하지 않았다. 이번 설정 변경에서 전체 Java·프론트·MySQL 통합 테스트를 재실행하지 않았으며 아래 전체 재검증 결과와 구분한다.
+- Northflank 계정의 무료 리전·사양을 직접 확인했다. MySQL 8.4.11 / 0.2 vCPU / 512MB / 6GB / TLS / 비공개 네트워크가 Running이다. API/웹 배포와 실제 회원 자료 이전은 진행 중이며 [현재 상태](northflank-deployment.md)를 따른다.
+
 ## 배포 전 전체 재검증 (2026-10-14 22시 · 한국 시간)
 
 - `gradlew --no-daemon --max-workers=1 test integrationTest bootJar` 성공. Docker 없는 Java 단위/API **207개**, 일회용 Docker MySQL 통합 **89개**가 전부 통과했으며 실패·오류·건너뜀은 0이다. 아래 과거 기록의 Docker 중단 항목과 일부 재실행만 했던 항목을 이번 전체 실행으로 다시 확인했다. 실제 Windows MySQL 자료는 테스트에 사용하지 않았다.
