@@ -1,5 +1,7 @@
 # HANA FC Transfermarkt
 
+[GitHub 저장소](https://github.com/ksmlucky/hana-fc-transfermarkt) · [자동 검증](https://github.com/ksmlucky/hana-fc-transfermarkt/actions) · [배포 안내](docs/deployment.md)
+
 조기축구팀의 선수·출석·경기 기록을 모으는 웹 앱입니다. 운영진이 입력하고 회원이 조회하는 서비스를 단계적으로 만듭니다. 현재 **로그인·선수 관리와 경기별 투표·출석·4쿼터 기록**을 구현했습니다.
 
 **이 PC에서는 `Start-HANA.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.

@@ -5,6 +5,14 @@ import com.google.ortools.sat.*;
 /** 자리 배치 전에 교체·휴식·개인 출전량을 결정해 탐색 크기를 줄인다. */
 record QuarterSchedule(int[][] units, int[] totals, int[] substitutes, boolean optimal) {
     static QuarterSchedule calculate(int n, int slots, int seed) {
+        // 정확히 두 조이면 번갈아 풀 쿼터로 뛰는 해가 교체 0회·완전 균등의 최적해다.
+        // 탐색 시간에 맡기면 느린 CI/서버에서 불필요한 앞 쿼터 교체가 반환될 수 있다.
+        if (n == 2 * slots) {
+            int[][] units = new int[n][4]; int[] totals = new int[n]; int[] subs = new int[4];
+            java.util.Arrays.fill(totals, 4);
+            for (int p = 0; p < n; p++) for (int q = p < slots ? 0 : 1; q < 4; q += 2) units[p][q] = 2;
+            return new QuarterSchedule(units, totals, subs, true);
+        }
         // 최대 인원에서는 모든 자리를 매번 반 쿼터씩 나눠야 하므로 해가 정해진다.
         if (n == 4 * slots) {
             int[][] units = new int[n][4]; int[] totals = new int[n]; int[] subs = new int[4];

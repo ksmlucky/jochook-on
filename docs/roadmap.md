@@ -8,6 +8,7 @@
 - [x] 선수 목록 조회 API와 React 화면
 - [x] DB 변경 이력과 테스트 코드
 - [x] GitHub Actions 검증 작업 정의
+- [x] `ksmlucky/hana-fc-transfermarkt` 비공개 저장소 생성, 실제 데이터 제외 후 main 업로드
 - [x] 구조·실행·학습 안내
 - [x] Docker Desktop 엔진 기동 및 일회용 MySQL Testcontainers 통합 테스트 5개 통과
 - [ ] 필요 시 기존 DB 백업·이전 후 Compose 개발 DB로 전환 (현재 앱은 Windows MySQL 사용)
