@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1310" viewBox="0 0 1800 1310" role="img" aria-labelledby="title desc"><title id="title">데이터베이스 구조 · 무엇이 어디에 저장될까?</title><desc id="desc">16개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.. V28 스키마 기준 · 2026.10.15. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1310" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V28 스키마 기준 · 2026.10.15</text>
+<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">데이터베이스 구조 · 무엇이 어디에 저장될까?</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">16개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.</text>
+<rect x="60" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">팀과 선수</text>
+<text x="83" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">teams · 축구팀</text>
+<text x="83" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">players · 회원·용병 프로필</text>
+<text x="83" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">등번호는 선수 PK가 아님</text>
+<text x="83" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">활동 선수 등번호는 팀 안에서 중복 금지</text>
+<rect x="655" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="678" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">대회와 경기</text>
+<text x="678" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">tournaments · 대회 기간·부문</text>
+<text x="678" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_records · 날짜·스코어·형식</text>
+<text x="678" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">팀 1 : 선수/대회/경기 0..N</text>
+<text x="678" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">대회 1 : 경기 0..N · 리그는 대회 없음</text>
+<rect x="1250" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1273" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">기록이 쌓이는 단계</text>
+<text x="1273" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_participants · 01 투표·출석</text>
+<text x="1273" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_quarters · 구간 1/2 또는 1~4</text>
+<text x="1273" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_planned_lineups · 02 계획</text>
+<text x="1273" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_appearances · 03 실제·스탯</text>
+<path d="M 550 298 L 655 298" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="602" y="278" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 FK</text>
+<path d="M 1145 298 L 1250 298" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="1197" y="278" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">경기 FK</text>
+<rect x="60" y="545" width="800" height="355" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="584" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">개인 계정과 팀 접근</text>
+<text x="83" y="629" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts · 개인 로그인 / 서비스 관리자</text>
+<text x="83" y="661" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_memberships · 팀별 감독·코치·회원 권한</text>
+<text x="83" y="693" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_invites · 운영진 초대</text>
+<text x="83" y="725" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_codes · 회원용 팀 코드·비밀번호 해시</text>
+<text x="83" y="757" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_creation_requests · 팀 생성 중복 방지</text>
+<text x="83" y="789" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_code_events · 코드 발급·교체·폐기 이력</text>
+<rect x="965" y="545" width="775" height="355" rx="18" fill="#fff4df" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="988" y="584" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">이력과 중복 저장 보호</text>
+<text x="988" y="629" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_record_events · 변경 전후 JSON와 작업 시각</text>
+<text x="988" y="661" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_save_requests · 요청 키와 저장 결과 영수증</text>
+<text x="988" y="693" font-size="21" fill="#203a33" font-weight="400" text-anchor="start"></text>
+<text x="988" y="725" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">이력: team_id만 실제 FK</text>
+<text x="988" y="757" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">영수증: 모든 ID가 논리 참조 · FK 없음</text>
+<text x="988" y="789" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">원본 경기 삭제 후에도 이력·영수증을 보존</text>
+<path d="M 300 420 L 300 545" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="470" y="495" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 1 → 권한·접속 0..N</text>
+<path d="M 1470 420 L 1470 545" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="1470" y="495" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="middle">경기·작업자 ID 논리 참조</text>
+<path d="M 860 720 L 965 720" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="913" y="700" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="middle">작업자</text>
+<rect x="60" y="960" width="800" height="245" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="999" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">집계 테이블은 따로 만들지 않았어요</text>
+<text x="83" y="1044" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">선수 스탯 = 실제 출전 + 실제 출석을 조회해서 계산</text>
+<text x="83" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">계획 스쿼드는 통계에 포함하지 않음</text>
+<text x="83" y="1108" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">교체 각각 0.5쿼터 · 새 대회 풀타임 2쿼터</text>
+<text x="83" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">리그·대회 합산은 시간 환산 없이 구간 수를 합산</text>
+<rect x="965" y="960" width="775" height="245" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="988" y="999" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">별도 관리와 읽는 법</text>
+<text x="988" y="1044" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">flyway_schema_history · 스키마 변경 이력</text>
+<text x="988" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">DB 세션 테이블 없음 · 현재 서버 HttpSession 사용</text>
+<text x="988" y="1108" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실선 = DB FK / 점선 = FK 없는 논리 참조</text>
+<text x="988" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">확대 상세 4장과 전체 Mermaid 관계도를 함께 제공</text>
+<text x="52" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+</g></svg>

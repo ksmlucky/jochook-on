@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.2",
   "publishedOn": "2026.10.15",
-  "appCommit": "pending-release",
-  "scope": "pending_deployment",
+  "appCommit": "9d3d3473fd00a31c42924d7fd47a5b4772334fe8",
+  "scope": "deployed",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -584,5 +584,5 @@
     }
   ],
   "releaseLabel": "2026.10.15 대회·기록 확장판",
-  "lastVerifiedProductionCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
+  "lastVerifiedProductionCommit": "9d3d3473fd00a31c42924d7fd47a5b4772334fe8"
 }

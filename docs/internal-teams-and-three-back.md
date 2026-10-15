@@ -1,5 +1,7 @@
 # 자체전 사전 팀 배정과 3백 배치 변경
 
+> 운영 확인: **2026-10-15 23:45 KST · 9d3d347 · DB V28 · 가이드 1.2**. 이 문서의 기능을 운영 앱에 반영했습니다. 아래 로컬·미배포·미실행 표시는 해당 검증 당시의 이력이며, 최신 배포와 전체 회귀 결과는 [이번 배포 기록](release-tournament-expansion-2026-10-15.md)을 따릅니다.
+
 2026-10-15 · 로컬 개발 · 운영 배포 전
 
 [설명 그림](diagrams/internal-team-workflow.svg) · [그림 생성 원본](../scripts/Generate-InternalTeamWorkflow.mjs)

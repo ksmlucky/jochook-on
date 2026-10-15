@@ -34,10 +34,10 @@
 <rect x="1073" y="305" width="5" height="228" rx="2" fill="#246b51"/>
 <text x="1097" y="324" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">DB · MySQL</text>
 <text x="1097" y="364" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">MySQL 8.4.11</text>
-<text x="1097" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">hana_fc · V23 적용</text>
+<text x="1097" y="395" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">hana_fc · V28</text>
 <text x="1097" y="426" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">비공개 네트워크</text>
 <text x="1097" y="457" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">TLS 인증서 검증</text>
-<text x="1097" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">경기·이력·저장 영수증</text>
+<text x="1097" y="488" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">대회·경기·이력·영수증</text>
 <path d="M 294 386 L 393 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <text x="343.5" y="372" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">HTTPS</text>
 <path d="M 662 386 L 727 386" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
@@ -58,6 +58,6 @@
 <text x="738" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Oracle 도쿄: 서버 확보·이전 검증 전의 후보</text>
 <text x="738" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Cloudflare: 계정 가입 완료, 운영 연결 전</text>
 <text x="738" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Capacitor: 앱 준비 단계 · 스토어/TestFlight 미배포</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 기능확장판 · 운영 b9d8738 · DB V23 · 18:56 KST 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 대회·기록 확장판 · 운영 배포 확인 · DB V28</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

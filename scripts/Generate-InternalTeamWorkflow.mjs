@@ -6,7 +6,7 @@ let svg = '<svg xmlns="http://www.w3.org/2000/svg" width="1240" height="1190" vi
 const text = (x,y,s,size=19,color='#244438',anchor='start',weight=400) => { svg += `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" text-anchor="${anchor}" font-weight="${weight}">${esc(s)}</text>` }
 const box = (x,y,w,h,fill='#fff',stroke='#cdddcf',r=16) => { svg += `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${fill}" stroke="${stroke}"/>` }
 text(42,42,'JOCHOOK ON  /  조축ON',18,'#28654d','start',700)
-text(1198,42,'2026-10-15 · 로컬 기능 · 운영 배포 전',17,'#657a6f','end')
+text(1198,42,'2026.10.15 · 운영 배포 확인',17,'#657a6f','end')
 text(42,96,'팀을 먼저 나누고, 함께 정한 작전대로',34,'#244438','start',700)
 text(42,135,'01의 A·B 배정을 02 계획에 유지합니다. 03에는 실제 출전과 기록을 남깁니다.',20,'#657a6f')
 const shapes = [
@@ -36,7 +36,7 @@ text(64,1022,'기존 자료를 이어 쓰는 방법',23,'#244438','start',700)
 text(64,1057,'3-5-2 CDM → CAM  /  3-4-3 LWB·RWB → LM·RM  /  중앙 CB는 표시만 CB',18)
 text(64,1089,'선수·득점·도움·교체는 유지합니다. 예전 계획의 팀이 모호하면 직접 배정합니다.',18,'#657a6f')
 text(64,1120,'팀 변경은 확인 후 충돌하는 계획만 해제합니다. 실제 출전 기록은 그대로 둡니다.',18,'#657a6f')
-text(42,1171,'설계·그림의 GitHub 반영과 운영 앱 배포는 별도입니다. 실제 회원 정보가 없는 설명용 그림입니다.',15,'#657a6f')
+text(42,1171,'2026.10.15 대회·기록 확장판 · V28 / 가이드 1.2 · 실제 회원 정보 없는 설명용 그림',15,'#657a6f')
 svg+='</g></svg>'
 await fs.mkdir(new URL('../docs/diagrams/', import.meta.url),{recursive:true})
 await fs.writeFile(out,svg)

@@ -34,7 +34,7 @@
 <text x="78" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">하나의 Git 저장소</text>
 <text x="78" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">frontend/  React · TypeScript</text>
 <text x="78" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">backend/  기능별 Spring Boot</text>
-<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: V20 → V23 적용 완료</text>
+<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: V24~V28 추가</text>
 <text x="78" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">JUnit / 프론트 테스트</text>
 <rect x="525" y="380" width="350" height="252" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="525" y="400" width="5" height="212" rx="2" fill="#285d86"/>
@@ -58,16 +58,16 @@
 <text x="934.5" y="471" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">검증 후 배포</text>
 <rect x="54" y="686" width="625" height="183" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="706" width="5" height="143" rx="2" fill="#246b51"/>
-<text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 버전 · 검증 완료</text>
-<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">b9d8738 / V23 · 2026-10-15 18:56 KST 확인</text>
-<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">CI: Java 278 / MySQL 109 / 프론트 98 / 백업 7</text>
-<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자동 검증과 자동 배포는 별개 · 자동 배포는 꺼짐</text>
+<text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 배포 확인</text>
+<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">백업·격리 복원 → 구 API 쓰기 종료</text>
+<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">새 API·V28 검증 → 새 웹 → 권한·화면 확인</text>
+<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">V26 이후 구 API 이미지 단독 롤백 금지</text>
 <rect x="714" y="686" width="631" height="183" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="706" width="5" height="143" rx="2" fill="#246b51"/>
-<text x="738" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이번에 운영 반영한 기능</text>
-<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">시즌 기록 · 포메이션 6종 · 모바일 전체보기</text>
-<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">초안 복원 · V23 저장 영수증 · 앱 사용 가이드</text>
-<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">HTTPS·자산·세션·통계·권한·자료 보존 확인</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 기능확장판 · 운영 b9d8738 · DB V23 · 18:56 KST 확인</text>
+<text x="738" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이번 출시 범위</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">대회·기간 조회 · 선수 상세와 FK/PK</text>
+<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자체전 팀 체크 · 3백 배치 · 대회 전·후반</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.2 · 앱과 공유 PDF 반영 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 대회·기록 확장판 · 운영 배포 확인 · DB V28</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

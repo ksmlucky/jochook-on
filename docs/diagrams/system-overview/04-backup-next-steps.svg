@@ -1,14 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">백업 · 복구 흐름도와 다음 과제</title><desc id="desc">배포 직전 백업·격리 복원과 V23 적용 후 자료 보존을 확인했습니다. 자동 예약은 아직 없습니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">백업 · 복구 흐름도와 다음 과제</title><desc id="desc">배포 전 백업·격리 복원과 V28 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
 <text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
 <text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">04 / 4   ·   2026.10.15</text>
 <text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">백업 · 복구 흐름도와 다음 과제</text>
-<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">배포 직전 백업·격리 복원과 V23 적용 후 자료 보존을 확인했습니다. 자동 예약은 아직 없습니다.</text>
+<text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">배포 전 백업·격리 복원과 V28 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.</text>
 <rect x="54" y="173" width="350" height="239" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="193" width="5" height="199" rx="2" fill="#246b51"/>
 <text x="78" y="212" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">배포 직전 백업</text>
 <text x="78" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Northflank 비공개 MySQL</text>
 <text x="78" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 자료 수동 백업</text>
-<text x="78" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">15개 테이블 원본 지문 확인</text>
+<text x="78" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기존 테이블 원본 지문 확인</text>
 <text x="78" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실제 자료·비밀값은 공개 제외</text>
 <rect x="525" y="173" width="350" height="239" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="525" y="193" width="5" height="199" rx="2" fill="#285d86"/>
@@ -19,11 +19,11 @@
 <text x="549" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">현재 Windows 사용자에 종속</text>
 <rect x="995" y="173" width="350" height="239" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="995" y="193" width="5" height="199" rx="2" fill="#246b51"/>
-<text x="1019" y="212" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">복원 · 적용 후 자료 보존</text>
-<text x="1019" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">별도 localhost MySQL 8.4</text>
-<text x="1019" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">15개 테이블 복원 지문 일치</text>
-<text x="1019" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway V23 적용 성공</text>
-<text x="1019" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기존 14개 업무 테이블 보존</text>
+<text x="1019" y="212" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">복원 · 자료 보존 확인</text>
+<text x="1019" y="252" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">별도 MySQL에 V23 복원</text>
+<text x="1019" y="283" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">16개 테이블 지문 대조</text>
+<text x="1019" y="314" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 V24~V28 적용 후</text>
+<text x="1019" y="345" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기존 4쿼터·득점 보존 확인</text>
 <path d="M 405 277 L 523 277" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <text x="464" y="263" font-size="18" fill="#566d65" font-weight="400" text-anchor="middle">보관</text>
 <path d="M 876 277 L 993 277" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
@@ -33,7 +33,7 @@
 <text x="79" y="540" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">일정 등록 API: daily 예약 불가(400) · 자동 일정 생성되지 않음</text>
 <text x="79" y="572" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">승인된 설정 권한 한 개를 잠깐 추가 → 오류 확인 → 즉시 회수 → 원래 권한과 일치 확인</text>
 <text x="79" y="604" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">무료 요금표의 백업 포함과 매일 자동 예약 허용은 다릅니다.</text>
-<text x="54" y="688" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">운영 반영: 입력 안정성 · 시즌 기록 · 포메이션 6종 / 자동 백업은 후속 과제</text>
+<text x="54" y="688" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">출시 완료: 대회·기록 확장과 기존 자료 보존 / 자동 백업은 후속 과제</text>
 <rect x="54" y="721" width="300" height="151" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="741" width="5" height="111" rx="2" fill="#8b5b18"/>
 <text x="78" y="760" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">후속 · 운영 자료 보호</text>
@@ -42,21 +42,21 @@
 <path d="M 355 797 L 381 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="384" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="384" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="408" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 · 입력 안정성</text>
-<text x="408" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">초안 복원 · V23 영수증</text>
-<text x="408" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">모바일 편집 · 사용 가이드</text>
+<text x="408" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 입력 안정성</text>
+<text x="408" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">초안 복원 · 저장 영수증</text>
+<text x="408" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">모바일 편집 · 가이드 1.2</text>
 <path d="M 685 797 L 711 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="714" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="738" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 · 시즌 기록</text>
-<text x="738" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">득점·도움·참석·출전량</text>
+<text x="738" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 선수 기록</text>
+<text x="738" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">기간·대회·FK/PK 조회</text>
 <text x="738" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">시상·동률 정책은 이후</text>
 <path d="M 1015 797 L 1041 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="1044" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="1044" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 · 포메이션 6종</text>
-<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">4백·3백과 윙백 지원</text>
-<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">자체전 A/B는 독립 선택</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 기능확장판 · 운영 b9d8738 · DB V23 · 18:56 KST 확인</text>
+<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 경기 형식</text>
+<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">대회 2구간 · 기본 4쿼터</text>
+<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">자체전 A/B는 먼저 선택</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.15 대회·기록 확장판 · 운영 배포 확인 · DB V28</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

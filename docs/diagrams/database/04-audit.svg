@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1900" viewBox="0 0 1800 1900" role="img" aria-labelledby="title desc"><title id="title">04 · 변경 이력과 중복 저장 보호</title><desc id="desc">실제 FK가 없어도 이름이 비슷한 ID가 존재합니다. 이력·영수증은 원본 삭제 후에도 남도록 설계했습니다.. V28 스키마 기준 · 2026.10.15. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1900" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V28 스키마 기준 · 2026.10.15</text>
+<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">04 · 변경 이력과 중복 저장 보호</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">실제 FK가 없어도 이름이 비슷한 ID가 존재합니다. 이력·영수증은 원본 삭제 후에도 남도록 설계했습니다.</text>
+<rect x="60" y="190" width="480" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">teams</text>
+<text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">서비스 안의 축구팀 · 참조 노드</text>
+<path d="M 60 272 H 540" stroke="#cfddd4"/>
+<text x="80" y="301" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="301" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="325" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="82" y="347" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">같은 테이블을 연결 설명을 위해 다시 표시</text>
+<rect x="660" y="190" width="480" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="682" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">accounts</text>
+<text x="682" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">운영진 개인 로그인 계정 · 참조 노드</text>
+<path d="M 660 272 H 1140" stroke="#cfddd4"/>
+<text x="680" y="301" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="754" y="301" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="754" y="325" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="682" y="347" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">같은 테이블을 연결 설명을 위해 다시 표시</text>
+<rect x="1260" y="190" width="480" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1282" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_records</text>
+<text x="1282" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 한 건의 기본 정보 · 참조 노드</text>
+<path d="M 1260 272 H 1740" stroke="#cfddd4"/>
+<text x="1280" y="301" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1354" y="301" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="1354" y="325" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="1282" y="347" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">같은 테이블을 연결 설명을 위해 다시 표시</text>
+<rect x="60" y="620" width="800" height="566" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="653" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_record_events</text>
+<text x="82" y="685" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 등록·수정·삭제 이력</text>
+<path d="M 60 702 H 860" stroke="#cfddd4"/>
+<text x="80" y="731" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="731" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="755" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="80" y="785" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="154" y="785" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id</text>
+<text x="154" y="809" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">teams.id</text>
+<text x="80" y="839" font-size="16" fill="#8b5b18" font-weight="700" text-anchor="start">REF</text>
+<text x="154" y="839" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
+<text x="154" y="863" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">match_records.id · FK 없음</text>
+<text x="80" y="893" font-size="16" fill="#8b5b18" font-weight="700" text-anchor="start">REF</text>
+<text x="154" y="893" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="start" font-family="Consolas, monospace">actor_account_id</text>
+<text x="154" y="917" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">accounts.id · FK 없음</text>
+<text x="154" y="947" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">actor_username / action / occurred_at</text>
+<text x="154" y="971" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">당시 작업자 / 동작 / UTC 시각</text>
+<text x="154" y="1001" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">before_version / after_version</text>
+<text x="154" y="1025" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">변경 전후 버전</text>
+<text x="154" y="1055" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">before_snapshot / after_snapshot</text>
+<text x="154" y="1079" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">변경 전후 JSON</text>
+<text x="154" y="1109" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">played_on / match_kind / opponent</text>
+<text x="154" y="1133" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">당시 경기 요약</text>
+<text x="82" y="1155" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">경기·계정 삭제 후에도 이력을 남기는 구조</text>
+<rect x="940" y="620" width="800" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="962" y="653" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_save_requests</text>
+<text x="962" y="685" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 저장 영수증</text>
+<path d="M 940 702 H 1740" stroke="#cfddd4"/>
+<text x="960" y="731" font-size="16" fill="#8b5b18" font-weight="700" text-anchor="start">PK·REF</text>
+<text x="1034" y="731" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id / actor_account_id</text>
+<text x="1034" y="755" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">팀 / 작업자 · FK 없음</text>
+<text x="960" y="785" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1034" y="785" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">request_key</text>
+<text x="1034" y="809" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">요청 UUID</text>
+<text x="1034" y="839" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">request_method</text>
+<text x="1034" y="863" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">POST / PUT</text>
+<text x="960" y="893" font-size="16" fill="#8b5b18" font-weight="700" text-anchor="start">REF</text>
+<text x="1034" y="893" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="start" font-family="Consolas, monospace">target_match_id / match_id</text>
+<text x="1034" y="917" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">수정 대상 / 저장 결과 · FK 없음</text>
+<text x="1034" y="947" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">request_fingerprint</text>
+<text x="1034" y="971" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">본문 대신 해시만 저장</text>
+<text x="1034" y="1001" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">result_version</text>
+<text x="1034" y="1025" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">저장 결과 버전</text>
+<text x="1034" y="1055" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">created_at / completed_at</text>
+<text x="1034" y="1079" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">요청 / 완료 시각</text>
+<text x="962" y="1101" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (team_id, actor_account_id, request_key)</text>
+<text x="962" y="1129" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">실제 경기 삭제 후 재시도로 새 경기가 생기지 않게 보호</text>
+<path d="M 300 378 L 300 620" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="480" y="510" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">1 → 0..N · 실제 FK</text>
+<path d="M 900 378 L 900 500 L 680 500 L 680 620" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="780" y="480" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="middle">작업자 참조</text>
+<path d="M 1500 378 L 1500 470 L 780 470 L 780 620" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="1180" y="450" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="middle">경기 참조</text>
+<path d="M 900 500 L 1240 500 L 1240 620" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="1320" y="560" font-size="18" fill="#8b5b18" font-weight="600" text-anchor="middle">팀·계정·경기: FK 없이 ID만 보관</text>
+<rect x="60" y="1390" width="800" height="378" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="1423" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">flyway_schema_history</text>
+<text x="82" y="1455" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">Flyway가 관리하는 스키마 이력</text>
+<path d="M 60 1472 H 860" stroke="#cfddd4"/>
+<text x="80" y="1501" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="1501" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">installed_rank</text>
+<text x="154" y="1525" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">적용 순서</text>
+<text x="154" y="1555" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">version / description / script</text>
+<text x="154" y="1579" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">마이그레이션 버전과 파일</text>
+<text x="154" y="1609" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">checksum / success</text>
+<text x="154" y="1633" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">스크립트 지문 / 성공 여부</text>
+<text x="154" y="1663" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">installed_by / installed_on</text>
+<text x="154" y="1687" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">적용 주체 / 시각</text>
+<text x="82" y="1709" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">업무 테이블과 FK 없음</text>
+<text x="82" y="1737" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">Flyway가 생성·관리 · 직접 편집하지 않음</text>
+<rect x="940" y="1390" width="800" height="345" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="963" y="1429" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">이력이 남는 이유</text>
+<text x="963" y="1474" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_record_events: team_id만 FK가 있어요.</text>
+<text x="963" y="1506" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_id·actor_account_id는 원본이 없어도 유지해요.</text>
+<text x="963" y="1538" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_save_requests는 FK를 하나도 두지 않아요.</text>
+<text x="963" y="1570" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">그래서 원본을 지워도 같은 요청 키의 재시도를 식별해요.</text>
+<text x="963" y="1602" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">논리 참조는 부모 행이 이미 없어졌을 수 있어 0..1이에요.</text>
+<text x="963" y="1634" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway 관리 테이블은 업무 데이터와 연결하지 않아요.</text>
+<text x="52" y="1871" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="1871" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+</g></svg>

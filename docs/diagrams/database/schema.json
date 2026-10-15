@@ -1,0 +1,965 @@
+{
+  "basis": "V28 스키마 기준 · 2026.10.15",
+  "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
+  "tables": [
+    {
+      "name": "teams",
+      "title": "서비스 안의 축구팀",
+      "domain": "core",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "",
+          "name / description",
+          "VARCHAR"
+        ],
+        [
+          "",
+          "status",
+          "PENDING / ACTIVE / INACTIVE"
+        ],
+        [
+          "",
+          "version / created_at",
+          "수정 충돌 확인 / 생성 시각"
+        ]
+      ],
+      "notes": [
+        "모든 팀별 업무 자료의 기준점"
+      ]
+    },
+    {
+      "name": "players",
+      "title": "회원·용병 프로필",
+      "domain": "core",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT · 등번호와 별개"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "",
+          "name / birth_year",
+          "이름 / 생년"
+        ],
+        [
+          "",
+          "shirt_number",
+          "1~99 또는 NULL"
+        ],
+        [
+          "",
+          "first_choice / second_choice / third_choice",
+          "선호 포지션 순위"
+        ],
+        [
+          "",
+          "position / club_role",
+          "포지션 분류 / 명단 직책"
+        ],
+        [
+          "",
+          "player_type / active",
+          "MEMBER·GUEST / 활동 여부"
+        ],
+        [
+          "",
+          "joined_on / version",
+          "가입일 / 수정 버전"
+        ],
+        [
+          "UK",
+          "team_id + active_shirt_number",
+          "활동 선수 등번호 중복 방지"
+        ]
+      ],
+      "notes": [
+        "active_shirt_number는 생성 컬럼",
+        "players와 accounts 사이에는 연결 FK 없음"
+      ]
+    },
+    {
+      "name": "tournaments",
+      "title": "연도별 참가 대회",
+      "domain": "core",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "",
+          "name",
+          "대회명"
+        ],
+        [
+          "",
+          "start_date / end_date",
+          "대회 기간"
+        ],
+        [
+          "",
+          "venue / division / notes",
+          "장소 / 참가 부문 / 메모"
+        ],
+        [
+          "",
+          "version",
+          "수정 충돌 확인"
+        ],
+        [
+          "UK",
+          "team_id + id",
+          "경기의 복합 FK 참조 대상"
+        ]
+      ],
+      "notes": [
+        "한 대회에 여러 외부 경기 연결 가능"
+      ]
+    },
+    {
+      "name": "match_records",
+      "title": "경기 한 건의 기본 정보",
+      "domain": "core",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "FK",
+          "team_id + tournament_id",
+          "tournaments.(team_id,id) · 대회 선택"
+        ],
+        [
+          "",
+          "played_on / kickoff",
+          "경기 날짜 / 시작 시각"
+        ],
+        [
+          "",
+          "match_kind",
+          "EXTERNAL / INTERNAL"
+        ],
+        [
+          "",
+          "match_format",
+          "FOUR_QUARTERS / TWO_HALVES_30"
+        ],
+        [
+          "",
+          "formation_a / formation_b",
+          "포메이션 · 자체전 A/B 독립"
+        ],
+        [
+          "",
+          "score_for / score_against",
+          "우리:상대 또는 A:B"
+        ],
+        [
+          "",
+          "tournament_stage / recording_stage",
+          "대회 단계 / 입력 진행 상태"
+        ],
+        [
+          "",
+          "venue / opponent / notes / version",
+          "장소 / 상대 / 메모 / 버전"
+        ]
+      ],
+      "notes": [
+        "tournament_id NULL = 리그",
+        "DB 기본값은 4쿼터 · 새 대회 UI는 전·후반 선택"
+      ]
+    },
+    {
+      "name": "match_participants",
+      "title": "01 · 투표와 실제 출석",
+      "domain": "lineups",
+      "fields": [
+        [
+          "PK·FK",
+          "match_id",
+          "match_records.id"
+        ],
+        [
+          "PK·FK",
+          "player_id",
+          "players.id"
+        ],
+        [
+          "",
+          "vote",
+          "참석 예정 / 불참 / 미정 / 미투표"
+        ],
+        [
+          "",
+          "attendance",
+          "참석 / 지각 / 불참 / 미확인"
+        ],
+        [
+          "",
+          "planned_team",
+          "자체전 사전 A/B 배정 · NULL 가능"
+        ]
+      ],
+      "notes": [
+        "PK (match_id, player_id)",
+        "참석 예정과 실제 참석은 별도 기록"
+      ]
+    },
+    {
+      "name": "match_quarters",
+      "title": "경기에 포함된 구간",
+      "domain": "lineups",
+      "fields": [
+        [
+          "PK·FK",
+          "match_id",
+          "match_records.id"
+        ],
+        [
+          "PK",
+          "quarter_number",
+          "1~4 · 전·후반은 1/2"
+        ]
+      ],
+      "notes": [
+        "PK (match_id, quarter_number)",
+        "구간 길이 컬럼은 없음",
+        "구간 수 2/4 일치는 서비스가 검증"
+      ]
+    },
+    {
+      "name": "match_planned_lineups",
+      "title": "02 · 경기 전 계획 배치",
+      "domain": "lineups",
+      "fields": [
+        [
+          "PK·FK",
+          "match_id",
+          "match_records.id"
+        ],
+        [
+          "PK",
+          "quarter_number / team",
+          "구간 번호 / A·B"
+        ],
+        [
+          "PK",
+          "slot / entry_order",
+          "자리 / 선발 0·교체 1"
+        ],
+        [
+          "FK",
+          "player_id",
+          "players.id"
+        ],
+        [
+          "UK",
+          "match_id + quarter_number + player_id",
+          "같은 구간의 양 팀 중복 배치 금지"
+        ]
+      ],
+      "notes": [
+        "PK (match_id, quarter_number, team, slot, entry_order)",
+        "계획은 득점·출전 통계에 합산하지 않음"
+      ]
+    },
+    {
+      "name": "match_appearances",
+      "title": "03 · 실제 출전과 스탯",
+      "domain": "lineups",
+      "fields": [
+        [
+          "PK·FK",
+          "match_id",
+          "match_records.id"
+        ],
+        [
+          "PK",
+          "quarter_number / team",
+          "구간 번호 / A·B"
+        ],
+        [
+          "PK",
+          "slot / entry_order",
+          "자리 / 선발 0·교체 1"
+        ],
+        [
+          "FK",
+          "player_id",
+          "players.id"
+        ],
+        [
+          "",
+          "goals / assists",
+          "골 / 도움"
+        ],
+        [
+          "",
+          "free_kick_goals / penalty_goals",
+          "총 골 안의 직접 FK / PK"
+        ],
+        [
+          "UK",
+          "match_id + quarter_number + player_id",
+          "같은 구간 중복 출전 금지"
+        ]
+      ],
+      "notes": [
+        "PK (match_id, quarter_number, team, slot, entry_order)",
+        "FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터"
+      ]
+    },
+    {
+      "name": "accounts",
+      "title": "운영진 개인 로그인 계정",
+      "domain": "access",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "UK",
+          "username",
+          "로그인 ID"
+        ],
+        [
+          "",
+          "password_hash",
+          "해시만 저장"
+        ],
+        [
+          "",
+          "enabled / service_admin",
+          "계정 활성 / 서비스 관리자 여부"
+        ],
+        [
+          "",
+          "role",
+          "기존 호환 역할 ADMIN / MEMBER"
+        ]
+      ],
+      "notes": [
+        "현재 팀 권한은 team_memberships.role에서 결정",
+        "선수 명단의 club_role과 권한은 별개"
+      ]
+    },
+    {
+      "name": "team_memberships",
+      "title": "계정의 팀별 권한",
+      "domain": "access",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "FK",
+          "account_id",
+          "accounts.id · 삭제 시 CASCADE"
+        ],
+        [
+          "",
+          "role",
+          "DIRECTOR / COACH / MEMBER"
+        ],
+        [
+          "",
+          "active / created_at",
+          "활성 여부 / 등록 시각"
+        ],
+        [
+          "UK",
+          "team_id + account_id",
+          "계정당 같은 팀에 한 행"
+        ]
+      ],
+      "notes": [
+        "accounts ↔ teams의 다대다 연결 테이블"
+      ]
+    },
+    {
+      "name": "team_invites",
+      "title": "감독·코치 초대",
+      "domain": "access",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "FK",
+          "created_by",
+          "accounts.id"
+        ],
+        [
+          "UK",
+          "token_hash",
+          "초대 토큰의 해시"
+        ],
+        [
+          "",
+          "display_name / role",
+          "초대 이름 / DIRECTOR·COACH"
+        ],
+        [
+          "",
+          "expires_at / used_at / cancelled_at",
+          "만료 / 사용 / 취소 시각"
+        ],
+        [
+          "",
+          "version / created_at",
+          "수정 버전 / 생성 시각"
+        ]
+      ],
+      "notes": [
+        "초대받은 계정 ID를 직접 저장하는 컬럼은 없음"
+      ]
+    },
+    {
+      "name": "team_codes",
+      "title": "회원 공유 접속 정보",
+      "domain": "access",
+      "fields": [
+        [
+          "PK·FK",
+          "team_id",
+          "teams.id · 팀당 최대 한 행"
+        ],
+        [
+          "UK",
+          "code_hash",
+          "접속 코드의 해시 · NULL 가능"
+        ],
+        [
+          "",
+          "password_hash",
+          "팀 비밀번호의 해시"
+        ],
+        [
+          "FK",
+          "issued_by",
+          "accounts.id · NULL 가능"
+        ],
+        [
+          "",
+          "version",
+          "교체·폐기 때 세션 유효성 검사"
+        ],
+        [
+          "",
+          "issued_at / expires_at / revoked_at",
+          "발급 / 만료 / 폐기 시각"
+        ]
+      ],
+      "notes": [
+        "코드 접속 회원에게 개인 계정 생성은 불필요"
+      ]
+    },
+    {
+      "name": "team_creation_requests",
+      "title": "팀 생성 요청의 재시도 보호",
+      "domain": "access",
+      "fields": [
+        [
+          "PK·FK",
+          "account_id",
+          "accounts.id"
+        ],
+        [
+          "PK",
+          "request_id",
+          "요청 UUID"
+        ],
+        [
+          "",
+          "request_hash",
+          "요청 내용의 해시"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id · 결과 전에는 NULL"
+        ],
+        [
+          "FK",
+          "invite_id",
+          "team_invites.id · NULL 가능"
+        ],
+        [
+          "",
+          "created_at",
+          "생성 시각"
+        ]
+      ],
+      "notes": [
+        "PK (account_id, request_id)",
+        "같은 팀 생성 요청을 중복 처리하지 않도록 보관"
+      ]
+    },
+    {
+      "name": "team_code_events",
+      "title": "팀 코드 발급·교체·폐기 이력",
+      "domain": "access",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "FK",
+          "actor_account_id",
+          "accounts.id"
+        ],
+        [
+          "",
+          "action",
+          "ISSUED / ROTATED / REVOKED"
+        ],
+        [
+          "",
+          "occurred_at / expires_at",
+          "변경 시각 / 당시 만료 시각"
+        ],
+        [
+          "UK",
+          "team_id + version",
+          "팀 코드 버전별 한 행"
+        ]
+      ],
+      "notes": [
+        "이력에 원문 코드·비밀번호를 보관하지 않음"
+      ]
+    },
+    {
+      "name": "match_record_events",
+      "title": "경기 등록·수정·삭제 이력",
+      "domain": "audit",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "team_id",
+          "teams.id"
+        ],
+        [
+          "REF",
+          "match_id",
+          "match_records.id · FK 없음"
+        ],
+        [
+          "REF",
+          "actor_account_id",
+          "accounts.id · FK 없음"
+        ],
+        [
+          "",
+          "actor_username / action / occurred_at",
+          "당시 작업자 / 동작 / UTC 시각"
+        ],
+        [
+          "",
+          "before_version / after_version",
+          "변경 전후 버전"
+        ],
+        [
+          "",
+          "before_snapshot / after_snapshot",
+          "변경 전후 JSON"
+        ],
+        [
+          "",
+          "played_on / match_kind / opponent",
+          "당시 경기 요약"
+        ]
+      ],
+      "notes": [
+        "경기·계정 삭제 후에도 이력을 남기는 구조"
+      ]
+    },
+    {
+      "name": "match_save_requests",
+      "title": "경기 저장 영수증",
+      "domain": "audit",
+      "fields": [
+        [
+          "PK·REF",
+          "team_id / actor_account_id",
+          "팀 / 작업자 · FK 없음"
+        ],
+        [
+          "PK",
+          "request_key",
+          "요청 UUID"
+        ],
+        [
+          "",
+          "request_method",
+          "POST / PUT"
+        ],
+        [
+          "REF",
+          "target_match_id / match_id",
+          "수정 대상 / 저장 결과 · FK 없음"
+        ],
+        [
+          "",
+          "request_fingerprint",
+          "본문 대신 해시만 저장"
+        ],
+        [
+          "",
+          "result_version",
+          "저장 결과 버전"
+        ],
+        [
+          "",
+          "created_at / completed_at",
+          "요청 / 완료 시각"
+        ]
+      ],
+      "notes": [
+        "PK (team_id, actor_account_id, request_key)",
+        "실제 경기 삭제 후 재시도로 새 경기가 생기지 않게 보호"
+      ]
+    },
+    {
+      "name": "flyway_schema_history",
+      "title": "Flyway가 관리하는 스키마 이력",
+      "domain": "metadata",
+      "fields": [
+        [
+          "PK",
+          "installed_rank",
+          "적용 순서"
+        ],
+        [
+          "",
+          "version / description / script",
+          "마이그레이션 버전과 파일"
+        ],
+        [
+          "",
+          "checksum / success",
+          "스크립트 지문 / 성공 여부"
+        ],
+        [
+          "",
+          "installed_by / installed_on",
+          "적용 주체 / 시각"
+        ]
+      ],
+      "notes": [
+        "업무 테이블과 FK 없음",
+        "Flyway가 생성·관리 · 직접 편집하지 않음"
+      ]
+    }
+  ],
+  "foreignKeys": [
+    {
+      "name": "fk_players_team",
+      "parent": "teams",
+      "child": "players",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_match_records_team",
+      "parent": "teams",
+      "child": "match_records",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_tournament_team",
+      "parent": "teams",
+      "child": "tournaments",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_match_team_tournament",
+      "parent": "tournaments",
+      "child": "match_records",
+      "column": "team_id+tournament_id",
+      "parentOptional": true,
+      "childUnique": false
+    },
+    {
+      "name": "fk_participant_match",
+      "parent": "match_records",
+      "child": "match_participants",
+      "column": "match_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_participant_player",
+      "parent": "players",
+      "child": "match_participants",
+      "column": "player_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_quarter_match",
+      "parent": "match_records",
+      "child": "match_quarters",
+      "column": "match_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_planned_match",
+      "parent": "match_records",
+      "child": "match_planned_lineups",
+      "column": "match_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_planned_player",
+      "parent": "players",
+      "child": "match_planned_lineups",
+      "column": "player_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_appearance_match",
+      "parent": "match_records",
+      "child": "match_appearances",
+      "column": "match_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_appearance_player",
+      "parent": "players",
+      "child": "match_appearances",
+      "column": "player_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_membership_team",
+      "parent": "teams",
+      "child": "team_memberships",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_membership_account",
+      "parent": "accounts",
+      "child": "team_memberships",
+      "column": "account_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_invite_team",
+      "parent": "teams",
+      "child": "team_invites",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_invite_creator",
+      "parent": "accounts",
+      "child": "team_invites",
+      "column": "created_by",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_code_team",
+      "parent": "teams",
+      "child": "team_codes",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": true
+    },
+    {
+      "name": "fk_code_issuer",
+      "parent": "accounts",
+      "child": "team_codes",
+      "column": "issued_by",
+      "parentOptional": true,
+      "childUnique": false
+    },
+    {
+      "name": "fk_creation_account",
+      "parent": "accounts",
+      "child": "team_creation_requests",
+      "column": "account_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_creation_team",
+      "parent": "teams",
+      "child": "team_creation_requests",
+      "column": "team_id",
+      "parentOptional": true,
+      "childUnique": false
+    },
+    {
+      "name": "fk_creation_invite",
+      "parent": "team_invites",
+      "child": "team_creation_requests",
+      "column": "invite_id",
+      "parentOptional": true,
+      "childUnique": false
+    },
+    {
+      "name": "fk_code_event_team",
+      "parent": "teams",
+      "child": "team_code_events",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_code_event_actor",
+      "parent": "accounts",
+      "child": "team_code_events",
+      "column": "actor_account_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_match_event_team",
+      "parent": "teams",
+      "child": "match_record_events",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": false
+    }
+  ],
+  "logicalReferences": [
+    {
+      "parent": "match_records",
+      "child": "match_record_events",
+      "column": "match_id"
+    },
+    {
+      "parent": "accounts",
+      "child": "match_record_events",
+      "column": "actor_account_id"
+    },
+    {
+      "parent": "teams",
+      "child": "match_save_requests",
+      "column": "team_id"
+    },
+    {
+      "parent": "accounts",
+      "child": "match_save_requests",
+      "column": "actor_account_id"
+    },
+    {
+      "parent": "match_records",
+      "child": "match_save_requests",
+      "column": "target_match_id / match_id"
+    },
+    {
+      "parent": "match_quarters",
+      "child": "match_appearances",
+      "column": "match_id + quarter_number · DB 복합 FK 없음"
+    },
+    {
+      "parent": "match_participants",
+      "child": "match_appearances",
+      "column": "match_id + player_id · 서비스가 참가·출석 검증"
+    },
+    {
+      "parent": "match_participants",
+      "child": "match_planned_lineups",
+      "column": "match_id + player_id · 서비스가 투표·팀 검증"
+    }
+  ],
+  "sources": [
+    "V1__create_players.sql",
+    "V2__create_accounts.sql",
+    "V3__add_player_preferences.sql",
+    "V4__create_match_records.sql",
+    "V5__add_substitutions_remove_quarter_duration.sql",
+    "V6__add_player_birth_year_and_club_role.sql",
+    "V7__restrict_player_club_roles.sql",
+    "V8__unique_active_player_shirt_number.sql",
+    "V9__limit_player_shirt_numbers_to_one_through_99.sql",
+    "V10__add_planned_match_lineups.sql",
+    "V11__distinguish_guest_players.sql",
+    "V12__add_match_scores.sql",
+    "V13__internal_match_teams.sql",
+    "V14__create_team_access.sql",
+    "V15__scope_existing_records_to_teams.sql",
+    "V16__create_team_code_events.sql",
+    "V17__add_team_code_password.sql",
+    "V18__add_director_and_coach_roles.sql",
+    "V19__create_match_record_events.sql",
+    "V20__add_match_recording_stage.sql",
+    "V21__expand_match_formations.sql",
+    "V22__add_three_back_formations.sql",
+    "V23__match_save_requests.sql",
+    "V24__add_tournaments.sql",
+    "V25__add_goal_types.sql",
+    "V26__refine_three_back_formation_slots.sql",
+    "V27__add_internal_match_planned_teams.sql",
+    "V28__add_match_format.sql"
+  ]
+}

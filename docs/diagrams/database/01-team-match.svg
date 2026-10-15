@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1760" viewBox="0 0 1800 1760" role="img" aria-labelledby="title desc"><title id="title">01 · 팀, 선수, 대회, 경기</title><desc id="desc">FK 행의 오른쪽은 참조 대상입니다. team_id로 자료를 구분하고, 대회 연결은 같은 팀인지 DB에서도 확인합니다.. V28 스키마 기준 · 2026.10.15. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1760" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V28 스키마 기준 · 2026.10.15</text>
+<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">01 · 팀, 선수, 대회, 경기</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">FK 행의 오른쪽은 참조 대상입니다. team_id로 자료를 구분하고, 대회 연결은 같은 팀인지 DB에서도 확인합니다.</text>
+<rect x="60" y="190" width="510" height="350" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">teams</text>
+<text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">서비스 안의 축구팀</text>
+<path d="M 60 272 H 570" stroke="#cfddd4"/>
+<text x="80" y="301" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="301" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="325" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="154" y="355" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">name / description</text>
+<text x="154" y="379" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">VARCHAR</text>
+<text x="154" y="409" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">status</text>
+<text x="154" y="433" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PENDING / ACTIVE / INACTIVE</text>
+<text x="154" y="463" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">version / created_at</text>
+<text x="154" y="487" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">수정 충돌 확인 / 생성 시각</text>
+<text x="82" y="509" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">모든 팀별 업무 자료의 기준점</text>
+<rect x="665" y="190" width="530" height="512" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="687" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">tournaments</text>
+<text x="687" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">연도별 참가 대회</text>
+<path d="M 665 272 H 1195" stroke="#cfddd4"/>
+<text x="685" y="301" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="759" y="301" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="759" y="325" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="685" y="355" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="759" y="355" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id</text>
+<text x="759" y="379" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">teams.id</text>
+<text x="759" y="409" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">name</text>
+<text x="759" y="433" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">대회명</text>
+<text x="759" y="463" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">start_date / end_date</text>
+<text x="759" y="487" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">대회 기간</text>
+<text x="759" y="517" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">venue / division / notes</text>
+<text x="759" y="541" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">장소 / 참가 부문 / 메모</text>
+<text x="759" y="571" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">version</text>
+<text x="759" y="595" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">수정 충돌 확인</text>
+<text x="685" y="625" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
+<text x="759" y="625" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id + id</text>
+<text x="759" y="649" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">경기의 복합 FK 참조 대상</text>
+<text x="687" y="671" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">한 대회에 여러 외부 경기 연결 가능</text>
+<rect x="60" y="760" width="600" height="648" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="793" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">players</text>
+<text x="82" y="825" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">회원·용병 프로필</text>
+<path d="M 60 842 H 660" stroke="#cfddd4"/>
+<text x="80" y="871" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="871" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="895" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT · 등번호와 별개</text>
+<text x="80" y="925" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="154" y="925" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id</text>
+<text x="154" y="949" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">teams.id</text>
+<text x="154" y="979" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">name / birth_year</text>
+<text x="154" y="1003" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">이름 / 생년</text>
+<text x="154" y="1033" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">shirt_number</text>
+<text x="154" y="1057" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">1~99 또는 NULL</text>
+<text x="154" y="1087" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">first_choice / second_choice / third_choice</text>
+<text x="154" y="1111" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">선호 포지션 순위</text>
+<text x="154" y="1141" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">position / club_role</text>
+<text x="154" y="1165" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">포지션 분류 / 명단 직책</text>
+<text x="154" y="1195" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">player_type / active</text>
+<text x="154" y="1219" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">MEMBER·GUEST / 활동 여부</text>
+<text x="154" y="1249" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">joined_on / version</text>
+<text x="154" y="1273" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">가입일 / 수정 버전</text>
+<text x="80" y="1303" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
+<text x="154" y="1303" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id + active_shirt_number</text>
+<text x="154" y="1327" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">활동 선수 등번호 중복 방지</text>
+<text x="82" y="1349" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">active_shirt_number는 생성 컬럼</text>
+<text x="82" y="1377" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">players와 accounts 사이에는 연결 FK 없음</text>
+<rect x="1110" y="700" width="630" height="702" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1132" y="733" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_records</text>
+<text x="1132" y="765" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 한 건의 기본 정보</text>
+<path d="M 1110 782 H 1740" stroke="#cfddd4"/>
+<text x="1130" y="811" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1204" y="811" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="1204" y="835" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="1130" y="865" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="1204" y="865" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id</text>
+<text x="1204" y="889" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">teams.id</text>
+<text x="1130" y="919" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="1204" y="919" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id + tournament_id</text>
+<text x="1204" y="943" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">tournaments.(team_id,id) · 대회 선택</text>
+<text x="1204" y="973" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">played_on / kickoff</text>
+<text x="1204" y="997" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">경기 날짜 / 시작 시각</text>
+<text x="1204" y="1027" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">match_kind</text>
+<text x="1204" y="1051" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">EXTERNAL / INTERNAL</text>
+<text x="1204" y="1081" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">match_format</text>
+<text x="1204" y="1105" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">FOUR_QUARTERS / TWO_HALVES_30</text>
+<text x="1204" y="1135" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">formation_a / formation_b</text>
+<text x="1204" y="1159" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">포메이션 · 자체전 A/B 독립</text>
+<text x="1204" y="1189" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">score_for / score_against</text>
+<text x="1204" y="1213" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">우리:상대 또는 A:B</text>
+<text x="1204" y="1243" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">tournament_stage / recording_stage</text>
+<text x="1204" y="1267" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">대회 단계 / 입력 진행 상태</text>
+<text x="1204" y="1297" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">venue / opponent / notes / version</text>
+<text x="1204" y="1321" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">장소 / 상대 / 메모 / 버전</text>
+<text x="1132" y="1343" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">tournament_id NULL = 리그</text>
+<text x="1132" y="1371" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">DB 기본값은 4쿼터 · 새 대회 UI는 전·후반 선택</text>
+<path d="M 570 320 L 665 320" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="618" y="300" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">1 → 0..N</text>
+<path d="M 315 540 L 315 760" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="440" y="680" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 1 → 선수 0..N</text>
+<path d="M 570 490 L 615 490 L 615 170 L 1650 170 L 1650 700" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="1460" y="195" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 1 → 경기 0..N</text>
+<path d="M 1195 500 L 1300 500 L 1300 700" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="1480" y="550" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">대회 1 → 경기 0..N</text>
+<text x="1480" y="580" font-size="18" fill="#5d7168" font-weight="400" text-anchor="middle">경기당 대회 0..1</text>
+<rect x="60" y="1490" width="1680" height="180" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="1529" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">연결에서 중요한 점</text>
+<text x="83" y="1574" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">선수의 club_role은 명단용 직책이고, 로그인 수정 권한은 team_memberships.role에서 결정합니다.</text>
+<text x="83" y="1606" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">대회 FK는 (team_id, tournament_id) → tournaments.(team_id, id)입니다. 선수·경기·대회는 각각 같은 팀에 속합니다.</text>
+<text x="83" y="1638" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">계정과 선수 프로필을 자동으로 같은 사람으로 묶는 FK는 아직 없습니다.</text>
+<text x="52" y="1731" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="1731" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+</g></svg>
