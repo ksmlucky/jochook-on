@@ -37,6 +37,17 @@
   ],
   "pendingChanges": [
     {
+      "feature": "자체전 사전 A/B팀 배정과 3백 배치 변경",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "locally_verified_pending_user_review_and_deployment",
+      "reference": "../internal-teams-and-three-back.md",
+      "diagram": "../diagrams/internal-team-workflow.svg",
+      "review": "회원용: 3-5-2 CAM·윙백 높낮이와 3-4-3 LM/RM 표시. 운영진용: 01 사전 A/B 배정, 02 같은 팀 후보·자동 편성, 배정 변경 시 충돌 계획 해제 확인, 03 실제 기록 보존, 과거 모호한 팀 재배정 설명. 현재 운영 content.json·HTML/PDF·앱 가이드 1.1은 유지하고 다음 기능 배포와 함께 갱신한다."
+    },
+    {
       "feature": "시작 연월~종료 연월 조회, 매칭·자체전 요약과 선수 표 열 제목 정렬",
       "guides": [
         "member",
