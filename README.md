@@ -1,5 +1,7 @@
 # 조축ON
 
+[로컬 개발: 대회 전·후반 30분과 자체전 팀별 체크](docs/tournament-halves.md) · [흐름도](docs/diagrams/tournament-halves.svg) — 새 대회는 두 구간으로 입력하고, 자체전은 01에서 A/B팀을 고른 뒤 선수를 체크합니다. 운영 배포 전입니다.
+
 [로컬 개발: 자체전 사전 A·B 배정과 3백 변경](docs/internal-teams-and-three-back.md) · [설명 그림](docs/diagrams/internal-team-workflow.svg) · [생성 원본](scripts/Generate-InternalTeamWorkflow.mjs) — 01에서 팀을 정하고 02는 그 팀 안에서 편성합니다. 3-5-2 CAM·윙백 배치와 3-4-3 LM/RM 변경은 운영 배포 전입니다.
 
 [로컬 개발: 연월 범위와 경기 요약·표 정렬](docs/date-filters-and-table-sorting.md) — 시작 연월~종료 연월 조회, 선수 기록의 올해/전체 기간 바로 조회, 매칭·자체전 횟수와 누적 득점·매칭 실점, 열 제목의 양방향 정렬을 지원합니다. 운영 배포는 별도입니다.
