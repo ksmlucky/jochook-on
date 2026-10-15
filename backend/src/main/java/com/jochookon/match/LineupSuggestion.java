@@ -3,7 +3,12 @@ package com.jochookon.match;
 import java.util.List;
 
 public record LineupSuggestion(String policyVersion, int seed, List<MatchRequest.PlannedEntry> plannedLineup,
-        List<Allocation> allocations, List<String> warnings, boolean optimal, Formation formation) {
+        List<Allocation> allocations, List<String> warnings, boolean optimal, Formation formation, MatchFormat matchFormat) {
+    public LineupSuggestion { matchFormat = MatchFormat.orDefault(matchFormat); }
+    public LineupSuggestion(String policyVersion, int seed, List<MatchRequest.PlannedEntry> plannedLineup,
+            List<Allocation> allocations, List<String> warnings, boolean optimal, Formation formation) {
+        this(policyVersion, seed, plannedLineup, allocations, warnings, optimal, formation, MatchFormat.FOUR_QUARTERS);
+    }
     public LineupSuggestion(String policyVersion, int seed, List<MatchRequest.PlannedEntry> plannedLineup,
             List<Allocation> allocations, List<String> warnings, boolean optimal) {
         this(policyVersion, seed, plannedLineup, allocations, warnings, optimal, Formation.F4123);

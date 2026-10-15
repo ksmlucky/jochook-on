@@ -30,6 +30,26 @@ class MatchWorkbookServiceTest {
         return new MockMultipartFile("file", "match.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes.toByteArray());
     }
     XSSFWorkbook template() throws IOException { return new XSSFWorkbook(new ByteArrayInputStream(service.template())); }
+    @Test void halvesWorkbookHasOnlyTwoPeriodsAndRejectsThirdOrFourthPeriodRows() throws Exception {
+        try (var book = new XSSFWorkbook(new ByteArrayInputStream(service.template(Formation.F352, MatchFormat.TWO_HALVES_30)))) {
+            var sheet = book.getSheet("쿼터기록");
+            assertThat(sheet.getPhysicalNumberOfRows()).isEqualTo(45);
+            assertThat(sheet.getRow(44).getCell(0).getNumericCellValue()).isEqualTo(2);
+            assertThat(sheet.getDataValidations().getFirst().getValidationConstraint().getExplicitListValues()).containsExactly("1", "2");
+            cell(book, 1, 3, "검증 선수"); cell(book, 1, 5, "2"); cell(book, 1, 8, "1"); cell(book, 1, 9, "1");
+            var parsed = service.preview(file(book), Formation.F352, MatchFormat.TWO_HALVES_30);
+            assertThat(parsed.isValid()).isTrue();
+            assertThat(parsed.quarters()).extracting(MatchRequest.Quarter::number).containsExactly(1, 2);
+            assertThat(parsed.quarters().getFirst().lineup().getFirst().freeKickGoals()).isEqualTo(1);
+            for (int period : List.of(3, 4)) {
+                cell(book, 1, 0, Integer.toString(period));
+                var invalid = service.preview(file(book), Formation.F352, MatchFormat.TWO_HALVES_30);
+                assertThat(invalid.isValid()).isFalse();
+                assertThat(invalid.rows().getFirst().errors()).anyMatch(e -> e.contains("1~2"));
+                assertThat(invalid.quarters()).isEmpty();
+            }
+        }
+    }
     void cell(XSSFWorkbook book, int row, int column, String value) { var r = book.getSheet("쿼터기록").getRow(row); var c = r.getCell(column, Row.MissingCellPolicy.CREATE_NULL_AS_BLANK); c.setCellValue(value); }
     @Test void templateHasRequiredLabelsAllQuartersAndNoFakePlayersOrDuration() throws Exception {
         try (var book = template()) {
@@ -89,11 +109,43 @@ class MatchWorkbookServiceTest {
             assertThatThrownBy(() -> service.preview(file(book))).isInstanceOf(IllegalArgumentException.class);
         }
         try (var book = template()) {
-            cell(book, 1, 8, "추가 데이터");
-            assertThatThrownBy(() -> service.preview(file(book))).hasMessageContaining("8개 열 밖");
+            cell(book, 1, 10, "추가 데이터");
+            assertThatThrownBy(() -> service.preview(file(book))).hasMessageContaining("10개 열 밖");
         }
         assertThatThrownBy(() -> service.preview(new MockMultipartFile("file", "bad.xlsx", "", new byte[2 * 1024 * 1024 + 1]))).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> service.preview(new MockMultipartFile("file", "bad.xlsx", "", "not-xlsx".getBytes()))).isInstanceOf(IllegalArgumentException.class);
+    }
+    @Test void newTenColumnsParseGoalTypesAndRejectSubsetsAboveTotal() throws Exception {
+        try (var book = template()) {
+            cell(book, 1, 3, "검증 선수"); cell(book, 1, 5, "3"); cell(book, 1, 8, "1"); cell(book, 1, 9, "2");
+            var result = service.preview(file(book));
+            assertThat(result.isValid()).isTrue();
+            var a = result.quarters().getFirst().lineup().getFirst();
+            assertThat(a.goals()).isEqualTo(3); assertThat(a.freeKickGoals()).isEqualTo(1); assertThat(a.penaltyGoals()).isEqualTo(2);
+            cell(book, 1, 9, "3");
+            assertThat(service.preview(file(book)).rows().getFirst().errors()).anyMatch(e -> e.contains("총득점"));
+            cell(book, 1, 9, "-1");
+            assertThat(service.preview(file(book)).rows().getFirst().errors()).anyMatch(e -> e.contains("정수"));
+        }
+    }
+    @Test void oldEightColumnsKeepGoalTypesOmittedButNewBlankColumnsAreExplicitZero() throws Exception {
+        try (var book = template()) {
+            cell(book, 1, 3, "검증 선수");
+            var modern = service.preview(file(book)).quarters().getFirst().lineup().getFirst();
+            assertThat(modern.freeKickGoals()).isZero(); assertThat(modern.penaltyGoals()).isZero();
+            var headers = book.getSheet("쿼터기록").getRow(0);
+            headers.removeCell(headers.getCell(8)); headers.removeCell(headers.getCell(9));
+            var legacy = service.preview(file(book)).quarters().getFirst().lineup().getFirst();
+            assertThat(legacy.freeKickGoals()).isNull(); assertThat(legacy.penaltyGoals()).isNull();
+            cell(book, 1, 8, "1");
+            assertThatThrownBy(() -> service.preview(file(book))).hasMessageContaining("8개 열 밖");
+        }
+    }
+    @Test void goalTypeOnlyRowsAreValidatedInsteadOfSilentlyTreatedAsEmpty() throws Exception {
+        try (var book = template()) {
+            cell(book, 1, 8, "1");
+            assertThat(service.preview(file(book)).rows()).singleElement().satisfies(r -> assertThat(r.errors()).anyMatch(e -> e.contains("이름")));
+        }
     }
     @Test void templatesUseExactlySelectedFormationAndRejectOtherFormationSlots() throws Exception {
         for (var formation : Formation.values()) {
@@ -115,7 +167,7 @@ class MatchWorkbookServiceTest {
             assertThat(service.preview(file(book), Formation.F4231).quarters().getFirst().lineup().getFirst().slot()).isEqualTo(LineupSlot.LCDM);
         }
     }
-    @Test void threeBackWorkbookParsesCentralDefenderAndBothWingbacks() throws Exception {
+    @Test void threeBackWorkbookParsesCentralDefenderAndFormationSpecificWidePlayers() throws Exception {
         for (var formation : List.of(Formation.F352, Formation.F343)) {
             try (var book = new XSSFWorkbook(new ByteArrayInputStream(service.template(formation)))) {
                 cell(book, 5, 3, "동명 선수"); cell(book, 5, 4, "7"); cell(book, 5, 5, "1");
@@ -124,7 +176,8 @@ class MatchWorkbookServiceTest {
                 var preview = service.preview(file(book), formation);
                 assertThat(preview.isValid()).isTrue();
                 assertThat(preview.quarters().getFirst().lineup()).extracting(MatchRequest.Appearance::slot)
-                        .containsExactly(LineupSlot.CCB, LineupSlot.LWB, LineupSlot.RWB);
+                        .containsExactly(LineupSlot.CCB, formation == Formation.F352 ? LineupSlot.LWB : LineupSlot.LM,
+                                formation == Formation.F352 ? LineupSlot.RWB : LineupSlot.RM);
                 assertThat(preview.quarters().getFirst().lineup()).extracting(MatchRequest.Appearance::goals).containsExactly(1, 0, 0);
             }
         }

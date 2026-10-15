@@ -35,6 +35,19 @@ class MatchControllerTest extends com.jochookon.team.TeamMvcTestSupport {
         mvc.perform(post("/api/v1/matches").with(csrf())).andExpect(status().isForbidden());
         mvc.perform(put("/api/v1/matches/1").with(csrf())).andExpect(status().isForbidden());
     }
+    @Test void tournamentFilterIsOptionalPositiveAndForwarded() throws Exception {
+        mvc.perform(get("/api/v1/matches?tournamentId=7")).andExpect(status().isOk());
+        verify(service).list(0, 10, 7L);
+        mvc.perform(get("/api/v1/matches?tournamentId=0")).andExpect(status().isBadRequest());
+    }
+    @Test void competitionFilterIsForwardedAndInvalidCombinationsFail() throws Exception {
+        mvc.perform(get("/api/v1/matches?competitionScope=LEAGUE")).andExpect(status().isOk());
+        verify(service).list(0, 10, null, CompetitionScope.LEAGUE);
+        mvc.perform(get("/api/v1/matches?competitionScope=TOURNAMENT&tournamentId=7")).andExpect(status().isOk());
+        verify(service).list(0, 10, 7L, CompetitionScope.TOURNAMENT);
+        mvc.perform(get("/api/v1/matches?competitionScope=LEAGUE&tournamentId=7")).andExpect(status().isBadRequest());
+        mvc.perform(get("/api/v1/matches?competitionScope=UNKNOWN")).andExpect(status().isBadRequest());
+    }
     @Test @WithAnonymousUser void anonymousCannotRead() throws Exception {
         mvc.perform(get("/api/v1/matches")).andExpect(status().isUnauthorized());
         mvc.perform(get("/api/v1/matches/1")).andExpect(status().isUnauthorized());
@@ -44,8 +57,26 @@ class MatchControllerTest extends com.jochookon.team.TeamMvcTestSupport {
         mvc.perform(post("/api/v1/matches")).andExpect(status().isForbidden());
         verifyNoInteractions(service);
     }
-    @ParameterizedTest @ValueSource(strings = {"page=-1", "size=0", "size=101"})
+    @ParameterizedTest @ValueSource(strings = {"page=-1", "size=0", "size=101", "month=2", "year=999", "year=10000", "year=2024&month=0", "year=2024&month=13"})
     void rejectsInvalidPages(String query) throws Exception {
+        mvc.perform(get("/api/v1/matches?" + query)).andExpect(status().isBadRequest());
+        verifyNoInteractions(service);
+    }
+    @Test void yearMonthAndYearsEndpointAreAvailableToMembers() throws Exception {
+        mvc.perform(get("/api/v1/matches?year=2024&month=2&competitionScope=LEAGUE")).andExpect(status().isOk());
+        verify(service).list(0, 10, null, CompetitionScope.LEAGUE, 2024, 2);
+        given(service.years()).willReturn(List.of(2026, 2024));
+        mvc.perform(get("/api/v1/matches/years")).andExpect(status().isOk()).andExpect(content().json("[2026,2024]"));
+        mvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get("/api/v1/matches/years"))
+                .andExpect(status().isConflict());
+    }
+    @Test void monthRangeIsForwardedWithExistingCompetitionFilters() throws Exception {
+        mvc.perform(get("/api/v1/matches?startMonth=2023-12&endMonth=2024-02&competitionScope=LEAGUE")).andExpect(status().isOk());
+        verify(service).list(0, 10, null, CompetitionScope.LEAGUE, null, null, "2023-12", "2024-02");
+    }
+    @ParameterizedTest @ValueSource(strings = {"startMonth=2026-03", "endMonth=2026-06", "startMonth=2026-06&endMonth=2026-03",
+            "startMonth=2026-3&endMonth=2026-06", "startMonth=2026-03&endMonth=2026-06&year=2026", "startMonth=2026-03&endMonth=2026-06&month=3"})
+    void invalidMonthRangesNeverReachMatchQueries(String query) throws Exception {
         mvc.perform(get("/api/v1/matches?" + query)).andExpect(status().isBadRequest());
         verifyNoInteractions(service);
     }

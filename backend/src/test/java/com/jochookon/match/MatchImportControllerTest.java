@@ -36,6 +36,16 @@ class MatchImportControllerTest extends com.jochookon.team.TeamMvcTestSupport {
         mvc.perform(multipart("/api/v1/matches/import/preview").file(new MockMultipartFile("file", new byte[]{1})).with(csrf())).andExpect(status().isForbidden());
         verifyNoInteractions(service);
     }
+    @Test void matchFormatIsForwardedAndUnknownFormatIsRejected() throws Exception {
+        given(service.template(Formation.F352, MatchFormat.TWO_HALVES_30)).willReturn(new byte[]{1});
+        mvc.perform(get("/api/v1/matches/import/template").param("formation", "F352").param("matchFormat", "TWO_HALVES_30")).andExpect(status().isOk());
+        org.mockito.Mockito.verify(service).template(Formation.F352, MatchFormat.TWO_HALVES_30);
+        var file = new MockMultipartFile("file", "match.xlsx", "", new byte[]{1});
+        given(service.preview(file, Formation.F352, MatchFormat.TWO_HALVES_30)).willReturn(new MatchImportPreview(List.of(), List.of()));
+        mvc.perform(multipart("/api/v1/matches/import/preview").file(file).param("formation", "F352").param("matchFormat", "TWO_HALVES_30").with(csrf())).andExpect(status().isOk());
+        org.mockito.Mockito.verify(service).preview(file, Formation.F352, MatchFormat.TWO_HALVES_30);
+        mvc.perform(get("/api/v1/matches/import/template").param("matchFormat", "INVALID")).andExpect(status().isBadRequest());
+    }
     @Test void selectedFormationIsPassedToBothTemplateAndPreview() throws Exception {
         given(service.template(Formation.F442)).willReturn(new byte[]{1});
         mvc.perform(get("/api/v1/matches/import/template").param("formation", "F442")).andExpect(status().isOk());

@@ -4,17 +4,17 @@ import type { Position, PreferredPosition } from '../players/api'
 export const slots = ['GK', 'LB', 'LCB', 'RCB', 'RB', 'CDM', 'LCM', 'RCM', 'LW', 'ST', 'RW', 'LM', 'RM', 'CAM', 'LCDM', 'RCDM', 'LST', 'RST', 'CCB', 'LWB', 'RWB'] as const
 export type Slot = typeof slots[number]
 export const slotLabels: Record<Slot, string> = {
-  GK: 'GK', LB: 'LB', LCB: 'CB (좌)', RCB: 'CB (우)', RB: 'RB', CDM: 'CDM', LCM: 'CM (좌)', RCM: 'CM (우)', LW: 'LW', ST: 'ST', RW: 'RW',
+  GK: 'GK', LB: 'LB', LCB: 'LCB', RCB: 'RCB', RB: 'RB', CDM: 'CDM', LCM: 'CM (좌)', RCM: 'CM (우)', LW: 'LW', ST: 'ST', RW: 'RW',
   LM: 'LM', RM: 'RM', CAM: 'CAM', LCDM: 'CDM (좌)', RCDM: 'CDM (우)', LST: 'ST (좌)', RST: 'ST (우)',
-  CCB: 'CB (중앙)', LWB: 'LWB', RWB: 'RWB',
+  CCB: 'CB', LWB: 'LWB', RWB: 'RWB',
 }
 export const formations = {
   F4123: { label: '4-1-2-3', description: '수비형 미드필더 1명과 측면 공격수 2명을 두는 기존 구성', rows: [['LW', 'ST', 'RW'], ['LCM', 'RCM'], ['CDM'], ['LB', 'LCB', 'RCB', 'RB'], ['GK']] },
   F442: { label: '4-4-2', description: '두 줄의 수비·미드필더와 공격수 2명으로 역할을 나누는 구성', rows: [['LST', 'RST'], ['LM', 'LCM', 'RCM', 'RM'], ['LB', 'LCB', 'RCB', 'RB'], ['GK']] },
   F4231: { label: '4-2-3-1', description: '수비형 미드필더 2명과 공격형 미드필더 1명으로 중앙을 채우는 구성', rows: [['ST'], ['LM', 'CAM', 'RM'], ['LCDM', 'RCDM'], ['LB', 'LCB', 'RCB', 'RB'], ['GK']] },
   F4141: { label: '4-1-4-1', description: '수비형 미드필더의 뒷받침과 미드필더 4명의 간격을 활용하는 구성', rows: [['ST'], ['LM', 'LCM', 'RCM', 'RM'], ['CDM'], ['LB', 'LCB', 'RCB', 'RB'], ['GK']] },
-  F352: { label: '3-5-2', description: '중앙 수비수 3명과 양쪽 윙백, 수비형 미드필더 1명, 공격수 2명 구성', rows: [['LST', 'RST'], ['LWB', 'LCM', 'RCM', 'RWB'], ['CDM'], ['LCB', 'CCB', 'RCB'], ['GK']] },
-  F343: { label: '3-4-3', description: '중앙 수비수 3명과 양쪽 윙백, 중앙 미드필더 2명, 공격수 3명 구성', rows: [['LW', 'ST', 'RW'], ['LWB', 'LCM', 'RCM', 'RWB'], ['LCB', 'CCB', 'RCB'], ['GK']] },
+  F352: { label: '3-5-2', description: '수비 3명·양쪽 윙백·중앙 미드필더 2명·공격형 미드필더 1명·공격수 2명 구성', rows: [['LST', 'RST'], ['CAM'], ['LWB', 'LCM', 'RCM', 'RWB'], ['LCB', 'CCB', 'RCB'], ['GK']] },
+  F343: { label: '3-4-3', description: '수비 3명·LM/RM과 중앙 미드필더 2명·공격수 3명 구성', rows: [['LW', 'ST', 'RW'], ['LM', 'LCM', 'RCM', 'RM'], ['LCB', 'CCB', 'RCB'], ['GK']] },
 } satisfies Record<string, { label: string; description: string; rows: Slot[][] }>
 export type Formation = keyof typeof formations
 export const formationOptions = Object.keys(formations) as Formation[]

@@ -21,6 +21,7 @@ import { useLeaveGuard } from './app/LeaveGuard'
 import { serviceBrand } from './app/brand'
 import { InstallApp } from './features/install/InstallApp'
 import { UserGuide } from './features/guide/UserGuide'
+import { TournamentSection } from './features/tournaments/TournamentSection'
 
 function takeInvitationFromAddress(): string {
   if (!window.location.hash.startsWith('#invite=')) return ''
@@ -31,12 +32,12 @@ function takeInvitationFromAddress(): string {
 // React StrictMode의 초기화 재실행과 무관하게 원문을 주소에서 즉시 지운다.
 let invitationAtLoad = takeInvitationFromAddress()
 type Page = 'home' | 'workspace' | 'code' | 'login' | 'teams' | 'service' | 'code-management' | 'coach-management'
-type WorkspaceSection = 'players' | 'matches' | 'stats' | 'guide'
-const workspaceLabels: Record<WorkspaceSection, string> = { players: '선수단', matches: '경기 기록', stats: '선수 기록', guide: '사용 가이드' }
+type WorkspaceSection = 'players' | 'matches' | 'stats' | 'tournaments' | 'guide'
+const workspaceLabels: Record<WorkspaceSection, string> = { players: '선수단', matches: '경기 기록', stats: '선수 기록', tournaments: '대회', guide: '사용 가이드' }
 
 function MenuIcon({ kind }: { kind: WorkspaceSection }) {
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    {kind === 'players' ? <><circle cx="9" cy="8" r="3" /><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2" /></> : kind === 'stats' ? <><path d="M4 20h17M7 16V9M12 16V4M17 16v-5" /></> : kind === 'guide' ? <><path d="M12 5C8 3 5 3 3 4v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-2-1-5-1-9 1Z" /><path d="M12 5v15M6 8h3M15 8h3M6 12h3M15 12h3" /></> : <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M7 3v4M17 3v4M3 11h18M8 15h2M14 15h2M8 18h2" /></>}
+    {kind === 'players' ? <><circle cx="9" cy="8" r="3" /><path d="M3 20v-2a6 6 0 0 1 12 0v2M16 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 4v2" /></> : kind === 'stats' ? <><path d="M4 20h17M7 16V9M12 16V4M17 16v-5" /></> : kind === 'tournaments' ? <><path d="M7 3h10v5a5 5 0 0 1-10 0V3ZM7 5H3v2a4 4 0 0 0 5 4M17 5h4v2a4 4 0 0 1-5 4M12 13v5M8 21h8M9 18h6v3" /></> : kind === 'guide' ? <><path d="M12 5C8 3 5 3 3 4v15c3-1 6-1 9 1 3-2 6-2 9-1V4c-2-1-5-1-9 1Z" /><path d="M12 5v15M6 8h3M15 8h3M6 12h3M15 12h3" /></> : <><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M7 3v4M17 3v4M3 11h18M8 15h2M14 15h2M8 18h2" /></>}
   </svg>
 }
 
@@ -45,7 +46,8 @@ export function App() {
   const guard = useLeaveGuard()
   const squad = useRef<SquadNavigation>(null)
   const [page, setPage] = useState<Page>('home')
-  const [section, setSection] = useState<WorkspaceSection>(window.location.hash === '#guide' ? 'guide' : window.location.hash === '#stats' ? 'stats' : window.location.hash === '#matches' ? 'matches' : 'players')
+  const [section, setSection] = useState<WorkspaceSection>(window.location.hash === '#tournaments' ? 'tournaments' : window.location.hash === '#guide' ? 'guide' : window.location.hash === '#stats' ? 'stats' : window.location.hash === '#matches' ? 'matches' : 'players')
+  const [tournamentLink, setTournamentLink] = useState<{ identity: string; id: number } | null>(null)
   const managementMenu = useRef<HTMLDetailsElement>(null)
   const [inviteToken, setInviteToken] = useState(invitationAtLoad)
   const [workspaceEpoch, setWorkspaceEpoch] = useState(0)
@@ -61,6 +63,7 @@ export function App() {
     || requestedPage === 'service' && !user?.serviceAdmin ? homePage : requestedPage
   const team = user?.team
   const identity = `${identityOf(user)}:${workspaceEpoch}`
+  const initialTournamentId = tournamentLink?.identity === identity ? tournamentLink.id : null
   useEffect(() => { invitationAtLoad = '' }, [])
   // Make the first workspace entry a real history destination as well.
   useEffect(() => {
@@ -73,10 +76,10 @@ export function App() {
       const token = takeInvitationFromAddress()
       if (token) { void guard.confirmLeave().then(allowed => { if (allowed) setInviteToken(token) }); return }
       const target = window.location.hash.slice(1)
-      if (!user?.team || auth.accessIssue || !['players', 'matches', 'stats', 'guide'].includes(target)) return
+      if (!user?.team || auth.accessIssue || !['players', 'matches', 'stats', 'tournaments', 'guide'].includes(target)) return
       if (activePage === 'workspace' && !inviteToken && target === section) return
       void guard.confirmLeave().then(allowed => {
-        if (allowed) { setInviteToken(''); setPage('workspace'); setSection(target as WorkspaceSection) }
+        if (allowed) { setInviteToken(''); setPage('workspace'); setSection(target as WorkspaceSection); if (target === 'matches') setTournamentLink(null) }
         else window.history.replaceState(null, '', `#${activePage === 'workspace' ? section : 'access'}`)
       })
     }
@@ -114,12 +117,19 @@ export function App() {
   async function showSection(event: MouseEvent<HTMLAnchorElement>, next: WorkspaceSection) {
     event.preventDefault()
     if (!user?.team || auth.accessIssue) return
-    if (activePage === 'workspace' && !inviteToken && section === next) {
+    if (activePage === 'workspace' && !inviteToken && section === next && !(next === 'matches' && initialTournamentId !== null)) {
       if (next === 'players' && squad.current && !squad.current.returnToList()) return
     } else if (!await guard.confirmLeave()) return
     closeManagement(); setInviteToken(''); setPage('workspace'); setSection(next)
+    if (next === 'matches') setTournamentLink(null)
     if (window.location.hash !== `#${next}`) window.history.pushState(null, '', `#${next}`)
     window.requestAnimationFrame(() => { document.getElementById('app-content')?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }) })
+  }
+  async function openTournamentMatches(id: number) {
+    if (!user?.team || auth.accessIssue || !await guard.confirmLeave()) return
+    setTournamentLink({ identity, id }); closeManagement(); setInviteToken(''); setPage('workspace'); setSection('matches')
+    if (window.location.hash !== '#matches') window.history.pushState(null, '', '#matches')
+    requestAnimationFrame(() => { document.getElementById('app-content')?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }) })
   }
   return <div className={`app-shell${user ? ' has-session' : ' welcome-shell'}`}>
     <a className="skip-link" href="#app-content">주요 화면으로 바로가기</a>
@@ -128,7 +138,7 @@ export function App() {
         <img className="brand-mark" src="/icons/jochook-on.svg" width="44" height="44" alt="" /><span>조축<span className="brand-on">ON</span><small>우리의 축구가 모이는 곳</small></span>
       </a>
       {team && !auth.accessIssue && <nav className="primary-navigation" aria-label="주요 메뉴">
-        {(['players', 'matches', 'stats', 'guide'] as const).map(item => <a key={item} className={`workspace-nav${activePage === 'workspace' && !inviteToken && section === item ? ' is-current' : ''}`} aria-current={activePage === 'workspace' && !inviteToken && section === item ? 'page' : undefined} href={`#${item}`} onClick={event => void showSection(event, item)}><MenuIcon kind={item} />{workspaceLabels[item]}</a>)}
+        {(['players', 'matches', 'stats', 'tournaments', 'guide'] as const).map(item => <a key={item} className={`workspace-nav${activePage === 'workspace' && !inviteToken && section === item ? ' is-current' : ''}`} aria-current={activePage === 'workspace' && !inviteToken && section === item ? 'page' : undefined} href={`#${item}`} onClick={event => void showSection(event, item)}><MenuIcon kind={item} /><span className="workspace-nav-label">{workspaceLabels[item]}</span></a>)}
       </nav>}
       {user ? <div className="account-menu"><span><strong>{user.username || '팀 회원'}</strong><small>{user.authType === 'TEAM_CODE' ? '코드 조회 접속' : `${user.team ? roleLabels[user.role] : '팀 선택 필요'}${user.serviceAdmin ? ' · 서비스관리자' : ''}`}</small></span>
         <button className="secondary-button" onClick={() => void signOut()} disabled={auth.isLoggingOut}>{auth.isLoggingOut ? '종료 중…' : user.authType === 'TEAM_CODE' ? '나가기' : '로그아웃'}</button></div> : <span className="header-note">함께 뛰고, 함께 기록하다</span>}
@@ -160,7 +170,7 @@ export function App() {
             {user?.authType === 'ACCOUNT' && activePage === 'teams' && <MyTeams key={`teams:${identity}`} user={user} onSelected={signedIn} onSessionExpired={auth.expired} onRefresh={() => void auth.refresh()} />}
             {user && team && isAdmin && activePage === 'code-management' && <TeamCodeManager key={`codes:${identity}`} team={team} onSessionExpired={auth.expired} />}
             {user && team && isDirector && activePage === 'coach-management' && <CoachManager key={`coaches:${identity}`} team={team} onSessionExpired={auth.expired} />}
-            {user && team && activePage === 'workspace' && <div key={identity} className="workspace-content">{section === 'players' ? <section className="directory-section" id="players" aria-labelledby="players-title"><SquadSection ref={squad} isAdmin={isAdmin} onSessionExpired={auth.expired} /></section> : section === 'stats' ? <StatsSection onSessionExpired={auth.expired} /> : section === 'guide' ? <UserGuide audience={isAdmin ? 'staff' : 'member'} /> : <MatchSection team={team} isAdmin={isAdmin} recoveryOwner={isAdmin && user.authType === 'ACCOUNT' && user.username ? { username: user.username, teamId: team.id } : null} onSessionExpired={auth.expired} />}</div>}
+            {user && team && activePage === 'workspace' && <div key={identity} className="workspace-content">{section === 'players' ? <section className="directory-section" id="players" aria-labelledby="players-title"><SquadSection ref={squad} isAdmin={isAdmin} onSessionExpired={auth.expired} /></section> : section === 'stats' ? <StatsSection onSessionExpired={auth.expired} /> : section === 'tournaments' ? <TournamentSection isAdmin={isAdmin} onSessionExpired={auth.expired} onOpenMatches={id => void openTournamentMatches(id)} /> : section === 'guide' ? <UserGuide audience={isAdmin ? 'staff' : 'member'} /> : <MatchSection key={`matches:${initialTournamentId ?? 'all'}`} initialTournamentId={initialTournamentId} team={team} isAdmin={isAdmin} recoveryOwner={isAdmin && user.authType === 'ACCOUNT' && user.username ? { username: user.username, teamId: team.id } : null} onSessionExpired={auth.expired} />}</div>}
           </>)}
       </div>
       <div className="app-install-area"><InstallApp /></div>

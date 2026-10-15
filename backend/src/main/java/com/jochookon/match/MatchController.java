@@ -15,7 +15,22 @@ public class MatchController {
     public MatchController(MatchService service, MatchSaveService saves) { this.service = service; this.saves = saves; }
     @GetMapping
     MatchResponse.Page list(@RequestParam(defaultValue = "0") @Min(0) int page,
-                            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) { return service.list(page, size); }
+                            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size,
+                            @RequestParam(required = false) @Min(1) Long tournamentId,
+                            @RequestParam(defaultValue = "ALL") CompetitionScope competitionScope,
+                            @RequestParam(required = false) @Min(1000) @Max(9999) Integer year,
+                            @RequestParam(required = false) @Min(1) @Max(12) Integer month,
+                            @RequestParam(required = false) String startMonth,
+                            @RequestParam(required = false) String endMonth) {
+        competitionScope.validate(tournamentId);
+        com.jochookon.common.CalendarPeriod.of(year, month, startMonth, endMonth);
+        if (startMonth != null || endMonth != null) return service.list(page, size, tournamentId, competitionScope, year, month, startMonth, endMonth);
+        if (year != null) return service.list(page, size, tournamentId, competitionScope, year, month);
+        if (competitionScope != CompetitionScope.ALL) return service.list(page, size, tournamentId, competitionScope);
+        return tournamentId == null ? service.list(page, size) : service.list(page, size, tournamentId);
+    }
+    @GetMapping("/years")
+    java.util.List<Integer> years() { return service.years(); }
     @GetMapping("/{id}")
     MatchResponse get(@PathVariable @Min(1) long id) { return service.get(id); }
     @PostMapping

@@ -1,26 +1,50 @@
 .season-stats { min-width: 0; }
-.stats-filters { display: grid; grid-template-columns: 1fr 1fr 1.4fr auto; gap: 16px; align-items: end; background: var(--soft); padding: 20px; border: 1px solid var(--line); border-radius: 16px; }
-.stats-filters label, .stats-table-tools label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; min-width: 0; }
-.stats-filters select, .stats-table-tools select, .stats-table-tools input { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--surface, #fff); font: inherit; font-size: 16px; }
+.stats-filter-controls { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
+.stats-primary-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.stats-primary-filters > * { min-width: 0; }
+.stats-extra-filters { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 8px; }
+.stats-extra-filters summary { min-height: 44px; padding: 10px 0; font-size: 13px; font-weight: 700; cursor: pointer; }
+.stats-extra-filters summary span { margin-left: 8px; font-size: 12px; font-weight: 400; color: var(--muted); overflow-wrap: anywhere; }
+.stats-extra-filters > .field-help { margin: 10px 0 0; }
+.stats-filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 16px; align-items: end; }
+.stats-filter-controls label, .stats-table-tools label { display: grid; gap: 8px; font-size: 13px; font-weight: 700; min-width: 0; }
+.stats-filter-controls select, .stats-table-tools select, .stats-table-tools input { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--surface, #fff); font: inherit; font-size: 16px; }
 .stats-filters .stats-guest-toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; }
 .stats-guest-toggle input { width: 20px; height: 20px; accent-color: var(--accent); }
-.stats-scope, .stats-count-note, .stats-table-hint { color: var(--muted); font-size: 13px; line-height: 1.7; }
+.stats-scope, .stats-count-note, .stats-table-hint { color: var(--muted); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
 .stats-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 24px 0 12px; }
 .stats-summary > div { border: 1px solid var(--line); border-radius: 14px; background: #fff; padding: 18px 22px; }
 .stats-summary dt { color: var(--muted); font-size: 13px; }
 .stats-summary dd { margin: 8px 0 0; font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums; }
 .stats-summary dd small { margin-left: 6px; font-size: 13px; font-weight: 500; color: var(--muted); }
+.stats-summary-note { margin: 8px 0 0; color: var(--muted); font-size: 12px; line-height: 1.6; word-break: keep-all; overflow-wrap: anywhere; }
 .stats-empty-note { padding: 16px; border-radius: 12px; background: var(--soft); font-size: 14px; line-height: 1.7; }
-.stats-table-tools { display: flex; justify-content: space-between; gap: 16px; margin-top: 28px; }
-.stats-table-tools label { width: min(260px, 50%); }
+.stats-table-tools { display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 16px; margin-top: 28px; }
+.stats-table-tools label { width: 260px; max-width: 100%; }
+.stats-sort-status { margin: 0; padding: 12px 0; color: var(--accent-hover); font-size: 13px; font-weight: 700; }
+.stats-display-control { display: flex; align-items: end; flex-wrap: wrap; gap: 12px 20px; padding: 16px; margin: 20px 0 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--soft); }
+.stats-display-control > label { display: grid; gap: 8px; width: 180px; max-width: 100%; min-width: 0; font-size: 13px; font-weight: 700; }
+.stats-display-control select { width: 100%; min-width: 0; min-height: 44px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: white; font: inherit; font-size: 16px; }
+.stats-display-control .field-help { flex: 1; min-width: min(100%, 220px); margin: 0; }
+.stats-display-control p { margin: 0; }
 .stats-table-scroll { max-width: 100%; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; isolation: isolate; }
-.stats-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 660px; font-size: 14px; }
+.stats-table { --number-width: 80px; width: 100%; border-collapse: separate; border-spacing: 0; min-width: 880px; font-size: 14px; }
 .stats-table th, .stats-table td { padding: 16px 14px; text-align: center; white-space: nowrap; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; background: #fff; }
-.stats-table thead th { background: var(--soft); font-size: 12px; color: var(--muted); }
-.stats-table .stats-player-cell { position: sticky; left: 0; z-index: 1; text-align: left; width: 190px; box-shadow: 1px 0 0 var(--line); }
-.stats-player-number { display: inline-block; width: 38px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.stats-table thead th { padding-top: 4px; padding-bottom: 4px; background: var(--soft); font-size: 12px; color: var(--muted); }
+.stats-table .stats-number-cell { position: sticky; left: 0; z-index: 2; box-sizing: border-box; width: var(--number-width); min-width: var(--number-width); max-width: var(--number-width); }
+.stats-table .stats-player-cell { position: sticky; left: var(--number-width); z-index: 1; text-align: left; width: 140px; min-width: 140px; box-shadow: 1px 0 0 var(--line); }
+.stats-sort-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 44px; padding: 0; border: 0; border-radius: 5px; background: none; color: inherit; font: inherit; font-weight: 700; cursor: pointer; }
+.stats-sort-button span { color: var(--muted); }
+.stats-sort-button:hover { color: var(--accent-hover); text-decoration: underline; text-underline-offset: 4px; }
+.stats-sort-button:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.stats-table th[aria-sort] .stats-sort-button, .stats-table th[aria-sort] .stats-sort-button span { color: var(--accent-hover); }
 .stats-player-name { font-weight: 700; }
-.stats-player-status { display: block; margin: 4px 0 0 38px; color: var(--muted); font-weight: 400; font-size: 11px; }
+.stats-player-link { display: block; min-height: 44px; width: 100%; padding: 5px 0; text-align: left; font: inherit; color: inherit; border: 0; border-radius: 5px; background: none; cursor: pointer; }
+.stats-player-link .stats-player-name { color: var(--accent-hover); text-decoration: underline; text-underline-offset: 3px; }
+.stats-player-link:hover { background: var(--soft); }
+.stats-player-link:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.stats-number-link { text-align: center; color: var(--accent-hover); }
+.stats-player-status { display: block; margin: 4px 0 0; color: var(--muted); font-weight: 400; font-size: 11px; }
 .stats-table .stats-emphasis { color: var(--accent-hover); font-weight: 800; background: #f3f8f1; }
 .stats-table tbody tr:last-child > * { border-bottom: 0; }
 .stats-no-players { padding: 20px; font-size: 14px; color: var(--muted); }
@@ -29,16 +53,19 @@
 .stats-definition ul { padding-left: 20px; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .stats-definition li + li { margin-top: 8px; }
 @media (max-width: 680px) {
-  .stats-filters { grid-template-columns: 1fr 1fr; padding: 14px; gap: 14px 10px; }
+  .stats-filter-controls { padding: 14px; }
+  .stats-primary-filters { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .stats-filters { grid-template-columns: minmax(0, 1fr); gap: 14px 10px; }
+  .stats-extra-filters summary span { display: block; margin: 6px 0 0; }
   .stats-summary { gap: 7px; }
   .stats-summary > div { padding: 12px 10px; }
   .stats-summary dd { font-size: 25px; }
   .stats-summary dt { font-size: 11px; }
   .stats-summary dd small { display: block; margin: 3px 0 0; font-size: 11px; }
-  .stats-table { min-width: 600px; }
+  .stats-table { --number-width: 68px; min-width: 800px; }
   .stats-table th, .stats-table td { padding: 14px 10px; }
-  .stats-table .stats-player-cell { width: 136px; min-width: 136px; }
-  .stats-player-number { width: 30px; }
-  .stats-player-status { margin-left: 30px; }
+  .stats-table thead th { padding-top: 4px; padding-bottom: 4px; }
+  .stats-table .stats-number-cell { padding-left: 6px; padding-right: 6px; }
+  .stats-table .stats-player-cell { width: 120px; min-width: 120px; }
   .stats-table-tools { gap: 10px; }
 }

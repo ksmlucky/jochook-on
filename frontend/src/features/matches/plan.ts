@@ -1,10 +1,13 @@
-import type { MatchDraft, MatchTeam, PlannedEntry, Slot } from './api'
+import type { MatchDraft, MatchTeam, Participant, PlannedEntry, Slot } from './api'
+import { checkInternalPlanTeams } from './internalTeams.ts'
+import { validateMatchPeriods } from './matchFormat.ts'
 
 /** 운영진이 계획대로 참석·출전했음을 확인할 때만 호출한다. 기존 실제 기록은 보호한다. */
 export function actualFromPlan(draft: MatchDraft): MatchDraft {
+  validateMatchPeriods(draft)
   if (!draft.plannedLineup.length) throw new Error('02에서 계획 스쿼드를 먼저 배치해 주세요.')
   if (draft.quarters.some(q => q.lineup.length)) throw new Error('이미 실제 출전 기록이 있습니다. 기존 기록은 유지하고 03에서 직접 수정해 주세요.')
-  checkPlan(draft.plannedLineup)
+  checkPlan(draft.plannedLineup, draft.kind === 'INTERNAL' ? draft.participants : undefined)
   for (const entry of draft.plannedLineup) {
     const player = draft.participants.find(p => p.playerId === entry.playerId)
     if (!player || player.vote !== 'ATTENDING') throw new Error('계획에 배치한 선수의 참석 예정 상태를 확인해 주세요.')
@@ -17,7 +20,7 @@ export function actualFromPlan(draft: MatchDraft): MatchDraft {
   }
 }
 
-export function checkPlan(entries: PlannedEntry[]): void {
+export function checkPlan(entries: PlannedEntry[], internalParticipants?: Participant[]): void {
   const places = new Set<string>(), players = new Set<string>()
   for (const a of entries) {
     const place = `${a.quarterNumber}:${a.team}:${a.slot}:${a.entryOrder}`, person = `${a.quarterNumber}:${a.playerId}`
@@ -26,17 +29,18 @@ export function checkPlan(entries: PlannedEntry[]): void {
   }
   if (entries.some(a => a.entryOrder === 1 && !places.has(`${a.quarterNumber}:${a.team}:${a.slot}:0`)))
     throw new Error('교체 선수의 선발 자리가 비게 됩니다. 교체 배치를 먼저 해제해 주세요.')
+  if (internalParticipants) checkInternalPlanTeams(entries, internalParticipants)
 }
 
 /** 같은 쿼터 안에서 이동한다. 양쪽 자리에 선수가 있으면 서로 교환한다. */
-export function placeInPlan(entries: PlannedEntry[], quarterNumber: number, slot: Slot, entryOrder: 0 | 1, playerId: number, team: MatchTeam = 'A'): PlannedEntry[] {
+export function placeInPlan(entries: PlannedEntry[], quarterNumber: number, slot: Slot, entryOrder: 0 | 1, playerId: number, team: MatchTeam = 'A', internalParticipants?: Participant[]): PlannedEntry[] {
   const source = entries.find(a => a.quarterNumber === quarterNumber && a.playerId === playerId)
   if (source && source.team !== team) throw new Error('다른 팀에 배치한 선수입니다. 해당 팀에서 먼저 배치를 해제해 주세요.')
   const target = entries.find(a => a.quarterNumber === quarterNumber && a.team === team && a.slot === slot && a.entryOrder === entryOrder)
   const next = entries.filter(a => a !== source && a !== target)
   next.push({ team, quarterNumber, slot, entryOrder, playerId })
   if (source && target && source !== target) next.push({ ...source, playerId: target.playerId })
-  checkPlan(next)
+  checkPlan(next, internalParticipants)
   return next
 }
 

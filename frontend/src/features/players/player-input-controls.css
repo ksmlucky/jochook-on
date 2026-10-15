@@ -1,0 +1,10 @@
+.player-fields .player-value-controls { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; min-width: 0; }
+.player-fields .player-value-controls > input, .player-fields .player-value-controls > select { width: 100%; min-width: 0; max-width: 100%; min-height: 44px; padding: 8px; font-size: 16px; }
+.shirt-availability { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; margin: 18px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+.shirt-availability p { margin: 0; min-width: 0; font-size: 13px; color: var(--muted); line-height: 1.7; overflow-wrap: anywhere; }
+.shirt-availability p[role="alert"] { color: #963c2f; }
+.shirt-availability button { flex-shrink: 0; min-height: 44px; margin: 0; font-size: 13px; }
+@media (max-width: 700px) {
+  .shirt-availability { align-items: flex-start; flex-direction: column; }
+  .player-fields .player-value-controls { gap: 6px; }
+}

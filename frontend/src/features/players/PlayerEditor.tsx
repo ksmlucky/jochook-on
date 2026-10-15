@@ -8,6 +8,9 @@ import { PreferenceFields } from './PreferenceFields'
 import { ageDescription, seoulYear } from './age'
 import { BirthYearField, ClubRoleField } from './ProfileFields'
 import { useEditGuard } from '../../app/LeaveGuard'
+import { availableShirtNumbers, validBirthYearInput, validShirtNumberInput } from './inputOptions'
+import { useShirtNumbers } from './useShirtNumbers'
+import { ShirtNumberAvailability, ShirtNumberField } from './ShirtNumberField'
 
 export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBusyChange }: {
   player: Player | null
@@ -17,6 +20,7 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
   onBusyChange: (busy: boolean) => void
 }) {
   const [baseline, setBaseline] = useState(player)
+  const shirtOptions = useShirtNumbers(onSessionExpired)
   const [name, setName] = useState(player?.name ?? '')
   const [position, setPosition] = useState<Position | ''>(player?.position ?? '')
   const [shirtNumber, setShirtNumber] = useState(player?.shirtNumber?.toString() ?? '')
@@ -49,11 +53,12 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
     event.preventDefault()
     if (busy || conflict) return
     if (!name.trim() || !position || (position !== 'UN' && !choices[0])) { setError('이름·기본 포지션·1지망을 확인해 주세요. 포지션이 미확인이면 지망은 비워 주세요.'); return }
+    if (!validShirtNumberInput(shirtNumber) || !validBirthYearInput(birthYear)) { setError('등번호는 1~99번, 생년은 허용 범위의 4자리 연도로 입력해 주세요. 모르면 비워 두세요.'); return }
     setBusy(true)
     setError('')
     setFieldErrors({})
     try {
-      onSaved(await savePlayer({ name: name.trim(), position, shirtNumber: shirtNumber === '' ? null : Number(shirtNumber), joinedOn: joinedOn || null,
+      onSaved(await savePlayer({ name: name.trim(), position, shirtNumber: shirtNumber.trim() === '' ? null : Number(shirtNumber), joinedOn: joinedOn || null,
         birthYear: birthYear === '' ? null : Number(birthYear), clubRole: clubRole.trim() || null,
         firstChoice: choices[0] as PreferredPosition || null, secondChoice: choices[1] as PreferredPosition || null, thirdChoice: choices[2] as PreferredPosition || null }, baseline))
     } catch (cause) { showError(cause) }
@@ -87,6 +92,7 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
       <p>이름·기본 포지션·1지망을 입력해 주세요. 나머지는 나중에 채워도 돼요.</p>
     </div>
     <form onSubmit={submit} aria-busy={busy}>
+      <ShirtNumberAvailability loading={shirtOptions.loading} error={shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy} />
       <fieldset disabled={busy} className="player-fields">
         <legend className="sr-only">선수 기본 정보</legend>
         <div><label htmlFor="player-name">이름 <span>필수</span></label>
@@ -101,10 +107,8 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
           <p className="field-help">포지션을 모르면 ‘미확인’을 선택해 주세요. 1~3지망은 비워 둬요.</p>
           {fieldErrors.position && <p className="form-error" id="position-error">{fieldErrors.position}</p>}
         </div>
-        <div><label htmlFor="player-shirt">등번호 <span>선택</span></label>
-          <input id="player-shirt" type="number" min="1" max="99" step="1" inputMode="numeric" value={shirtNumber} onChange={e => setShirtNumber(e.target.value)} placeholder="미등록" aria-invalid={!!fieldErrors.shirtNumber} aria-describedby="shirt-help" />
-          <p id="shirt-help" className={fieldErrors.shirtNumber ? 'form-error' : 'field-help'}>{fieldErrors.shirtNumber ?? '1~99번 중 활동 선수가 쓰지 않는 번호를 입력해 주세요.'}</p>
-        </div>
+        <ShirtNumberField id="player-shirt" value={shirtNumber} onChange={value => { setShirtNumber(value); setFieldErrors(current => ({ ...current, shirtNumber: '' })) }}
+          available={shirtOptions.roster === null ? null : availableShirtNumbers(shirtOptions.roster, baseline?.id)} error={fieldErrors.shirtNumber} />
         <div><label htmlFor="player-joined">가입일 <span>선택</span></label>
           <input id="player-joined" type="date" min="1000-01-01" max="9999-12-31" value={joinedOn} onChange={e => setJoinedOn(e.target.value)} aria-invalid={!!fieldErrors.joinedOn} aria-describedby="joined-help" />
           <p id="joined-help" className={fieldErrors.joinedOn ? 'form-error' : 'field-help'}>{fieldErrors.joinedOn ?? '정확한 날짜를 모르면 비워 두세요.'}</p>

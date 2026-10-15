@@ -1,0 +1,39 @@
+.completion-review { margin: 1.2rem 0; padding: 1rem; border: 1px solid #c6d9ce; border-radius: 14px; background: #f5f9f6; color: #24483b; word-break: keep-all; overflow-wrap: anywhere; }
+.completion-review-heading { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .75rem; }
+.completion-review-heading h5 { margin: 0; font-size: 1.05rem; line-height: 1.5; }
+.completion-review-heading > span { color: #52665b; font-size: .78rem; }
+.completion-review .completion-review-intro { margin: .5rem 0 1rem; font-size: .85rem; line-height: 1.65; }
+.completion-review-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+.completion-review-item { min-width: 0; padding: .85rem; background: #fff; border: 1px solid #dbe6df; border-radius: 11px; }
+.completion-review-item-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .2rem .5rem; }
+.completion-review-item h6 { margin: 0; font-size: .9rem; line-height: 1.5; }
+.completion-review-item > p { margin: .45rem 0; font-size: .85rem; line-height: 1.65; }
+.completion-review button { min-height: 44px; max-width: 100%; font: inherit; color: inherit; cursor: pointer; white-space: normal; text-align: left; }
+.completion-review button:disabled { cursor: default; opacity: .55; }
+.completion-review .completion-review-jump { flex-shrink: 0; padding: .4rem .5rem; border: 1px solid #d3e0d6; border-radius: 8px; background: #f5f9f6; color: #285e48; font-size: .78rem; font-weight: 600; }
+.completion-review-details { margin-top: .35rem; border-top: 1px solid #e4ebe5; font-size: .82rem; }
+.completion-review-details summary { min-height: 44px; padding: .65rem .15rem; cursor: pointer; line-height: 1.6; font-weight: 600; }
+.completion-review-details ul, .completion-review-scores { margin: 0; padding: 0; list-style: none; }
+.completion-review-players { display: grid; gap: .35rem; }
+.completion-review-players button { display: flex; width: 100%; justify-content: space-between; align-items: center; gap: .4rem .8rem; padding: .45rem .55rem; background: #fff; border: 1px solid #dbe6df; border-radius: 7px; }
+.completion-review-players button > span:first-child { min-width: 0; }
+.completion-review-link { flex-shrink: 0; color: #28634e; font-size: .76rem; }
+.completion-review-quarters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
+.completion-review-quarters li { min-width: 0; }
+.completion-review-quarters button { display: block; width: 100%; height: 100%; padding: .6rem; border: 1px solid #dbe6df; border-radius: 8px; background: #f9fbf8; }
+.completion-review-quarter-title { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .2rem .4rem; line-height: 1.5; }
+.completion-review-quarter-title > span { white-space: nowrap; font-size: .76rem; color: #52665b; }
+.completion-review-empty-slots { display: block; margin-top: .35rem; font-size: .75rem; line-height: 1.65; color: #52665b; }
+.completion-review-item > .completion-review-hint { margin-top: .6rem; color: #52665b; font-size: .78rem; }
+.completion-review-scores { display: grid; gap: .4rem; }
+.completion-review-scores li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .15rem .5rem; padding: .4rem 0; font-size: .8rem; line-height: 1.65; }
+.completion-review button:focus-visible, .completion-review summary:focus-visible { outline: 2px solid #28634e; outline-offset: 3px; }
+@media (max-width: 700px) {
+  .completion-review { padding: .8rem; }
+  .completion-review-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 380px) {
+  .completion-review-item { padding: .7rem; }
+  .completion-review-quarters { grid-template-columns: minmax(0, 1fr); }
+  .completion-review-players button { flex-wrap: wrap; }
+}

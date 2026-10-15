@@ -11,7 +11,8 @@ class InternalMatchTest {
     }
     static MatchRequest request(MatchKind kind, List<MatchRequest.Appearance> lineup, List<MatchRequest.PlannedEntry> plan) {
         return new MatchRequest(LocalDate.of(2026, 10, 18), LocalTime.of(11, 0), "", "", "", null,
-                List.of(1L, 2L, 3L).stream().map(id -> new MatchRequest.Participant(id, Vote.ATTENDING, Attendance.PRESENT)).toList(),
+                List.of(1L, 2L, 3L).stream().map(id -> new MatchRequest.Participant(id, Vote.ATTENDING, Attendance.PRESENT,
+                        kind == MatchKind.INTERNAL ? plan.stream().filter(p -> p.playerId().equals(id)).map(MatchRequest.PlannedEntry::team).findFirst().orElse(null) : null, true)).toList(),
                 List.of(new MatchRequest.Quarter(1, lineup), new MatchRequest.Quarter(2, List.of()), new MatchRequest.Quarter(3, List.of()), new MatchRequest.Quarter(4, List.of())),
                 plan, 3, 2, kind);
     }

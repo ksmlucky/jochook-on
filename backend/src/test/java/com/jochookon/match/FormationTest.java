@@ -15,7 +15,9 @@ class FormationTest {
                          List<MatchRequest.PlannedEntry> plan) {
         var base = MatchTestData.request(null,
                 List.of(MatchTestData.participant(1, Attendance.PRESENT), MatchTestData.participant(2, Attendance.PRESENT)), lineup);
-        return new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null, base.participants(), base.quarters(), plan,
+        var participants = base.participants().stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance(),
+                kind == MatchKind.INTERNAL ? plan.stream().filter(e -> e.playerId().equals(p.playerId())).map(MatchRequest.PlannedEntry::team).findFirst().orElse(null) : null, true)).toList();
+        return new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null, participants, base.quarters(), plan,
                 null, null, kind, null, a, b);
     }
     @Test void missingFieldsDefaultNewRecordsAndLegacyHistoryToOriginalFormation() {
@@ -126,7 +128,7 @@ class FormationTest {
         var lineup = List.of(new MatchRequest.Appearance(LineupSlot.CCB, 1L, 2, 0, 0, MatchTeam.A),
                 new MatchRequest.Appearance(LineupSlot.CCB, 2L, 1, 1, 1, MatchTeam.A));
         var plan = List.of(new MatchRequest.PlannedEntry(1, LineupSlot.CCB, 0, 1L, MatchTeam.A),
-                new MatchRequest.PlannedEntry(1, LineupSlot.RWB, 0, 2L, MatchTeam.B));
+                new MatchRequest.PlannedEntry(1, LineupSlot.RM, 0, 2L, MatchTeam.B));
         var record = MatchRecord.create(request(Formation.F352, Formation.F343, MatchKind.INTERNAL, lineup, plan));
         assertThat(record.creditedQuarters(1)).isEqualTo(0.5);
         assertThat(record.creditedQuarters(2)).isEqualTo(0.5);

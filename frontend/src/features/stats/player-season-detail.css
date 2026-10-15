@@ -1,0 +1,47 @@
+.player-season-detail, .player-match-reader { min-width: 0; padding-bottom: 20px; }
+.player-season-detail .section-heading, .player-match-reader .section-heading { flex-wrap: wrap; gap: 14px; }
+.player-season-detail .section-heading > div, .player-match-reader .section-heading > div { min-width: 0; }
+.player-season-detail h2 { overflow-wrap: anywhere; }
+.player-season-identity { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.player-season-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 16px 0 12px; }
+.player-season-score-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.player-season-summary > div { min-width: 0; padding: 18px; background: white; border: 1px solid var(--line); border-radius: 14px; }
+.player-season-summary dt { color: var(--muted); font-size: 13px; }
+.player-season-summary dd { margin: 8px 0 0; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.player-season-summary dd small { display: block; margin-top: 3px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.player-season-list-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin: 26px 0 16px; }
+.player-season-list-heading h3 { margin: 0; font-size: 18px; }
+.player-season-matches { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; list-style: none; padding: 0; margin: 0; }
+.player-season-match { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: white; overflow-wrap: anywhere; }
+.player-season-match-top { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.player-season-match-top time { font-size: 14px; font-weight: 700; }
+.player-season-match h4 { margin: 16px 0 6px; font-size: 18px; line-height: 1.5; }
+.player-season-match-meta { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.player-season-match-tournament { color: var(--accent-hover); font-size: 13px; font-weight: 700; line-height: 1.6; margin: 8px 0; }
+.player-season-score { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin: 16px 0; }
+.player-season-score > span { font-size: 12px; color: var(--muted); }
+.player-season-score strong { margin-left: auto; font-size: 20px; font-variant-numeric: tabular-nums; }
+.player-season-match-quarters { margin: 12px 0 8px; color: var(--muted); font-size: 12px; }
+.player-season-match-quarters strong { color: var(--ink); }
+.player-season-match-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 12px; margin: 0; border-radius: 10px; background: var(--soft); }
+.player-season-match-goal-types { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; color: var(--muted); font-size: 12px; }
+.player-season-match-stats dt { font-size: 12px; color: var(--muted); }
+.player-season-match-stats dd { margin: 5px 0 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.player-season-match-stats small { font-size: 11px; font-weight: 400; margin-left: 3px; }
+.player-season-match-bottom { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.player-season-match-bottom p { font-size: 13px; color: var(--muted); margin: 0; }
+.player-season-match-bottom button { min-height: 44px; }
+.player-season-pagination { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 22px; }
+.player-season-pagination > span { font-size: 13px; font-variant-numeric: tabular-nums; }
+.player-match-reader .match-editor-heading { flex-wrap: wrap; }
+@media (max-width: 700px) {
+  .player-season-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .player-season-score-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .player-season-summary > div { padding: 12px 10px; }
+  .player-season-summary dt { font-size: 12px; }
+  .player-season-summary dd { font-size: 24px; }
+  .player-season-matches { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .player-season-match { padding: 16px; }
+  .player-season-pagination { gap: 8px; }
+  .player-season-pagination button { padding: 10px 12px; font-size: 13px; }
+}

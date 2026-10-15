@@ -10,6 +10,7 @@
 .site-header .primary-navigation { display: flex; align-self: stretch; gap: 8px; align-items: center; }
 .workspace-nav { display: flex; align-items: center; gap: 9px; min-height: 46px; padding: 11px 18px; border: 1px solid transparent; border-radius: 10px; color: var(--muted); font-size: 15px; font-weight: 700; }
 .workspace-nav svg { width: 21px; height: 21px; flex-shrink: 0; }
+.workspace-nav-label { min-width: 0; text-align: center; }
 .workspace-nav:hover { color: var(--ink); background: var(--soft); }
 .workspace-nav.is-current { color: var(--accent-hover); background: var(--lime); border-color: #cfddbd; }
 .account-menu { margin-left: auto; gap: 16px; }
@@ -83,10 +84,10 @@
 .manager-entry .secondary-button { margin: 0; padding: 8px 11px; min-height: 40px; }
 .welcome-shell .app-install-area { margin-top: 44px; }
 .welcome-shell .install-card { background: transparent; }
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .app-shell { padding: 0 28px; }
   .site-header { gap: 16px; height: auto; padding-top: 16px; flex-wrap: wrap; }
-  .site-header .primary-navigation { order: 3; width: 100%; padding-bottom: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .site-header .primary-navigation { order: 3; width: 100%; padding-bottom: 14px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .workspace-nav { padding: 10px 12px; }
   #access .login-panel { gap: 28px; }
   #access .login-form { padding: 26px; }
@@ -104,8 +105,9 @@
   .account-menu { max-width: 50%; gap: 10px; }
   .account-menu > span { min-width: 0; }
   .account-menu .secondary-button { padding: 8px 10px; font-size: 12px; flex-shrink: 0; }
-  .site-header .primary-navigation { order: 3; width: 100%; gap: 8px; padding: 0 0 14px; }
+  .site-header .primary-navigation { order: 3; width: 100%; gap: 6px; padding: 0 0 14px; align-items: stretch; }
   .workspace-nav { flex: 1; min-width: 0; justify-content: center; flex-direction: column; padding: 8px 2px; gap: 4px; font-size: 12px; white-space: nowrap; }
+  .workspace-nav-label { max-width: 100%; white-space: normal; word-break: keep-all; line-height: 1.3; }
   .workspace-context { padding: 22px 0; gap: 12px; flex-wrap: wrap; }
   .context-emblem { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
   .context-copy { flex: 1; }
@@ -141,9 +143,10 @@
 }
 @media (max-width: 400px) {
   .app-shell { padding: 0 16px; }
-  .site-header .primary-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
-  .workspace-nav { min-width: 0; padding: 8px 2px; gap: 4px; font-size: 11.5px; white-space: nowrap; }
-  .workspace-nav svg { width: 16px; height: 16px; }
+  .site-header .primary-navigation { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .workspace-nav { min-width: 0; padding: 8px 2px; gap: 4px; font-size: 12px; white-space: normal; }
+  .workspace-nav-label { min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
+  .workspace-nav svg { width: 18px; height: 18px; }
   .header-note { display: none; }
   .account-menu strong { font-size: 11px; }
   .account-menu small { font-size: 10px; }

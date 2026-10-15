@@ -41,13 +41,15 @@ test('rejects an empty plan and prevents a second copy after actual records exis
   assert.throws(() => actualFromPlan({ ...fixture(), plannedLineup: [] }), /먼저 배치/)
   assert.throws(() => actualFromPlan(actualFromPlan(fixture())), /이미 실제 출전/)
 })
-test('copying an internal plan retains both teams and quarter-to-quarter team changes', () => {
+test('copying an internal plan retains assigned teams and rejects quarter-to-quarter team mixing', () => {
   const draft = fixture()
   draft.kind = 'INTERNAL'
-  draft.plannedLineup = [entry(1), { ...entry(2), team: 'B' }, { ...entry(1, 0, 2), team: 'B' }]
+  draft.participants = draft.participants.map(p => ({ ...p, plannedTeam: p.playerId === 2 ? 'B' : 'A' }))
+  draft.plannedLineup = [entry(1), { ...entry(2), team: 'B' }, entry(1, 0, 2)]
   const result = actualFromPlan(draft)
   assert.deepEqual(result.quarters[0].lineup.map(a => [a.playerId, a.team]), [[1, 'A'], [2, 'B']])
-  assert.equal(result.quarters[1].lineup[0].team, 'B')
+  assert.equal(result.quarters[1].lineup[0].team, 'A')
   assert.equal(result.participants.length, draft.participants.length)
   assert.throws(() => actualFromPlan({ ...draft, plannedLineup: [entry(1), { ...entry(1), team: 'B' }] }), /중복/)
+  assert.throws(() => actualFromPlan({ ...draft, plannedLineup: [entry(1), { ...entry(1, 0, 2), team: 'B' }] }), /팀 배정/)
 })

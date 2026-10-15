@@ -51,7 +51,7 @@ test('positional pairs map to the corresponding preferred position and new midfi
   for (const slot of ['LM', 'RM', 'CAM', 'LCDM', 'RCDM']) assert.equal(slotGroup(slot), 'MF')
   for (const slot of ['LST', 'RST']) assert.equal(slotGroup(slot), 'FW')
 })
-test('three-back shapes distinguish three central defenders and wingbacks without full-back slots', () => {
+test('three-back shapes distinguish their defenders and preserve the requested midfield roles', () => {
   for (const formation of ['F352', 'F343']) {
     const slots = pitchRowsFor(formation).flat()
     assert.deepEqual(slots.filter(slot => slotPosition(slot) === 'CB'), ['LCB', 'CCB', 'RCB'])
@@ -60,19 +60,22 @@ test('three-back shapes distinguish three central defenders and wingbacks withou
     assert.equal(slotPosition('LWB'), 'LWB')
     assert.equal(slotPosition('RWB'), 'RWB')
   }
-  assert.equal(slotLabels.CCB, 'CB (중앙)')
-  assert.deepEqual(pitchRowsFor('F352')[0], ['LST', 'RST'])
-  assert.deepEqual(pitchRowsFor('F343')[0], ['LW', 'ST', 'RW'])
+  assert.deepEqual(['LCB', 'CCB', 'RCB'].map(slot => slotLabels[slot]), ['LCB', 'CB', 'RCB'])
+  assert.deepEqual(pitchRowsFor('F352').flat(), ['LST', 'RST', 'CAM', 'LWB', 'LCM', 'RCM', 'RWB', 'LCB', 'CCB', 'RCB', 'GK'])
+  assert.deepEqual(pitchRowsFor('F343').flat(), ['LW', 'ST', 'RW', 'LM', 'LCM', 'RCM', 'RM', 'LCB', 'CCB', 'RCB', 'GK'])
+  assert.equal(pitchRowsFor('F352').flat().includes('CDM'), false)
+  assert.equal(pitchRowsFor('F343').flat().includes('LWB'), false)
+  assert.equal(pitchRowsFor('F343').flat().includes('RWB'), false)
 })
 test('four-back to three-back changes count all removed plans and preserve common roles in every quarter and the other team', () => {
   const before = draft()
   before.plannedLineup = [1, 2, 3, 4].flatMap(quarter => pitchRowsFor('F4123').flat().map((slot, index) => entry(slot, index + 1, 'A', quarter)))
   before.plannedLineup.push(entry('LW', 12, 'A', 2, 1), entry('LB', 20, 'B'))
   const snapshot = structuredClone(before)
-  assert.equal(removedPlanCount(before, 'A', 'F352'), 21)
+  assert.equal(removedPlanCount(before, 'A', 'F352'), 25)
   const after = changeFormation(before, 'A', 'F352')
-  assert.equal(after.plannedLineup.filter(e => e.team === 'A').length, 24)
-  for (const quarter of [1, 2, 3, 4]) assert.deepEqual(after.plannedLineup.filter(e => e.team === 'A' && e.quarterNumber === quarter).map(e => e.slot), ['LCM', 'RCM', 'CDM', 'LCB', 'RCB', 'GK'])
+  assert.equal(after.plannedLineup.filter(e => e.team === 'A').length, 20)
+  for (const quarter of [1, 2, 3, 4]) assert.deepEqual(after.plannedLineup.filter(e => e.team === 'A' && e.quarterNumber === quarter).map(e => e.slot), ['LCM', 'RCM', 'LCB', 'RCB', 'GK'])
   assert.deepEqual(after.plannedLineup.find(e => e.team === 'B'), entry('LB', 20, 'B'))
   assert.deepEqual(before, snapshot, 'preview/cancel must not mutate the current draft')
 })

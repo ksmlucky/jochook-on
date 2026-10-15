@@ -46,6 +46,120 @@ class MatchIntegrationTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
     }
+    private List<MatchRequest.Participant> plannedPeople(List<MatchRequest.Participant> people, List<MatchRequest.PlannedEntry> plan) {
+        return people.stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance(),
+                plan.stream().filter(e -> e.playerId().equals(p.playerId())).map(MatchRequest.PlannedEntry::team).findFirst().orElse(null), true)).toList();
+    }
+    private MatchRequest formatted(MatchRequest base, MatchFormat format, List<MatchRequest.Quarter> quarters,
+                                   List<MatchRequest.PlannedEntry> plan, Long version, Long tournament) {
+        return new MatchRequest(base.playedOn(), base.kickoff(), base.venue(), base.opponent(), base.notes(), version,
+                base.participants(), quarters, plan, base.scoreFor(), base.scoreAgainst(), base.kind(), base.recordingStage(),
+                base.formationA(), base.formationB(), tournament, tournament == null ? null : TournamentStage.GROUP, true, format);
+    }
+    @Test void twoHalvesRoundTripHistoryOmittedUpdateAndIdempotencyWithoutDuplicatingMatch() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.PRESENT)), List.of(appearance(LineupSlot.ST, first, 1, 0)));
+        var halves = formatted(base, MatchFormat.TWO_HALVES_30, base.quarters().subList(0, 2), List.of(), null, null);
+        String key = UUID.randomUUID().toString();
+        var firstResult = mvc.perform(post("/api/v1/matches").header("Idempotency-Key", key).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(halves)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.matchFormat").value("TWO_HALVES_30"))
+                .andExpect(jsonPath("$.quarters.length()").value(2)).andReturn().getResponse();
+        long id = json.readTree(firstResult.getContentAsString()).get("id").asLong();
+        mvc.perform(post("/api/v1/matches").header("Idempotency-Key", key).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(halves)))
+                .andExpect(status().isCreated()).andExpect(jsonPath("$.id").value(id));
+        mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.items[0].matchFormat").value("TWO_HALVES_30"));
+        var changedFormat = formatted(base, MatchFormat.FOUR_QUARTERS, base.quarters(), List.of(), null, null);
+        mvc.perform(post("/api/v1/matches").header("Idempotency-Key", key).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(changedFormat)))
+                .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("REQUEST_CHANGED"));
+        var omitted = formatted(base, null, halves.quarters(), List.of(), 0L, null);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(omitted)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.matchFormat").value("TWO_HALVES_30"));
+        assertThat(jdbc.queryForObject("SELECT match_format FROM match_records WHERE id=?", String.class, id)).isEqualTo("TWO_HALVES_30");
+        var snapshot = jdbc.queryForObject("SELECT after_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
+        assertThat(json.readTree(snapshot).get("matchFormat").asText()).isEqualTo("TWO_HALVES_30");
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events WHERE match_id=?", Integer.class, id)).isEqualTo(2);
+    }
+    @Test void savedFourthQuarterCannotBeRemovedInSameFormatConversionAndInvalidPeriodsNeverWrite() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.PRESENT)), List.of());
+        var four = new ArrayList<>(base.quarters());
+        four.set(3, new MatchRequest.Quarter(4, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 2, 0, 0, MatchTeam.A, 1, 1))));
+        var plan = List.of(new MatchRequest.PlannedEntry(3, LineupSlot.GK, 0, first));
+        long id = create(formatted(base, MatchFormat.FOUR_QUARTERS, four, plan, null, null));
+        var saved = savedMatchRows(id);
+        var half = formatted(base, MatchFormat.TWO_HALVES_30, base.quarters().subList(0, 2), List.of(), 0L, null);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(half)))
+                .andExpect(status().isBadRequest());
+        assertThat(savedMatchRows(id)).isEqualTo(saved);
+        for (var invalid : List.of(formatted(base, MatchFormat.TWO_HALVES_30, four, List.of(), null, null),
+                formatted(base, MatchFormat.TWO_HALVES_30, base.quarters().subList(0, 2), plan, null, null)))
+            mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(invalid)))
+                    .andExpect(status().isBadRequest());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Integer.class)).isEqualTo(1);
+        assertThat(savedMatchRows(id)).isEqualTo(saved);
+    }
+    @Test void mixedLeagueAndTournamentFormatsAggregateRawQuarterCreditsAndRetainFormatInDetails() throws Exception {
+        jdbc.update("INSERT INTO players(team_id,name,position) VALUES (1,'구간 검증 교체','FW')");
+        long sub = jdbc.queryForObject("SELECT MAX(id) FROM players", Long.class);
+        jdbc.update("INSERT INTO tournaments(team_id,name,start_date,end_date) VALUES (1,'전후반 검증 대회','2026-04-01','2026-04-30')");
+        long tournament = jdbc.queryForObject("SELECT MAX(id) FROM tournaments", Long.class);
+        var people = List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT), participant(sub, Attendance.PRESENT));
+        var four = new ArrayList<MatchRequest.Quarter>();
+        for (int q = 1; q <= 4; q++) four.add(new MatchRequest.Quarter(q, List.of(
+                new MatchRequest.Appearance(LineupSlot.ST, first, q == 1 ? 2 : 0, 0, 0, MatchTeam.A, q == 1 ? 1 : 0, 0),
+                new MatchRequest.Appearance(LineupSlot.GK, second, 0, q == 1 ? 1 : 0, 0))));
+        var league = new MatchRequest(java.time.LocalDate.of(2026, 3, 8), java.time.LocalTime.of(11, 0), "", "검증 상대", "", null,
+                people, four, List.of(), 2, 1, MatchKind.EXTERNAL, RecordingStage.COMPLETED, null, null, null, null, true, MatchFormat.FOUR_QUARTERS);
+        create(league);
+        var halves = List.of(new MatchRequest.Quarter(1, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 2, 0, 0, MatchTeam.A, 1, 1), new MatchRequest.Appearance(LineupSlot.GK, second, 0, 1, 0))),
+                new MatchRequest.Quarter(2, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 1, 0, 0), new MatchRequest.Appearance(LineupSlot.ST, sub, 1, 1, 1), new MatchRequest.Appearance(LineupSlot.GK, second, 0, 0, 0))));
+        var cup = new MatchRequest(java.time.LocalDate.of(2026, 4, 12), league.kickoff(), "", "검증 상대", "", null,
+                people, halves, List.of(), 4, 2, MatchKind.EXTERNAL, RecordingStage.COMPLETED, null, null, tournament, TournamentStage.FINAL, true, MatchFormat.TWO_HALVES_30);
+        long cupId = create(cup);
+        mvc.perform(get("/api/v1/stats/players/" + first + "/matches?year=2026"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.player.goals").value(5))
+                .andExpect(jsonPath("$.player.creditedQuarters").value(5.5)).andExpect(jsonPath("$.player.freeKickGoals").value(2))
+                .andExpect(jsonPath("$.player.penaltyGoals").value(1)).andExpect(jsonPath("$.items[0].matchFormat").value("TWO_HALVES_30"))
+                .andExpect(jsonPath("$.items[1].matchFormat").value("FOUR_QUARTERS"));
+        mvc.perform(get("/api/v1/stats/players/" + first + "/matches?year=2026&competitionScope=TOURNAMENT&tournamentId=" + tournament))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1)).andExpect(jsonPath("$.player.goals").value(3))
+                .andExpect(jsonPath("$.player.creditedQuarters").value(1.5)).andExpect(jsonPath("$.items[0].matchId").value(cupId));
+        mvc.perform(get("/api/v1/stats/players/" + second + "/matches?startMonth=2026-04&endMonth=2026-04"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.player.creditedQuarters").value(2.0)).andExpect(jsonPath("$.player.assists").value(1));
+        mvc.perform(get("/api/v1/stats/players/" + sub + "/matches?year=2026&competitionScope=TOURNAMENT"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.player.creditedQuarters").value(0.5)).andExpect(jsonPath("$.player.goals").value(1));
+        mvc.perform(get("/api/v1/stats/players/" + first + "/matches?year=2026&competitionScope=LEAGUE"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.player.creditedQuarters").value(4.0)).andExpect(jsonPath("$.player.goals").value(2));
+        // Unlinking a tournament must not silently turn the existing two-half match back into four quarters.
+        var unlink = new MatchRequest(cup.playedOn(), cup.kickoff(), "", cup.opponent(), "", 0L, people, halves, List.of(), 4, 2,
+                MatchKind.EXTERNAL, RecordingStage.COMPLETED, null, null, null, null, true, null);
+        mvc.perform(put("/api/v1/matches/" + cupId).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(unlink)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.tournamentId").isEmpty()).andExpect(jsonPath("$.matchFormat").value("TWO_HALVES_30"));
+    }
+    @Test void plannedTeamsRoundTripPreserveOmittedAssignmentsAndRejectCrossTeamPlanWithoutLosingActualStats() throws Exception {
+        var base = deletionFixture(null, MatchKind.INTERNAL, 1);
+        long id = create(base);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.participants[0].plannedTeam").value("A"))
+                .andExpect(jsonPath("$.participants[1].plannedTeam").value("B"));
+        var oldPeople = base.participants().stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance())).toList();
+        var oldClient = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "기존 요청", 0L, oldPeople, base.quarters(), base.plannedLineup(), 4, 0, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(oldClient)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.participants[0].plannedTeam").value("A"));
+        var saved = savedMatchRows(id);
+        var cross = base.participants().stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance(), MatchTeam.A, true)).toList();
+        var invalid = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 1L, cross, base.quarters(), base.plannedLineup(), 4, 0, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+        assertThat(savedMatchRows(id)).isEqualTo(saved);
+        // Clearing assignments with the plan removed is explicit; the already recorded appearances remain untouched.
+        var clearPeople = base.participants().stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance(), null, true)).toList();
+        var cleared = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "팀 재검토", 1L, clearPeople, base.quarters(), List.of(), 4, 0, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(cleared)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.participants[0].plannedTeam").isEmpty());
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_participants WHERE match_id=? AND planned_team IS NOT NULL", Integer.class, id)).isZero();
+        assertThat(savedMatchRows(id).get("appearances")).isEqualTo(saved.get("appearances"));
+        var event = jdbc.queryForMap("SELECT before_snapshot,after_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", id);
+        assertThat(json.readTree(event.get("before_snapshot").toString()).get("participants").get(0).get("plannedTeam").asText()).isEqualTo("A");
+        assertThat(json.readTree(event.get("after_snapshot").toString()).get("participants").get(0).get("plannedTeam").isNull()).isTrue();
+    }
     @Test void formationRoundTripsAndOmittedUpdatePreservesBothSidesBeforeValidation() throws Exception {
         var base = request(null, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)),
                 List.of(new MatchRequest.Appearance(LineupSlot.LST, first, 1, 0, 0, MatchTeam.A),
@@ -145,7 +259,7 @@ class MatchIntegrationTest {
         var plan = quarters.stream().flatMap(q -> q.lineup().stream().map(a ->
                 new MatchRequest.PlannedEntry(q.number(), a.slot(), a.entryOrder(), a.playerId(), a.team()))).toList();
         return new MatchRequest(base.playedOn(), base.kickoff(), "검증 구장", "", "삭제 검증", version,
-                base.participants(), quarters, plan, goals * 4, 0, kind);
+                kind == MatchKind.INTERNAL ? plannedPeople(base.participants(), plan) : base.participants(), quarters, plan, goals * 4, 0, kind);
     }
     private Map<String, Object> savedMatchRows(long id) {
         Map<String, Object> rows = new LinkedHashMap<>();
@@ -196,7 +310,7 @@ class MatchIntegrationTest {
         quarters.set(0, new MatchRequest.Quarter(1, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 2, 0, 0, MatchTeam.A), new MatchRequest.Appearance(LineupSlot.ST, second, 1, 0, 0, MatchTeam.B))));
         quarters.set(1, new MatchRequest.Quarter(2, List.of(new MatchRequest.Appearance(LineupSlot.ST, first, 1, 0, 0, MatchTeam.B))));
         var plan = List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, first, MatchTeam.A), new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, second, MatchTeam.B));
-        var internal = new MatchRequest(base.playedOn(), base.kickoff(), "검증 구장", "", "자체전", null, base.participants(), quarters, plan, 2, 2, MatchKind.INTERNAL);
+        var internal = new MatchRequest(base.playedOn(), base.kickoff(), "검증 구장", "", "자체전", null, plannedPeople(base.participants(), plan), quarters, plan, 2, 2, MatchKind.INTERNAL);
         long id = create(internal);
         mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.kind").value("INTERNAL"))
                 .andExpect(jsonPath("$.scoreFor").value(2)).andExpect(jsonPath("$.scoreAgainst").value(2))
@@ -233,7 +347,7 @@ class MatchIntegrationTest {
         var quarters = java.util.stream.IntStream.rangeClosed(1, 4).mapToObj(q -> new MatchRequest.Quarter(q, appearances)).toList();
         var plan = quarters.stream().flatMap(q -> q.lineup().stream().map(a -> new MatchRequest.PlannedEntry(q.number(), a.slot(), a.entryOrder(), a.playerId(), a.team()))).toList();
         var input = new MatchRequest(java.time.LocalDate.of(2026, 10, 18), java.time.LocalTime.of(11, 0), "", "", "", null,
-                ids.stream().map(id -> participant(id, Attendance.PRESENT)).toList(), quarters, plan, 0, 0, MatchKind.INTERNAL);
+                plannedPeople(ids.stream().map(id -> participant(id, Attendance.PRESENT)).toList(), plan), quarters, plan, 0, 0, MatchKind.INTERNAL);
         long id = create(input);
         mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.quarters[0].lineup.length()").value(44))
                 .andExpect(jsonPath("$.plannedLineup.length()").value(176)).andExpect(jsonPath("$.participants[0].creditedQuarters").value(2));

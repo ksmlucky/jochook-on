@@ -1,5 +1,8 @@
 import type { MatchDraft, MatchRecord, MatchTeam } from './api'
 import { formationOptions, slots } from './formations.ts'
+import { tournamentStageLabels } from './tournamentFields.ts'
+import { matchFormats, quarterNumbers } from './matchFormat.ts'
+import type { MatchFormat } from './matchFormat'
 
 export type DraftOwner = { username: string; teamId: number }
 export type PendingMatchSave = { key: string; draft: MatchDraft; record: MatchRecord | null; destination: string }
@@ -28,26 +31,35 @@ function validRecord(value: unknown): value is MatchRecord | null {
 }
 function validDraft(value: unknown): value is MatchDraft {
   if (!object(value) || !oneOf(value.kind, ['EXTERNAL', 'INTERNAL']) || !text(value.playedOn, 10)
+    || !(value.matchFormat == null || oneOf(value.matchFormat, matchFormats))
+    || (value.kind === 'INTERNAL' && value.matchFormat === 'TWO_HALVES_30')
     || !text(value.venue, 100) || !text(value.opponent, 100) || !text(value.notes, 3000)
     // Preserve legacy times while the editor asks the user to correct them to 30-minute intervals.
     || !(value.kickoff === null || typeof value.kickoff === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d(?::[0-5]\d)?$/.test(value.kickoff))
     || ![value.scoreFor, value.scoreAgainst].every(score => score === null || integer(score, 0, 99))
     || ![value.formationA, value.formationB].every(formation => formation == null || oneOf(formation, formationOptions))
-    || !(value.recordingStage == null || oneOf(value.recordingStage, ['ATTENDANCE', 'PLAN', 'ACTUAL', 'RESULT', 'COMPLETED']))) return false
+    || !(value.recordingStage == null || oneOf(value.recordingStage, ['ATTENDANCE', 'PLAN', 'ACTUAL', 'RESULT', 'COMPLETED']))
+    || !(value.tournamentId == null || integer(value.tournamentId, 1))
+    || !(value.tournamentName == null || text(value.tournamentName, 120))
+    || !(value.tournamentStage == null || oneOf(value.tournamentStage, Object.keys(tournamentStageLabels)))
+    || !(value.tournamentSelectionSpecified === undefined || typeof value.tournamentSelectionSpecified === 'boolean')) return false
   if (!Array.isArray(value.participants) || value.participants.length > 200 || !value.participants.every(p => object(p)
     && integer(p.playerId, 1) && text(p.name, 100) && (p.shirtNumber === null || integer(p.shirtNumber, 1, 99))
     && (p.birthYear === null || integer(p.birthYear, 1000, 9999)) && oneOf(p.playerType, ['MEMBER', 'GUEST'])
     && oneOf(p.vote, ['ATTENDING', 'ABSENT', 'UNDECIDED', 'UNANSWERED'])
-    && oneOf(p.attendance, ['PRESENT', 'LATE', 'ABSENT', 'UNCONFIRMED']))) return false
+    && oneOf(p.attendance, ['PRESENT', 'LATE', 'ABSENT', 'UNCONFIRMED'])
+    && (p.plannedTeam == null || oneOf(p.plannedTeam, ['A', 'B'])))) return false
   if (new Set(value.participants.map(p => p.playerId)).size !== value.participants.length) return false
   const validEntry = (a: unknown) => object(a) && oneOf(a.team, ['A', 'B']) && oneOf(a.slot, slots)
     && integer(a.playerId, 1) && integer(a.entryOrder, 0, 1)
-  if (!Array.isArray(value.quarters) || value.quarters.length !== 4 || !value.quarters.every(q => object(q)
-    && integer(q.number, 1, 4) && Array.isArray(q.lineup) && q.lineup.length <= 44
-    && q.lineup.every(a => validEntry(a) && object(a) && integer(a.goals, 0, 99) && integer(a.assists, 0, 99)))) return false
-  if (new Set(value.quarters.map(q => q.number)).size !== 4) return false
-  return Array.isArray(value.plannedLineup) && value.plannedLineup.length <= 176
-    && value.plannedLineup.every(a => validEntry(a) && object(a) && integer(a.quarterNumber, 1, 4))
+  const periodCount = quarterNumbers(value.matchFormat as MatchFormat | null | undefined).length
+  if (!Array.isArray(value.quarters) || value.quarters.length !== periodCount || !value.quarters.every(q => object(q)
+    && integer(q.number, 1, periodCount) && Array.isArray(q.lineup) && q.lineup.length <= 44
+    && q.lineup.every(a => validEntry(a) && object(a) && integer(a.goals, 0, 99) && integer(a.assists, 0, 99)
+      && [a.freeKickGoals, a.penaltyGoals].every(n => n == null || integer(n, 0, 99))))) return false
+  if (new Set(value.quarters.map(q => q.number)).size !== periodCount) return false
+  return Array.isArray(value.plannedLineup) && value.plannedLineup.length <= periodCount * 44
+    && value.plannedLineup.every(a => validEntry(a) && object(a) && integer(a.quarterNumber, 1, periodCount))
 }
 function validSnapshot(value: unknown, owner: DraftOwner, now: number): value is RecoverySnapshot {
   if (!object(value) || value.schema !== 1 || !validOwner(value.owner) || !sameOwner(value.owner, owner)
@@ -65,14 +77,23 @@ function validSnapshot(value: unknown, owner: DraftOwner, now: number): value is
 
 function cleanDraft(draft: MatchDraft): MatchDraft {
   return { kind: draft.kind, playedOn: draft.playedOn, kickoff: draft.kickoff, venue: draft.venue,
+    ...(draft.matchFormat === undefined ? {} : { matchFormat: draft.matchFormat }),
     opponent: draft.opponent, notes: draft.notes, scoreFor: draft.scoreFor, scoreAgainst: draft.scoreAgainst,
     ...(draft.recordingStage === undefined ? {} : { recordingStage: draft.recordingStage }),
     ...(draft.formationA === undefined ? {} : { formationA: draft.formationA }),
     ...(draft.formationB === undefined ? {} : { formationB: draft.formationB }),
+    ...(draft.tournamentId === undefined ? {} : { tournamentId: draft.tournamentId }),
+    ...(draft.tournamentName === undefined ? {} : { tournamentName: draft.tournamentName }),
+    ...(draft.tournamentStage === undefined ? {} : { tournamentStage: draft.tournamentStage }),
+    ...(draft.tournamentSelectionSpecified === undefined ? {} : { tournamentSelectionSpecified: draft.tournamentSelectionSpecified }),
     participants: draft.participants.map(p => ({ playerId: p.playerId, name: p.name, shirtNumber: p.shirtNumber,
-      birthYear: p.birthYear, playerType: p.playerType, vote: p.vote, attendance: p.attendance })),
+      birthYear: p.birthYear, playerType: p.playerType, vote: p.vote, attendance: p.attendance,
+      ...(p.plannedTeam === undefined ? {} : { plannedTeam: p.plannedTeam }) })),
     quarters: draft.quarters.map(q => ({ number: q.number, lineup: q.lineup.map(a => ({ team: a.team, slot: a.slot,
-      playerId: a.playerId, entryOrder: a.entryOrder, goals: a.goals, assists: a.assists })) })),
+      playerId: a.playerId, entryOrder: a.entryOrder, goals: a.goals, assists: a.assists,
+      ...(a.freeKickGoals === undefined ? {} : { freeKickGoals: a.freeKickGoals }),
+      ...(a.penaltyGoals === undefined ? {} : { penaltyGoals: a.penaltyGoals }),
+    })) })),
     plannedLineup: draft.plannedLineup.map(a => ({ team: a.team, slot: a.slot, quarterNumber: a.quarterNumber,
       entryOrder: a.entryOrder, playerId: a.playerId })),
   }

@@ -1,0 +1,20 @@
+.match-category-badge { display: inline-flex; align-items: center; gap: 6px; width: fit-content; flex-shrink: 0; padding: 6px 11px; border: 1px solid; border-radius: 8px; font-size: 13px; font-weight: 750; line-height: 1.4; white-space: nowrap; }
+.match-category-badge.is-league { color: #245594; background: #edf4ff; border-color: #bfd3ed; }
+.match-category-badge.is-tournament { color: #80500d; background: #fff3d6; border-color: #e6c47b; }
+.match-category-badge.is-internal { color: #576273; background: #f0f2f5; border-color: #d4dae2; }
+.match-list .match-list-item[data-category] { border-radius: 14px; border-inline-start: 4px solid #b8c2cf; }
+.match-list .match-list-item[data-category="league"] { border-inline-start-color: #6a97ca; }
+.match-list .match-list-item[data-category="tournament"] { border-inline-start-color: #cd9b35; }
+.match-card .match-date { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; }
+.match-card .match-date small { margin-top: 0; }
+.match-card .match-tournament-title { display: block; margin: 9px 0 0; padding: 7px 10px; border-radius: 8px; background: #fff7e5; color: #80500d; font-size: 13px; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+.match-category-context { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin: 14px 0 18px; }
+.match-category-context > span:last-child:not(.match-category-badge) { color: var(--muted); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+.match-category-context[data-category="tournament"] > span:last-child { color: #80500d; font-weight: 700; }
+.player-season-match .match-category-badge { margin-top: 12px; }
+@media (max-width: 700px) {
+  .match-card .match-date { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 6px 10px; }
+  .match-card .match-date small { margin-left: auto; }
+  .match-category-context { align-items: flex-start; }
+  .match-category-context > span:last-child:not(.match-category-badge) { flex: 1; min-width: 0; padding-top: 4px; }
+}

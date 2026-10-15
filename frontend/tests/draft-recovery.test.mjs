@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { clearAccountRecoveries, clearMatchRecovery, loadMatchRecovery, RECOVERY_TTL_MS, saveMatchRecovery } from '../src/features/matches/draftRecovery.ts'
+import { toMatchPayload } from '../src/features/matches/matchPayload.ts'
 
 function store() {
   const values = new Map()
@@ -13,6 +14,96 @@ const player = { playerId: 1, name: '가상 선수', shirtNumber: 1, birthYear: 
 const draft = () => ({ kind: 'EXTERNAL', playedOn: '2026-10-15', kickoff: null, venue: '', opponent: '', notes: '작성 중', scoreFor: null, scoreAgainst: null,
   formationA: 'F352', formationB: 'F4123', participants: [{...player}], quarters: [1,2,3,4].map(number=>({number,lineup:[]})), plannedLineup: [] })
 const snapshot = () => ({schema:1, owner:{...owner}, savedAt:now, record:null, draft:draft(), kickoffHour:'11', kickoffMinute:'', step:2, quarter:4, team:'A', pending:null})
+
+test('two-half recovery preserves format and only two periods while an old frozen request remains unchanged', () => {
+  const s=store(), value=snapshot()
+  value.draft={...value.draft,matchFormat:'TWO_HALVES_30',quarters:value.draft.quarters.slice(0,2)}
+  value.quarter=2
+  value.pending={key:'00000000-0000-4000-8000-000000000001',draft:draft(),record:null,destination:'save'}
+  const oldBody=JSON.stringify(toMatchPayload(value.pending.draft,null))
+  assert.equal(saveMatchRecovery(value,s,now),true)
+  const restored=loadMatchRecovery(owner,s,now)
+  assert.equal(restored.draft.matchFormat,'TWO_HALVES_30')
+  assert.deepEqual(restored.draft.quarters.map(q=>q.number),[1,2])
+  assert.equal(JSON.stringify(toMatchPayload(restored.pending.draft,null)),oldBody)
+  assert.equal('matchFormat' in restored.pending.draft,false)
+  for(const patch of [{matchFormat:'INVALID'},{matchFormat:'TWO_HALVES_30',kind:'INTERNAL'},{matchFormat:'TWO_HALVES_30',quarters:draft().quarters}]){
+    assert.equal(saveMatchRecovery({...value,draft:{...value.draft,...patch}},store(),now),false)
+  }
+})
+
+test('planned teams survive recovery and frozen legacy retry payloads remain byte-identical', () => {
+  for (const fields of [{}, { plannedTeam: null }, { plannedTeam: 'A' }, { plannedTeam: 'B' }]) {
+    const s=store(), value=snapshot()
+    Object.assign(value.draft.participants[0],fields)
+    value.pending={key:'00000000-0000-4000-8000-000000000001',draft:structuredClone(value.draft),record:null,destination:'save'}
+    const payload=JSON.stringify(toMatchPayload(value.pending.draft,null))
+    assert.equal(saveMatchRecovery(value,s,now),true)
+    const restored=loadMatchRecovery(owner,s,now)
+    assert.equal(JSON.stringify(toMatchPayload(restored.pending.draft,null)),payload)
+    assert.deepEqual(restored.draft.participants,value.draft.participants)
+    const sent=toMatchPayload(restored.draft,null).participants[0]
+    assert.equal('plannedTeamSpecified' in sent,'plannedTeam' in fields)
+    if ('plannedTeam' in fields) assert.equal(sent.plannedTeamSpecified,true)
+  }
+  for (const invalid of ['C', 1, {}, false]) {
+    const value=snapshot(); value.draft.participants[0].plannedTeam=invalid
+    assert.equal(saveMatchRecovery(value,store(),now),false)
+  }
+})
+
+test('goal breakdown survives recovery and frozen retries without manufacturing new zero fields', () => {
+  for (const fields of [{}, { freeKickGoals: null, penaltyGoals: null }, { freeKickGoals: 0, penaltyGoals: 0 }, { freeKickGoals: 1, penaltyGoals: 1 }]) {
+    const s=store(), value=snapshot()
+    value.draft.quarters[0].lineup=[{team:'A',slot:'ST',entryOrder:0,playerId:1,goals:3,assists:0,...fields}]
+    value.record={...structuredClone(value.draft),id:1,version:2}
+    value.pending={key:'00000000-0000-4000-8000-000000000001',draft:structuredClone(value.draft),record:structuredClone(value.record),destination:'save'}
+    const body=JSON.stringify(toMatchPayload(value.pending.draft,value.record))
+    assert.equal(saveMatchRecovery(value,s,now),true)
+    const restored=loadMatchRecovery(owner,s,now)
+    assert.deepEqual(restored.draft.quarters,value.draft.quarters)
+    assert.deepEqual(restored.record.quarters,value.record.quarters)
+    assert.deepEqual(toMatchPayload(restored.pending.draft,restored.pending.record).quarters,JSON.parse(body).quarters)
+  }
+})
+
+test('invalid breakdown types cannot corrupt recovery while a sum needing correction stays recoverable', () => {
+  for (const field of ['freeKickGoals','penaltyGoals']) for (const amount of ['1',-1,100,.5,NaN,Infinity]) {
+    const value=snapshot(); value.draft.quarters[0].lineup=[{team:'A',slot:'ST',entryOrder:0,playerId:1,goals:3,assists:0,[field]:amount}]
+    assert.equal(saveMatchRecovery(value,store(),now),false)
+  }
+  const value=snapshot(); value.draft.quarters[0].lineup=[{team:'A',slot:'ST',entryOrder:0,playerId:1,goals:0,assists:0,freeKickGoals:1}]
+  assert.equal(saveMatchRecovery(value,store(),now),true)
+})
+
+test('tournament selection survives recovery without adding new fields to a frozen legacy retry', () => {
+  const s=store(), value=snapshot()
+  value.draft={...value.draft,tournamentId:8,tournamentName:'가상 봄 대회',tournamentStage:'FINAL',tournamentSelectionSpecified:true}
+  value.pending={key:'00000000-0000-4000-8000-000000000001',draft:draft(),record:null,destination:'save'}
+  const body=JSON.stringify(toMatchPayload(value.pending.draft,null))
+  assert.equal(saveMatchRecovery(value,s,now),true)
+  const restored=loadMatchRecovery(owner,s,now)
+  assert.equal(restored.draft.tournamentId,8)
+  assert.equal(restored.draft.tournamentStage,'FINAL')
+  assert.equal(restored.draft.tournamentName,'가상 봄 대회')
+  assert.equal(JSON.stringify(toMatchPayload(restored.pending.draft,null)),body)
+  assert.equal('tournamentSelectionSpecified' in restored.pending.draft,false)
+})
+test('explicit tournament removal survives recovery and includes a clear signal', () => {
+  const s=store(), value=snapshot()
+  value.draft={...value.draft,tournamentId:null,tournamentStage:null,tournamentSelectionSpecified:true}
+  assert.equal(saveMatchRecovery(value,s,now),true)
+  const payload=toMatchPayload(loadMatchRecovery(owner,s,now).draft,null)
+  assert.equal(payload.tournamentSelectionSpecified,true)
+  assert.equal(payload.tournamentId,null); assert.equal(payload.tournamentStage,null)
+  assert.equal('tournamentName' in payload,false)
+})
+test('malformed tournament fields cannot restore an invalid draft', () => {
+  for(const patch of [{tournamentId:-1},{tournamentId:'8'},{tournamentStage:'INVALID'},{tournamentName:'x'.repeat(121)},{tournamentSelectionSpecified:'true'}]) {
+    const value=snapshot();Object.assign(value.draft,patch)
+    assert.equal(saveMatchRecovery(value,store(),now),false)
+  }
+})
 
 test('refresh recovery preserves partial time, position in editor, and unsaved data without changing the input', () => {
   const s=store(), input=snapshot(), before=structuredClone(input)

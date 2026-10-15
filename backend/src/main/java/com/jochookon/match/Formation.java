@@ -8,8 +8,8 @@ public enum Formation {
     F442(LineupSlot.GK, LineupSlot.LB, LineupSlot.LCB, LineupSlot.RCB, LineupSlot.RB, LineupSlot.LM, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.RM, LineupSlot.LST, LineupSlot.RST),
     F4231(LineupSlot.GK, LineupSlot.LB, LineupSlot.LCB, LineupSlot.RCB, LineupSlot.RB, LineupSlot.LCDM, LineupSlot.RCDM, LineupSlot.LM, LineupSlot.CAM, LineupSlot.RM, LineupSlot.ST),
     F4141(LineupSlot.GK, LineupSlot.LB, LineupSlot.LCB, LineupSlot.RCB, LineupSlot.RB, LineupSlot.CDM, LineupSlot.LM, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.RM, LineupSlot.ST),
-    F352(LineupSlot.GK, LineupSlot.LCB, LineupSlot.CCB, LineupSlot.RCB, LineupSlot.LWB, LineupSlot.RWB, LineupSlot.CDM, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.LST, LineupSlot.RST),
-    F343(LineupSlot.GK, LineupSlot.LCB, LineupSlot.CCB, LineupSlot.RCB, LineupSlot.LWB, LineupSlot.RWB, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.LW, LineupSlot.ST, LineupSlot.RW);
+    F352(LineupSlot.GK, LineupSlot.LCB, LineupSlot.CCB, LineupSlot.RCB, LineupSlot.LWB, LineupSlot.RWB, LineupSlot.CAM, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.LST, LineupSlot.RST),
+    F343(LineupSlot.GK, LineupSlot.LCB, LineupSlot.CCB, LineupSlot.RCB, LineupSlot.LM, LineupSlot.RM, LineupSlot.LCM, LineupSlot.RCM, LineupSlot.LW, LineupSlot.ST, LineupSlot.RW);
 
     private final List<LineupSlot> slots;
     Formation(LineupSlot... slots) { this.slots = List.of(slots); }

@@ -1,0 +1,42 @@
+.internal-team-assignment { margin-block: 1.25rem; padding: 1rem; border: 1px solid var(--border, #dbe2d8); border-radius: 14px; background: #f7f9f5; }
+.internal-team-assignment h5 { margin: 0; font-size: 1rem; }
+.internal-team-counts { display: flex; flex-wrap: wrap; gap: .35rem .75rem; font-size: .8rem; }
+.internal-team-counts span { white-space: nowrap; }
+.internal-team-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: 1rem; }
+.internal-team-tab { display: flex; justify-content: center; align-items: center; gap: .5rem; min-height: 52px; padding: .65rem; border: 1px solid #cdd8d0; border-radius: 12px; background: #fff; color: var(--ink); font: inherit; cursor: pointer; }
+.internal-team-tab.team-a[aria-pressed="true"] { border-color: #3867a4; background: #e7f0ff; box-shadow: inset 0 0 0 1px #3867a4; }
+.internal-team-tab.team-b[aria-pressed="true"] { border-color: #a35e2c; background: #fff0dd; box-shadow: inset 0 0 0 1px #a35e2c; }
+.internal-team-tab span { font-size: .82rem; }
+.internal-team-selection-hint { margin: .65rem 0; font-size: .85rem; }
+.internal-team-tools { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem 1rem; margin: 1rem 0; }
+.internal-team-tools > label:first-child { display: grid; flex: 1; min-width: 130px; gap: .35rem; font-size: .8rem; }
+.internal-team-tools input:not([type="checkbox"]) { box-sizing: border-box; width: 100%; min-height: 44px; border: 1px solid var(--line); border-radius: 10px; padding: .65rem; font: inherit; background: #fff; }
+.internal-team-tools .inline-check { min-height: 44px; font-size: .8rem; }
+.internal-team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .55rem; max-height: 420px; overflow: auto; padding: 3px; }
+.internal-team-card { display: flex; flex-direction: column; min-width: 0; border: 1px solid #d4dcd1; border-top: 3px solid #9ba69a; border-radius: 10px; background: #fff; }
+.internal-team-card.team-a { border-color: #bfd0e8; border-top-color: #4776b5; background: #f1f6fe; }
+.internal-team-card.team-b { border-color: #e5c4ac; border-top-color: #ac6939; background: #fff6ec; }
+.internal-team-card.is-selected { box-shadow: inset 0 0 0 1px #57816a; }
+.internal-team-choice { position: relative; display: flex; flex: 1; flex-direction: column; gap: .25rem; min-width: 0; min-height: 90px; padding: .6rem; cursor: pointer; }
+.internal-team-choice:has(input:disabled) { cursor: default; }
+.internal-team-choice:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.internal-team-choice > input { position: absolute; right: .5rem; top: .5rem; width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.internal-team-card strong { display: flex; flex-direction: column; gap: .25rem; min-width: 0; font-size: .88rem; }
+.internal-team-card strong small { padding-right: 20px; color: #526358; font-size: .7rem; font-weight: 500; }
+.internal-team-card strong > span { overflow-wrap: anywhere; line-height: 1.4; }
+.internal-team-preferences { font-size: .7rem; color: #526358; overflow-wrap: anywhere; }
+.internal-team-membership { margin-top: auto; padding-top: .2rem; font-size: .7rem; color: #445b4c; font-weight: 700; }
+.internal-team-existing { color: #657269; font-size: .65rem; }
+.internal-team-move { min-height: 44px; width: 100%; padding: .3rem; border: 0; border-top: 1px solid #d5dcd3; border-radius: 0 0 9px 9px; background: #fff; color: #304f3d; font: inherit; font-size: .72rem; cursor: pointer; }
+.internal-team-move:disabled { color: #7c867e; cursor: default; }
+@media (max-width: 600px) {
+  .internal-team-assignment { padding: .6rem; }
+  .internal-team-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .35rem; }
+  .internal-team-choice { padding: .35rem .25rem; min-height: 100px; }
+  .internal-team-choice > input { right: .25rem; top: .35rem; width: 16px; height: 16px; }
+  .internal-team-card strong { font-size: .75rem; gap: .3rem; }
+  .internal-team-card strong small { font-size: .65rem; padding-right: 17px; min-height: 16px; }
+  .internal-team-preferences { font-size: .6rem; }
+  .internal-team-membership, .internal-team-move { font-size: .65rem; }
+  .internal-team-tools input:not([type="checkbox"]) { font-size: 16px; }
+}

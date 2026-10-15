@@ -1,6 +1,9 @@
 import type { MatchRecord, Participant, Slot } from './api'
 import { recordingStageLabel } from './recordingProgress.ts'
 import { formationLabel } from './formations.ts'
+import { tournamentStageLabels } from './tournamentFields.ts'
+import { goalBreakdownText } from './goalBreakdown.ts'
+import { matchFormatLabel, quarterLabel } from './matchFormat.ts'
 
 export interface HistoryChange { label: string; before: string; after: string }
 const votes: Record<string, string> = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' }
@@ -9,13 +12,20 @@ const slotNames: Record<Slot, string> = { GK: 'GK', LB: 'LB', LCB: 'CB 좌', RCB
 const playerName = (p?: Participant) => p ? `${p.playerType === 'GUEST' ? '용병 · ' : ''}${p.shirtNumber === null ? '등번호 없음' : `#${p.shirtNumber}`} ${p.name}` : '선수 정보 없음'
 export function matchHistoryChanges(before: MatchRecord | null, after: MatchRecord | null): HistoryChange[] {
   const changes: HistoryChange[] = []
-  function add(label: string, oldValue: unknown, newValue: unknown) {
+  function add(label: string, oldValue: unknown, newValue: unknown, identityChanged = false) {
     const oldText = oldValue === null || oldValue === undefined || oldValue === '' ? '—' : String(oldValue)
     const newText = newValue === null || newValue === undefined || newValue === '' ? '—' : String(newValue)
-    if (oldText !== newText) changes.push({ label, before: oldText, after: newText })
+    if (oldText !== newText || identityChanged) changes.push({ label, before: oldText, after: newText })
   }
   const kind = (m: MatchRecord | null) => m ? m.kind === 'INTERNAL' ? '자체전' : '외부 경기' : null
   add('경기 유형', kind(before), kind(after)); add('경기 날짜', before?.playedOn, after?.playedOn)
+  add('경기 형식', before ? matchFormatLabel(before.matchFormat) : null, after ? matchFormatLabel(after.matchFormat) : null)
+  if ((before?.tournamentId ?? null) !== (after?.tournamentId ?? null)) {
+    const tournamentName = (match: MatchRecord | null) => match?.tournamentId == null ? null : match.tournamentName || '이름 미확인 대회'
+    const oldName = tournamentName(before), newName = tournamentName(after)
+    add(oldName === newName ? '대회 연결 · 다른 대회로 변경' : '대회 연결', oldName, newName, true)
+  }
+  add('대회 단계', before?.tournamentStage ? tournamentStageLabels[before.tournamentStage] : null, after?.tournamentStage ? tournamentStageLabels[after.tournamentStage] : null)
   add('포메이션 · A팀', before ? formationLabel(before.formationA) : null, after ? formationLabel(after.formationA) : null)
   if (before?.kind === 'INTERNAL' || after?.kind === 'INTERNAL') add('포메이션 · B팀', before ? formationLabel(before.formationB) : null, after ? formationLabel(after.formationB) : null)
   add('시작 시간', before?.kickoff?.slice(0, 5), after?.kickoff?.slice(0, 5))
@@ -28,14 +38,17 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
   const status = (p?: Participant) => p ? `${votes[p.vote]} · 실제 ${attendance[p.attendance]}` : null
   for (const id of new Set([...oldPlayers.keys(), ...newPlayers.keys()])) {
     add(`투표·출석 · ${playerName(newPlayers.get(id) ?? oldPlayers.get(id))}`, status(oldPlayers.get(id)), status(newPlayers.get(id)))
+    const plannedTeam = (p?: Participant) => p ? p.plannedTeam ? `${p.plannedTeam}팀` : '미배정' : null
+    if ((before?.kind === 'INTERNAL' || after?.kind === 'INTERNAL') && (oldPlayers.get(id)?.plannedTeam != null || newPlayers.get(id)?.plannedTeam != null))
+      add(`사전 팀 배정 · ${playerName(newPlayers.get(id) ?? oldPlayers.get(id))}`, plannedTeam(oldPlayers.get(id)), plannedTeam(newPlayers.get(id)))
   }
   function lineup(m: MatchRecord | null, planned: boolean) {
     const people = new Map((m?.participants ?? []).map(p => [p.playerId, p]))
-    const entries = planned ? (m?.plannedLineup ?? []).map(a => ({ ...a, goals: 0, assists: 0 }))
+    const entries = planned ? (m?.plannedLineup ?? []).map(a => ({ ...a, goals: 0, assists: 0, freeKickGoals: 0, penaltyGoals: 0 }))
       : (m?.quarters ?? []).flatMap(q => q.lineup.map(a => ({ ...a, quarterNumber: q.number })))
     return new Map(entries.map(a => {
-      const key = `${a.quarterNumber}쿼터 ${a.team}팀 ${slotNames[a.slot]} ${a.entryOrder === 1 ? '교체' : '선발'}`
-      return [key, { identity: `${a.playerId}:${planned ? '' : `${a.goals}:${a.assists}`}`, value: `${playerName(people.get(a.playerId))}${planned ? '' : ` · ${a.goals}골 ${a.assists}도움`}` }]
+      const key = `${quarterLabel(a.quarterNumber, m?.matchFormat)} ${a.team}팀 ${slotNames[a.slot]} ${a.entryOrder === 1 ? '교체' : '선발'}`
+      return [key, { identity: `${a.playerId}:${planned ? '' : `${a.goals}:${a.assists}:${a.freeKickGoals ?? 0}:${a.penaltyGoals ?? 0}`}`, value: `${playerName(people.get(a.playerId))}${planned ? '' : ` · ${a.goals}골 ${a.assists}도움 (${goalBreakdownText(a)})`}` }]
     }))
   }
   for (const planned of [true, false]) {

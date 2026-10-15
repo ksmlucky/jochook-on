@@ -27,9 +27,31 @@ final class MatchSaveFingerprint {
                         .sorted(Comparator.comparingInt(MatchRequest.Quarter::number)).toList(),
                 request.plannedLineup().stream().sorted(plans).toList(), request.scoreFor(), request.scoreAgainst(),
                 request.kind(), request.recordingStage(), request.formationA(), request.formationB());
+        // Keep the exact V23 serialization for omitted tournament selection so old receipts replay.
+        var body = (tools.jackson.databind.node.ObjectNode) json.valueToTree(normalized);
+        for (var participant : body.get("participants")) {
+            var entry = (tools.jackson.databind.node.ObjectNode) participant;
+            boolean specified = entry.get("plannedTeamSpecified").asBoolean(false) || !entry.get("plannedTeam").isNull();
+            entry.remove("plannedTeamSpecified");
+            if (!specified) entry.remove("plannedTeam");
+            else entry.put("plannedTeamSpecified", true);
+        }
+        for (var quarter : body.get("quarters")) for (var appearance : quarter.get("lineup")) {
+            var entry = (tools.jackson.databind.node.ObjectNode) appearance;
+            if (entry.get("freeKickGoals").isNull()) entry.remove("freeKickGoals");
+            if (entry.get("penaltyGoals").isNull()) entry.remove("penaltyGoals");
+        }
+        body.remove("tournamentId"); body.remove("tournamentStage"); body.remove("tournamentSelectionSpecified");
+        body.remove("matchFormat");
+        if (request.changesTournament()) {
+            body.set("tournamentId", json.valueToTree(request.tournamentId()));
+            body.set("tournamentStage", json.valueToTree(request.tournamentStage()));
+            body.put("tournamentSelectionSpecified", true);
+        }
+        if (request.matchFormat() != null) body.set("matchFormat", json.valueToTree(request.matchFormat()));
         try {
             return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256")
-                    .digest(json.writeValueAsString(normalized).getBytes(StandardCharsets.UTF_8)));
+                    .digest(json.writeValueAsString(body).getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException impossible) { throw new IllegalStateException(impossible); }
     }
 }

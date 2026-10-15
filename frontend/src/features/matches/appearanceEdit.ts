@@ -1,4 +1,5 @@
 import type { Appearance, MatchTeam, Participant, Quarter, Slot } from './api'
+import { goalBreakdownError, preserveGoalBreakdown } from './goalBreakdown.ts'
 
 /** Change one actual lineup entry without changing attendance, other teams, or the source draft. */
 export function editActualAppearance(
@@ -48,7 +49,12 @@ export function editActualAppearance(
     throw new Error('득점·도움은 0~99 정수로 입력해 주세요.')
   }
   // Identity and location come from the arguments; a patch can only choose a player and stats.
-  const next: Appearance = { team, slot, entryOrder: order, playerId, goals, assists }
+  const next: Appearance = preserveGoalBreakdown({ team, slot, entryOrder: order, playerId, goals, assists,
+    ...(patch.freeKickGoals === undefined ? {} : { freeKickGoals: patch.freeKickGoals }),
+    ...(patch.penaltyGoals === undefined ? {} : { penaltyGoals: patch.penaltyGoals }),
+  }, previous)
+  const breakdownError = goalBreakdownError(next)
+  if (breakdownError) throw new Error(breakdownError)
   return quarters.map(item => item === quarter ? { ...item, lineup: [...item.lineup.filter(entry => !atPlace(entry)), next] } : item)
 }
 

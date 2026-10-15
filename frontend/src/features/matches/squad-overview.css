@@ -30,20 +30,7 @@ body:has(.squad-overview-dialog[open]) { overflow: hidden; }
   background: repeating-linear-gradient(180deg, #eef5e8 0%, #eef5e8 12.5%, #e5efdf 12.5%, #e5efdf 25%);
 }
 .squad-overview-pitch .pitch-markings { inset: 6px; }
-/* A full-width overview can fit the five midfielders in one line. */
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] { grid-template-columns: repeat(20, minmax(0, 1fr)); }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LST"] { grid-column: 5 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RST"] { grid-column: 13 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="LWB"], [data-position="LCM"], [data-position="CDM"], [data-position="RCM"], [data-position="RWB"]) { grid-row: 8 / span 3; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LWB"] { grid-column: 1 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCM"] { grid-column: 5 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CDM"] { grid-column: 9 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCM"] { grid-column: 13 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RWB"] { grid-column: 17 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCB"] { grid-column: 3 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CCB"] { grid-column: 9 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCB"] { grid-column: 15 / span 4; }
-.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="GK"] { grid-column: 9 / span 4; }
+/* The overview shares the same staggered 3-5-2 shape as both editing boards at every width. */
 .squad-overview-pitch .squad-overview-card {
   position: relative; z-index: 1; align-self: start; justify-self: center; width: 100%; max-width: 112px; min-width: 0;
   min-height: 44px; padding: 5px 3px; text-align: center; border: 1px solid var(--position-border); border-radius: 9px;
@@ -94,14 +81,4 @@ body:has(.squad-overview-dialog[open]) { overflow: hidden; }
 @media (max-width: 700px) {
   .squad-overview-trigger { width: 100%; justify-content: center; min-height: 44px; }
   .squad-overview-dialog { border-radius: 0; }
-}
-@media (max-width: 369px) {
-  /* Keep CDM behind the advanced CM; only coordinates change, never recorded slots. */
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="LWB"], [data-position="LCM"], [data-position="RWB"]) { grid-row: 6 / span 3; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="CDM"], [data-position="RCM"]) { grid-row: 10 / span 3; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LWB"] { grid-column: 1 / span 6; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCM"] { grid-column: 8 / span 6; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RWB"] { grid-column: 15 / span 6; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CDM"] { grid-column: 4 / span 6; }
-  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCM"] { grid-column: 12 / span 6; }
 }

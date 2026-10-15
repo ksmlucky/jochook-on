@@ -44,6 +44,16 @@ class LineupSuggestionControllerTest extends com.jochookon.team.TeamMvcTestSuppo
                         .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"formation\":\"F999\"}"))
                 .andExpect(status().isBadRequest());
     }
+    @Test void twoHalfFormatFlowsIntoTheWholeSuggestionRequestAndResponse() throws Exception {
+        given(service.suggest(any())).willReturn(new LineupSuggestion("test", 0, List.of(), List.of(), List.of(), true, Formation.F352, MatchFormat.TWO_HALVES_30));
+        mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"formation\":\"F352\",\"matchFormat\":\"TWO_HALVES_30\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.matchFormat").value("TWO_HALVES_30"));
+        org.mockito.Mockito.verify(service).suggest(org.mockito.ArgumentMatchers.argThat(r -> r.matchFormat() == MatchFormat.TWO_HALVES_30));
+        mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"matchFormat\":\"INVALID\"}"))
+                .andExpect(status().isBadRequest());
+    }
     @ParameterizedTest @EnumSource(value = Formation.class, names = {"F352", "F343"})
     void acceptsThreeBackFormationAndReturnsItsIdentity(Formation formation) throws Exception {
         given(service.suggest(any())).willReturn(new LineupSuggestion("test", 0, List.of(), List.of(), List.of(), true, formation));

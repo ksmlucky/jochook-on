@@ -18,11 +18,17 @@ public class MatchRecord {
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "match_kind", nullable = false, length = 16) private MatchKind kind;
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Column(name = "match_format", nullable = false, length = 20) private MatchFormat matchFormat;
+    @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "recording_stage", length = 16) private RecordingStage recordingStage;
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "formation_a", nullable = false, length = 8) private Formation formationA;
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "formation_b", nullable = false, length = 8) private Formation formationB;
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "tournament_id")
+    private com.jochookon.tournament.Tournament tournament;
+    @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Column(name = "tournament_stage", length = 20) private TournamentStage tournamentStage;
     @Column(nullable = false, length = 100) private String venue;
     @Column(nullable = false, length = 100) private String opponent;
     @Column(nullable = false, length = 3000) private String notes;
@@ -41,10 +47,15 @@ public class MatchRecord {
         match.replace(request); return match;
     }
     void replace(MatchRequest request) {
-        request = request.resolveFormations(formationA, formationB);
+        request = request.resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants);
         validateRules(request);
+        if (getMatchFormat() == MatchFormat.FOUR_QUARTERS && request.matchFormat() == MatchFormat.TWO_HALVES_30
+                && (appearances.stream().anyMatch(a -> a.getQuarterNumber() > 2)
+                    || plannedLineup.stream().anyMatch(a -> a.response().quarterNumber() > 2)))
+            throw new IllegalArgumentException("저장된 3·4쿼터 계획 또는 실제 기록이 있습니다. 기존 기록을 확인하고 별도로 정리·저장한 뒤 경기 형식을 바꿔 주세요.");
         if (id != null && kind != request.kind()) throw new IllegalArgumentException("저장한 경기의 유형은 변경할 수 없습니다. 별도 경기로 등록해 주세요.");
         kind = request.kind();
+        matchFormat = request.matchFormat();
         formationA = request.formationA(); formationB = request.formationB();
         // Older clients omit this field: preserve the saved checkpoint, including legacy NULL.
         if (request.recordingStage() != null) recordingStage = request.recordingStage();
@@ -60,6 +71,15 @@ public class MatchRecord {
         });
     }
     static void validateRules(MatchRequest request) {
+        var format = MatchFormat.orDefault(request.matchFormat());
+        if (request.kind() == MatchKind.INTERNAL && format != MatchFormat.FOUR_QUARTERS)
+            throw new IllegalArgumentException("자체전은 4쿼터 형식으로 기록합니다.");
+        if (request.changesTournament()) {
+            if (request.tournamentId() == null && request.tournamentStage() != null)
+                throw new IllegalArgumentException("경기 단계를 지정하려면 대회를 선택해 주세요.");
+            if (request.tournamentId() != null && (request.tournamentId() < 1 || request.kind() != MatchKind.EXTERNAL))
+                throw new IllegalArgumentException("대회는 외부 경기에만 연결할 수 있습니다.");
+        }
         if (request.kind() == MatchKind.EXTERNAL && request.formation(MatchTeam.B) != Formation.F4123)
             throw new IllegalArgumentException("외부 경기에는 상대 팀 포메이션을 지정하지 않습니다.");
         if (request.kind() == MatchKind.INTERNAL && !request.opponent().isBlank()) throw new IllegalArgumentException("자체전은 상대 팀 이름 대신 A팀·B팀으로 기록합니다.");
@@ -74,12 +94,18 @@ public class MatchRecord {
         Map<Long, Attendance> attendees = new HashMap<>();
         for (var p : request.participants()) {
             if (attendees.put(p.playerId(), p.attendance()) != null) throw new IllegalArgumentException("같은 선수를 참가 명단에 두 번 넣을 수 없습니다.");
+            if (request.kind() == MatchKind.EXTERNAL && p.plannedTeam() != null)
+                throw new IllegalArgumentException("A·B팀 사전 배정은 자체전에서만 사용할 수 있습니다.");
         }
         Set<Integer> quarters = new HashSet<>();
         for (var q : request.quarters()) {
             if (!quarters.add(q.number())) throw new IllegalArgumentException("쿼터 번호가 중복됩니다.");
             Map<String, Set<Integer>> slots = new HashMap<>(); Set<Long> players = new HashSet<>();
             for (var a : q.lineup()) {
+                int fk = a.freeKickGoals() == null ? 0 : a.freeKickGoals();
+                int pk = a.penaltyGoals() == null ? 0 : a.penaltyGoals();
+                if (fk < 0 || fk > 99 || pk < 0 || pk > 99 || fk + pk > a.goals())
+                    throw new IllegalArgumentException(q.number() + "쿼터: FK·PK 득점은 각각 0~99이며 합계가 총득점을 넘을 수 없습니다. 기존 세부 득점도 확인해 주세요.");
                 validateTeam(request.kind(), a.team());
                 request.formation(a.team()).requireSlot(a.slot());
                 if (a.entryOrder() < 0 || a.entryOrder() > 1) throw new IllegalArgumentException("출전 구분은 선발 또는 교체여야 합니다.");
@@ -94,21 +120,26 @@ public class MatchRecord {
                 if (assists > goals) throw new IllegalArgumentException(q.number() + "쿼터 " + team + "팀의 도움 합계는 해당 팀 득점 합계를 넘을 수 없습니다.");
             }
         }
-        if (!quarters.equals(Set.of(1, 2, 3, 4))) throw new IllegalArgumentException("1~4쿼터를 한 번씩 입력해 주세요.");
+        if (!quarters.equals(format.periodNumbers())) throw new IllegalArgumentException(format == MatchFormat.TWO_HALVES_30
+                ? "전반(1쿼터)·후반(2쿼터)을 한 번씩 입력해 주세요." : "1~4쿼터를 한 번씩 입력해 주세요.");
         validatePlan(request);
     }
     private static void validatePlan(MatchRequest request) {
         Set<Long> voters = new HashSet<>();
+        Map<Long, MatchTeam> assignedTeams = new HashMap<>();
+        request.participants().forEach(p -> assignedTeams.put(p.playerId(), p.plannedTeam()));
         request.participants().stream().filter(p -> p.vote() == Vote.ATTENDING).forEach(p -> voters.add(p.playerId()));
         Set<String> places = new HashSet<>(); Set<String> people = new HashSet<>();
         for (var a : request.plannedLineup()) {
             validateTeam(request.kind(), a.team());
             request.formation(a.team()).requireSlot(a.slot());
-            if (a.quarterNumber() < 1 || a.quarterNumber() > 4 || a.entryOrder() < 0 || a.entryOrder() > 1 || a.slot() == null)
+            if (!MatchFormat.orDefault(request.matchFormat()).periodNumbers().contains(a.quarterNumber()) || a.entryOrder() < 0 || a.entryOrder() > 1 || a.slot() == null)
                 throw new IllegalArgumentException("계획 스쿼드의 쿼터·자리·선발/교체를 확인해 주세요.");
             if (!voters.contains(a.playerId())) throw new IllegalArgumentException("계획 스쿼드에는 참석 예정으로 투표한 선수만 배치할 수 있습니다.");
             if (!places.add(a.quarterNumber() + ":" + a.team() + ":" + a.slot() + ":" + a.entryOrder())) throw new IllegalArgumentException("계획 스쿼드의 같은 자리에 선수를 중복 배치할 수 없습니다.");
             if (!people.add(a.quarterNumber() + ":" + a.playerId())) throw new IllegalArgumentException("계획 스쿼드의 같은 쿼터에 선수를 중복 배치할 수 없습니다.");
+            if (request.kind() == MatchKind.INTERNAL && assignedTeams.get(a.playerId()) != a.team())
+                throw new IllegalArgumentException("자체전 계획 스쿼드는 01단계에서 배정한 A·B팀 안에서만 편성할 수 있습니다. 미배정 선수의 팀을 먼저 정해 주세요.");
         }
         for (var a : request.plannedLineup()) if (a.entryOrder() == 1 && !places.contains(a.quarterNumber() + ":" + a.team() + ":" + a.slot() + ":0"))
             throw new IllegalArgumentException("계획 스쿼드의 교체 선수를 넣으려면 같은 자리의 선발이 필요합니다.");
@@ -117,8 +148,18 @@ public class MatchRecord {
         if (kind == MatchKind.EXTERNAL && team != MatchTeam.A) throw new IllegalArgumentException("외부 경기는 우리 팀(A)만 배치할 수 있습니다.");
     }
     public Formation getFormationA() { return Formation.orDefault(formationA); }
+    public Long getTournamentId() { return tournament == null ? null : tournament.getId(); }
+    public String getTournamentName() { return tournament == null ? null : tournament.getName(); }
+    public TournamentStage getTournamentStage() { return tournamentStage; }
+    void setTournament(com.jochookon.tournament.Tournament selected, TournamentStage stage) {
+        if (selected != null && (!Objects.equals(teamId, selected.getTeamId()) || kind != MatchKind.EXTERNAL))
+            throw new IllegalArgumentException("현재 팀의 외부 경기만 대회에 연결할 수 있습니다.");
+        if (selected == null && stage != null) throw new IllegalArgumentException("대회를 해제하면 경기 단계도 해제해야 합니다.");
+        tournament = selected; tournamentStage = stage;
+    }
     public Formation getFormationB() { return Formation.orDefault(formationB); }
     public MatchKind getKind() { return kind; }
+    public MatchFormat getMatchFormat() { return MatchFormat.orDefault(matchFormat); }
     public RecordingStage getRecordingStage() { return recordingStage; }
     public Long getId() { return id; }
     public Long getTeamId() { return teamId; }

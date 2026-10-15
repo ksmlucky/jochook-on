@@ -3,15 +3,14 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.1",
+    "guideVersion": "1.2",
     "date": "2026-10-15",
-    "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
+    "appCommit": "pending-release",
     "deployment": "Northflank production",
-    "status": "deployed",
+    "status": "pending_deployment",
     "lastVerifiedProductionCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
-    "releaseLabel": "2026.10.15 기능확장판",
-    "previousProductionCommit": "dd67f92",
-    "verifiedAtKst": "2026-10-15 18:56 KST"
+    "releaseLabel": "2026.10.15 대회·기록 확장판",
+    "previousProductionCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -42,10 +41,11 @@
         "member",
         "staff"
       ],
-      "status": "locally_verified_pending_user_review_and_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../tournament-halves.md",
       "diagram": "../diagrams/tournament-halves.svg",
-      "review": "운영진용: 새 대회 두 구간, 기존 4쿼터 보존과 전환 제한, 전반/후반 계획·실제·엑셀·완료 점검, 자체전 A/B 먼저 선택 후 선수 체크·이동·해제. 두 역할: 대회 풀타임2쿼터·교체0.5·시간환산없는합산, 시작+60분 표시(휴식제외), 실제 기록 보존. 운영 가이드1.1 원고/HTML/PDF/앱은 유지하고 기능 배포 준비 때 함께 갱신한다."
+      "review": "가이드 1.2 준비: 운영진용 4·5·7~10쪽에 대회 전후반30분, 기존4쿼터 보존, 자체전01 팀별체크와 이동·해제, 형식별 계획·실제·엑셀·완료 확인을 반영. 두 역할에 대회풀타임2쿼터·교체0.5와 시간환산없는합산·휴식제외시간표시를 반영. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     },
     {
       "feature": "자체전 사전 A/B팀 배정과 3백 배치 변경",
@@ -53,10 +53,11 @@
         "member",
         "staff"
       ],
-      "status": "locally_verified_pending_user_review_and_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../internal-teams-and-three-back.md",
       "diagram": "../diagrams/internal-team-workflow.svg",
-      "review": "회원용: 3-5-2 CAM·윙백 높낮이와 3-4-3 LM/RM 표시. 운영진용: 01 사전 A/B 배정, 02 같은 팀 후보·자동 편성, 배정 변경 시 충돌 계획 해제 확인, 03 실제 기록 보존, 과거 모호한 팀 재배정 설명. 현재 운영 content.json·HTML/PDF·앱 가이드 1.1은 유지하고 다음 기능 배포와 함께 갱신한다."
+      "review": "가이드 1.2 준비: 운영진용 5~8쪽에 01 A/B 체크, 02 같은팀 후보·자동편성, 계획해제 확인·실제기록보존과 352 CAM·윙백/343 LM·RM 구성을 반영. 회원은 팀별 작전판 조회 안내를 확인. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     },
     {
       "feature": "시작 연월~종료 연월 조회, 매칭·자체전 요약과 선수 표 열 제목 정렬",
@@ -64,10 +65,11 @@
         "member",
         "staff"
       ],
-      "status": "locally_verified_pending_user_review_and_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../date-filters-and-table-sorting.md",
       "diagram": "../diagrams/player-season-detail.svg",
-      "review": "두 역할 공통: 시작 연월~종료 연월+조회, 미완성/역순 안내와 이전결과 보존, 선수 기록 기본은 올해1월~12월이며 올해/전체 기간 버튼으로 바로 조회, 경기날짜 기준 통계와 대회기간 겹침, 개인상세 기간 유지. 상단 집계 경기에는 매칭/자체전 횟수, 누적 득점은 둘 다, 누적 실점은 매칭만 집계하며 미입력은0이 아님을 설명한다. 표 제목 양방향 정렬과 ↑↓도 설명한다. 운영 content.json·HTML·PDF·앱 가이드1.1은 기능 배포 준비 전까지 유지한다."
+      "review": "가이드 1.2 준비: 두 역할에 시작연월~종료연월+조회, 올해/전체기간, 경기일 기준 통계와 대회기간 겹침, 개인상세 조건유지, 매칭/자체전 집계·선수누적득점·매칭만실점과 미입력제외, 표제목 양방향정렬을 반영. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     },
     {
       "feature": "생년·가용 등번호 선택, 출석 표기, FK/PK와 쿼터당 스탯",
@@ -75,10 +77,11 @@
         "member",
         "staff"
       ],
-      "status": "local_verified_pending_full_docker_regression_and_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../player-input-and-stat-details.md",
       "diagram": "../diagrams/player-stat-details.svg",
-      "review": "운영진용은 단일/여러명 입력의 직접 입력+목록, 생년 1950~올해-17 목록, 자기/다중행을 고려한 가용 등번호, 03 FK·PK 부분합·구/신 엑셀 양식·수정 이력 설명 대상. 두 역할 모두 출석일 정렬이 같은 날짜라도 경기당1회라는 기준, FK/PK가 총 득점에 포함됨, 연도·대회와 누적/1~4쿼터당 조회·0분모 표시가 갱신 대상. 90분 비교는 아직 지원하지 않는다. 운영 원고·HTML·PDF·앱 가이드 1.1은 다음 기능 배포까지 유지한다. 목록·개인 상세 모두 연도/전체/리그/대회/특정 대회를 직접 선택한다. 리그와 기본 합산에 자체전을 포함하며 외부만/자체전만은 상세 조건이다. 개인 상세 상단만 누적/1~4쿼터당으로 바꾸고 경기별 카드는 실제 정수 득점·도움, 프리킥/페널티킥 각 1골 이상만 표시한다."
+      "review": "가이드 1.2 준비: 운영진용 2·8·9쪽에 생년/가용등번호 직접입력+목록, FK/PK 부분합과 구/신엑셀 의미를 반영. 두 역할에 경기당 출석1회, 누적/1~4쿼터당 계산, 0분모, 리그의 자체전포함, 개인카드 실제골·도움과 조건부세부득점을 반영. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     },
     {
       "feature": "대회 관리·경기 연결·대회별 경기/선수 기록·완료 전 점검",
@@ -86,10 +89,11 @@
         "member",
         "staff"
       ],
-      "status": "local_ready_pending_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../tournaments-and-completion-review.md",
       "diagram": "../diagrams/tournaments-and-completion-review.svg",
-      "review": "회원용은 정기 경기의 리그 표시·리그/대회/자체전 배지·대회명 강조·새 대회 메뉴·대회 상세/경기 조회·리그+대회 합산/리그만/대회만/특정 대회 필터·시즌과 완료 기준 유지·선수별 상세의 같은 범위 유지가 갱신 대상. 운영진용은 추가로 리그 / 대회 선택·연도별 봄·가을·K7 대회 등록/수정·필수 기간·선택 부문/메모·경기 연결/해제·04 완료 전 점검·기존 명시적 완료 흐름을 설명한다. 리그 집계에는 자체전을 포함하며 기존 자료의 4쿼터 계산은 유지한다. 새 대회 전후반30분은 후속 대기 항목을 따르며, 대회 삭제·승부차기·연령 자격 판정은 지원 범위로 안내하지 않는다. 운영 content.json·역할별 HTML/PDF·앱 가이드 1.1은 유지하며, 통합 검증과 사용자 확인 후 다음 기능 배포 준비 때 함께 갱신한다."
+      "review": "가이드 1.2 준비: 회원용3쪽과 운영진용3·4·10쪽에 리그·대회구분, 대회등록수정·기간·부문, 대회연결·해제와 새 대회 전후반, 완료전확인 흐름을 반영. 대회삭제·승부차기·연령자격판정은 미지원으로 안내. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     },
     {
       "feature": "선수별 시즌 상세·경기별 기록·읽기 전용 원본 경기 연결",
@@ -97,9 +101,10 @@
         "member",
         "staff"
       ],
-      "status": "local_ready_pending_deployment",
+      "status": "guide_1_2_prepared_pending_deployment",
       "reference": "../player-season-detail.md",
-      "review": "두 역할의 선수 기록 항목 갱신 대상. 운영 원고/PDF 1.1 유지, 다음 기능 배포 때 공통 원고와 함께 갱신. 상세에서도 연도·경기 구분 직접 선택, 최신 조건으로 목록 복귀, 자체전의 리그 포함, 실제 경기 골·도움과 조건부 세부 득점 표시를 설명한다."
+      "review": "가이드 1.2 준비: 회원용5쪽·운영진용13쪽에 선수이름/등번호로 상세, 조건변경유지, 경기별 실제기록, 읽기전용 원본연결과 운영진의 경기메뉴 정정경로를 반영. 실제 운영 배포 대기.",
+      "guideVersion": "1.2"
     }
   ],
   "history": [
@@ -121,6 +126,12 @@
       "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
       "verifiedAtKst": "2026-10-15 18:56 KST",
       "change": "API·웹 배포 완료와 공개 JS/CSS·역할별 PDF의 로컬 릴리스 바이트 일치, 로그인·조회·권한 검증을 총괄이 확인. 가이드 배포 상태와 실제 커밋만 확정하고 화면 본문·releaseLabel·PDF·역할별 HTML은 그대로 유지."
+    },
+    {
+      "date": "2026-10-15",
+      "version": "1.2",
+      "status": "pending_deployment",
+      "change": "공통 원고를 현재 UI와 대조해 회원용 6쪽·운영진용 14쪽으로 갱신. 대회 등록·연결, 기간·경기 구분 조회, 선수별 상세·원본, FK/PK·1~4쿼터당 기록, 열 정렬, 생년·가용 등번호, 자체전 01 팀별 체크·자동 편성, 대회 전후반·교체 집계, 완료 전 확인을 반영. 실제 운영 반영은 배포 후 총괄 확인 대상."
     }
   ],
   "releasedChanges": [
@@ -178,5 +189,16 @@
       "guideVersion": "1.1",
       "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
     }
-  ]
+  ],
+  "validation": {
+    "guideVersion": "1.2",
+    "date": "2026-10-15",
+    "sourceUiReview": "현재 JSX/TS의 버튼 이름·기간·권한·계산·팀선택·저장흐름과 대조",
+    "memberPages": 6,
+    "staffPages": 14,
+    "pdfVisualReview": "전 20쪽 PNG 렌더 후 글자·여백·제목·바닥글·페이지번호를 확인",
+    "pdfStructuralReview": "20쪽 제목·페이지번호와 공개앱링크, outputs 전달사본 바이트 일치 확인",
+    "appRoleScreenReview": "배포 준비 빌드 뒤 총괄 확인 대상",
+    "productionStatus": "pending_deployment"
+  }
 }

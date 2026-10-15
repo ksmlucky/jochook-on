@@ -2,14 +2,24 @@ package com.jochookon.stats;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.jochookon.team.TeamContext;
 import com.jochookon.team.TeamTestData;
+import com.jochookon.match.Attendance;
+import com.jochookon.match.Vote;
+import com.jochookon.match.MatchKind;
+import com.jochookon.match.MatchRequest;
+import com.jochookon.match.RecordingStage;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +27,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import tools.jackson.databind.ObjectMapper;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mysql.MySQLContainer;
@@ -32,6 +44,7 @@ class PlayerStatsIntegrationTest {
     @Autowired JdbcTemplate jdbc;
     @Autowired PlayerStatsService stats;
     @Autowired MockMvc mvc;
+    @Autowired ObjectMapper json;
     final LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
     int sequence;
 
@@ -92,6 +105,17 @@ class PlayerStatsIntegrationTest {
         assertThat(item(result, sub).creditedQuarters()).isEqualTo(0.5);
         assertThat(item(result, b).creditedQuarters()).isEqualTo(1);
         assertThat(item(read(today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false), a).goals()).isZero();
+        var details = details(a, today.getYear(), StatsMatchKind.INTERNAL, StatsRecordScope.COMPLETED, false, 0);
+        assertThat(details.player()).isEqualTo(item(result, a));
+        assertThat(details.totalElements()).isEqualTo(1);
+        assertThat(details.items()).singleElement().satisfies(row -> {
+            assertThat(row.matchId()).isEqualTo(game);
+            assertThat(row.goals()).isEqualTo(2);
+            assertThat(row.creditedQuarters()).isEqualTo(1.5);
+            assertThat(row.appeared()).isTrue();
+        });
+        assertThat(details(b, today.getYear(), StatsMatchKind.INTERNAL, StatsRecordScope.COMPLETED, false, 0)
+                .items()).singleElement().extracting(PlayerMatchStatsResponse.Item::creditedQuarters).isEqualTo(1.0);
     }
 
     @Test void distinguishesCompletionLegacyAndInProgressAndExcludesFutureDatesAndOtherYears() {
@@ -174,9 +198,18 @@ class PlayerStatsIntegrationTest {
         assertThat(item(changed, p).goals()).isEqualTo(5);
         assertThat(item(changed, p).assists()).isEqualTo(1);
         assertThat(item(changed, p).attendances()).isEqualTo(1);
+        assertThat(details(p, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0)
+                .items()).singleElement().satisfies(row -> {
+                    assertThat(row.goals()).isEqualTo(5);
+                    assertThat(row.assists()).isEqualTo(1);
+                    assertThat(row.attendance()).isEqualTo("LATE");
+                });
         jdbc.update("UPDATE match_records SET recording_stage='ACTUAL' WHERE id=?", game);
         assertThat(item(read(today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false), p).goals()).isZero();
         assertThat(item(read(today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.ALL, false), p).goals()).isEqualTo(5);
+        assertThat(details(p, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0).items()).isEmpty();
+        assertThat(details(p, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.ALL, false, 0)
+                .items()).singleElement().extracting(PlayerMatchStatsResponse.Item::recordingStage).isEqualTo("ACTUAL");
         jdbc.update("DELETE FROM match_appearances WHERE match_id=?", game);
         jdbc.update("DELETE FROM match_participants WHERE match_id=?", game);
         jdbc.update("DELETE FROM match_records WHERE id=?", game);
@@ -189,6 +222,224 @@ class PlayerStatsIntegrationTest {
         assertThat(item(empty, p).goals()).isZero();
         assertThat(item(empty, p).appearances()).isZero();
         assertThat(item(empty, p).creditedQuarters()).isZero();
+        var afterDelete = details(p, today.getYear(), StatsMatchKind.ALL, StatsRecordScope.ALL, true, 0);
+        assertThat(afterDelete.player()).isEqualTo(item(empty, p));
+        assertThat(afterDelete.totalElements()).isZero();
+        assertThat(afterDelete.totalPages()).isZero();
+        assertThat(afterDelete.items()).isEmpty();
+    }
+
+    @Test void detailIncludesAttendanceOnlyAndMissingAttendanceButNotPlansOrAbsenceOnlyAndKeepsGuestSubstitutionCredit() throws Exception {
+        long member = player(1, 1, true, "MEMBER"), guest = player(1, null, true, "GUEST");
+        long played = match(1, today, "EXTERNAL", "COMPLETED");
+        jdbc.update("UPDATE match_records SET kickoff='11:30:00',opponent='가상 상대',venue='가상 구장',score_for=4,score_against=2 WHERE id=?", played);
+        attendance(played, member, "LATE"); attendance(played, guest, "PRESENT");
+        appearance(played, 1, "A", "ST", 0, member, 2, 1);
+        appearance(played, 1, "A", "ST", 1, guest, 1, 0);
+        appearance(played, 2, "A", "ST", 0, member, 1, 0);
+        long presentOnly = match(1, today, "EXTERNAL", "COMPLETED");
+        attendance(presentOnly, member, "PRESENT");
+        long noAttendance = match(1, today, "EXTERNAL", "COMPLETED");
+        jdbc.update("UPDATE match_records SET kickoff=NULL WHERE id=?", noAttendance);
+        appearance(noAttendance, 1, "A", "LW", 0, member, 0, 0);
+        long planOnly = match(1, today, "EXTERNAL", "COMPLETED");
+        attendance(planOnly, member, "UNCONFIRMED");
+        jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,team,slot,entry_order,player_id) VALUES (?,1,'A','ST',0,?)", planOnly, member);
+        long absentOnly = match(1, today, "EXTERNAL", "COMPLETED");
+        attendance(absentOnly, member, "ABSENT");
+        var detail = details(member, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0);
+        assertThat(detail.player()).isEqualTo(item(read(today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false), member));
+        assertThat(detail.totalElements()).isEqualTo(3);
+        assertThat(detail.items()).extracting(PlayerMatchStatsResponse.Item::matchId).containsExactly(noAttendance, presentOnly, played);
+        var originalTime = originalKickoff(played);
+        assertThat(detail.items().get(2)).satisfies(row -> {
+            assertThat(row.playedOn()).isEqualTo(today);
+            assertThat(row.kickoff()).isEqualTo(originalTime);
+            assertThat(row.opponent()).isEqualTo("가상 상대");
+            assertThat(row.venue()).isEqualTo("가상 구장");
+            assertThat(row.kind()).isEqualTo("EXTERNAL");
+            assertThat(row.recordingStage()).isEqualTo("COMPLETED");
+            assertThat(row.scoreFor()).isEqualTo(4);
+            assertThat(row.scoreAgainst()).isEqualTo(2);
+            assertThat(row.goals()).isEqualTo(3);
+            assertThat(row.assists()).isEqualTo(1);
+            assertThat(row.creditedQuarters()).isEqualTo(1.5);
+            assertThat(row.appeared()).isTrue();
+            assertThat(row.attendance()).isEqualTo("LATE");
+        });
+        assertThat(detail.items().get(1)).satisfies(row -> {
+            assertThat(row.appeared()).isFalse();
+            assertThat(row.attendance()).isEqualTo("PRESENT");
+            assertThat(row.goals()).isZero();
+            assertThat(row.assists()).isZero();
+            assertThat(row.creditedQuarters()).isZero();
+            assertThat(row.scoreFor()).isNull();
+            assertThat(row.scoreAgainst()).isNull();
+        });
+        assertThat(detail.items().getFirst()).satisfies(row -> {
+            assertThat(row.kickoff()).isNull();
+            assertThat(row.attendance()).isNull();
+            assertThat(row.appeared()).isTrue();
+            assertThat(row.creditedQuarters()).isEqualTo(1);
+        });
+        var guestDetail = details(guest, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, true, 0);
+        assertThat(guestDetail.player().shirtNumber()).isNull();
+        assertThat(guestDetail.items()).singleElement().satisfies(row -> assertThat(row.creditedQuarters()).isEqualTo(0.5));
+        assertThat(detail.player().creditedQuarters()).isEqualTo(2.5);
+        assertThat(detail.player().appearances()).isEqualTo(2);
+        assertThat(detail.player().attendances()).isEqualTo(2);
+    }
+
+    @Test void everyFilterCombinationHasTheSameSummaryAndContributionSumsAsSeasonList() {
+        long member = player(1, 1, true, "MEMBER"), guest = player(1, null, true, "GUEST");
+        long inactive = player(1, 2, false, "MEMBER");
+        for (String kind : List.of("EXTERNAL", "INTERNAL")) {
+            for (String stage : new String[]{"COMPLETED", null, "ACTUAL"}) {
+                long game = match(1, today, kind, stage);
+                attendance(game, member, "LATE"); attendance(game, guest, "PRESENT"); attendance(game, inactive, "PRESENT");
+                appearance(game, 1, "A", "ST", 0, member, 2, 1);
+                appearance(game, 1, "A", "ST", 1, guest, 1, 2);
+            }
+        }
+        long future = record(1, member, today.plusDays(1), "EXTERNAL", "COMPLETED", 90);
+        long previousYear = record(1, member, LocalDate.of(today.getYear() - 1, 12, 31), "EXTERNAL", "COMPLETED", 80);
+        for (StatsMatchKind kind : StatsMatchKind.values()) {
+            for (StatsRecordScope scope : StatsRecordScope.values()) {
+                for (boolean guests : new boolean[]{false, true}) {
+                    var season = read(today.getYear(), kind, scope, guests);
+                    for (var summary : season.items()) {
+                        var detail = details(summary.playerId(), today.getYear(), kind, scope, guests, 0);
+                        assertThat(detail.player()).isEqualTo(summary);
+                        assertThat(detail.totalElements()).isEqualTo(detail.items().size());
+                        assertThat(detail.items()).extracting(PlayerMatchStatsResponse.Item::matchId).doesNotContain(future, previousYear);
+                        assertThat(detail.items().stream().mapToLong(PlayerMatchStatsResponse.Item::goals).sum()).isEqualTo(summary.goals());
+                        assertThat(detail.items().stream().mapToLong(PlayerMatchStatsResponse.Item::assists).sum()).isEqualTo(summary.assists());
+                        assertThat(detail.items().stream().mapToDouble(PlayerMatchStatsResponse.Item::creditedQuarters).sum()).isEqualTo(summary.creditedQuarters());
+                        assertThat(detail.items().stream().filter(PlayerMatchStatsResponse.Item::appeared).count()).isEqualTo(summary.appearances());
+                        assertThat(detail.items().stream().filter(row -> List.of("PRESENT", "LATE").contains(row.attendance())).count()).isEqualTo(summary.attendances());
+                    }
+                    if (!guests) assertThatThrownBy(() -> details(guest, today.getYear(), kind, scope, false, 0))
+                            .isInstanceOf(PlayerStatsNotFoundException.class);
+                }
+            }
+        }
+        assertThat(details(member, today.getYear() - 1, StatsMatchKind.ALL, StatsRecordScope.ALL, false, 0)
+                .items()).singleElement().extracting(PlayerMatchStatsResponse.Item::matchId).isEqualTo(previousYear);
+        assertThat(details(member, 9999, StatsMatchKind.ALL, StatsRecordScope.ALL, true, 0).items()).isEmpty();
+    }
+
+    @Test void detailPaginatesByDateThenIdWithoutChangingTheFullSummary() {
+        long player = player(1, 1, true, "MEMBER");
+        int year = today.getYear() - 1;
+        var day = LocalDate.of(year, 1, 2);
+        var early = new ArrayList<Long>();
+        var later = new ArrayList<Long>();
+        for (int i = 0; i < 10; i++) early.add(record(1, player, day, "EXTERNAL", "COMPLETED", 1));
+        // A later kickoff must not reorder same-date records away from the stable descending ID order.
+        jdbc.update("UPDATE match_records SET kickoff='23:30:00' WHERE id=?", early.getFirst());
+        for (int i = 0; i < 11; i++) {
+            long game = record(1, player, day, "EXTERNAL", "COMPLETED", 1);
+            jdbc.update("UPDATE match_records SET kickoff='11:30:00' WHERE id=?", game);
+            later.add(game);
+        }
+        long oldest = record(1, player, day.minusDays(1), "EXTERNAL", "COMPLETED", 1);
+        jdbc.update("UPDATE match_records SET kickoff='23:30:00' WHERE id=?", oldest);
+        long newest = record(1, player, day.plusDays(1), "EXTERNAL", "COMPLETED", 1);
+        jdbc.update("UPDATE match_records SET kickoff='00:00:00' WHERE id=?", newest);
+        var expected = new ArrayList<Long>();
+        expected.add(newest); Collections.reverse(later); expected.addAll(later);
+        Collections.reverse(early); expected.addAll(early); expected.add(oldest);
+        var actual = new ArrayList<Long>();
+        var summary = item(read(year, StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false), player);
+        for (int page = 0; page < 4; page++) {
+            var detail = details(player, year, StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, page);
+            assertThat(detail.page()).isEqualTo(page);
+            assertThat(detail.size()).isEqualTo(10);
+            assertThat(detail.totalElements()).isEqualTo(23);
+            assertThat(detail.totalPages()).isEqualTo(3);
+            assertThat(detail.player()).isEqualTo(summary);
+            assertThat(detail.items()).hasSize(page < 2 ? 10 : page == 2 ? 3 : 0);
+            actual.addAll(detail.items().stream().map(PlayerMatchStatsResponse.Item::matchId).toList());
+        }
+        assertThat(actual).containsExactlyElementsOf(expected).doesNotHaveDuplicates();
+        assertThat(summary.goals()).isEqualTo(23);
+        assertThat(summary.appearances()).isEqualTo(23);
+    }
+
+    @Test void ormSavedKickoffsMatchOriginalAndDetailApisAfterFreshRequestsIncludingMidnight() throws Exception {
+        long member = player(1, 1, true, "MEMBER");
+        var savedIds = new ArrayList<Long>();
+        for (var time : List.of(LocalTime.MIDNIGHT, LocalTime.of(8, 30), LocalTime.of(11, 0), LocalTime.of(23, 30))) {
+            var input = new MatchRequest(today, time, "가상 구장", "가상 상대", "시간 매핑 검증", null,
+                    List.of(new MatchRequest.Participant(member, Vote.ATTENDING, Attendance.PRESENT)),
+                    List.of(new MatchRequest.Quarter(1, List.of()), new MatchRequest.Quarter(2, List.of()),
+                            new MatchRequest.Quarter(3, List.of()), new MatchRequest.Quarter(4, List.of())),
+                    List.of(), null, null, MatchKind.EXTERNAL, RecordingStage.COMPLETED);
+            var created = mvc.perform(post("/api/v1/matches").header("X-Team-Id", "1").with(user("test-admin").roles("DIRECTOR"))
+                            .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
+                    .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
+            long id = json.readTree(created).get("id").asLong();
+            savedIds.add(id);
+            // Separate HTTP requests force committed DB reads, rather than returning the entity just saved.
+            assertThat(originalKickoff(id)).isEqualTo(time);
+            var detail = mvc.perform(get("/api/v1/stats/players/" + member + "/matches").header("X-Team-Id", "1")
+                            .with(user("test-member").roles("MEMBER")))
+                    .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+            var row = json.readTree(detail).get("items").get(0);
+            assertThat(row.get("matchId").asLong()).isEqualTo(id);
+            assertThat(LocalTime.parse(row.get("kickoff").asString())).isEqualTo(time);
+        }
+        Collections.reverse(savedIds);
+        assertThat(details(member, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0)
+                .items()).extracting(PlayerMatchStatsResponse.Item::matchId).containsExactlyElementsOf(savedIds);
+    }
+
+    private LocalTime originalKickoff(long matchId) throws Exception {
+        var response = mvc.perform(get("/api/v1/matches/" + matchId).header("X-Team-Id", "1")
+                        .with(user("test-member").roles("MEMBER")))
+                .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
+        return LocalTime.parse(json.readTree(response).get("kickoff").asString());
+    }
+
+    @Test void filteredAndCrossTeamPlayersShareOne404WhileActiveZeroMembersHaveEmptyDetails() throws Exception {
+        long active = player(1, 1, true, "MEMBER"), inactive = player(1, 2, false, "MEMBER");
+        long guest = player(1, null, true, "GUEST"), other = player(2, 1, true, "MEMBER");
+        long emptyGuest = player(1, null, true, "GUEST");
+        long ownMatch = record(1, guest, today, "EXTERNAL", "COMPLETED", 1);
+        attendance(ownMatch, other, "PRESENT"); appearance(ownMatch, 1, "A", "ST", 1, other, 90, 0);
+        record(2, other, today, "EXTERNAL", "COMPLETED", 99);
+        for (long id : new long[]{inactive, guest, other, emptyGuest, Long.MAX_VALUE}) {
+            mvc.perform(get("/api/v1/stats/players/" + id + "/matches").header("X-Team-Id", "1")
+                    .with(user("test-member").roles("MEMBER")))
+                    .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("PLAYER_STATS_NOT_FOUND"))
+                    .andExpect(jsonPath("$.message").value("현재 조건에서 선수 기록을 찾을 수 없습니다."));
+        }
+        var empty = details(active, today.getYear(), StatsMatchKind.ALL, StatsRecordScope.ALL, false, 0);
+        assertThat(empty.player().goals()).isZero();
+        assertThat(empty.totalElements()).isZero();
+        assertThat(empty.items()).isEmpty();
+        // Corrupt cross-team references never enter the substitution window or become visible in details.
+        var guestDetail = details(guest, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, true, 0);
+        assertThat(guestDetail.items()).singleElement().satisfies(row -> {
+            assertThat(row.goals()).isEqualTo(1);
+            assertThat(row.creditedQuarters()).isEqualTo(1);
+        });
+        assertThatThrownBy(() -> details(other, today.getYear(), StatsMatchKind.ALL, StatsRecordScope.ALL, true, 0))
+                .isInstanceOf(PlayerStatsNotFoundException.class);
+        assertThatThrownBy(() -> details(guest, today.getYear(), StatsMatchKind.INTERNAL, StatsRecordScope.COMPLETED, true, 0))
+                .isInstanceOf(PlayerStatsNotFoundException.class);
+        assertThatThrownBy(() -> details(emptyGuest, today.getYear(), StatsMatchKind.ALL, StatsRecordScope.ALL, true, 0))
+                .isInstanceOf(PlayerStatsNotFoundException.class);
+        mvc.perform(get("/api/v1/stats/players/" + guest + "/matches?includeGuests=true").header("X-Team-Id", "1")
+                .with(user("test-member").roles("MEMBER")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(1))
+                .andExpect(jsonPath("$.items[0].matchId").value(ownMatch));
+    }
+
+    private PlayerMatchStatsResponse details(long playerId, int year, StatsMatchKind kind, StatsRecordScope scope,
+                                             boolean guests, int page) {
+        TeamContext.set(1);
+        try { return stats.matches(playerId, year, kind, scope, guests, page); } finally { TeamContext.clear(); }
     }
 
     private PlayerStatsResponse read(int year, StatsMatchKind kind, StatsRecordScope scope, boolean guests) {

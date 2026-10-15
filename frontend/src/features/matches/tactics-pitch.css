@@ -54,7 +54,12 @@
 .tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="RCM"] { grid-column: 7 / span 3; }
 .tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="LCB"] { grid-column: 1 / span 4; }
 .tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="RCB"] { grid-column: 9 / span 4; }
-.tactics-pitch[data-formation="F343"] :is([data-position="LWB"], [data-position="LCM"], [data-position="RCM"], [data-position="RWB"]) { grid-row: 8 / span 3; }
+/* 3-5-2 uses a staggered midfield: CAM ahead of the wingbacks and the two CMs. */
+.tactics-pitch[data-formation="F352"] [data-position="CAM"] { grid-row: 5 / span 3; }
+.tactics-pitch[data-formation="F352"] :is([data-position="LWB"], [data-position="RWB"]) { grid-row: 7 / span 3; }
+.tactics-pitch[data-formation="F352"] :is([data-position="LCM"], [data-position="RCM"]) { grid-row: 10 / span 3; }
+.tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) :is([data-position="LCB"], [data-position="RCB"]) { grid-row: 14 / span 3; }
+.tactics-pitch[data-formation="F343"] :is([data-position="LM"], [data-position="LCM"], [data-position="RCM"], [data-position="RM"]) { grid-row: 8 / span 3; }
 .tactics-pitch .lineup-summary { box-shadow: 0 3px 8px #243b3210; }
 
 .pitch-markings { position: absolute; inset: 30px 9px 10px; border: 1px solid #8eaf9299; pointer-events: none; z-index: 0; }

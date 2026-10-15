@@ -17,12 +17,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class MatchWorkbookService {
-    static final String[] HEADERS = {"쿼터 (필수)", "포지션 (필수)", "출전 구분 (필수)", "이름 (필수)", "등번호 (선택)", "득점 (선택: 기본 0)", "도움 (선택: 기본 0)", "선수 ID (선택)"};
+    static final String[] HEADERS = {"쿼터 (필수)", "포지션 (필수)", "출전 구분 (필수)", "이름 (필수)", "등번호 (선택)", "득점 (선택: 기본 0)", "도움 (선택: 기본 0)", "선수 ID (선택)", "FK 득점 (선택: 기본 0)", "PK 득점 (선택: 기본 0)"};
     private final PlayerRepository players;
     public MatchWorkbookService(PlayerRepository players) { this.players = players; }
 
     private static class Parsed {
         int rowNumber, quarter, order, goals, assists;
+        Integer freeKickGoals, penaltyGoals;
         LineupSlot slot;
         Player player;
         List<String> values;
@@ -34,7 +35,12 @@ public class MatchWorkbookService {
 
     @Transactional(readOnly = true)
     public MatchImportPreview preview(MultipartFile file, Formation formation) {
+        return preview(file, formation, MatchFormat.FOUR_QUARTERS);
+    }
+    @Transactional(readOnly = true)
+    public MatchImportPreview preview(MultipartFile file, Formation formation, MatchFormat matchFormat) {
         formation = Formation.orDefault(formation);
+        int periods = MatchFormat.orDefault(matchFormat).periods();
         if (file.isEmpty() || file.getSize() > 2 * 1024 * 1024 || file.getOriginalFilename() == null || !file.getOriginalFilename().toLowerCase(Locale.ROOT).endsWith(".xlsx"))
             throw new IllegalArgumentException("2MB 이하의 .xlsx 경기 양식을 선택해 주세요.");
         List<Parsed> rows = new ArrayList<>();
@@ -44,19 +50,23 @@ public class MatchWorkbookService {
                 if (book.getNumberOfSheets() < 1 || book.getNumberOfSheets() > 2 || book.getSheet("쿼터기록") == null
                         || (book.getNumberOfSheets() == 2 && book.getSheet("작성안내") == null)) throw new IllegalArgumentException("다운로드한 쿼터기록 양식을 사용해 주세요. 추가 데이터 시트는 지원하지 않습니다.");
                 Sheet sheet = book.getSheet("쿼터기록"); Row header = sheet.getRow(0);
-                for (int i = 0; i < HEADERS.length; i++) if (header == null || !HEADERS[i].equals(value(header.getCell(i)))) throw new IllegalArgumentException("첫 행의 제목과 열 순서를 양식과 동일하게 유지해 주세요.");
+                boolean legacy = header != null && value(header.getCell(8)).isBlank() && value(header.getCell(9)).isBlank();
+                int columns = legacy ? 8 : HEADERS.length;
+                for (int i = 0; i < columns; i++) if (header == null || !HEADERS[i].equals(value(header.getCell(i)))) throw new IllegalArgumentException("첫 행의 제목과 열 순서를 양식과 동일하게 유지해 주세요.");
+                for (Cell cell : header) if (cell.getColumnIndex() >= columns && !value(cell).isBlank())
+                    throw new IllegalArgumentException("양식 밖의 열 제목이 있습니다.");
                 for (Row row : sheet) {
                     if (row.getRowNum() == 0) continue;
                     List<String> values = new ArrayList<>();
-                    for (int i = 0; i < HEADERS.length; i++) values.add(value(row.getCell(i)));
+                    for (int i = 0; i < columns; i++) values.add(value(row.getCell(i)));
                     boolean formula = false;
                     for (Cell cell : row) {
                         formula |= cell.getCellType() == CellType.FORMULA;
-                        if (cell.getColumnIndex() >= HEADERS.length && !value(cell).isBlank()) throw new IllegalArgumentException("양식의 8개 열 밖에 입력된 값이 있습니다.");
+                        if (cell.getColumnIndex() >= columns && !value(cell).isBlank()) throw new IllegalArgumentException("양식의 " + columns + "개 열 밖에 입력된 값이 있습니다.");
                     }
                     // 미리 채운 쿼터·자리·선발/교체만 있고 선수/스탯이 비어 있으면 빈 배치이다.
-                    if (!formula && values.subList(3, 8).stream().allMatch(String::isBlank)) continue;
-                    if (rows.size() == 88) throw new IllegalArgumentException("경기 양식은 4쿼터 × 11자리 × 선발/교체, 최대 88행입니다.");
+                    if (!formula && values.subList(3, columns).stream().allMatch(String::isBlank)) continue;
+                    if (rows.size() == periods * 22) throw new IllegalArgumentException("경기 양식은 " + periods + "구간 × 11자리 × 선발/교체, 최대 " + (periods * 22) + "행입니다.");
                     Parsed parsed = new Parsed(); parsed.rowNumber = row.getRowNum() + 1; parsed.values = values;
                     if (formula) parsed.errors.add("수식은 지원하지 않습니다. 값으로 붙여넣어 주세요.");
                     rows.add(parsed);
@@ -69,7 +79,7 @@ public class MatchWorkbookService {
         for (Parsed row : rows) {
             if (!row.errors.isEmpty()) continue;
             try {
-                row.quarter = integer(row.values.get(0), 1, 4, "쿼터", false);
+                row.quarter = integer(row.values.get(0), 1, periods, "쿼터", false);
                 try { row.slot = LineupSlot.valueOf(row.values.get(1).toUpperCase(Locale.ROOT)); }
                 catch (IllegalArgumentException e) { throw new IllegalArgumentException("포지션은 선택한 포메이션의 양식 목록에서 선택해 주세요. CB는 LCB/CCB/RCB, CM은 LCM/RCM으로 구분합니다."); }
                 try { formation.requireSlot(row.slot); }
@@ -80,6 +90,11 @@ public class MatchWorkbookService {
                 Integer shirt = row.values.get(4).isBlank() ? null : integer(row.values.get(4), 1, 99, "등번호", false);
                 row.goals = integer(row.values.get(5), 0, 99, "득점", true);
                 row.assists = integer(row.values.get(6), 0, 99, "도움", true);
+                if (row.values.size() == HEADERS.length) {
+                    row.freeKickGoals = integer(row.values.get(8), 0, 99, "FK 득점", true);
+                    row.penaltyGoals = integer(row.values.get(9), 0, 99, "PK 득점", true);
+                    if (row.freeKickGoals + row.penaltyGoals > row.goals) throw new IllegalArgumentException("FK·PK 득점 합계가 총득점을 넘을 수 없습니다.");
+                }
                 Long id = null;
                 if (!row.values.get(7).isBlank()) {
                     try { id = Long.valueOf(row.values.get(7)); if (id <= 0) throw new NumberFormatException(); }
@@ -92,18 +107,19 @@ public class MatchWorkbookService {
                 row.player = matches.getFirst();
             } catch (IllegalArgumentException e) { row.errors.add(e.getMessage()); }
         }
-        validateRows(rows);
+        validateRows(rows, periods);
         List<MatchRequest.Quarter> quarters = new ArrayList<>();
         if (rows.stream().allMatch(r -> r.errors.isEmpty())) {
-            for (int number = 1; number <= 4; number++) {
+            for (int number = 1; number <= periods; number++) {
                 final int q = number;
-                quarters.add(new MatchRequest.Quarter(q, rows.stream().filter(r -> r.quarter == q).map(r -> new MatchRequest.Appearance(r.slot, r.player.getId(), r.goals, r.assists, r.order)).toList()));
+                quarters.add(new MatchRequest.Quarter(q, rows.stream().filter(r -> r.quarter == q).map(r -> new MatchRequest.Appearance(r.slot, r.player.getId(), r.goals, r.assists, r.order,
+                        MatchTeam.A, r.freeKickGoals, r.penaltyGoals)).toList()));
             }
         }
         return new MatchImportPreview(rows.stream().map(r -> new MatchImportPreview.Row(r.rowNumber, r.values, r.player == null ? null : r.player.getId(), r.player == null ? null : r.player.getName(), r.player == null ? null : r.player.getShirtNumber(), List.copyOf(r.errors), r.player == null ? null : r.player.getBirthYear(), r.player == null ? null : r.player.getPlayerType())).toList(), quarters);
     }
 
-    private void validateRows(List<Parsed> rows) {
+    private void validateRows(List<Parsed> rows, int periods) {
         var parsed = rows.stream().filter(r -> r.errors.isEmpty()).toList();
         Map<String, List<Parsed>> positions = new HashMap<>(), people = new HashMap<>();
         for (var r : parsed) {
@@ -113,7 +129,7 @@ public class MatchWorkbookService {
         positions.values().stream().filter(group -> group.size() > 1).forEach(group -> group.forEach(r -> r.errors.add("같은 쿼터·포지션·출전 구분이 중복됩니다.")));
         people.values().stream().filter(group -> group.size() > 1).forEach(group -> group.forEach(r -> r.errors.add("같은 쿼터에 같은 선수를 두 번 입력할 수 없습니다.")));
         for (var r : parsed) if (r.order == 1 && parsed.stream().noneMatch(s -> s.quarter == r.quarter && s.slot == r.slot && s.order == 0)) r.errors.add("같은 쿼터·포지션의 선발 선수를 먼저 입력해 주세요.");
-        for (int q = 1; q <= 4; q++) {
+        for (int q = 1; q <= periods; q++) {
             final int number = q;
             var group = parsed.stream().filter(r -> r.quarter == number).toList();
             if (group.stream().mapToInt(r -> r.assists).sum() > group.stream().mapToInt(r -> r.goals).sum()) group.forEach(r -> r.errors.add("이 쿼터의 도움 합계가 득점 합계보다 많습니다."));
@@ -144,7 +160,11 @@ public class MatchWorkbookService {
     }
     public byte[] template() { return template(Formation.F4123); }
     public byte[] template(Formation formation) {
+        return template(formation, MatchFormat.FOUR_QUARTERS);
+    }
+    public byte[] template(Formation formation, MatchFormat matchFormat) {
         formation = Formation.orDefault(formation);
+        int periods = MatchFormat.orDefault(matchFormat).periods();
         try (var book = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
             Sheet sheet = book.createSheet("쿼터기록"); sheet.createFreezePane(3, 1);
             Font font = book.createFont(); font.setBold(true); font.setColor(IndexedColors.WHITE.getIndex());
@@ -153,26 +173,28 @@ public class MatchWorkbookService {
             Row first = sheet.createRow(0); first.setHeightInPoints(28);
             for (int i = 0; i < HEADERS.length; i++) { first.createCell(i).setCellValue(HEADERS[i]); first.getCell(i).setCellStyle(header); sheet.setColumnWidth(i, (i == 3 ? 26 : 24) * 256); sheet.setDefaultColumnStyle(i, text); }
             int row = 1;
-            for (int q = 1; q <= 4; q++) for (var slot : formation.slots()) for (String type : List.of("선발", "교체")) {
+            for (int q = 1; q <= periods; q++) for (var slot : formation.slots()) for (String type : List.of("선발", "교체")) {
                 Row r = sheet.createRow(row++); r.createCell(0).setCellValue(q); r.createCell(1).setCellValue(slot.name()); r.createCell(2).setCellValue(type);
             }
             var helper = sheet.getDataValidationHelper();
-            String[][] options = {{"1", "2", "3", "4"}, formation.slots().stream().map(Enum::name).toArray(String[]::new), {"선발", "교체"}};
+            String[][] options = {java.util.stream.IntStream.rangeClosed(1, periods).mapToObj(Integer::toString).toArray(String[]::new), formation.slots().stream().map(Enum::name).toArray(String[]::new), {"선발", "교체"}};
             for (int column = 0; column < options.length; column++) {
                 var validation = helper.createValidation(helper.createExplicitListConstraint(options[column]), new CellRangeAddressList(1, 200, column, column));
                 validation.setShowErrorBox(true); validation.createErrorBox("입력 확인", "목록에서 선택해 주세요."); sheet.addValidationData(validation);
             }
             Sheet guide = book.createSheet("작성안내"); guide.setColumnWidth(0, 120 * 256);
-            String[] instructions = {"조축ON · 1~4쿼터 경기 기록 양식", "쿼터기록 시트의 이름부터 입력하세요. 빈 선수 행은 제외합니다. 열 제목은 유지해 주세요.",
+            String[] instructions = {periods == 2 ? "조축ON · 전·후반 각 30분 경기 기록 양식 · 1=전반, 2=후반" : "조축ON · 1~4쿼터 경기 기록 양식", "쿼터기록 시트의 이름부터 입력하세요. 빈 선수 행은 제외합니다. 열 제목은 유지해 주세요.",
                     "선택 포메이션: " + formation.name().substring(1) + " / 포지션: " + String.join(", ", formation.slots().stream().map(Enum::name).toList()) + ". 같은 포지션의 좌우 자리는 L/R, 3백의 중앙 CB는 CCB로 구분합니다. LWB/RWB는 수비 그룹의 윙백입니다.",
                     "같은 쿼터·포지션에서 선발 1명 + 교체 1명 = 각각 0.5쿼터. 교체 없이 선발만 기록하면 1쿼터입니다.",
                     "교체 행이 있으면 같은 자리의 선발도 필요합니다. 한 선수는 같은 쿼터에 한 번만 기록합니다. 재투입·포지션 이동은 지원하지 않습니다.",
                     "등번호는 선택이며 1~99번만 가능합니다. 모르면 빈칸으로 두세요. 동명이인은 등번호 또는 선수 ID로 구분하세요.",
                     "이름은 선수단에 등록된 이름과 같아야 합니다. 없는 선수는 먼저 등록합니다. 이 파일은 선수를 새로 만들지 않습니다.",
                     "득점·도움: 0~99 정수, 빈칸은 0. 교체 전/후 각 선수에게 귀속된 기록을 입력하세요. 수식은 사용하지 않습니다.",
-                    "미리보기 → 4쿼터 초안에 반영 → 실제 출석 확인 → 경기 기록 저장. 반영은 기존 4쿼터 초안을 교체합니다.",
+                    "FK·PK도 0~99 정수이며 빈칸은 0입니다. 총득점 안에 포함되는 직접 프리킥·경기 중 페널티킥 골만 기록하고, 두 항목 합계는 총득점을 넘지 않습니다. 승부차기는 제외합니다.",
+                    "이전 8열 양식도 올릴 수 있습니다. FK·PK 열이 없는 이전 양식은 같은 쿼터·선수의 세부 득점을 유지하며, 새 10열 양식의 0은 해당 값을 초기화합니다.",
+                    "미리보기 → " + periods + "구간 초안에 반영 → 실제 출석 확인 → 경기 기록 저장. 반영은 선택한 팀의 기존 " + periods + "구간 초안을 교체합니다.",
                     "투표와 실제 출석은 자동 변경하지 않습니다. 새 참가자는 미확인 상태로 추가되므로 출석을 확인하세요.",
-                    "쿼터 길이와 교체 시각은 입력하지 않습니다. 프로 선수와의 경기당 비교 기준은 추후 결정합니다."};
+                    periods == 2 ? "전반·후반은 각각 1쿼터로 집계합니다. 교체 선수 두 명은 각 0.5쿼터이며, 정기 경기 기록과 합산할 때 시간 환산은 하지 않습니다." : "쿼터 길이와 교체 시각은 입력하지 않습니다. 프로 선수와의 경기당 비교 기준은 추후 결정합니다."};
             for (int i = 0; i < instructions.length; i++) guide.createRow(i).createCell(0).setCellValue(instructions[i]);
             book.write(output); return output.toByteArray();
         } catch (IOException e) { throw new IllegalStateException("경기 엑셀 양식을 만들지 못했습니다.", e); }

@@ -3,6 +3,7 @@ import type { MatchDraft, MatchTeam } from './api'
 import { changeFormation, formationFor, formationLabel, formationOptions, formations, removedPlanCount } from './formations'
 import type { Formation } from './formations'
 import './formations.css'
+import { matchPeriodSummary } from './matchFormat'
 
 export function FormationSelector({ draft, editable, onChange }: { draft: MatchDraft; editable: boolean; onChange: (draft: MatchDraft) => void }) {
   const [pending, setPending] = useState<{ team: MatchTeam; formation: Formation } | null>(null)
@@ -13,7 +14,7 @@ export function FormationSelector({ draft, editable, onChange }: { draft: MatchD
   }
   return <section className="formation-settings" aria-labelledby="formation-settings-title">
     <h4 id="formation-settings-title">포메이션</h4>
-    <p className="field-help">팀별로 선택한 포메이션을 1~4쿼터 계획과 실제 출전에 함께 사용합니다.</p>
+    <p className="field-help">팀별로 선택한 포메이션을 {matchPeriodSummary(draft.matchFormat)} 계획과 실제 출전에 함께 사용합니다.</p>
     <div className="formation-fields">{(draft.kind === 'INTERNAL' ? ['A', 'B'] as const : ['A'] as const).map(team => {
       const current = formationFor(draft, team)
       const locked = draft.quarters.some(q => q.lineup.some(entry => entry.team === team))

@@ -6,6 +6,9 @@ import { PreferenceFields } from './PreferenceFields'
 import { BirthYearField, ClubRoleField } from './ProfileFields'
 import { useEditGuard } from '../../app/LeaveGuard'
 import { HelpDetails } from '../../app/HelpDetails'
+import { useShirtNumbers } from './useShirtNumbers'
+import { availableShirtNumbersForRow } from './inputOptions'
+import { ShirtNumberAvailability, ShirtNumberField } from './ShirtNumberField'
 
 type Draft = BulkPlayerRow & { key: string }
 const emptyRow = (): Draft => ({ key: crypto.randomUUID(), name: '', position: '', shirtNumber: '', joinedOn: '', firstChoice: '', secondChoice: '', thirdChoice: '', birthYear: '', clubRole: '' })
@@ -15,6 +18,7 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
   onBusyChange: (busy: boolean) => void
 }) {
   const [rows, setRows] = useState<Draft[]>(initialMode === 'manual' ? [emptyRow(), emptyRow()] : [])
+  const shirtOptions = useShirtNumbers(onSessionExpired)
   const [preview, setPreview] = useState<ImportPreview | null>(null)
   const [busy, setBusy] = useState(false)
   useEffect(() => { onBusyChange(busy); return () => onBusyChange(false) }, [busy, onBusyChange])
@@ -70,6 +74,7 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
     </div>
     <p className="field-help">이름·기본 포지션·1지망은 필수예요. 포지션이 ‘미확인(UN)’이면 지망은 비워 주세요.</p>
     <p className="field-help">등번호는 1~99번이며, 활동 선수나 함께 등록할 선수와 중복할 수 없어요.</p>
+    <ShirtNumberAvailability loading={shirtOptions.loading} error={shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy || uncertain} />
     <HelpDetails title="양식 작성 안내">
       <ul><li>등번호·생년을 모르면 비워 두세요. 생년은 4자리 연도로 입력해요.</li>
         <li>직책을 비우면 ‘정회원’으로 등록돼요.</li>
@@ -86,7 +91,8 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
             <option value="">포지션 선택</option>{!['', 'GK', 'DF', 'MF', 'FW', 'UN'].includes(row.position) && <option value={row.position}>잘못된 값: {row.position}</option>}
             {Object.entries(positionLabels).map(([code, label]) => <option key={code} value={code}>{label} ({code})</option>)}
           </select></div>
-          <div><label htmlFor={`${row.key}-shirt`}>등번호 <span>선택</span></label><input id={`${row.key}-shirt`} inputMode="numeric" value={row.shirtNumber} onChange={e => change(i, { shirtNumber: e.target.value })} placeholder="미등록" maxLength={20} /></div>
+          <ShirtNumberField id={`${row.key}-shirt`} value={row.shirtNumber} onChange={shirtNumber => change(i, { shirtNumber })}
+            available={shirtOptions.roster === null ? null : availableShirtNumbersForRow(shirtOptions.roster, rows, row.key)} />
           <div><label htmlFor={`${row.key}-joined`}>가입일 <span>선택</span></label><input id={`${row.key}-joined`} value={row.joinedOn} onChange={e => change(i, { joinedOn: e.target.value })} placeholder="YYYY-MM-DD" maxLength={30} /></div>
           <BirthYearField id={`${row.key}-birth`} value={row.birthYear} onChange={birthYear => change(i, { birthYear })} />
           <ClubRoleField id={`${row.key}-role`} value={row.clubRole} onChange={clubRole => change(i, { clubRole })} />
