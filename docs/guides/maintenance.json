@@ -5,11 +5,13 @@
   "release": {
     "guideVersion": "1.1",
     "date": "2026-10-15",
-    "appCommit": "release-2026-10-15-feature-expansion",
-    "deployment": "pending_deployment",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "dd67f92",
-    "releaseLabel": "2026.10.15 기능확장판"
+    "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
+    "deployment": "Northflank production",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
+    "releaseLabel": "2026.10.15 기능확장판",
+    "previousProductionCommit": "dd67f92",
+    "verifiedAtKst": "2026-10-15 18:56 KST"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -33,57 +35,7 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "앱 내 역할별 사용 가이드·목차·PDF 다운로드",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "guide_updated_pending_deployment",
-      "reference": "../in-app-user-guide.md",
-      "guideVersion": "1.1"
-    },
-    {
-      "feature": "시즌 선수 기록과 6종 포메이션",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "guide_updated_pending_deployment",
-      "reference": "../player-stats-and-formations.md",
-      "guideVersion": "1.1"
-    },
-    {
-      "feature": "02·03 한눈에 보기 및 자리별 직접 편집",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "guide_updated_pending_deployment",
-      "reference": "../mobile-squad-overview.md",
-      "guideVersion": "1.1"
-    },
-    {
-      "feature": "같은 탭 24시간 초안 복원과 저장 결과 확인",
-      "guides": [
-        "staff"
-      ],
-      "status": "guide_updated_pending_deployment",
-      "reference": "../match-draft-recovery.md",
-      "guideVersion": "1.1"
-    },
-    {
-      "feature": "전체 화면 안내문구 간결화와 추가 안내 펼침",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "guide_updated_pending_deployment",
-      "review": "배포 후 버튼명과 안내 문구를 다시 대조. 기능과 권한은 변경하지 않음.",
-      "guideVersion": "1.1"
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "date": "2026-10-15",
@@ -95,6 +47,70 @@
       "version": "1.1",
       "status": "pending_deployment",
       "change": "현행 로컬 구현과 대조해 회원용 4쪽·운영진용 10쪽 준비. 선수 시즌 기록, 6종 포메이션, 한눈에 보기 조회/편집, 경기 초안 복원·저장 확인, 추가 안내, 앱 가이드 메뉴 반영. 운영 반영 성공은 미확인."
+    },
+    {
+      "date": "2026-10-15",
+      "version": "1.1",
+      "status": "deployed",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
+      "verifiedAtKst": "2026-10-15 18:56 KST",
+      "change": "API·웹 배포 완료와 공개 JS/CSS·역할별 PDF의 로컬 릴리스 바이트 일치, 로그인·조회·권한 검증을 총괄이 확인. 가이드 배포 상태와 실제 커밋만 확정하고 화면 본문·releaseLabel·PDF·역할별 HTML은 그대로 유지."
+    }
+  ],
+  "releasedChanges": [
+    {
+      "feature": "앱 내 역할별 사용 가이드·목차·PDF 다운로드",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "deployed",
+      "reference": "../in-app-user-guide.md",
+      "guideVersion": "1.1",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
+    },
+    {
+      "feature": "시즌 선수 기록과 6종 포메이션",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "deployed",
+      "reference": "../player-stats-and-formations.md",
+      "guideVersion": "1.1",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
+    },
+    {
+      "feature": "02·03 한눈에 보기 및 자리별 직접 편집",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "deployed",
+      "reference": "../mobile-squad-overview.md",
+      "guideVersion": "1.1",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
+    },
+    {
+      "feature": "같은 탭 24시간 초안 복원과 저장 결과 확인",
+      "guides": [
+        "staff"
+      ],
+      "status": "deployed",
+      "reference": "../match-draft-recovery.md",
+      "guideVersion": "1.1",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
+    },
+    {
+      "feature": "전체 화면 안내문구 간결화와 추가 안내 펼침",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "deployed",
+      "review": "배포 후 버튼명과 안내 문구를 다시 대조. 기능과 권한은 변경하지 않음.",
+      "guideVersion": "1.1",
+      "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8"
     }
   ]
 }

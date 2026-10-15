@@ -1,6 +1,6 @@
 # 모바일 스쿼드 한눈에 보기
 
-2026-10-15 로컬 구현. 운영 서버에는 아직 반영하지 않았다.
+2026-10-15 기능확장판 `b9d8738`로 운영 반영했다. [배포 검증과 남은 실기기 확인](release-2026-10-15.md).
 
 ## 목적과 화면 흐름
 
@@ -30,7 +30,7 @@ flowchart LR
 
 ![전체보기에서 선발·교체와 골·도움 수정](diagrams/mobile-squad-editor.png)
 
-로컬 화면 소스는 `frontend/src/features/matches/SquadOverview.tsx`, `OverviewPositionEditor.tsx`, `squad-overview.css`이며 실제 출전 변경 검증은 `appearanceEdit.ts`를 사용한다. 기존 [포메이션 그림](diagrams/formation-guide.svg)과 [그림 생성 소스](../scripts/Generate-FormationGuide.mjs)에도 흐름을 반영했다. 앱 소스는 이번 단계에서 로컬에만 두며 문서·그림 공개와 운영 배포를 구분한다.
+화면 소스는 `frontend/src/features/matches/SquadOverview.tsx`, `OverviewPositionEditor.tsx`, `squad-overview.css`이며 실제 출전 변경 검증은 `appearanceEdit.ts`를 사용한다. 기존 [포메이션 그림](diagrams/formation-guide.svg)과 [그림 생성 소스](../scripts/Generate-FormationGuide.mjs)에도 흐름을 반영했다. 아래 검증 기록은 로컬 개발 당시 결과이며, 최종 운영 반영은 위 배포 기록을 따른다.
 
 ## 표시·접근성 기준
 

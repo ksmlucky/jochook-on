@@ -1,11 +1,13 @@
 import fs from 'node:fs/promises'
 const out = new URL('../docs/diagrams/match-draft-recovery.svg', import.meta.url)
+const releaseCommit = 'b9d8738f080d49911b31fcf9ef42b463a23478d8'
+const releaseLabel = `2026.10.15 기능확장판 · 운영 ${releaseCommit.slice(0,7)}`
 const esc = text => text.replaceAll('&','&amp;').replaceAll('<','&lt;')
-let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-labelledby="title desc"><title id="title">조축ON 경기 초안 복원과 저장 재시도</title><desc id="desc">로컬 구현. 같은 탭의 계정과 팀별 임시 초안, UUID 저장 요청, 서버의 완료 영수증 확인 및 동일 요청 재시도. 운영 미반영.</desc><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#5c806e" stroke-width="1.5"/></marker></defs><rect width="1200" height="780" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, sans-serif">`
+let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="780" viewBox="0 0 1200 780" role="img" aria-labelledby="title desc"><title id="title">조축ON 경기 초안 복원과 저장 재시도</title><desc id="desc">${releaseLabel}. 같은 탭의 계정과 팀별 임시 초안, UUID 저장 요청, 서버의 완료 영수증 확인 및 동일 요청 재시도. 운영 웹/API 커밋 ${releaseCommit}, Flyway V23 적용 확인.</desc><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#5c806e" stroke-width="1.5"/></marker></defs><rect width="1200" height="780" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, sans-serif">`
 function text(x,y,t,size=19,color='#263e33',bold=false) {svg+=`<text x="${x}" y="${y}" fill="${color}" font-size="${size}" font-weight="${bold?700:400}">${esc(t)}</text>`}
 function box(x,y,title,lines,fill='#fff') {svg+=`<rect x="${x}" y="${y}" width="340" height="140" rx="16" fill="${fill}" stroke="#bacfc0"/>`;text(x+20,y+33,title,23,'#28654d',true);lines.forEach((t,i)=>text(x+20,y+67+i*27,t,17,'#52695d'))}
 function arrow(x,y,xx,yy){svg+=`<path d="M${x} ${y} L${xx} ${yy}" stroke="#5c806e" stroke-width="2" marker-end="url(#arrow)" fill="none"/>`}
-text(40,43,'JOCHOOK ON / 조축ON',20,'#28654d',true);text(840,43,'로컬 구현 · 운영 미반영',19,'#68786f')
+text(40,43,'JOCHOOK ON / 조축ON',20,'#28654d',true);text(710,43,releaseLabel,18,'#68786f')
 text(40,94,'입력은 이어서, 같은 저장 요청은 한 번만',34,'#263e33',true)
 text(40,127,'임시 초안 보관과 서버 저장을 구분합니다. 계정·팀·수정 버전은 기존 권한 경계를 유지합니다.',19,'#52695d')
 box(40,165,'01 입력 중 임시 보관',['같은 탭 · 계정 + 팀별 1개','최대 24시간 · 직접 로그아웃 시 삭제','비밀번호·팀 코드·인증 토큰 제외'])
@@ -19,5 +21,6 @@ arrow(820,465,775,465);arrow(430,465,385,465)
 text(40,603,'보관 위치',23,'#28654d',true)
 text(40,639,'브라우저 sessionStorage: 현재 초안 · 원래 version · 미확인 저장 요청',19)
 text(40,672,'MySQL match_save_requests (V23): 요청 지문 · 결과 경기 ID/version · 시각',19)
-text(40,720,'실제 회원 자료를 넣지 않은 설명 그림입니다. 문서 공개와 운영 배포는 별도입니다.',18,'#68786f')
+text(40,720,'모바일 작전판의 입력도 같은 초안·단계별 저장 사용 / 사용 가이드에서 보관·복원 방법 확인',18,'#68786f')
+text(40,752,'실제 회원 자료를 넣지 않은 설명 그림입니다. 문서 공개와 운영 배포는 별도입니다.',16,'#68786f')
 svg+='</g></svg>';await fs.writeFile(out,svg);console.log(out.pathname)

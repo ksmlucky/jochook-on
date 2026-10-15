@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.1",
   "publishedOn": "2026.10.15",
-  "appCommit": "release-2026-10-15-feature-expansion",
-  "scope": "pending_deployment",
+  "appCommit": "b9d8738f080d49911b31fcf9ef42b463a23478d8",
+  "scope": "deployed",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
