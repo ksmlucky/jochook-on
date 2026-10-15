@@ -2,9 +2,9 @@
 
 [로컬 구현: 대회 관리와 경기 완료 전 점검](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg) · [그림 생성 원본](scripts/Generate-TournamentWorkflow.mjs) — 연도별 대회 등록·경기 연결, 리그/대회 표시와 합산·리그만·대회만·특정 대회 조회를 지원합니다. 운영 앱과 가이드에는 아직 반영하지 않았습니다.
 
-[로컬 개발: 선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg) · [생년·등번호 입력 예시](docs/diagrams/player-input-options-mobile.png) — 직접 입력+목록, 남는 등번호, 출석 기준, FK/PK 세부 득점과 1·4쿼터당 기록의 명세·검증 범위를 정리합니다. 실제 운영 상태와 구분합니다.
+[로컬 개발: 선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg) · [생년·등번호 입력 예시](docs/diagrams/player-input-options-mobile.png) — 직접 입력+목록, 남는 등번호, 출석 기준, FK/PK 세부 득점과 1~4쿼터당 기록의 명세·검증 범위를 정리합니다. 실제 운영 상태와 구분합니다.
 
-[로컬 구현: 선수별 시즌 상세와 원본 경기](docs/player-season-detail.md) — 선수 이름을 눌러 경기별 기록과 원본을 조회합니다. 운영 배포 전이며 현재 서비스와 구분합니다.
+[로컬 구현: 선수별 시즌 상세와 원본 경기](docs/player-season-detail.md) — 선수 상세에서도 연도·리그·대회·특정 대회를 골라 조회합니다. 리그에는 자체전을 포함하고, 경기별 카드는 실제 득점·도움을 표시합니다. 운영 배포 전이며 현재 서비스와 구분합니다.
 
 [앱 안의 사용 가이드](docs/in-app-user-guide.md) — 상단 메뉴에서 감독·코치는 운영진용, 회원은 회원용을 바로 읽고 PDF를 내려받습니다. 2026.10.15 기능확장판 운영 반영 완료.
 

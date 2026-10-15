@@ -17,7 +17,7 @@
 
 `GET /api/v1/matches`, `/api/v1/stats/players`, `/api/v1/stats/players/{playerId}/matches`는 `tournamentId` 필터를 선택적으로 받는다. 연도·경기 유형·완료 상태 등 다른 조건과 함께 적용한다. 연결 변경은 경기 버전·변경 이력·저장 영수증에 반영된다. 구버전 동결 요청의 영수증 지문은 유지하여 재시도가 중복 저장으로 바뀌지 않도록 한다. [명세·화면 흐름](tournaments-and-completion-review.md)
 
-위 세 조회 API는 `competitionScope=ALL|LEAGUE|TOURNAMENT`도 받는다(기본 `ALL`). `LEAGUE`는 외부 경기이면서 대회 미연결, `TOURNAMENT`는 외부 경기이면서 대회 연결이다. `ALL`은 기존 경기 유형·시즌·대회 ID 조건을 유지한다. `tournamentId`가 있으면 그 대회로 더 좁히며 `LEAGUE`와 대회 ID의 동시 지정, 선수 기록의 `kind=INTERNAL`과 비전체 대회 범위는 400이다. `kind=ALL`과 비전체 범위는 외부 경기 중 해당 범위만 집계한다. 모든 조건은 DB 조회·페이징·개인 상세 합계에도 적용한다. 별도 테이블이나 리그 순위 계산은 추가하지 않는다.
+위 세 조회 API는 `competitionScope=ALL|LEAGUE|TOURNAMENT`도 받는다(기본 `ALL`). `LEAGUE`는 대회 미연결 경기 전체로 **외부 정기 경기와 자체전**을 포함한다. `TOURNAMENT`는 외부 경기이면서 대회 연결이다. `ALL`은 경기 유형·시즌·대회 ID 조건을 유지한다. `tournamentId`가 있으면 그 대회로 더 좁히며 `LEAGUE`와 대회 ID의 동시 지정, `kind=INTERNAL`과 `TOURNAMENT`/대회 ID는 400이다. `kind`는 별도의 교집합 조건이므로 `INTERNAL+LEAGUE`는 자체전만, `EXTERNAL+LEAGUE`는 외부 정기 경기만이다. 새 선수 기록 UI 기본값은 `kind=ALL`로 자체전을 포함한다. 모든 조건은 DB 조회·페이징·개인 상세 합계·선택 가능한 연도에도 적용한다. 별도 테이블이나 리그 순위 계산은 추가하지 않는다.
 
 ## 팀 접속과 세션 로그인
 
@@ -256,4 +256,4 @@ ID는 설명용이다. 날짜·playerIds(중복 없는 활동 선수 1~200명)·
 
 경기 엑셀은 기존 8열과 FK/PK가 끝에 추가된 10열을 지원한다. 기존 양식의 세부 필드는 미지정으로, 새 양식의 빈 세부 셀은 0으로 해석한다. 새 양식을 기존 기록에 적용할 때 0은 초기화 의미가 있으므로 미리보기 내용을 확인한다.
 
-1쿼터당·4쿼터당은 서버가 반환한 합계와 `creditedQuarters`로 프론트에서 계산한다. 1쿼터당은 합계/쿼터, 4쿼터당은 그 값의 4배이고 0쿼터는 값 없음이다. 생년·가용 등번호 UI는 기존 활동 선수/용병 조회 API를 재사용하며 API·DB 허용 생년 범위는 유지한다. [기능 명세](player-input-and-stat-details.md).
+1~4쿼터당은 서버가 반환한 합계와 `creditedQuarters`로 프론트에서 계산한다. 합계/쿼터에 선택한 쿼터 수를 곱하며 0쿼터는 값 없음이다. 개인 상세 아래 경기별 카드는 이 선택과 관계없이 실제 득점·도움이며 프리킥·페널티킥은 각 득점이 있을 때만 표시한다. 생년·가용 등번호 UI는 기존 활동 선수/용병 조회 API를 재사용하며 API·DB 허용 생년 범위는 유지한다. [기능 명세](player-input-and-stat-details.md).
