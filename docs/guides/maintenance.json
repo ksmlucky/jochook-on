@@ -37,7 +37,7 @@
   ],
   "pendingChanges": [
     {
-      "feature": "경기·선수 기록·대회 연도/월 조회와 선수 표 열 제목 정렬",
+      "feature": "시작 연월~종료 연월 조회, 매칭·자체전 요약과 선수 표 열 제목 정렬",
       "guides": [
         "member",
         "staff"
@@ -45,7 +45,7 @@
       "status": "locally_verified_pending_user_review_and_deployment",
       "reference": "../date-filters-and-table-sorting.md",
       "diagram": "../diagrams/player-season-detail.svg",
-      "review": "두 역할 공통: 연도/전체 월/1~12월, 전체 연도 시 월 해제, 경기 날짜 기준 통계와 대회 기간 겹침 기준, 선수 상세 기간 유지, 표 등번호·선수 독립 열과 제목 클릭 양방향 정렬·↑↓ 표시를 설명한다. 정렬 드롭다운·출석일 많은 순 안내는 열 제목 클릭 안내로 교체한다. 운영 content.json·HTML·PDF·앱 가이드1.1은 기능 배포 준비 전까지 유지한다."
+      "review": "두 역할 공통: 시작 연월~종료 연월+조회, 미완성/역순 안내와 이전결과 보존, 전체기간/올해 초기화, 경기날짜 기준 통계와 대회기간 겹침, 개인상세 기간 유지. 상단 집계 경기에는 매칭/자체전 횟수, 누적 득점은 둘 다, 누적 실점은 매칭만 집계하며 미입력은0이 아님을 설명한다. 표 제목 양방향 정렬과 ↑↓도 설명한다. 운영 content.json·HTML·PDF·앱 가이드1.1은 기능 배포 준비 전까지 유지한다."
     },
     {
       "feature": "생년·가용 등번호 선택, 출석 표기, FK/PK와 쿼터당 스탯",

@@ -1,5 +1,15 @@
 # 현재 API
 
+## 연월 범위와 경기 유형별 요약 (2026-10-15 후속 · 로컬)
+
+경기·대회 목록과 선수 기록 목록/개인 상세는 `startMonth=2026-03&endMonth=2026-06`처럼 YYYY-MM 쌍을 받는다. 시작월 첫날부터 종료월 마지막 날까지 포함한다. 둘 다 생략하면 아래의 기존 year/month 규칙이 유지되고, 한쪽만 지정·형식 오류·역순·year/month와 혼합하면 400이다. 허용 범위는 1000-01~9999-12이며 연도 걸침·같은 달 조회를 지원한다. 대회는 기간 겹침, 경기는 경기 날짜 기준으로 필터 후 DB 페이징한다. 선수 통계의 오늘 이후 경기 제외와 기간에 무관한 availableYears를 유지한다.
+
+통계 목록과 개인 상세 응답에 `startMonth`, `endMonth`를 추가한다(기존 방식이면 null). 범위 조회에서 기존 `year`는 시작 연도이며 조회 기간을 제한하는 추가 조건이 아니다. 새 화면은 기존 year/month와 범위를 동시에 보내지 않는다.
+
+통계 목록의 `externalMatchCount`/`internalMatchCount`는 각각 매칭/자체전 횟수이고 합은 matchCount다. `goalsAgainst`는 외부 경기 scoreAgainst의 합이며 집계 가능한 값이 없으면 null이다. `scoredExternalMatchCount`와 `missingExternalScoreCount`는 입력/미입력 외부 경기 수이고 합은 externalMatchCount다. `excludedInternalMatchCount`는 internalMatchCount와 같다. 이 필드들은 같은 기간·팀·경기 유형·완료 상태·대회 조건으로 경기마다 한 번만 계산한다. includeGuests는 선수 득점 범위에만 영향을 주고 팀 실점에는 영향이 없다. 개인 상세에 팀 실점 필드는 넣지 않는다.
+
+[현재 화면 기준과 인수 조건](date-filters-and-table-sorting.md). 아래 단일 연도/월 계약은 구버전 요청 호환용으로 남긴다.
+
 ## 연도·월 조회 (2026-10-15 · 로컬 개발 / 운영 미반영)
 
 - `GET /api/v1/matches?year=2026&month=10`: 경기 날짜로 필터링한 뒤 기존 페이지·경기 구분을 적용한다. `year` 생략은 전체 기간, `month` 생략은 해당 연도 전체다.
