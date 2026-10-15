@@ -1,0 +1,24 @@
+{
+  "source": "content.json",
+  "generator": "../../scripts/Generate-UserGuides.py",
+  "release": {"guideVersion": "1.0", "date": "2026-10-15", "appCommit": "dd67f92", "deployment": "Northflank existing production"},
+  "artifacts": ["jochook-on-member-guide.html", "jochook-on-member-guide.pdf", "jochook-on-staff-guide.html", "jochook-on-staff-guide.pdf"],
+  "updateTriggers": ["메뉴/버튼/안내 문구", "회원·감독·코치 권한", "선수 및 경기 입력과 저장", "지원 포메이션과 집계 규칙", "접속 주소·코드·초대·설치 흐름"],
+  "checklist": [
+    "기능 변경 시 운영진/회원 가이드에 미치는 영향을 확인하고 미배포 변경은 pendingChanges에 기록한다.",
+    "배포 확인 뒤 content.json의 사용법·기준일·appCommit·guideVersion을 갱신한다. 영향 없는 역할은 확인 결과를 남긴다.",
+    "generator로 HTML/PDF를 재생성하고 모든 PDF 페이지를 렌더링하여 글자·잘림·페이지 번호·링크를 확인한다.",
+    "실제 UI의 버튼 이름·권한·저장 결과와 대조하고 개인 정보·접속 비밀값이 없는지 검토한다.",
+    "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
+    "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
+  ],
+  "pendingChanges": [
+    {"feature": "시즌 선수 기록과 6종 포메이션", "guides": ["member", "staff"], "status": "local_only", "reference": "../player-stats-and-formations.md"},
+    {"feature": "02·03 한눈에 보기 및 자리별 직접 편집", "guides": ["member", "staff"], "status": "local_only", "reference": "../mobile-squad-overview.md"},
+    {"feature": "같은 탭 24시간 초안 복원과 저장 결과 확인", "guides": ["staff"], "status": "local_only", "reference": "../match-draft-recovery.md"},
+    {"feature": "전체 화면 안내문구 간결화와 추가 안내 펼침", "guides": ["member", "staff"], "status": "local_only", "review": "배포 후 버튼명과 안내 문구를 다시 대조. 기능과 권한은 변경하지 않음."}
+  ],
+  "history": [
+    {"date": "2026-10-15", "version": "1.0", "change": "현재 배포판 소스 기준 회원용 3쪽·운영진용 7쪽 최초 제작. 가상 설명과 공개 주소만 포함. 로컬 확장 기능은 미포함."}
+  ]
+}

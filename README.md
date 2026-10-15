@@ -1,5 +1,7 @@
 # 조축ON
 
+[사용자 가이드 모음](docs/guides/index.html) · [회원용 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 PDF](docs/guides/jochook-on-staff-guide.pdf) — 2026-10-15 현재 배포판 기준입니다. 기능 개발 때 함께 검토하고, 실제 배포 후 사용법·버전·공유본을 갱신합니다. [갱신 규칙과 대기 변경](docs/guides/maintenance.json).
+
 [시스템 구성도·업무 흐름도](docs/system-overview.md) — 운영 서버·기술 스택·개발 배포·백업의 현재 구조를 한눈에 봅니다.
 
 [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md) — 로컬 미리보기의 02·03 전체화면 작전판과 사용 흐름입니다. 운영 미반영.
