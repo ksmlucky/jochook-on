@@ -1,6 +1,6 @@
 # 조축ON
 
-[로컬 구현: 대회 관리와 경기 완료 전 점검](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg) · [그림 생성 원본](scripts/Generate-TournamentWorkflow.mjs) — 대회 등록·경기 연결·대회별 조회를 가상 자료로 검증했습니다. 운영 앱과 가이드에는 아직 반영하지 않았습니다.
+[로컬 구현: 대회 관리와 경기 완료 전 점검](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg) · [그림 생성 원본](scripts/Generate-TournamentWorkflow.mjs) — 대회 등록·경기 연결·대회별 조회, 정기 경기의 리그 표시와 리그/대회 배지를 가상 자료로 검증했습니다. 운영 앱과 가이드에는 아직 반영하지 않았습니다.
 
 [로컬 구현: 선수별 시즌 상세와 원본 경기](docs/player-season-detail.md) — 선수 이름을 눌러 경기별 기록과 원본을 조회합니다. 운영 배포 전이며 현재 서비스와 구분합니다.
 
