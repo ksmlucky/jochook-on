@@ -1,5 +1,7 @@
 # 조축ON
 
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) — 상단 메뉴에서 감독·코치는 운영진용, 회원은 회원용을 바로 읽고 PDF를 내려받습니다. 로컬 구현·운영 미반영.
+
 [사용자 가이드 모음](docs/guides/index.html) · [회원용 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 PDF](docs/guides/jochook-on-staff-guide.pdf) — 2026-10-15 현재 배포판 기준입니다. 기능 개발 때 함께 검토하고, 실제 배포 후 사용법·버전·공유본을 갱신합니다. [갱신 규칙과 대기 변경](docs/guides/maintenance.json).
 
 [시스템 구성도·업무 흐름도](docs/system-overview.md) — 운영 서버·기술 스택·개발 배포·백업의 현재 구조를 한눈에 봅니다.
