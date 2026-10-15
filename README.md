@@ -1,5 +1,7 @@
 # 조축ON
 
+[로컬 구현: 대회 관리와 경기 완료 전 점검](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg) · [그림 생성 원본](scripts/Generate-TournamentWorkflow.mjs) — 대회 등록·경기 연결·대회별 조회를 가상 자료로 검증했습니다. 운영 앱과 가이드에는 아직 반영하지 않았습니다.
+
 [로컬 구현: 선수별 시즌 상세와 원본 경기](docs/player-season-detail.md) — 선수 이름을 눌러 경기별 기록과 원본을 조회합니다. 운영 배포 전이며 현재 서비스와 구분합니다.
 
 [앱 안의 사용 가이드](docs/in-app-user-guide.md) — 상단 메뉴에서 감독·코치는 운영진용, 회원은 회원용을 바로 읽고 PDF를 내려받습니다. 2026.10.15 기능확장판 운영 반영 완료.

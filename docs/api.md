@@ -1,5 +1,22 @@
 # 현재 API
 
+## 대회와 경기 연결 (로컬 개발·운영 미반영)
+
+모든 요청에 기존 팀 세션·`X-Team-Id`가 필요하다. 조회는 회원도 가능하며 등록·수정은 DIRECTOR/COACH만 가능하다. 변경 요청은 CSRF 검증을 받는다.
+
+| 요청 | 결과 |
+| --- | --- |
+| `GET /api/v1/tournaments?page=0&size=10` | `{items,page,totalPages,totalElements}`, 최대 100개, 시작일·ID 내림차순 |
+| `GET /api/v1/tournaments/{id}` | 대회 한 건 |
+| `POST /api/v1/tournaments` | 201, 새 대회 |
+| `PUT /api/v1/tournaments/{id}` | 200, 수정한 대회. 기존 version 필수 |
+
+대회 필드: `{id,version,name,startDate,endDate,venue,division,notes,matchCount}`. 요청은 id·matchCount를 제외하며 생성 version은 생략한다. 이름 1~120자, 기간 필수(1000~9999년, 종료일 ≥ 시작일), 장소 120자·참가 부문 80자·메모 3,000자 이내 선택. 없는 대회/타 팀 대회는 동일 404 `TOURNAMENT_NOT_FOUND`, 버전 충돌은 409 `TOURNAMENT_CONFLICT`다. 삭제는 제공하지 않는다.
+
+경기 요청에 선택적인 `tournamentId`, `tournamentStage`, `tournamentSelectionSpecified`가 추가된다. 단계는 `GROUP/R16/QUARTER_FINAL/SEMI_FINAL/FINAL/THIRD_PLACE/OTHER` 또는 null이다. 새 화면은 `tournamentSelectionSpecified=true`로 선택을 명시하며 id·stage를 null로 보내면 연결을 해제한다. 구버전 요청에서 플래그가 없고 id·stage도 null/생략이면 기존 연결을 보존한다. id 또는 stage가 non-null이면 플래그 생략 시에도 선택 변경으로 처리한다. 대회 없이 단계만 지정하거나 자체전에 대회를 연결하면 거부한다. 기간 밖 경기 날짜는 화면에서 안내하되 저장을 허용한다. 표시용 `tournamentName`은 서버가 조회하며 요청 값은 사용하지 않는다.
+
+`GET /api/v1/matches`, `/api/v1/stats/players`, `/api/v1/stats/players/{playerId}/matches`는 `tournamentId` 필터를 선택적으로 받는다. 연도·경기 유형·완료 상태 등 다른 조건과 함께 적용한다. 연결 변경은 경기 버전·변경 이력·저장 영수증에 반영된다. 구버전 동결 요청의 영수증 지문은 유지하여 재시도가 중복 저장으로 바뀌지 않도록 한다. [명세·화면 흐름](tournaments-and-completion-review.md)
+
 ## 팀 접속과 세션 로그인
 
 팀 생성·운영진 지정·초대·조회 코드 API는 [팀 접속 API 계약](team-access-api.md)을 따른다. 아래 선수·경기 API에도 **`X-Team-Id: 현재 선택 팀 ID`** 헤더가 필수다. 서버가 세션의 선택 팀 및 현재 소속과 검증하므로 헤더만 바꿔 다른 팀에 접근할 수 없다. 누락·불일치는 409 `TEAM_CHANGED`, 다른 팀의 상세 ID는 404다. 팀 없는 서비스 관리자는 서비스 관리 API만 사용할 수 있다.
