@@ -59,12 +59,12 @@ begin('03','개발 · 검증 · 배포 흐름도','GitHub는 소스와 검증 �
 const roles=[['요구사항','사용자 · 실제 운영'],['기획','정의서 · 스토리보드'],['개발','화면 / API / DB'],['검증','개발자 + 총괄'],['사용자 확인','휴대전화 실사용']];
 roles.forEach(([title,sub],i)=>{box(54+i*264,169,234,125,title,[sub],{fill:i===0?C.mint:C.paper,size:19});if(i<4)arrow(290+i*264,231,314+i*264,231)});
 text(54,335,'요청에 맞춰 역할을 나누고, 기능 하나씩 구현·검증합니다.',{size:20,color:C.muted});
-box(54,380,350,252,'① 로컬 개발',['하나의 Git 저장소','frontend/  React · TypeScript','backend/  기능별 Spring Boot','Flyway: DB 변경 이력 V1~V20','JUnit / 프론트 테스트'],{size:21});
+box(54,380,350,252,'① 로컬 개발',['하나의 Git 저장소','frontend/  React · TypeScript','backend/  기능별 Spring Boot','Flyway: 운영 V20 / 로컬 V21','JUnit / 프론트 테스트'],{size:21});
 box(525,380,350,252,'② GitHub + Actions',['ksmlucky/jochook-on','push / PR 때 자동 검증','Java 단위·API / 프론트 테스트','Testcontainers로 MySQL 검증','실행 JAR · 웹 빌드'],{fill:C.sky,accent:C.blue,size:21});
 box(995,380,350,252,'③ Northflank 배포',['선택한 커밋을 수동 빌드·배포','Dockerfile의 2개 target','api → Java 실행 이미지','web-northflank → Caddy + 웹','배포 후 HTTPS·권한·화면 확인'],{fill:C.mint,size:20});
 arrow(405,485,523,485,'Git push');arrow(876,485,993,485,'검증 후 배포');
 box(54,686,625,183,'이미 확인한 운영 버전',['운영 커밋 dd67f92 · 모바일 4열·작전판·작성 상태','당시 CI: Java 211 / MySQL 통합 91 / 프론트 45','자동 검증과 자동 배포는 별개 · 자동 배포는 꺼짐'],{size:21});
-box(714,686,631,183,'현재 진행 상황',['밤사이 보완 코드는 로컬에서 검증·검토 중','그림·문서는 GitHub에 보관 · 앱 추가 배포 없음','인프라 후보 변경은 복구·비용·성능 검증 후 결정'],{fill:C.cream,accent:C.amber,size:21});
+box(714,686,631,183,'현재 진행 상황',['시즌 집계·포메이션 4종은 로컬 구현','그림·문서는 GitHub에 보관 · 앱 추가 배포 없음','인프라 후보 변경은 복구·비용·성능 검증 후 결정'],{fill:C.cream,accent:C.amber,size:21});
 await end('03-development-deployment');
 
 begin('04','백업 · 복구 흐름도와 다음 과제','백업 파일 생성과 복원 성공을 따로 확인합니다. 자동 예약은 아직 동작하지 않습니다.');
@@ -75,8 +75,8 @@ arrow(405,277,523,277,'보관');arrow(876,277,993,277,'해독·복원');
 rect(54,461,1291,176,{fill:C.cream,stroke:'#e1c895'});
 text(79,501,'매일 04시 · 7일 보관 → 무료 계정에서 거절',{size:27,weight:600,color:C.amber});
 text(79,540,['일정 등록 API: daily 예약 불가(400) · 자동 일정 생성되지 않음','승인된 설정 권한 한 개를 잠깐 추가 → 오류 확인 → 즉시 회수 → 원래 권한과 일치 확인','무료 요금표의 백업 포함과 매일 자동 예약 허용은 다릅니다.'],{size:21,gap:32});
-text(54,688,'다음 순서 · 제안이며 아직 구현/정책 확정이 아닙니다',{size:24,weight:600});
-const next=[['운영 자료 보호',['허용되는 무료 자동화 확인','별도 사본·키·정기 복원']],['입력 안정성',['초안 복원','신규 경기 중복 저장 방지']],['회원용 시즌 기록',['득점·도움·출석·출전량','집계·동률 규칙 먼저 합의']],['포메이션 확장',['편성의 실전 제약 보강','다른 팀 도입은 그 이후']]];
+text(54,688,'진행 구분 · 시즌 기록과 포메이션은 로컬 구현, 운영 미반영',{size:24,weight:600});
+const next=[['운영 자료 보호',['허용되는 무료 자동화 확인','별도 사본·키·정기 복원']],['입력 안정성',['초안 복원','신규 경기 중복 저장 방지']],['시즌 기록 · 로컬',['득점·도움·참석·출전량','시상·동률 정책은 이후']],['포메이션 4종 · 로컬',['4백 구성을 먼저 비교','3백·다른 팀 도입은 이후']]];
 next.forEach(([title,lines],i)=>{box(54+i*330,721,300,151,title,lines,{size:20,fill:i===0?C.cream:C.paper,accent:i===0?C.amber:C.green});if(i<3)arrow(355+i*330,797,381+i*330,797)});
 await end('04-backup-next-steps');
 

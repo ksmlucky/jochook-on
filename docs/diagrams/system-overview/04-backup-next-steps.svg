@@ -33,7 +33,7 @@
 <text x="79" y="540" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">일정 등록 API: daily 예약 불가(400) · 자동 일정 생성되지 않음</text>
 <text x="79" y="572" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">승인된 설정 권한 한 개를 잠깐 추가 → 오류 확인 → 즉시 회수 → 원래 권한과 일치 확인</text>
 <text x="79" y="604" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">무료 요금표의 백업 포함과 매일 자동 예약 허용은 다릅니다.</text>
-<text x="54" y="688" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">다음 순서 · 제안이며 아직 구현/정책 확정이 아닙니다</text>
+<text x="54" y="688" font-size="24" fill="#203a33" font-weight="600" text-anchor="start">진행 구분 · 시즌 기록과 포메이션은 로컬 구현, 운영 미반영</text>
 <rect x="54" y="721" width="300" height="151" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="741" width="5" height="111" rx="2" fill="#8b5b18"/>
 <text x="78" y="760" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">운영 자료 보호</text>
@@ -48,15 +48,15 @@
 <path d="M 685 797 L 711 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="714" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="738" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">회원용 시즌 기록</text>
-<text x="738" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">득점·도움·출석·출전량</text>
-<text x="738" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">집계·동률 규칙 먼저 합의</text>
+<text x="738" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">시즌 기록 · 로컬</text>
+<text x="738" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">득점·도움·참석·출전량</text>
+<text x="738" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">시상·동률 정책은 이후</text>
 <path d="M 1015 797 L 1041 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="1044" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="1044" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">포메이션 확장</text>
-<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">편성의 실전 제약 보강</text>
-<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">다른 팀 도입은 그 이후</text>
+<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">포메이션 4종 · 로컬</text>
+<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">4백 구성을 먼저 비교</text>
+<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">3백·다른 팀 도입은 이후</text>
 <text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
 </g></svg>
