@@ -8,6 +8,8 @@
 
 로컬 확장판에는 선수 시즌 기록과 포메이션 여섯 종류(4백 4종·3백 2종)를 추가했다. 운영 구성은 그대로이며, [별도 포메이션 그림과 기능 명세](player-stats-and-formations.md)에 운영 미반영 상태를 표시한다.
 
+모바일 02·03의 [스쿼드 한눈에 보기와 화면 흐름](mobile-squad-overview.md)도 로컬에 추가했다. 전체화면 조회는 기존 기록의 저장·집계·배포 구조를 바꾸지 않는다.
+
 ## 그림 미리보기
 
 ![시스템 아키텍처와 서버 위치](diagrams/system-overview/01-system-architecture.svg)
