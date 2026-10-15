@@ -1,4 +1,4 @@
-"""Build the deployed-version user guides from one JSON source.
+"""Build role-specific user guides from one JSON source.
 
 Requires reportlab and Korean TrueType fonts. Windows defaults to Malgun Gothic;
 other hosts may pass --font and --bold-font. No network or app/database access.
@@ -30,7 +30,8 @@ def build_pdf(guide, data, target):
     c = canvas.Canvas(str(target), pagesize=(W, H), invariant=1)
     c.setTitle(f"조축ON {guide['audience']} 사용 가이드")
     c.setAuthor("조축ON")
-    c.setSubject(f"현재 서비스 기준 · {data['publishedOn']} · 가이드 {data['guideVersion']}")
+    release_label = data.get('releaseLabel', f"{data['publishedOn']} 기준")
+    c.setSubject(f"{release_label} · 가이드 {data['guideVersion']}")
     styles = {
         "body": ParagraphStyle("body", fontName="Guide", fontSize=11.5, leading=18.2, textColor=colors.HexColor(INK), wordWrap="CJK"),
         "small": ParagraphStyle("small", fontName="Guide", fontSize=10, leading=15.5, textColor=colors.HexColor(MUTED), wordWrap="CJK"),
@@ -68,10 +69,10 @@ def build_pdf(guide, data, target):
             y -= 49
         for section in page["sections"]:
             p(section["title"], "section", 5)
-            for text in section.get("body", []):
-                p(text)
             for i, text in enumerate(section.get("steps", []), 1):
                 p(f'<b>{i}.</b> {text}', gap=6)
+            for text in section.get("body", []):
+                p(text)
             y -= 7
         if note := page.get("note"):
             para = Paragraph(note, styles["small"])
@@ -84,7 +85,7 @@ def build_pdf(guide, data, target):
             y -= box_h
         c.setStrokeColor(colors.HexColor("#d7e2d8")); c.line(M, 38, W - M, 38)
         c.setFont("Guide", 8.5); c.setFillColor(colors.HexColor(MUTED))
-        c.drawString(M, 23, f"현재 서비스 기준 · {data['publishedOn']}  |  인터넷 연결 필요")
+        c.drawString(M, 23, f"{release_label}  |  인터넷 연결 필요")
         c.drawRightString(W - M, 23, f"{n:02} / {len(guide['pages']):02}")
         layouts.append({"page": n, "title": page["title"], "contentBottom": round(y, 1)})
         c.showPage()
@@ -93,16 +94,17 @@ def build_pdf(guide, data, target):
 
 
 def build_html(guide, data):
+    release_label = html.escape(data.get('releaseLabel', f"{data['publishedOn']} 기준"))
     pages = []
     for n, page in enumerate(guide["pages"], 1):
         sections = []
         for s in page["sections"]:
             body = ''.join(f'<p>{t}</p>' for t in s.get("body", []))
             steps = '<ol>' + ''.join(f'<li>{t}</li>' for t in s["steps"]) + '</ol>' if s.get("steps") else ''
-            sections.append(f'<section><h3>{html.escape(s["title"])}</h3>{body}{steps}</section>')
+            sections.append(f'<section><h3>{html.escape(s["title"])}</h3>{steps}{body}</section>')
         action = f'<a class="open-app" href="{html.escape(data["publicUrl"], quote=True)}">조축ON 열기 →</a>' if page.get("openApp") else ''
         note = f'<aside>{page["note"]}</aside>' if page.get("note") else ''
-        pages.append(f'<article id="page-{n}"><header><strong>조축ON</strong><span>{guide["audience"]} 가이드 {data["guideVersion"]}</span></header><p class="kicker">{page["kicker"]}</p><h2>{page["title"]}</h2><p class="lead">{page["lead"]}</p>{action}{"".join(sections)}{note}<footer>현재 서비스 기준 · {data["publishedOn"]} · {n} / {len(guide["pages"])}</footer></article>')
+        pages.append(f'<article id="page-{n}"><header><strong>조축ON</strong><span>{guide["audience"]} 가이드 {data["guideVersion"]}</span></header><p class="kicker">{page["kicker"]}</p><h2>{page["title"]}</h2><p class="lead">{page["lead"]}</p>{action}{"".join(sections)}{note}<footer>{release_label} · {n} / {len(guide["pages"])}</footer></article>')
     return f'''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>조축ON {guide["audience"]} 사용 가이드</title>
 <style>*{{box-sizing:border-box}}body{{margin:0;background:#eaf0e9;color:{INK};font:16px/1.75 system-ui,'Malgun Gothic',sans-serif;word-break:keep-all;overflow-wrap:anywhere}}main{{max-width:640px;margin:auto}}article{{padding:28px 26px;background:#f6f8f3;border-top:6px solid {GREEN};margin:20px 0;box-shadow:0 4px 18px #203b3312;border-radius:12px}}header{{display:flex;justify-content:space-between;gap:16px;color:{GREEN};font-size:14px}}h1{{font-size:17px;margin:24px 20px 0}}h2{{font-size:30px;line-height:1.3;margin:10px 0}}h3{{font-size:19px;color:{GREEN};margin:25px 0 8px}}p{{margin:8px 0}}.lead{{color:{MUTED}}}.kicker{{margin-top:25px;font-size:13px;font-weight:700;color:{GREEN}}}.open-app{{display:block;padding:11px;text-align:center;border-radius:10px;background:{GREEN};color:white;text-decoration:none;margin:20px 0}}aside{{background:#e7efe8;padding:16px;border-radius:10px;margin:24px 0;font-size:14px}}footer{{border-top:1px solid #d7e2d8;padding-top:14px;margin-top:24px;font-size:12px;color:{MUTED}}}li{{margin:6px 0}}ol{{padding-left:24px}}a:focus-visible{{outline:3px solid #c88c25;outline-offset:4px}}@media(max-width:480px){{article{{margin:10px;border-radius:10px;padding:24px 20px}}h2{{font-size:27px}}header span{{font-size:12px}}}}@media print{{article{{box-shadow:none;break-after:page;margin:0}}h1{{display:none}}}}</style>
 <main><h1>조축ON {guide["audience"]} 사용 가이드</h1>{''.join(pages)}</main></html>'''

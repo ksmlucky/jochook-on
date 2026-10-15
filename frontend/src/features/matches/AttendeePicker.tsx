@@ -17,7 +17,8 @@ export function AttendeePicker({ players, participants, editable, referenceYear,
     <div className="attendee-tools"><label>참석 투표 선수 검색<input value={search} onChange={e => setSearch(e.target.value)} placeholder="이름 또는 등번호" /></label>
       <label className="inline-check"><input type="checkbox" checked={onlySelected} onChange={e => setOnlySelected(e.target.checked)} />선택한 선수만 보기</label>
       <strong>참석 예정 {attending.size}명</strong></div>
-    <p className="field-help">참석에 투표한 선수를 체크하세요. 체크 해제는 미투표로 돌리며 실제 출석은 바꾸지 않습니다. 불참·미정은 아래 상세 표에서 입력할 수 있습니다.</p>
+    <p className="field-help">참석에 투표한 선수를 선택해 주세요. 해제하면 미투표로 돌아가요.</p>
+    <p className="field-help">불참·미정과 실제 출석은 아래 상세 표에서 따로 입력해 주세요.</p>
     <div className="attendee-grid">{candidates.map(p => <label className={`attendee-choice position-${preferredPositionGroup(p.firstChoice)}${attending.has(p.id) ? ' is-selected' : ''}`} key={p.id}>
       <input type="checkbox" checked={attending.has(p.id)} disabled={!editable} onChange={e => onSelect(p, e.target.checked)} aria-label={`${p.name} ${p.shirtNumber === null ? '등번호 없음' : p.shirtNumber + '번'} 참석 예정`} />
       <span className="attendee-details">

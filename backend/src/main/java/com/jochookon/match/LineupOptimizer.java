@@ -8,24 +8,57 @@ import java.util.stream.IntStream;
 
 /** DB와 분리된 편성 정책. 모든 출전량은 반 쿼터를 1로 하는 정수로 계산한다. */
 public final class LineupOptimizer {
-    public static final String POLICY = "4123-attendance-rest-v1";
+    public static final String POLICY = "formations-attendance-rest-v3";
     private static final int[] WEIGHTS = {100, 60, 30};
+    private static final int[] COMPATIBLE_WEIGHTS = {20, 12, 6};
     public record Candidate(long id, List<PreferredPosition> preferences, long attended, long recorded) {
         boolean keeper() { return preferences.contains(PreferredPosition.GK); }
         boolean known() { return preferences.stream().anyMatch(Objects::nonNull); }
-        int score(LineupSlot slot) {
-            var position = switch (slot) {
-                case LCB, RCB -> PreferredPosition.CB;
+        private PreferredPosition position(LineupSlot slot) {
+            return switch (slot) {
+                case LCB, CCB, RCB -> PreferredPosition.CB;
                 case LCM, RCM -> PreferredPosition.CM;
+                case LCDM, RCDM -> PreferredPosition.CDM;
+                case LST, RST -> PreferredPosition.ST;
                 default -> PreferredPosition.valueOf(slot.name());
             };
-            int rank = preferences.indexOf(position);
+        }
+        int exactScore(LineupSlot slot) {
+            int rank = preferences.indexOf(position(slot));
             return rank < 0 ? 0 : WEIGHTS[rank];
+        }
+        int score(LineupSlot slot) {
+            int exact = exactScore(slot);
+            if (exact > 0) return exact;
+            // Nearby roles are a fallback, always below any exact third choice.
+            var compatible = switch (position(slot)) {
+                case LM -> List.of(PreferredPosition.LW, PreferredPosition.LWB);
+                case RM -> List.of(PreferredPosition.RW, PreferredPosition.RWB);
+                case CAM -> List.of(PreferredPosition.CM);
+                case LW -> List.of(PreferredPosition.LM);
+                case RW -> List.of(PreferredPosition.RM);
+                case CM -> List.of(PreferredPosition.CAM);
+                case LB -> List.of(PreferredPosition.LWB);
+                case RB -> List.of(PreferredPosition.RWB);
+                case LWB -> List.of(PreferredPosition.LB, PreferredPosition.LM);
+                case RWB -> List.of(PreferredPosition.RB, PreferredPosition.RM);
+                default -> List.<PreferredPosition>of();
+            };
+            // Several nearby preferences do not stack: use the highest ranked match only.
+            for (int rank = 0; rank < preferences.size(); rank++) {
+                var choice = preferences.get(rank);
+                if (choice != null && compatible.contains(choice)) return COMPATIBLE_WEIGHTS[rank];
+            }
+            return 0;
         }
     }
     private record GroupResult(List<MatchRequest.PlannedEntry> entries, boolean optimal) { }
 
     public LineupSuggestion suggest(List<Candidate> input, int seed) {
+        return suggest(input, seed, Formation.F4123);
+    }
+    public LineupSuggestion suggest(List<Candidate> input, int seed, Formation formation) {
+        formation = Formation.orDefault(formation);
         if (input.isEmpty() || input.size() > 200 || input.stream().map(Candidate::id).distinct().count() != input.size())
             throw new IllegalArgumentException("서로 다른 참석 예정 선수 1~200명을 선택해 주세요.");
         // 호출 입력 순서에 영향을 받지 않으며 출석률 동률은 시드로 정한 순서를 사용한다.
@@ -41,7 +74,7 @@ public final class LineupOptimizer {
         if (keepers.isEmpty()) warnings.add("GK 선호가 있는 참석자가 없어 GK 자리를 비웠습니다.");
         if (field.size() < 10) warnings.add("필드 선수가 " + field.size() + "명이라 매 쿼터 " + (10 - field.size()) + "자리가 비어 있습니다.");
         var keeperResult = solve(keepers, List.of(LineupSlot.GK), seed);
-        var fieldResult = solve(field, Arrays.stream(LineupSlot.values()).filter(s -> s != LineupSlot.GK).toList(), seed);
+        var fieldResult = solve(field, formation.slots().stream().filter(s -> s != LineupSlot.GK).toList(), seed);
         var entries = new ArrayList<>(keeperResult.entries()); entries.addAll(fieldResult.entries());
         entries.sort(Comparator.comparingInt(MatchRequest.PlannedEntry::quarterNumber)
                 .thenComparing(MatchRequest.PlannedEntry::slot).thenComparingInt(MatchRequest.PlannedEntry::entryOrder));
@@ -50,14 +83,14 @@ public final class LineupOptimizer {
             double total = appearances.stream().mapToDouble(e -> entries.stream().filter(other -> other.quarterNumber() == e.quarterNumber() && other.slot() == e.slot()).count() == 2 ? .5 : 1).sum();
             var rest = IntStream.rangeClosed(1, 4).filter(q -> appearances.stream().noneMatch(e -> e.quarterNumber() == q)).boxed().toList();
             return new LineupSuggestion.Allocation(p.id(), p.keeper() ? "GK" : p.known() ? "FIELD" : "UNKNOWN", p.attended(), p.recorded(), total, rest,
-                    (int) appearances.stream().filter(e -> p.score(e.slot()) == 0).count());
+                    (int) appearances.stream().filter(e -> p.exactScore(e.slot()) == 0).count());
         }).sorted(Comparator.comparingLong(LineupSuggestion.Allocation::playerId)).toList();
         long earlySubs = entries.stream().filter(e -> e.entryOrder() == 1 && e.quarterNumber() < 4).count();
         if (earlySubs > 0) warnings.add("연속 휴식 방지와 출전량 차이 1쿼터 이내 조건을 함께 지키기 위해 1~3쿼터에도 교체 " + earlySubs + "건을 배치했습니다.");
-        if (allocations.stream().anyMatch(a -> a.nonPreferredAppearances() > 0)) warnings.add("비선호 필드 포지션 배치가 있습니다. 선수별 배분표를 확인하고 조정해 주세요.");
+        if (allocations.stream().anyMatch(a -> a.nonPreferredAppearances() > 0)) warnings.add("비선호 필드 포지션 배치가 있습니다. LW↔LM·RW↔RM·CM↔CAM·LB↔LWB·LM↔LWB·RB↔RWB·RM↔RWB는 인접 포지션 가중치(20/12/6)로 대체할 수 있으며, 정확한 1~3지망(100/60/30)보다 낮게 평가합니다. 선수별 배분표를 확인하고 조정해 주세요.");
         boolean optimal = keeperResult.optimal() && fieldResult.optimal();
         if (!optimal) warnings.add("계산 시간 안에 찾은 조건 충족 초안입니다. 교체 수와 선호 배치가 최적임을 보장하지는 않습니다.");
-        return new LineupSuggestion(POLICY, seed, List.copyOf(entries), allocations, warnings, optimal);
+        return new LineupSuggestion(POLICY, seed, List.copyOf(entries), allocations, warnings, optimal, formation);
     }
 
     private GroupResult solve(List<Candidate> people, List<LineupSlot> slots, int seed) {

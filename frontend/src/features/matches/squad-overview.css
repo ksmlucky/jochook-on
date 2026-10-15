@@ -1,0 +1,107 @@
+.squad-overview-trigger { display: inline-flex; align-items: center; gap: 8px; margin-block: 10px 14px; }
+.squad-overview-trigger > span { font-size: 22px; line-height: 1; }
+.squad-overview-dialog {
+  width: min(540px, 100%); height: 100dvh; max-width: 100%; max-height: 100dvh;
+  margin: auto; padding: 0; border: 0; border-radius: 16px;
+  background: var(--surface); color: var(--ink); overflow: auto; overscroll-behavior: contain;
+}
+.squad-overview-dialog::backdrop { background: #182b2488; }
+body:has(.squad-overview-dialog[open]) { overflow: hidden; }
+.squad-overview-content {
+  display: flex; flex-direction: column; min-height: 100%; box-sizing: border-box;
+  padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+}
+.squad-overview-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.squad-overview-heading h3 { margin: 0; font-size: 18px; }
+.squad-overview-heading p { margin: 3px 0 0; font-size: 12px; color: var(--muted); }
+.squad-overview-heading button { min-height: 44px; padding: 8px 14px; }
+.squad-overview-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.squad-overview-controls > div { display: flex; flex: 1; gap: 4px; }
+.squad-overview-controls > div:last-child:not(:first-child) { flex: 0 0 100px; }
+.squad-overview-controls button { flex: 1; min-height: 44px; padding: 6px 3px; border: 1px solid var(--line); border-radius: 9px; background: var(--soft); color: var(--ink); font: inherit; font-size: 13px; font-weight: 700; }
+.squad-overview-controls button[aria-pressed="true"] { color: #fff; background: var(--accent); border-color: var(--accent); }
+.squad-overview-counts { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; margin: 8px 0; font-size: 12px; color: var(--muted); }
+.squad-overview-counts span { font-size: 11px; }
+/* Reuse all six formations' spatial coordinates, but prevent the content from stretching the pitch. */
+.squad-overview-dialog .squad-overview-pitch {
+  position: relative; isolation: isolate; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-rows: repeat(21, minmax(0, 1fr)); gap: 3px;
+  flex: 1 0 32rem; min-height: 32rem; padding: 12px 7px 28px; border: 1px solid #b7cbb6; border-radius: 14px;
+  background: repeating-linear-gradient(180deg, #eef5e8 0%, #eef5e8 12.5%, #e5efdf 12.5%, #e5efdf 25%);
+}
+.squad-overview-pitch .pitch-markings { inset: 6px; }
+/* A full-width overview can fit the five midfielders in one line. */
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] { grid-template-columns: repeat(20, minmax(0, 1fr)); }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LST"] { grid-column: 5 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RST"] { grid-column: 13 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="LWB"], [data-position="LCM"], [data-position="CDM"], [data-position="RCM"], [data-position="RWB"]) { grid-row: 8 / span 3; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LWB"] { grid-column: 1 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCM"] { grid-column: 5 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CDM"] { grid-column: 9 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCM"] { grid-column: 13 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RWB"] { grid-column: 17 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCB"] { grid-column: 3 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CCB"] { grid-column: 9 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCB"] { grid-column: 15 / span 4; }
+.squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="GK"] { grid-column: 9 / span 4; }
+.squad-overview-pitch .squad-overview-card {
+  position: relative; z-index: 1; align-self: start; justify-self: center; width: 100%; max-width: 112px; min-width: 0;
+  min-height: 44px; padding: 5px 3px; text-align: center; border: 1px solid var(--position-border); border-radius: 9px;
+  color: var(--ink); background: #fff; box-shadow: 0 2px 5px #243b3214; font: inherit;
+}
+.squad-overview-card[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: 1px; }
+.squad-overview-position { display: flex; justify-content: center; gap: 4px; color: var(--position-ink); font-size: 10px; font-weight: 700; line-height: 1.3; white-space: nowrap; }
+.squad-overview-position small { font-size: inherit; }
+.squad-overview-name { display: block; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; line-height: 1.5; }
+.squad-overview-swap { display: block; margin-top: 3px; padding-top: 2px; border-top: 1px solid var(--position-border); color: var(--position-ink); font-size: 10px; line-height: 1.3; }
+.squad-overview-swap > span { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.squad-overview-swap small { font-size: 9px; }
+.squad-overview-detail { min-height: 116px; margin-top: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); font-size: 12px; box-sizing: border-box; }
+.squad-overview-detail > strong { font-size: 11px; color: var(--muted); }
+.squad-overview-detail p { margin: 3px 0; line-height: 1.5; overflow-wrap: anywhere; }
+.squad-overview-detail p span, .squad-overview-detail p small { display: block; }
+.squad-overview-detail p small { color: var(--muted); font-size: 11px; }
+.squad-overview-waiting { margin-top: 2px; font-size: 12px; }
+.squad-overview-waiting summary { min-height: 36px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+.squad-overview-waiting summary::before { content: '▸'; }
+.squad-overview-waiting[open] summary::before { content: '▾'; }
+.squad-overview-waiting p { margin: 0 0 8px; line-height: 1.8; }
+.squad-overview-note { margin: 0; font-size: 11px; color: var(--muted); line-height: 1.5; }
+.overview-position-editor {
+  width: min(500px, calc(100% - 16px)); max-width: 100%; max-height: calc(100dvh - 24px);
+  padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--ink);
+  overscroll-behavior: contain; overflow: auto; box-sizing: border-box;
+}
+.overview-position-editor::backdrop { background: #182b2466; }
+.overview-editor-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.overview-editor-heading h3 { margin: 0; font-size: 18px; }
+.overview-editor-heading button { min-height: 44px; }
+.overview-editor-hint, .overview-editor-notice { font-size: 12px; line-height: 1.6; color: var(--muted); }
+.overview-position-editor fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.overview-editor-entry { padding: 14px 0; }
+.overview-editor-entry + .overview-editor-entry { border-top: 1px solid var(--line); }
+.overview-editor-entry > label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 700; }
+.overview-editor-entry select, .overview-editor-entry input {
+  display: block; box-sizing: border-box; width: 100%; min-width: 0; max-width: 100%; min-height: 44px; margin: 0;
+  padding: 8px; border: 1px solid var(--line); border-radius: 9px; font: inherit; font-size: 16px; background: #fff; color: var(--ink);
+}
+.overview-editor-entry select:disabled { background: var(--soft); color: var(--muted); }
+.overview-editor-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; }
+.overview-editor-stats label { min-width: 0; font-size: 13px; }
+.overview-editor-stats input { margin-top: 4px; }
+.overview-editor-error { padding: 10px; border: 1px solid #e9b6be; border-radius: 8px; background: #fff0f2; color: #a3203b; font-size: 13px; line-height: 1.6; }
+.overview-editor-done { width: 100%; min-height: 44px; }
+@media (max-width: 700px) {
+  .squad-overview-trigger { width: 100%; justify-content: center; min-height: 44px; }
+  .squad-overview-dialog { border-radius: 0; }
+}
+@media (max-width: 369px) {
+  /* Keep CDM behind the advanced CM; only coordinates change, never recorded slots. */
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="LWB"], [data-position="LCM"], [data-position="RWB"]) { grid-row: 6 / span 3; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] :is([data-position="CDM"], [data-position="RCM"]) { grid-row: 10 / span 3; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LWB"] { grid-column: 1 / span 6; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="LCM"] { grid-column: 8 / span 6; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RWB"] { grid-column: 15 / span 6; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="CDM"] { grid-column: 4 / span 6; }
+  .squad-overview-dialog .squad-overview-pitch[data-formation="F352"] [data-position="RCM"] { grid-column: 12 / span 6; }
+}

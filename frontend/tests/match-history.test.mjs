@@ -30,3 +30,23 @@ test('version-only saves and subsequent profile name changes do not fabricate ma
   after.participants[0].name = '이름 수정'
   assert.deepEqual(matchHistoryChanges(before, after), [])
 })
+test('history displays A/B formation changes and new paired positions without inventing a legacy migration change', () => {
+  const before = base(), after = structuredClone(before)
+  after.formationA = 'F4123'
+  assert.deepEqual(matchHistoryChanges(before, after), [])
+  after.formationB = 'F4231'
+  after.plannedLineup.push({ quarterNumber: 1, team: 'B', slot: 'RCDM', entryOrder: 0, playerId: 9 })
+  const changes = matchHistoryChanges(before, after)
+  assert.ok(changes.some(change => change.label === '포메이션 · B팀' && change.before === '4-1-2-3' && change.after === '4-2-3-1'))
+  assert.ok(changes.some(change => change.label === '계획 · 1쿼터 B팀 CDM 우 선발'))
+})
+test('three-back changes identify the central CB and wingback roles in history', () => {
+  const before = base(), after = structuredClone(before)
+  after.formationA = 'F352'
+  after.plannedLineup = [{ quarterNumber: 1, team: 'A', slot: 'CCB', entryOrder: 0, playerId: 9 }]
+  after.quarters[0].lineup[0].slot = 'LWB'
+  const changes = matchHistoryChanges(before, after)
+  assert.ok(changes.some(change => change.label === '포메이션 · A팀' && change.after === '3-5-2'))
+  assert.ok(changes.some(change => change.label === '계획 · 1쿼터 A팀 CB 중앙 선발'))
+  assert.ok(changes.some(change => change.label === '실제 출전 · 1쿼터 A팀 LWB 선발'))
+})

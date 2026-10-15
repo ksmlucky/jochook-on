@@ -102,7 +102,7 @@ public class BulkPlayerService {
     }
 
     private PreferredPosition optionalChoice(String value) {
-        return clean(value).isEmpty() ? null : parseEnum(PreferredPosition.class, value, "선호 포지션은 LB/CB/RB/CDM/CM/LW/ST/RW/GK만 가능합니다.");
+        return clean(value).isEmpty() ? null : parseEnum(PreferredPosition.class, value, "선호 포지션은 LB/CB/RB/LWB/RWB/CDM/CM/LM/RM/CAM/LW/ST/RW/GK만 가능합니다.");
     }
     private Integer comparableShirt(String value) {
         String number = clean(value);

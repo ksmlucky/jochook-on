@@ -8,7 +8,7 @@ import org.hibernate.type.SqlTypes;
 public class MatchAppearance {
     @Column(name = "quarter_number", nullable = false) private int quarterNumber;
     @Enumerated(EnumType.STRING) @JdbcTypeCode(SqlTypes.VARCHAR)
-    @Column(nullable = false, length = 3) private LineupSlot slot;
+    @Column(nullable = false, length = 4) private LineupSlot slot;
     @Column(name = "player_id", nullable = false) private Long playerId;
     @Column(nullable = false) private int goals;
     @Column(nullable = false) private int assists;

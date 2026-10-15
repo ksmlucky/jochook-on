@@ -95,4 +95,38 @@ class MatchWorkbookServiceTest {
         assertThatThrownBy(() -> service.preview(new MockMultipartFile("file", "bad.xlsx", "", new byte[2 * 1024 * 1024 + 1]))).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> service.preview(new MockMultipartFile("file", "bad.xlsx", "", "not-xlsx".getBytes()))).isInstanceOf(IllegalArgumentException.class);
     }
+    @Test void templatesUseExactlySelectedFormationAndRejectOtherFormationSlots() throws Exception {
+        for (var formation : Formation.values()) {
+            try (var book = new XSSFWorkbook(new ByteArrayInputStream(service.template(formation)))) {
+                var sheet = book.getSheet("쿼터기록");
+                assertThat(sheet.getPhysicalNumberOfRows()).isEqualTo(89);
+                var slots = new ArrayList<String>();
+                for (int row = 1; row <= 22; row += 2) slots.add(sheet.getRow(row).getCell(1).getStringCellValue());
+                assertThat(slots).containsExactlyElementsOf(formation.slots().stream().map(Enum::name).toList());
+                cell(book, 1, 3, "검증 선수");
+                assertThat(service.preview(file(book), formation).isValid()).isTrue();
+                var invalid = Arrays.stream(LineupSlot.values()).filter(s -> !formation.slots().contains(s)).findFirst().orElseThrow();
+                cell(book, 1, 1, invalid.name());
+                assertThat(service.preview(file(book), formation).rows().getFirst().errors()).anyMatch(e -> e.contains("포메이션에 없는 자리"));
+            }
+        }
+        try (var book = new XSSFWorkbook(new ByteArrayInputStream(service.template(Formation.F4231)))) {
+            cell(book, 11, 3, "검증 선수"); // LCDM (four-character slot)
+            assertThat(service.preview(file(book), Formation.F4231).quarters().getFirst().lineup().getFirst().slot()).isEqualTo(LineupSlot.LCDM);
+        }
+    }
+    @Test void threeBackWorkbookParsesCentralDefenderAndBothWingbacks() throws Exception {
+        for (var formation : List.of(Formation.F352, Formation.F343)) {
+            try (var book = new XSSFWorkbook(new ByteArrayInputStream(service.template(formation)))) {
+                cell(book, 5, 3, "동명 선수"); cell(book, 5, 4, "7"); cell(book, 5, 5, "1");
+                cell(book, 9, 3, "동명 선수"); cell(book, 9, 4, "1"); cell(book, 9, 6, "1");
+                cell(book, 11, 3, "검증 선수");
+                var preview = service.preview(file(book), formation);
+                assertThat(preview.isValid()).isTrue();
+                assertThat(preview.quarters().getFirst().lineup()).extracting(MatchRequest.Appearance::slot)
+                        .containsExactly(LineupSlot.CCB, LineupSlot.LWB, LineupSlot.RWB);
+                assertThat(preview.quarters().getFirst().lineup()).extracting(MatchRequest.Appearance::goals).containsExactly(1, 0, 0);
+            }
+        }
+    }
 }

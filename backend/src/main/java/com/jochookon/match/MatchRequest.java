@@ -16,11 +16,23 @@ public record MatchRequest(
         @NotNull @Size(min = 4, max = 4) List<@NotNull @Valid Quarter> quarters,
         @Size(max = 176) List<@NotNull @Valid PlannedEntry> plannedLineup,
         @Min(0) @Max(99) Integer scoreFor, @Min(0) @Max(99) Integer scoreAgainst, MatchKind kind,
-        RecordingStage recordingStage) {
+        RecordingStage recordingStage, Formation formationA, Formation formationB) {
     public MatchRequest {
         plannedLineup = plannedLineup == null ? List.of() : plannedLineup;
         kind = kind == null ? MatchKind.EXTERNAL : kind;
     }
+    public MatchRequest(LocalDate playedOn, LocalTime kickoff, String venue, String opponent, String notes,
+                        Long version, List<Participant> participants, List<Quarter> quarters, List<PlannedEntry> plannedLineup,
+                        Integer scoreFor, Integer scoreAgainst, MatchKind kind, RecordingStage recordingStage) {
+        this(playedOn, kickoff, venue, opponent, notes, version, participants, quarters, plannedLineup, scoreFor, scoreAgainst, kind, recordingStage, null, null);
+    }
+    MatchRequest resolveFormations(Formation savedA, Formation savedB) {
+        return new MatchRequest(playedOn, kickoff, venue, opponent, notes, version, participants, quarters, plannedLineup,
+                scoreFor, scoreAgainst, kind, recordingStage,
+                formationA == null ? Formation.orDefault(savedA) : formationA,
+                formationB == null ? Formation.orDefault(savedB) : formationB);
+    }
+    Formation formation(MatchTeam team) { return Formation.orDefault(team == MatchTeam.B ? formationB : formationA); }
     public MatchRequest(LocalDate playedOn, LocalTime kickoff, String venue, String opponent, String notes,
                         Long version, List<Participant> participants, List<Quarter> quarters, List<PlannedEntry> plannedLineup,
                         Integer scoreFor, Integer scoreAgainst, MatchKind kind) {

@@ -1,10 +1,11 @@
 import type { MatchRecord, Participant, Slot } from './api'
 import { recordingStageLabel } from './recordingProgress.ts'
+import { formationLabel } from './formations.ts'
 
 export interface HistoryChange { label: string; before: string; after: string }
 const votes: Record<string, string> = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' }
 const attendance: Record<string, string> = { PRESENT: '참석', LATE: '지각', ABSENT: '불참', UNCONFIRMED: '미확인' }
-const slotNames: Record<Slot, string> = { GK: 'GK', LB: 'LB', LCB: 'CB 좌', RCB: 'CB 우', RB: 'RB', CDM: 'CDM', LCM: 'CM 좌', RCM: 'CM 우', LW: 'LW', ST: 'ST', RW: 'RW' }
+const slotNames: Record<Slot, string> = { GK: 'GK', LB: 'LB', LCB: 'CB 좌', RCB: 'CB 우', RB: 'RB', CDM: 'CDM', LCM: 'CM 좌', RCM: 'CM 우', LW: 'LW', ST: 'ST', RW: 'RW', LM: 'LM', RM: 'RM', CAM: 'CAM', LCDM: 'CDM 좌', RCDM: 'CDM 우', LST: 'ST 좌', RST: 'ST 우', CCB: 'CB 중앙', LWB: 'LWB', RWB: 'RWB' }
 const playerName = (p?: Participant) => p ? `${p.playerType === 'GUEST' ? '용병 · ' : ''}${p.shirtNumber === null ? '등번호 없음' : `#${p.shirtNumber}`} ${p.name}` : '선수 정보 없음'
 export function matchHistoryChanges(before: MatchRecord | null, after: MatchRecord | null): HistoryChange[] {
   const changes: HistoryChange[] = []
@@ -15,6 +16,8 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
   }
   const kind = (m: MatchRecord | null) => m ? m.kind === 'INTERNAL' ? '자체전' : '외부 경기' : null
   add('경기 유형', kind(before), kind(after)); add('경기 날짜', before?.playedOn, after?.playedOn)
+  add('포메이션 · A팀', before ? formationLabel(before.formationA) : null, after ? formationLabel(after.formationA) : null)
+  if (before?.kind === 'INTERNAL' || after?.kind === 'INTERNAL') add('포메이션 · B팀', before ? formationLabel(before.formationB) : null, after ? formationLabel(after.formationB) : null)
   add('시작 시간', before?.kickoff?.slice(0, 5), after?.kickoff?.slice(0, 5))
   add('장소', before?.venue, after?.venue); add('상대팀', before?.opponent, after?.opponent)
   const score = (m: MatchRecord | null) => m?.scoreFor === null || !m ? null : `${m.kind === 'INTERNAL' ? 'A팀 : B팀' : '우리 팀 : 상대 팀'} · ${m.scoreFor} : ${m.scoreAgainst}`

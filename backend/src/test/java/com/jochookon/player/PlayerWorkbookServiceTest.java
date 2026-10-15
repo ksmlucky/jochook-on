@@ -102,4 +102,30 @@ class PlayerWorkbookServiceTest {
             assertThat(result.rows().getFirst().values().clubRole()).isEqualTo("코치");
         }
     }
+    @Test void acceptsExpandedMidfieldPreferencesAndListsThemInTemplate() throws Exception {
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(service.template()))) {
+            Sheet sheet = workbook.getSheetAt(0);
+            assertThat(sheet.getDataValidations().get(1).getValidationConstraint().getExplicitListValues())
+                    .contains("LM", "RM", "CAM");
+            Row row = sheet.createRow(1);
+            row.createCell(0).setCellValue("미드필더 검증"); row.createCell(1).setCellValue("MF");
+            row.createCell(4).setCellValue("LM"); row.createCell(5).setCellValue("RM"); row.createCell(6).setCellValue("CAM");
+            var result = service.preview(file(workbook));
+            assertThat(result.isValid()).isTrue();
+            assertThat(result.rows().getFirst().values().thirdChoice()).isEqualTo("CAM");
+        }
+    }
+    @Test void acceptsWingbackPreferencesAndIncludesThemInExcelChoices() throws Exception {
+        try (var workbook = new XSSFWorkbook(new ByteArrayInputStream(service.template()))) {
+            Sheet sheet = workbook.getSheetAt(0);
+            assertThat(sheet.getDataValidations().get(1).getValidationConstraint().getExplicitListValues()).contains("LWB", "RWB");
+            Row row = sheet.createRow(1);
+            row.createCell(0).setCellValue("윙백 검증"); row.createCell(1).setCellValue("DF");
+            row.createCell(4).setCellValue("LWB"); row.createCell(5).setCellValue("RWB"); row.createCell(6).setCellValue("LB");
+            var result = service.preview(file(workbook));
+            assertThat(result.isValid()).isTrue();
+            assertThat(result.rows().getFirst().values().firstChoice()).isEqualTo("LWB");
+            assertThat(result.rows().getFirst().values().secondChoice()).isEqualTo("RWB");
+        }
+    }
 }

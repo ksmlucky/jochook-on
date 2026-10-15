@@ -1,4 +1,4 @@
-/* Shared spatial 4-1-2-3 board. Intrinsic grid rows expand for substitutes/long names. */
+/* Shared spatial board. Each formation retains space between defensive/midfield/attack lines. */
 .match-editor .tactics-pitch {
   position: relative;
   isolation: isolate;
@@ -33,6 +33,28 @@
 .tactics-pitch [data-position="LCB"] { grid-area: 15 / 4 / span 3 / span 3; }
 .tactics-pitch [data-position="RCB"] { grid-area: 15 / 7 / span 3 / span 3; }
 .tactics-pitch [data-position="GK"] { grid-area: 19 / 5 / span 3 / span 4; }
+.tactics-pitch [data-position="LST"] { grid-area: 1 / 3 / span 3 / span 3; }
+.tactics-pitch [data-position="RST"] { grid-area: 1 / 8 / span 3 / span 3; }
+.tactics-pitch [data-position="LM"] { grid-area: 6 / 1 / span 3 / span 3; }
+.tactics-pitch [data-position="RM"] { grid-area: 6 / 10 / span 3 / span 3; }
+.tactics-pitch [data-position="CAM"] { grid-area: 5 / 5 / span 3 / span 4; }
+.tactics-pitch [data-position="LCDM"] { grid-area: 10 / 3 / span 3 / span 3; }
+.tactics-pitch [data-position="RCDM"] { grid-area: 10 / 8 / span 3 / span 3; }
+.tactics-pitch[data-formation="F4231"] [data-position="LM"],
+.tactics-pitch[data-formation="F4231"] [data-position="RM"] { grid-row: 5 / span 3; }
+.tactics-pitch[data-formation="F442"] [data-position="LCM"],
+.tactics-pitch[data-formation="F4141"] [data-position="LCM"] { grid-column: 4 / span 3; }
+.tactics-pitch[data-formation="F442"] [data-position="RCM"],
+.tactics-pitch[data-formation="F4141"] [data-position="RCM"] { grid-column: 7 / span 3; }
+.tactics-pitch[data-formation="F442"] :is([data-position="LM"], [data-position="LCM"], [data-position="RCM"], [data-position="RM"]) { grid-row: 8 / span 3; }
+.tactics-pitch [data-position="LWB"] { grid-area: 6 / 1 / span 3 / span 3; }
+.tactics-pitch [data-position="RWB"] { grid-area: 6 / 10 / span 3 / span 3; }
+.tactics-pitch [data-position="CCB"] { grid-area: 15 / 5 / span 3 / span 4; }
+.tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="LCM"] { grid-column: 4 / span 3; }
+.tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="RCM"] { grid-column: 7 / span 3; }
+.tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="LCB"] { grid-column: 1 / span 4; }
+.tactics-pitch:is([data-formation="F352"], [data-formation="F343"]) [data-position="RCB"] { grid-column: 9 / span 4; }
+.tactics-pitch[data-formation="F343"] :is([data-position="LWB"], [data-position="LCM"], [data-position="RCM"], [data-position="RWB"]) { grid-row: 8 / span 3; }
 .tactics-pitch .lineup-summary { box-shadow: 0 3px 8px #243b3210; }
 
 .pitch-markings { position: absolute; inset: 30px 9px 10px; border: 1px solid #8eaf9299; pointer-events: none; z-index: 0; }

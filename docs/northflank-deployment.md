@@ -15,6 +15,10 @@
 
 ## 실제 계정에서 확인한 상태
 
+### 백업 후속 점검 (2026-10-15 08시)
+
+Native dump 백업을 기본 저장소에 생성하고 로컬 암호화 사본을 보관했다. 새 MySQL에 복원해 15개 테이블의 무결성과 V20 이력을 확인했고 임시 데이터를 정리했다. 사용자 승인으로 설정 수정 권한 한 개를 잠깐 추가했으나 API는 **무료 계정에서 daily 백업 일정 불가(400)**로 거절했다. 임시 권한을 즉시 회수하고 변경 전 상태와 일치함을 확인했다. 08:50 KST 재조회에서도 자동 일정은 없으며 수동 백업만 완료 상태다. 요금표의 백업·복원 포함을 매일 예약 허용으로 해석하지 않는다. 유료 전환은 하지 않았다. 자세한 현재 상태·명령·남은 범위는 [백업·복구 절차](backup-recovery.md)를 따른다. 아래 밤사이 검토 항목은 당시 확인 상태를 기록한 것이다.
+
 - 사용자가 가입과 0달러 카드 인증을 완료했다. 카드 원문은 프로젝트에 보관하지 않는다.
 - 무료 계정에서 선택 가능한 리전은 US - Central과 Europe - West였다. 아시아 리전은 유료 전환이 필요하여 US - Central을 선택했다.
 - `jochook-on-mysql`은 Free 표시의 Running 상태다. MySQL 8.4.11, 0.2 vCPU / 512MB, NVMe 6GB, 인스턴스 1개, TLS 사용, Private networking only 구성이다. 실제 자료 복구 후 15개 테이블의 모든 행을 원본 SHA-256 지문과 대조해 일치했다.
@@ -72,11 +76,38 @@ Caddy는 전달 헤더를 정규화하고, 신뢰한 프록시에서 온 IP 목�
 
 ## 백업과 복구
 
+공개 접속 상태를 빠르게 확인하려면 PowerShell 7에서 `./scripts/Check-Production.ps1`을 실행한다. HTTPS 홈·웹 readiness·익명 선수/경기 접근 차단·비공개 actuator·PWA 파일·홈에서 참조한 JS/CSS를 GET으로만 확인하고 `work/production-check-latest.json`에 시각·상태 코드·응답 시간을 기록한다. 비밀번호·쿠키·회원 자료는 사용하거나 저장하지 않는다. 실패한 검사가 있으면 종료 코드 1을 반환한다. 로그인 이후 업무 흐름·실제 DB 백업·모바일 실기기 검증을 대신하지 않는다.
+
 이전 전 백업은 평문 SQL 파일을 만들지 않고 메모리에서 Windows DPAPI(CurrentUser)로 암호화했다. 비공개 CLI 터널과 인증서 검증 TLS로 새 MySQL에 복구했고, 모든 테이블의 행 수와 SHA-256 지문을 대조했다. 선수 40명(활동 39명), 경기 2건, 기존 ID·소속·계정 해시·코드 해시·Flyway 이력을 보존했다. 기존 팀 코드와 비밀번호를 재발급하지 않았다.
 
 암호화 파일·매니페스트는 Git에서 제외한 `backups/northflank/20261014-initial/`에 보관하며, 작업 포인터는 `work/northflank-migration-latest.json`에 있다. DPAPI 파일은 현재 Windows 사용자에 연결되므로 PC 교체용 독립 백업으로 간주하면 안 된다. 로컬 Docker 복구 시험은 엔진 시작 오류로 중단됐고, 이후 실제 클라우드 복구·대조를 통과했다.
 
 **자동 백업 일정은 아직 설정하지 않았다.** 시범 기록 입력을 확대하기 전에 Northflank 백업 저장의 무료 적용 조건을 확인하고, 매일 백업·짧은 보관 기간과 별도 복구 시험을 구성한다. 최신 수동 백업은 2026-10-15 모바일 배포 직전 상태이며 그 이후 변경은 포함하지 않는다. 무료 여부가 불명확한 백업 저장소나 유료 옵션은 만들지 않았다.
+
+### 배포·인프라 개선 검토 (2026-10-15 제안)
+
+현재는 한 팀의 시범 사용 단계다. Northflank는 공식 문서에서 Developer Sandbox를 취미·시험용으로 설명하고 운영 애플리케이션에는 사용하지 않도록 안내한다. 현재 배포를 장기 무료 운영 보장으로 해석하지 않는다. 정식 사용 확대 전에 유료 운영 구성 또는 직접 관리할 VM을 비교한다. [공식 Sandbox 안내](https://northflank.com/docs/v1/application/billing/pricing-on-northflank)
+
+| 후보 | 지금 얻는 이점 | 전환 전 확인할 점 |
+| --- | --- | --- |
+| 현재 Northflank Sandbox 유지 | 이미 검증한 배포·관리형 DB·HTTPS로 한 팀 시범 사용 지속 | 무료 자원 제약, 운영용으로 권장되지 않는 플랜, 자동 백업 비용 미확정 |
+| Northflank 유료 자원 | 기존 컨테이너·비공개 네트워크·DB 연결 구조를 유지하며 자원 조절 | 서비스 2개+DB+저장소+백업+전송을 합친 실제 견적, 한국 접속 지연, 리전별 제공 조건 |
+| Oracle Always Free VM | 자원 확보와 호환 검증이 되면 현재 Docker 구성을 옮길 후보 | 도쿄 용량 부족, ARM64 실행, 직접 OS/DB 관리, 유휴 무료 VM 회수 가능성과 외부 백업 |
+| AWS Lightsail 서울 VM | 한국에서 가까운 위치의 VM과 단순한 인스턴스 요금, 서버 운영 학습 | Linux/IPv4 2GB 월 US$12 또는 4GB US$24; 세금·스냅샷·전송 초과 등 별도. API+DB 동거는 실제 부하 시험 필요하며 서버 한 대 장애에 함께 영향 |
+
+Northflank 유료 총액은 아직 견적하지 않았다. Oracle 무료 VM은 사용량·가용성 조건을 확인해야 하며 유휴 자원이 회수될 수 있다. Lightsail 가격은 서버 번들만의 공식 표시 금액으로, 전체 운영비나 무중단 보장을 뜻하지 않는다. [Northflank 요금](https://northflank.com/pricing), [Oracle 무료 자원 조건](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm), [Lightsail 요금](https://docs.aws.amazon.com/lightsail/latest/userguide/amazon-lightsail-bundles.html), [Lightsail 리전](https://docs.aws.amazon.com/lightsail/latest/userguide/understanding-regions-and-availability-zones-in-amazon-lightsail.html)
+
+Cloudflare는 우선 보조 역할로 검토한다. Workers Static Assets의 정적 파일 요청·저장은 무료이며 프론트 호스팅 후보지만, 현재 Caddy의 같은 출처 `/api` 프록시와 비공개 API 연결을 별도로 설계해야 한다. 정적 화면만 옮겨도 미국의 API·DB까지 왕복하는 지연은 남는다. 현재 Spring Boot JAR를 정적 호스팅으로 그대로 이전하는 작업은 아니다. [Static Assets 요금·제한](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/)
+
+Cloudflare R2 Standard는 월 10GB-month 저장과 정해진 요청 수의 무료 구간이 있어 독립 암호화 백업 후보가 된다. 보관 수·압축 덤프 크기·요청·원본 호스팅의 외부 전송 비용을 합산해야 하고, 무료 한도 초과 시 자동으로 막히는 지출 상한으로 간주하면 안 된다. 비공개 버킷·최소 권한·PC 교체 후에도 복구할 수 있는 별도 키 보관이 전제다. 아직 버킷·결제 연결·백업 업로드는 하지 않았다. [R2 요금](https://developers.cloudflare.com/r2/pricing/)
+
+우선 보강할 것은 다음 세 가지다.
+
+1. **백업의 자동화와 복원**: 하루 1회·최근 7일 보관을 초기 제안으로 하고, 배포 직전과 중요한 경기 기록 완료 후에도 백업한다. 플랫폼 장애에 대비한 별도 제공자/매체의 암호화 사본을 마련하고 월 1회 가상·격리 DB에 복원한다. Northflank는 다운로드 가능한 native dump와 예약·보관 기간 기능을 제공하지만 이 계정의 무료 비용은 아직 확인하지 않았다. 목표 초안은 최대 하루의 데이터 손실 범위(RPO 24시간)와 2시간 내 복구(RTO 2시간)이며 실제 달성·보장 수치가 아니다. [Northflank 백업 기능](https://northflank.com/docs/v1/application/databases-and-persistence/backup-restore-and-import-data)
+2. **재현 가능한 배포와 복구**: 기존 GitHub CI를 유지하고, 검증한 커밋/이미지 digest 지정 → 백업 확인 → API readiness → 호환되는 웹 배포 → 공개 점검을 수동 실행 가능한 릴리스 작업으로 묶는다. 동시 배포를 막고 이전 정상 이미지와 설정을 기록한다. 자동 DB 다운그레이드는 하지 않으며, 이전 앱과 함께 동작하는 확장형 마이그레이션을 우선한다. 무료 자원에서 무중단·블루그린 배포가 가능한지는 별도 확인한다.
+3. **실사용 측정과 장애 발견**: 한국 휴대전화 네트워크의 목록/저장 응답 시간과 오류율, API CPU·메모리·DB 연결 대기, 자동 편성 소요 시간을 구분해 본다. 먼저 가상 DB에서 10명·30명 수준의 조회와 소수 운영진 저장을 시험한다. 상시 상태 확인은 PC가 꺼져도 실행되는 환경을 검토하고 사용자 자료·세션을 로그에 남기지 않는다. 밤사이 Codex 점검 예약은 임시 점검이며 상시 관제 구축 완료가 아니다.
+
+현재 세션과 접속 제한 상태는 API 메모리에 있어 재배포 시 재로그인이 필요하다. 여러 인스턴스로 늘리기 전에 세션·접속 제한의 공유 방식을 결정해야 한다. 우선 한 인스턴스에서 가용 메모리·쿼리·연결 풀을 측정하고, 데이터에 근거해 자원을 조정한다. Oracle 이전은 별도 환경의 ARM 실행·DB 복원·권한 검증·한국 접속 비교와 되돌리기 계획을 통과한 뒤 결정한다. 이 검토에서 운영 자원·비용·실제 데이터는 변경하지 않았다.
 
 복구가 필요하면 입력을 먼저 중단하고 현재 클라우드 DB도 백업한다. 빈 별도 대상에 복구해 행·권한·API를 비교한 뒤 연결을 전환한다. 현재 운영 DB에 예전 파일을 바로 덮어쓰지 않는다.
 
@@ -106,3 +137,12 @@ SESSION_COOKIE_SECURE=true
 ## Oracle로 옮길 때
 
 Oracle 확보 시 바로 접속 주소를 바꾸지 않는다. ARM64 이미지·OR-Tools 실행, MySQL 복구, 로그인·권한·엑셀·경기 기록을 먼저 대조한다. 전환 시 쓰기를 잠시 멈추고 최종 DB를 옮겨 두 서버에 기록이 갈라지지 않게 한다. 복구 가능한 기존 서비스를 유지한 채 HTTPS 접속과 실기기를 확인한다. 자세한 VM 구성은 [Oracle 배포 안내](oracle-cloudflare-deployment.md)를 따른다.
+
+### 밤사이 백업 운영 검토 (2026-10-15, 설정 변경 없음)
+
+- 00:38 배포 전 백업의 암호화 파일 존재와 매니페스트를 확인했다. 매니페스트에는 15개 테이블 격리 복원 성공, TLS 호스트 검증, 평문 SQL 파일 미생성이 기록돼 있다. 이번 점검에서 새 덤프·복원은 실행하지 않았으며 이후 운영 변경은 이 백업에 포함되지 않는다.
+- Northflank의 예약 native dump는 다운로드가 가능하고 snapshot은 다운로드가 불가능하다. 외부 제공자에 복구 가능한 사본을 보관하려면 native dump가 필요하다. 복원·import는 기존 사용자 DB를 제거할 수 있으므로 운영 addon의 Restore를 시험용으로 누르지 않는다. [공식 백업·복원 동작](https://northflank.com/docs/v1/application/databases-and-persistence/backup-restore-and-import-data)
+- Sandbox의 native 백업 저장·실행 비용은 실제 계정에서 확인하지 못했다. 무료 cron 2개가 제공된다는 사실만으로 백업 전체가 무료라고 판단하지 않는다. [무료 플랜 범위](https://northflank.com/docs/v1/application/billing/pricing-on-northflank)
+- **비용 계산 예시(실측 아님)**: 100MB 암호화 압축본을 하루 1개/7일 보관하면 약 0.7GB 보관, 월 30회 반출은 약 3GB다. R2 Standard의 월 10GB-month·Class A 100만·Class B 1천만 무료 구간 안인지 계정 전체 사용량으로 판단한다. 원본 Northflank의 공개 egress 단가 $0.06/GB를 단순 적용하면 전송 약 $0.18/월이며 실제 무료 할당·실행비·세금은 별도 확인한다. [R2 요금](https://developers.cloudflare.com/r2/pricing/), [Northflank 요금](https://northflank.com/pricing)
+- 현재 DPAPI 파일을 R2에 복사하는 것만으로 다른 PC에서의 복구가 해결되지는 않는다. 별도 키 보관과 독립 환경에서의 해독·복원 절차가 필요하다. 권장 초안은 native dump → 압축·암호화 → 별도 비공개 저장소 → 보관 기간 정리 → 복원 시험이다. 덤프 생성 성공, 원격 저장 성공, 최신 성공 시각, 복원 성공을 따로 확인한다.
+- 계정별 백업 과금 조건 확인 → 가상 자료의 암호화·해독 및 격리 복원 → 사용자와 보관/키 관리 방식 확정 → 자동화 활성화 순서로 진행한다. 이번에는 일정·버킷·권한·토큰을 만들거나 실제 백업을 업로드하지 않았다. RPO 24시간/RTO 2시간은 여전히 미달성 목표 초안이다.

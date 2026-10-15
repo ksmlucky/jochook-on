@@ -46,6 +46,7 @@ public class MatchService {
         var match = matches.findByIdAndTeamId(id, TeamContext.requireTeamId()).orElseThrow(MatchNotFoundException::new);
         if (request.version() == null) throw new IllegalArgumentException("수정 버전이 필요합니다.");
         if (!Objects.equals(match.getVersion(), request.version())) throw new ObjectOptimisticLockingFailureException(MatchRecord.class, id);
+        request = request.resolveFormations(match.getFormationA(), match.getFormationB());
         validatePlayers(request);
         var before = response(match);
         match.replace(request);

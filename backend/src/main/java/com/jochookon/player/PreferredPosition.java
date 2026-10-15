@@ -1,7 +1,7 @@
 package com.jochookon.player;
 
 public enum PreferredPosition {
-    LB, CB, RB, CDM, CM, LW, ST, RW, GK;
+    LB, CB, RB, CDM, CM, LW, ST, RW, GK, LM, RM, CAM, LWB, RWB;
 
     static void validate(PreferredPosition first, PreferredPosition second, PreferredPosition third) {
         if (first == null) throw new IllegalArgumentException("선호 포지션 1지망을 선택해 주세요.");

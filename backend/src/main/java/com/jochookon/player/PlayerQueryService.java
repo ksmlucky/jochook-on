@@ -50,7 +50,7 @@ public class PlayerQueryService {
         if (!clubRole.isEmpty() && !ClubRoles.VALUES.contains(clubRole)) {
             throw new IllegalArgumentException("직책 필터를 확인해 주세요.");
         }
-        if (!firstChoice.matches("|GK|LB|CB|RB|CDM|CM|LW|ST|RW|UNKNOWN")) {
+        if (!firstChoice.matches("|GK|LB|CB|RB|LWB|RWB|CDM|CM|LM|RM|CAM|LW|ST|RW|UNKNOWN")) {
             throw new IllegalArgumentException("1지망 포지션 필터를 확인해 주세요.");
         }
         if (!positionGroup.matches("|FW|MF|DF|GK")) {
@@ -75,8 +75,8 @@ public class PlayerQueryService {
                     var preferred = root.<PreferredPosition>get("firstChoice");
                     var group = cb.<Integer>selectCase()
                             .when(cb.equal(preferred, PreferredPosition.GK), 0)
-                            .when(preferred.in(PreferredPosition.LB, PreferredPosition.CB, PreferredPosition.RB), 1)
-                            .when(preferred.in(PreferredPosition.CDM, PreferredPosition.CM), 2)
+                            .when(preferred.in(PreferredPosition.LB, PreferredPosition.CB, PreferredPosition.RB, PreferredPosition.LWB, PreferredPosition.RWB), 1)
+                            .when(preferred.in(PreferredPosition.CDM, PreferredPosition.CM, PreferredPosition.LM, PreferredPosition.RM, PreferredPosition.CAM), 2)
                             .when(preferred.in(PreferredPosition.LW, PreferredPosition.ST, PreferredPosition.RW), 3)
                             .otherwise(4);
                     var shirt = root.<Integer>get("shirtNumber");
@@ -109,8 +109,8 @@ public class PlayerQueryService {
             if (!positionGroup.isEmpty()) {
                 List<PreferredPosition> positions = switch (positionGroup) {
                     case "FW" -> List.of(PreferredPosition.LW, PreferredPosition.ST, PreferredPosition.RW);
-                    case "MF" -> List.of(PreferredPosition.CM, PreferredPosition.CDM);
-                    case "DF" -> List.of(PreferredPosition.LB, PreferredPosition.CB, PreferredPosition.RB);
+                    case "MF" -> List.of(PreferredPosition.CM, PreferredPosition.CDM, PreferredPosition.LM, PreferredPosition.RM, PreferredPosition.CAM);
+                    case "DF" -> List.of(PreferredPosition.LB, PreferredPosition.CB, PreferredPosition.RB, PreferredPosition.LWB, PreferredPosition.RWB);
                     case "GK" -> List.of(PreferredPosition.GK);
                     default -> throw new IllegalArgumentException("포지션 그룹 필터를 확인해 주세요.");
                 };

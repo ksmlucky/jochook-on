@@ -134,3 +134,13 @@ Flyway가 실행한 SQL의 버전·파일·체크섬·적용 시각·성공 여�
 V13은 기존 경기를 `EXTERNAL`, 기존 계획·출전을 `A`로 보존합니다. `INTERNAL`이면 하루 4쿼터 전체 자체전이며 스코어의 `score_for`/`score_against`는 A팀/B팀 합계입니다. 외부 경기는 A(우리 팀)만 배치할 수 있습니다. 최초 저장 후 경기 유형 변경은 API에서 막으며, 출석은 팀과 무관하게 `(match_id, player_id)` 한 행입니다. 선수의 팀은 쿼터별 배치에 있으므로 쿼터 간 팀 변경이 가능하고 출전량 계산은 같은 팀·자리끼리만 교체로 봅니다.
 
 별도 모임 테이블, 기록 확정과 몸값 이력은 후속 단계입니다. 프로 비교의 4쿼터=1경기는 미확정 후보입니다. V19까지 적용했으며 이후 DB 변경은 V20 이후 새 마이그레이션으로 추가합니다.
+
+## 로컬 확장 V21과 시즌 통계
+
+운영 서버는 V20이며 아래 변경은 로컬 검증 상태다. `match_records.formation_a/formation_b` VARCHAR(8) NOT NULL DEFAULT F4123과 네 가지 포메이션 CHECK를 추가한다. 외부 경기 B는 F4123으로 제한한다. `match_appearances.slot`과 `match_planned_lineups.slot`은 VARCHAR(4)로 확장하고 LM/RM/CAM/LCDM/RCDM/LST/RST를 추가한다. 실제 선택 포메이션에 맞는 11자리인지 API에서 별도로 검증한다. 선수 선호 CHECK에는 LM/RM/CAM을 추가하며 기존 값은 보존한다.
+
+시즌 통계는 새 테이블 없이 현재 팀의 경기·출전·출석을 각각 조회·집계한다. 출전과 참석을 따로 모아 조인의 곱집계를 막으며 수정·삭제 시 집계값을 별도로 동기화할 필요가 없다. 실제 운영 자료의 마이그레이션·통계 시험 수정은 수행하지 않았다. [상세 기준과 API](player-stats-and-formations.md).
+
+### 3백 확장 V22
+
+V21이 검증 DB에 이미 적용되어 있으므로 `V22__add_three_back_formations.sql`을 별도로 추가한다. 포메이션 CHECK에 F352/F343, 계획·실제 출전의 slot CHECK에 CCB/LWB/RWB, 선수 선호 CHECK에 LWB/RWB를 추가한다. 기존 4백 경기와 통계 원본 행은 유지한다. CCB는 CB 선호에 대응하며 윙백은 수비 그룹이다. 운영 V20에는 아직 반영하지 않는다.

@@ -131,8 +131,8 @@ public class Player {
     static Player registerGuest(GuestPlayerRequest request) {
         Position group = request.firstChoice() == null ? Position.UN : switch (request.firstChoice()) {
             case GK -> Position.GK;
-            case LB, CB, RB -> Position.DF;
-            case CDM, CM -> Position.MF;
+            case LB, CB, RB, LWB, RWB -> Position.DF;
+            case CDM, CM, LM, RM, CAM -> Position.MF;
             case LW, ST, RW -> Position.FW;
         };
         var player = register(request.name(), request.shirtNumber(), group, null);

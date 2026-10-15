@@ -7,6 +7,7 @@ import { roleLabels } from './permissions'
 import type { ManagerRole } from './permissions'
 import { LoginForm } from './LoginForm'
 import { useEditGuard, useLeaveGuard } from '../../app/LeaveGuard'
+import { HelpDetails } from '../../app/HelpDetails'
 import { accessMessage, koreanTime, useRetryLimit } from '../teams/AccessUi'
 
 export function InvitationPanel({ token, user, onLogin, onAccepted, onCancel, onSessionExpired }: {
@@ -59,24 +60,25 @@ export function InvitationPanel({ token, user, onLogin, onAccepted, onCancel, on
   }
   return <section className="access-section" aria-labelledby="invitation-title">
     <div className="section-heading"><div><p className="eyebrow muted">TEAM INVITATION</p><h2 id="invitation-title">운영진 초대</h2></div><button className="secondary-button" onClick={onCancel} disabled={busy}>접속 홈으로</button></div>
-    {loading && <p className="save-notice" role="status">초대 상태를 확인하고 있습니다.</p>}
+    {loading && <p className="save-notice" role="status">초대 확인 중…</p>}
     {error && <p className="form-error access-error" role="alert">{error}</p>}
     {limit.seconds > 0 && <p className="save-notice" role="status">{limit.seconds}초 후 다시 시도해 주세요.</p>}
     {!loading && !invitation && !unusable && <button className="secondary-button" onClick={() => setAttempt(value => value + 1)} disabled={limit.seconds > 0}>초대 다시 확인</button>}
-    {unusable && <div className="empty-state"><h3>이 초대는 사용할 수 없습니다.</h3><p>초대를 발급한 감독 또는 서비스관리자에게 새 링크를 요청해 주세요.</p></div>}
+    {unusable && <div className="empty-state"><h3>사용할 수 없는 초대예요.</h3><p>초대한 감독이나 서비스 관리자에게 새 링크를 요청해 주세요.</p></div>}
     {invitation && !unusable && <>
       <div className="access-team-banner"><strong>{invitation.team.name}</strong><span>{roleLabels[invitation.role]}로 초대받았습니다.</span><small>수락 기한 · {koreanTime(invitation.expiresAt)}</small></div>
       {loginMode && user?.authType !== 'ACCOUNT' ? <><LoginForm onLogin={account => { setLoginMode(false); onLogin(account) }} /><button className="access-text-button" onClick={() => void showNewAccount()}>새 계정으로 참여하기</button></>
         : <form className="access-panel access-form" onSubmit={submit} aria-busy={busy}>
-          <h3>{user?.authType === 'ACCOUNT' ? '현재 계정으로 참여할까요?' : '처음 사용할 계정을 설정해 주세요.'}</h3>
+          <h3>{user?.authType === 'ACCOUNT' ? '현재 계정으로 참여할까요?' : '운영진 계정 만들기'}</h3>
           {user?.authType === 'ACCOUNT' ? <p><strong>{user.username}</strong> 계정으로 <strong>{invitation.team.name}</strong>의 {roleLabels[invitation.role]} 초대를 수락합니다.</p>
             : <fieldset disabled={busy || limit.seconds > 0}><label>아이디 <span>필수</span><input required autoComplete="username" autoCapitalize="none" spellCheck={false} minLength={3} maxLength={40} value={username} onChange={event => setUsername(event.target.value)} /></label>
-              <p className="field-help">영문 소문자로 시작하는 3~40자입니다. 이미 가진 아이디라면 기존 계정으로 로그인해 주세요.</p>
+              <p className="field-help">영문 소문자로 시작하는 3~40자</p>
               <label>비밀번호 <span>필수</span><input type="password" autoComplete="new-password" required minLength={12} value={password} onChange={event => setPassword(event.target.value)} /></label>
-              <label>비밀번호 확인 <span>필수</span><input type="password" autoComplete="new-password" required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label><p className="field-help">12자 이상 · UTF-8 72바이트 이내</p></fieldset>}
+              <label>비밀번호 확인 <span>필수</span><input type="password" autoComplete="new-password" required value={confirmation} onChange={event => setConfirmation(event.target.value)} /></label><p className="field-help">12자 이상 · 두 칸에 같은 비밀번호를 입력해 주세요.</p>
+              <HelpDetails title="계정 설정 안내"><ul><li>이미 계정이 있다면 아래의 ‘기존 계정으로 로그인하고 수락’을 눌러 주세요.</li><li>비밀번호는 UTF-8 기준 72바이트까지 사용할 수 있어요. 한글·일부 특수문자는 한 글자가 여러 바이트예요.</li></ul></HelpDetails></fieldset>}
           <button className="primary-button" disabled={busy || limit.seconds > 0}>{busy ? '참여 처리 중…' : user?.authType === 'ACCOUNT' ? '현재 계정으로 초대 수락' : '계정 설정 · 팀 참여'}</button>
           {user?.authType !== 'ACCOUNT' && <button className="secondary-button" type="button" onClick={() => void showLogin()} disabled={busy}>기존 계정으로 로그인하고 수락</button>}
-          <p className="access-note">초대는 한 번만 사용할 수 있습니다. 계정과 초대 링크를 다른 사람에게 공유하지 마세요.</p>
+          <p className="access-note">한 번만 사용할 수 있는 초대예요. 계정과 초대 링크는 공유하지 마세요.</p>
         </form>}
     </>}
   </section>

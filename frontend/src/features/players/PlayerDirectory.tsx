@@ -13,8 +13,8 @@ export function PlayerDirectory({ data, view, onPageChange, onEdit, filtered = f
   if (data.items.length === 0) {
     return <div className="empty-state">
       <div className="empty-number" aria-hidden="true">—</div>
-      <h3>{filtered ? '조건에 맞는 선수가 없어요' : '우리 팀의 첫 기록을 기다리고 있어요'}</h3>
-      <p>{filtered ? '연령대, 직책, 1지망 포지션을 바꾸거나 필터를 초기화해 주세요.' : '선수 정보가 등록되면 이곳에서 함께 볼 수 있습니다.'}</p>
+      <h3>{filtered ? '조건에 맞는 선수가 없어요' : '아직 등록된 선수가 없어요'}</h3>
+      <p>{filtered ? '조건을 바꾸거나 필터를 초기화해 주세요.' : '운영진이 선수를 등록하면 이곳에서 볼 수 있어요.'}</p>
       {filtered && onResetFilters && <button className="secondary-button" onClick={onResetFilters}>필터 초기화</button>}
       {data.page > 0 && <button className="secondary-button" onClick={() => onPageChange(0)}>첫 페이지로</button>}
     </div>

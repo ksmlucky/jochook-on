@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { canPlay, playerLabel, quarterShare, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, Quarter, Slot } from './api'
 import { ageBand } from '../players/age'
+import { slotGroup } from './formations'
 
 const mobileQuery = '(max-width: 700px)'
 function subscribeMobile(callback: () => void) {
@@ -40,7 +41,7 @@ export function LineupPosition({ slot, quarter, participants, referenceYear, isA
   const compact = useSyncExternalStore(subscribeMobile, isMobile, () => false)
   const [detailsOpen, setDetailsOpen] = useState(false)
   const starter = quarter.lineup.find(a => a.team === team && a.slot === slot && a.entryOrder === 0)
-  const group = slot === 'GK' ? 'GK' : ['LB', 'LCB', 'RCB', 'RB'].includes(slot) ? 'DF' : ['CDM', 'LCM', 'RCM'].includes(slot) ? 'MF' : 'FW'
+  const group = slotGroup(slot)
   const entries = () => ([0, 1] as const).map(order => {
     const a = quarter.lineup.find(a => a.team === team && a.slot === slot && a.entryOrder === order)
     const selected = participants.find(p => p.playerId === a?.playerId)

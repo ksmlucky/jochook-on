@@ -114,13 +114,13 @@ class PlayerFilterIntegrationTest {
     }
 
     @ParameterizedTest
-    @CsvSource({"FW,LW|ST|RW", "MF,CDM|CM", "DF,LB|CB|RB", "GK,GK"})
+    @CsvSource({"FW,LW|ST|RW", "MF,CDM|CM|LM|RM|CAM", "DF,LB|CB|RB|LWB|RWB", "GK,GK"})
     void positionGroupIsDerivedOnlyFromFirstChoice(String group, String expected) throws Exception {
-        String[] choices = {"GK", "LB", "CB", "RB", "CDM", "CM", "LW", "ST", "RW"};
+        String[] choices = {"GK", "LB", "CB", "RB", "CDM", "CM", "LW", "ST", "RW", "LM", "RM", "CAM", "LWB", "RWB"};
         for (int i = 0; i < choices.length; i++) {
             insert(1, "포지션 검증 " + choices[i], i + 1, 2000, "정회원", choices[i], true, "MEMBER");
         }
-        insert(1, "1지망 미확인", 10, 2000, "정회원", null, true, "MEMBER");
+        insert(1, "1지망 미확인", 15, 2000, "정회원", null, true, "MEMBER");
         // 과거 position 분류가 다르거나 2·3지망이 공격수여도 그룹은 오직 1지망으로 결정한다.
         jdbc.update("UPDATE players SET position='FW' WHERE team_id=1");
         jdbc.update("UPDATE players SET second_choice='ST', third_choice='LW' WHERE first_choice='GK'");
@@ -149,6 +149,20 @@ class PlayerFilterIntegrationTest {
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
         mvc.perform(get("/api/v1/players?positionGroup="))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(5));
+    }
+    @Test void wingbacksFilterAndSortWithDefendersInBothDirections() throws Exception {
+        insert(1, "미드 검증", 1, 2000, "정회원", "LM", true, "MEMBER");
+        insert(1, "왼쪽 윙백 검증", 3, 2000, "정회원", "LWB", true, "MEMBER");
+        insert(1, "오른쪽 윙백 검증", 2, 2000, "정회원", "RWB", true, "MEMBER");
+        insert(1, "키퍼 검증", 4, 2000, "정회원", "GK", true, "MEMBER");
+        mvc.perform(get("/api/v1/players?positionGroup=DF&firstChoice=LWB"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("LWB")));
+        mvc.perform(get("/api/v1/players?positionGroup=DF&firstChoice=RWB"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("RWB")));
+        mvc.perform(get("/api/v1/players?sort=preferredPosition&direction=asc"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("GK", "RWB", "LWB", "LM")));
+        mvc.perform(get("/api/v1/players?sort=preferredPosition&direction=desc"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("LM", "RWB", "LWB", "GK")));
     }
 
     @Test
@@ -186,8 +200,8 @@ class PlayerFilterIntegrationTest {
                         String firstChoice, boolean active, String type) {
         String position = firstChoice == null ? "UN" : switch (PreferredPosition.valueOf(firstChoice)) {
             case GK -> "GK";
-            case LB, CB, RB -> "DF";
-            case CDM, CM -> "MF";
+            case LB, CB, RB, LWB, RWB -> "DF";
+            case CDM, CM, LM, RM, CAM -> "MF";
             case LW, ST, RW -> "FW";
         };
         jdbc.update("""

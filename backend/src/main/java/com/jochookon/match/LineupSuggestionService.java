@@ -37,7 +37,7 @@ public class LineupSuggestionService {
                 return new LineupOptimizer.Candidate(p.getId(), Arrays.asList(p.getFirstChoice(), p.getSecondChoice(), p.getThirdChoice()),
                         h == null ? 0 : h.getAttended(), h == null ? 0 : h.getRecorded());
             }).toList();
-            return new LineupOptimizer().suggest(candidates, request.seed());
+            return new LineupOptimizer().suggest(candidates, request.seed(), request.formation());
         } finally { calculation.release(); }
     }
 }

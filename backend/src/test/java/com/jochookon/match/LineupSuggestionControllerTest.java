@@ -12,6 +12,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -29,7 +30,27 @@ class LineupSuggestionControllerTest extends com.jochookon.team.TeamMvcTestSuppo
     @Test void adminReceivesDraft() throws Exception {
         given(service.suggest(any())).willReturn(new LineupSuggestion("test", 0, List.of(), List.of(), List.of(), true));
         mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0}"))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.policyVersion").value("test"));
+                .andExpect(status().isOk()).andExpect(jsonPath("$.policyVersion").value("test"))
+                .andExpect(jsonPath("$.formation").value("F4123"));
+        org.mockito.Mockito.verify(service).suggest(org.mockito.ArgumentMatchers.argThat(r -> r.formation() == Formation.F4123));
+    }
+    @Test void acceptsExplicitFormationAndRejectsUnknownFormation() throws Exception {
+        given(service.suggest(any())).willReturn(new LineupSuggestion("test", 0, List.of(), List.of(), List.of(), true, Formation.F4231));
+        mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"formation\":\"F4231\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.formation").value("F4231"));
+        org.mockito.Mockito.verify(service).suggest(org.mockito.ArgumentMatchers.argThat(r -> r.formation() == Formation.F4231));
+        mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"formation\":\"F999\"}"))
+                .andExpect(status().isBadRequest());
+    }
+    @ParameterizedTest @EnumSource(value = Formation.class, names = {"F352", "F343"})
+    void acceptsThreeBackFormationAndReturnsItsIdentity(Formation formation) throws Exception {
+        given(service.suggest(any())).willReturn(new LineupSuggestion("test", 0, List.of(), List.of(), List.of(), true, formation));
+        mvc.perform(post(URL).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"playedOn\":\"2026-10-18\",\"playerIds\":[1],\"seed\":0,\"formation\":\"" + formation + "\"}"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.formation").value(formation.name()));
+        org.mockito.Mockito.verify(service).suggest(org.mockito.ArgumentMatchers.argThat(r -> r.formation() == formation));
     }
     @Test @WithMockUser(roles = "MEMBER") void memberCannotCalculate() throws Exception {
         mvc.perform(post(URL).with(csrf())).andExpect(status().isForbidden()); verifyNoInteractions(service);

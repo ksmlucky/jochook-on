@@ -30,7 +30,11 @@ public class MatchWorkbookService {
     }
 
     @Transactional(readOnly = true)
-    public MatchImportPreview preview(MultipartFile file) {
+    public MatchImportPreview preview(MultipartFile file) { return preview(file, Formation.F4123); }
+
+    @Transactional(readOnly = true)
+    public MatchImportPreview preview(MultipartFile file, Formation formation) {
+        formation = Formation.orDefault(formation);
         if (file.isEmpty() || file.getSize() > 2 * 1024 * 1024 || file.getOriginalFilename() == null || !file.getOriginalFilename().toLowerCase(Locale.ROOT).endsWith(".xlsx"))
             throw new IllegalArgumentException("2MB 이하의 .xlsx 경기 양식을 선택해 주세요.");
         List<Parsed> rows = new ArrayList<>();
@@ -67,7 +71,9 @@ public class MatchWorkbookService {
             try {
                 row.quarter = integer(row.values.get(0), 1, 4, "쿼터", false);
                 try { row.slot = LineupSlot.valueOf(row.values.get(1).toUpperCase(Locale.ROOT)); }
-                catch (IllegalArgumentException e) { throw new IllegalArgumentException("포지션은 양식 목록에서 선택해 주세요. CB는 LCB/RCB, CM은 LCM/RCM으로 구분합니다."); }
+                catch (IllegalArgumentException e) { throw new IllegalArgumentException("포지션은 선택한 포메이션의 양식 목록에서 선택해 주세요. CB는 LCB/CCB/RCB, CM은 LCM/RCM으로 구분합니다."); }
+                try { formation.requireSlot(row.slot); }
+                catch (IllegalArgumentException e) { throw new IllegalArgumentException("선택한 " + formation.name().substring(1) + " 포메이션에 없는 자리입니다. 해당 포메이션 양식을 다시 내려받아 주세요."); }
                 row.order = switch (row.values.get(2)) { case "선발" -> 0; case "교체" -> 1; default -> throw new IllegalArgumentException("출전 구분은 선발 또는 교체여야 합니다."); };
                 String name = row.values.get(3);
                 if (name.isBlank() || name.length() > 60) throw new IllegalArgumentException("이름은 필수이며 60자 이하여야 합니다.");
@@ -136,7 +142,9 @@ public class MatchWorkbookService {
             }
         }
     }
-    public byte[] template() {
+    public byte[] template() { return template(Formation.F4123); }
+    public byte[] template(Formation formation) {
+        formation = Formation.orDefault(formation);
         try (var book = new XSSFWorkbook(); var output = new ByteArrayOutputStream()) {
             Sheet sheet = book.createSheet("쿼터기록"); sheet.createFreezePane(3, 1);
             Font font = book.createFont(); font.setBold(true); font.setColor(IndexedColors.WHITE.getIndex());
@@ -145,18 +153,18 @@ public class MatchWorkbookService {
             Row first = sheet.createRow(0); first.setHeightInPoints(28);
             for (int i = 0; i < HEADERS.length; i++) { first.createCell(i).setCellValue(HEADERS[i]); first.getCell(i).setCellStyle(header); sheet.setColumnWidth(i, (i == 3 ? 26 : 24) * 256); sheet.setDefaultColumnStyle(i, text); }
             int row = 1;
-            for (int q = 1; q <= 4; q++) for (var slot : LineupSlot.values()) for (String type : List.of("선발", "교체")) {
+            for (int q = 1; q <= 4; q++) for (var slot : formation.slots()) for (String type : List.of("선발", "교체")) {
                 Row r = sheet.createRow(row++); r.createCell(0).setCellValue(q); r.createCell(1).setCellValue(slot.name()); r.createCell(2).setCellValue(type);
             }
             var helper = sheet.getDataValidationHelper();
-            String[][] options = {{"1", "2", "3", "4"}, Arrays.stream(LineupSlot.values()).map(Enum::name).toArray(String[]::new), {"선발", "교체"}};
+            String[][] options = {{"1", "2", "3", "4"}, formation.slots().stream().map(Enum::name).toArray(String[]::new), {"선발", "교체"}};
             for (int column = 0; column < options.length; column++) {
                 var validation = helper.createValidation(helper.createExplicitListConstraint(options[column]), new CellRangeAddressList(1, 200, column, column));
                 validation.setShowErrorBox(true); validation.createErrorBox("입력 확인", "목록에서 선택해 주세요."); sheet.addValidationData(validation);
             }
             Sheet guide = book.createSheet("작성안내"); guide.setColumnWidth(0, 120 * 256);
             String[] instructions = {"조축ON · 1~4쿼터 경기 기록 양식", "쿼터기록 시트의 이름부터 입력하세요. 빈 선수 행은 제외합니다. 열 제목은 유지해 주세요.",
-                    "포지션: GK, LB, LCB(왼쪽 CB), RCB(오른쪽 CB), RB, CDM, LCM(왼쪽 CM), RCM(오른쪽 CM), LW, ST, RW.",
+                    "선택 포메이션: " + formation.name().substring(1) + " / 포지션: " + String.join(", ", formation.slots().stream().map(Enum::name).toList()) + ". 같은 포지션의 좌우 자리는 L/R, 3백의 중앙 CB는 CCB로 구분합니다. LWB/RWB는 수비 그룹의 윙백입니다.",
                     "같은 쿼터·포지션에서 선발 1명 + 교체 1명 = 각각 0.5쿼터. 교체 없이 선발만 기록하면 1쿼터입니다.",
                     "교체 행이 있으면 같은 자리의 선발도 필요합니다. 한 선수는 같은 쿼터에 한 번만 기록합니다. 재투입·포지션 이동은 지원하지 않습니다.",
                     "등번호는 선택이며 1~99번만 가능합니다. 모르면 빈칸으로 두세요. 동명이인은 등번호 또는 선수 ID로 구분하세요.",

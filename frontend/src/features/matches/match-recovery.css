@@ -1,0 +1,40 @@
+.match-recovery-notice {
+  margin: 1rem 0;
+  padding: 1.1rem;
+  border: 1px solid #c6d9ce;
+  border-radius: 14px;
+  background: #f5f9f6;
+  color: #24483b;
+  overflow-wrap: anywhere;
+  word-break: keep-all;
+  font-size: .9rem;
+}
+.match-recovery-notice h3, .match-recovery-notice h4 { margin: 0; font-size: 1.05rem; line-height: 1.45; }
+.match-recovery-notice p { margin: .6rem 0; line-height: 1.65; }
+.match-recovery-heading { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem .75rem; }
+.match-recovery-badge { padding: .2rem .5rem; border-radius: 6px; background: #e2eee6; color: #34644c; font-size: .75rem; font-weight: 600; white-space: nowrap; }
+.match-recovery-notice .match-recovery-match { margin: 1rem 0 .25rem; font-size: 1rem; font-weight: 650; }
+.match-recovery-notice .match-recovery-meta { display: flex; flex-wrap: wrap; gap: .25rem 1rem; margin: 0; color: #52665b; font-size: .85rem; }
+.match-recovery-notice .match-recovery-updated { margin: .35rem 0 1rem; color: #5c6d63; font-size: .8rem; }
+.match-recovery-notice .registration-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+.match-recovery-notice .match-error { margin: .65rem 0; padding: 0; background: transparent; color: inherit; font-weight: 500; }
+.match-recovery-notice.conflict { border-color: #d3b982; background: #fff8e9; color: #674d22; }
+.match-recovery-hint { margin: .8rem 0; padding: .75rem 1rem; border-left: 3px solid #87b39a; background: #f6f9f6; color: #486653; font-size: .85rem; line-height: 1.6; word-break: keep-all; }
+.match-recovery-hint p { display: flex; flex-wrap: wrap; gap: .15rem .7rem; margin: 0; }
+.match-recovery-help { margin-top: .8rem; border-top: 1px solid #dbe6df; color: #52665b; font-size: .8rem; line-height: 1.7; }
+.match-recovery-help summary { min-height: 44px; padding: .65rem 0; cursor: pointer; font-weight: 500; }
+.match-recovery-help summary span { margin-left: .5rem; color: #52665b; font-weight: 400; white-space: nowrap; }
+.match-recovery-help ul { margin: 0 0 .3rem; padding-left: 1.15rem; }
+.match-recovery-help li + li { margin-top: .4rem; }
+.match-recovery-help summary:focus-visible { outline: 2px solid #28634c; outline-offset: 3px; border-radius: 3px; }
+.match-recovery-server { margin-top: 1rem; padding: .75rem; background: white; border-radius: 10px; color: #253f35; }
+.match-recovery-server summary { cursor: pointer; font-weight: 700; }
+@media (max-width: 480px) {
+  .match-recovery-notice { padding: 1rem; }
+  .match-recovery-notice .registration-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .match-recovery-notice button { min-height: 44px; max-width: 100%; white-space: normal; }
+  #matches > .section-heading { flex-wrap: wrap; gap: .7rem; }
+  #matches > .section-heading > div:first-child { flex-shrink: 0; }
+  #matches > .section-heading h2 { white-space: nowrap; }
+  #matches > .section-heading .registration-actions { flex-wrap: wrap; margin-left: auto; }
+}

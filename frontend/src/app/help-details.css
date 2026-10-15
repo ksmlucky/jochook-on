@@ -1,0 +1,31 @@
+.help-details {
+  margin-block: .65rem;
+  border-top: 1px solid #dbe6df;
+  color: #4d6258;
+  font-size: .85rem;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.help-details > summary {
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: .65rem .15rem;
+  color: #365b4a;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.help-details > summary:focus-visible {
+  outline: 3px solid #328167;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.help-details-body { padding: 0 .15rem .65rem; }
+.help-details-body > :first-child { margin-top: 0; }
+.help-details-body > :last-child { margin-bottom: 0; }
+.help-details-body p { margin-block: .55rem; }
+.help-details-body ul, .help-details-body ol { padding-left: 1.3rem; margin-block: .45rem; }
+.help-details-body li + li { margin-top: .35rem; }

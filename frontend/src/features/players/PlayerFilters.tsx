@@ -1,6 +1,7 @@
 import type { AgeGroup, PlayerFilters as FilterValues } from './query'
 import { ageGroupOptions, clubRoleOptions, hasPlayerFilters, positionGroupOptions } from './query'
 import { seoulYear } from './age'
+import { HelpDetails } from '../../app/HelpDetails'
 import './player-filters.css'
 
 export function PlayerFilters({ values, availableAgeGroups, onChange, onReset }: {
@@ -29,6 +30,10 @@ export function PlayerFilters({ values, availableAgeGroups, onChange, onReset }:
         {positionGroupOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
       </select></label>
     </div>
-    <p className="field-help">선택한 조건을 모두 만족하는 활동 선수를 보여줍니다. 포지션은 1지망 기준이며, 연령대는 생일과 관계없이 {seoulYear()}년 − 생년 기준입니다.</p>
+    <p className="field-help">선택한 조건에 맞는 활동 선수예요. 포지션은 1지망을 기준으로 해요.</p>
+    <HelpDetails title="필터 기준 보기">
+      <ul><li>여러 조건을 고르면 모두 만족하는 선수만 보여요.</li>
+        <li>연령대는 생일과 관계없이 {seoulYear()}년 − 생년으로 계산해요.</li></ul>
+    </HelpDetails>
   </section>
 }

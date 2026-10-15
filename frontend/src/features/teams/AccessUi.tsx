@@ -61,7 +61,7 @@ export function OneTimeSecret({ title, value, expiresAt, invite, password, onClo
   }
   return <section className="access-panel secret-result" aria-labelledby="secret-title">
     <p className="eyebrow muted">{invite ? 'INVITATION READY' : 'TEAM ACCESS CODE'}</p><h3 id="secret-title">{title}</h3>
-    <p>{invite ? '지정한 운영진에게만 개인적으로 전달해 주세요. 링크를 가진 사람이 운영진으로 참여할 수 있습니다.' : '팀 코드와 비밀번호를 우리 팀 회원에게 함께 안내해 주세요. 회원은 가입 없이 선수단과 경기 기록을 조회할 수 있습니다.'}</p>
+    <p>{invite ? '초대 링크는 지정한 운영진에게만 전달해 주세요. 링크를 가진 사람이 운영진으로 참여할 수 있어요.' : '팀 코드와 비밀번호를 팀원에게 함께 전달해 주세요. 가입 없이 선수단과 경기 기록을 볼 수 있어요.'}</p>
     <label className="secret-field">{invite ? '일회용 운영진 초대 링크' : '회원 조회 코드'}<input ref={field} readOnly value={value} autoComplete="off" spellCheck={false} onFocus={event => event.target.select()} /></label>
     {!invite && <div className="secret-field team-password-result">
       <label htmlFor="issued-team-password">팀 비밀번호 · 숫자 6자리</label>
@@ -70,7 +70,8 @@ export function OneTimeSecret({ title, value, expiresAt, invite, password, onClo
           aria-controls="issued-team-password" onClick={() => setShowPassword(value => !value)}>{showPassword ? '숨기기' : '보기'}</button></div>
       <p className="field-help">운영진의 개인 로그인 비밀번호와는 달라요.</p>
     </div>}
-    <p className="access-note">유효 기한 · {koreanTime(expiresAt)} (한국 시간)<br />이 화면을 떠나면 원문을 다시 볼 수 없습니다. 분실한 경우 재발급해 주세요.</p>
+    <p className="access-note">유효 기한 · {koreanTime(expiresAt)} (한국 시간)</p>
+    <p className="access-warning"><strong>이 화면에서만 확인할 수 있어요.</strong><br />닫기 전에 복사해 주세요. 잃어버리면 재발급해야 해요.</p>
     {error && <p className="form-error" role="alert">{error}</p>}
     {copied && <p className="save-notice" role="status">{copied}</p>}
     <div className="access-actions"><button className="secondary-button" onClick={() => void copy('code')}>{invite ? '초대 링크 복사' : '코드 복사'}</button>

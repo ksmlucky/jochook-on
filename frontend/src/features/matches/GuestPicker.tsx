@@ -42,7 +42,7 @@ export function GuestPicker({ players, selectedIds, disabled, onBusy, onAdd, onS
   return <div className="guest-picker">
     <button type="button" className="secondary-button" disabled={disabled} onClick={() => setOpen(v => !v)}>{open ? '용병 추가 접기' : '+ 용병 추가'}</button>
     {open && <div className="guest-fields">
-      <p>용병도 실제 참가자로 기록합니다. 추가하면 이 경기의 참석 예정 명단에 들어가며, 정회원 선수단에는 표시하지 않습니다.</p>
+      <p>용병을 추가하면 이 경기의 참석 예정 명단에 들어가요. 정회원 선수단과는 따로 관리해요.</p>
       <div className="import-tools"><label>기존 용병 선택<select value={existing} disabled={disabled} onChange={e => setExisting(e.target.value)}><option value="">용병 선택</option>{guests.map(p => <option key={p.id} value={p.id}>{playerLabel(p)} · {[p.firstChoice, p.secondChoice, p.thirdChoice].filter(Boolean).join('/') || '포지션 미확인'}</option>)}</select></label>
         <button type="button" className="secondary-button" disabled={disabled || !existing} onClick={() => { const p = guests.find(p => p.id === Number(existing)); if (p) { onAdd(p); setExisting(''); setOpen(false) } }}>선택한 용병을 명단에 추가</button></div>
       <fieldset className="player-fields" disabled={disabled || blocked} onKeyDown={event => {
@@ -56,7 +56,8 @@ export function GuestPicker({ players, selectedIds, disabled, onBusy, onAdd, onS
         {choices.map((choice, i) => <div key={i}><label htmlFor={`guest-choice-${i}`}>용병 {i + 1}지망 <span>{i === 0 ? '모르면 미확인' : '선택'}</span></label><select id={`guest-choice-${i}`} value={choice} onChange={e => setChoices(previous => previous.map((p, j) => i === j ? e.target.value as PreferredPosition | '' : p))}><option value="">{i === 0 ? '포지션 미확인' : '선택 안 함'}</option>{preferredPositions.map(p => <option key={p} value={p}>{p}</option>)}</select></div>)}
       </fieldset>
       {name.trim() && players.some(p => p.name === name.trim()) && <p className="import-warning">같은 이름의 선수가 있습니다. 동일인이라면 기존 용병 목록에서 선택해 주세요. 동명이인은 새로 등록할 수 있습니다.</p>}
-      <p className="field-help">새 프로필은 등록 즉시 DB에 저장되어 다음 경기에도 선택할 수 있습니다. 경기 참가·배치는 계획 저장 시 반영됩니다. 선호 미확인은 자동 편성에서 제외됩니다.</p>
+      <p className="field-help">용병 정보는 등록 즉시 저장돼 다음 경기에도 선택할 수 있어요. 이 경기의 참가·배치는 계획을 저장해야 반영돼요.</p>
+      <p className="field-help">선호 포지션이 미확인이면 자동 편성에서 제외돼요.</p>
       <button type="button" className="primary-button" disabled={disabled || blocked} onClick={() => void register()}>새 용병 등록 · 명단에 추가</button>
       {error && <p className="form-error" role="alert">{error}</p>}
     </div>}

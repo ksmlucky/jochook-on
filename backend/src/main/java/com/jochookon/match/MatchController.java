@@ -3,6 +3,7 @@ package com.jochookon.match;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import java.net.URI;
+import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,19 +11,26 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/matches")
 public class MatchController {
     private final MatchService service;
-    public MatchController(MatchService service) { this.service = service; }
+    private final MatchSaveService saves;
+    public MatchController(MatchService service, MatchSaveService saves) { this.service = service; this.saves = saves; }
     @GetMapping
     MatchResponse.Page list(@RequestParam(defaultValue = "0") @Min(0) int page,
                             @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) { return service.list(page, size); }
     @GetMapping("/{id}")
     MatchResponse get(@PathVariable @Min(1) long id) { return service.get(id); }
     @PostMapping
-    ResponseEntity<MatchResponse> create(@Valid @RequestBody MatchRequest request) {
-        var match = service.create(request);
+    ResponseEntity<MatchResponse> create(@Valid @RequestBody MatchRequest request,
+                                        @RequestHeader(value = "Idempotency-Key", required = false) UUID key) {
+        var match = key == null ? service.create(request) : saves.save(key, null, request);
         return ResponseEntity.created(URI.create("/api/v1/matches/" + match.id())).body(match);
     }
     @PutMapping("/{id}")
-    MatchResponse update(@PathVariable @Min(1) long id, @Valid @RequestBody MatchRequest request) { return service.update(id, request); }
+    MatchResponse update(@PathVariable @Min(1) long id, @Valid @RequestBody MatchRequest request,
+                         @RequestHeader(value = "Idempotency-Key", required = false) UUID key) {
+        return key == null ? service.update(id, request) : saves.save(key, id, request);
+    }
+    @GetMapping("/save-requests/{key}")
+    MatchSaveService.Status saveStatus(@PathVariable UUID key) { return saves.status(key); }
     @DeleteMapping("/{id}")
     ResponseEntity<Void> delete(@PathVariable @Min(1) long id, @RequestParam @Min(0) long version) {
         service.delete(id, version);

@@ -46,6 +46,65 @@ class MatchIntegrationTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
     }
+    @Test void formationRoundTripsAndOmittedUpdatePreservesBothSidesBeforeValidation() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.PRESENT)),
+                List.of(new MatchRequest.Appearance(LineupSlot.LST, first, 1, 0, 0, MatchTeam.A),
+                        new MatchRequest.Appearance(LineupSlot.LCDM, second, 0, 0, 0, MatchTeam.B)));
+        var input = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", null,
+                base.participants(), base.quarters(), List.of(), 1, 0, MatchKind.INTERNAL, RecordingStage.ACTUAL,
+                Formation.F442, Formation.F4231);
+        long id = create(input);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.formationA").value("F442"))
+                .andExpect(jsonPath("$.formationB").value("F4231"));
+        mvc.perform(get("/api/v1/matches")).andExpect(jsonPath("$.items[0].formationA").value("F442"));
+        var oldClient = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "계획 유지", 0L,
+                base.participants(), base.quarters(), List.of(), 1, 0, MatchKind.INTERNAL);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(oldClient)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.formationA").value("F442"))
+                .andExpect(jsonPath("$.formationB").value("F4231")).andExpect(jsonPath("$.version").value(1));
+        var saved = savedMatchRows(id);
+        var invalid = new MatchRequest(base.playedOn(), base.kickoff(), "", "", "", 1L,
+                base.participants(), base.quarters(), List.of(), 1, 0, MatchKind.INTERNAL, null, Formation.F4141, Formation.F4231);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(invalid)))
+                .andExpect(status().isBadRequest());
+        assertThat(savedMatchRows(id)).isEqualTo(saved);
+        var snapshot = jdbc.queryForObject("SELECT after_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
+        assertThat(json.readTree(snapshot).get("formationA").asText()).isEqualTo("F442");
+        assertThat(json.readTree(snapshot).get("formationB").asText()).isEqualTo("F4231");
+    }
+    @ParameterizedTest @EnumSource(value = Formation.class, names = {"F352", "F343"})
+    void threeBackFormationRoundTripsAndPositionChangesKeepCompletedPlayerStats(Formation formation) throws Exception {
+        var playedOn = java.time.LocalDate.now(java.time.ZoneId.of("Asia/Seoul")).minusDays(1);
+        var appearances = List.of(new MatchRequest.Appearance(LineupSlot.CCB, first, 2, 0, 0),
+                new MatchRequest.Appearance(LineupSlot.CCB, second, 1, 1, 1));
+        var base = request(null, List.of(participant(first, Attendance.PRESENT), participant(second, Attendance.LATE)), appearances);
+        var plan = List.of(new MatchRequest.PlannedEntry(1, LineupSlot.CCB, 0, first), new MatchRequest.PlannedEntry(1, LineupSlot.CCB, 1, second));
+        var input = new MatchRequest(playedOn, base.kickoff(), "", "검증 상대", "", null,
+                base.participants(), base.quarters(), plan, 3, 0, MatchKind.EXTERNAL, RecordingStage.COMPLETED, formation, null);
+        long id = create(input);
+        mvc.perform(get("/api/v1/matches/" + id)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.formationA").value(formation.name())).andExpect(jsonPath("$.formationB").value("F4123"))
+                .andExpect(jsonPath("$.participants[0].creditedQuarters").value(0.5))
+                .andExpect(jsonPath("$.participants[1].creditedQuarters").value(0.5));
+        String statsUrl = "/api/v1/stats/players?year=" + playedOn.getYear();
+        var before = json.readTree(mvc.perform(get(statsUrl)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
+        assertThat(before.get("matchCount").asInt()).isEqualTo(1);
+        var items = before.get("items");
+        assertThat(items.size()).isEqualTo(2);
+        assertThat(items.get(0).get("goals").asInt() + items.get(1).get("goals").asInt()).isEqualTo(3);
+        assertThat(items.get(0).get("assists").asInt() + items.get(1).get("assists").asInt()).isEqualTo(1);
+        assertThat(items.get(0).get("creditedQuarters").asDouble() + items.get(1).get("creditedQuarters").asDouble()).isEqualTo(1);
+        var otherFormation = formation == Formation.F352 ? Formation.F343 : Formation.F352;
+        var update = new MatchRequest(playedOn, base.kickoff(), "", "검증 상대", "포메이션만 변경", 0L,
+                base.participants(), base.quarters(), plan, 3, 0, MatchKind.EXTERNAL, RecordingStage.COMPLETED, otherFormation, null);
+        mvc.perform(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(update)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.formationA").value(otherFormation.name()));
+        var after = json.readTree(mvc.perform(get(statsUrl)).andExpect(status().isOk()).andReturn().getResponse().getContentAsString());
+        assertThat(after).isEqualTo(before);
+        var snapshot = jdbc.queryForObject("SELECT after_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
+        assertThat(json.readTree(snapshot).get("formationA").asText()).isEqualTo(otherFormation.name());
+        assertThat(jdbc.queryForObject("SELECT slot FROM match_appearances WHERE match_id=? AND player_id=?", String.class, id, first)).isEqualTo("CCB");
+    }
     @ParameterizedTest @EnumSource(MatchKind.class)
     void writingCheckpointRoundTripsWithHistoryAndVersionProtection(MatchKind kind) throws Exception {
         var base = deletionFixture(null, kind, 0);
@@ -169,7 +228,7 @@ class MatchIntegrationTest {
         var ids = jdbc.queryForList("SELECT id FROM players ORDER BY id", Long.class);
         var appearances = new ArrayList<MatchRequest.Appearance>();
         int index = 0;
-        for (var team : MatchTeam.values()) for (var slot : LineupSlot.values()) for (int order = 0; order <= 1; order++)
+        for (var team : MatchTeam.values()) for (var slot : Formation.F4123.slots()) for (int order = 0; order <= 1; order++)
             appearances.add(new MatchRequest.Appearance(slot, ids.get(index++), 0, 0, order, team));
         var quarters = java.util.stream.IntStream.rangeClosed(1, 4).mapToObj(q -> new MatchRequest.Quarter(q, appearances)).toList();
         var plan = quarters.stream().flatMap(q -> q.lineup().stream().map(a -> new MatchRequest.PlannedEntry(q.number(), a.slot(), a.entryOrder(), a.playerId(), a.team()))).toList();
@@ -325,7 +384,7 @@ class MatchIntegrationTest {
         jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,1,'ST',?,0,0)", id, first);
         assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,1,'LW',?,0,0)", id, first))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
-        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,2,'CAM',?,0,0)", id, first))
+        assertThatThrownBy(() -> jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists) VALUES (?,2,'CF',?,0,0)", id, first))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
         assertThatThrownBy(() -> jdbc.update("DELETE FROM players WHERE id=?", first))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);

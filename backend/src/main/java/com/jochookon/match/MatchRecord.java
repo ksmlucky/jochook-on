@@ -19,6 +19,10 @@ public class MatchRecord {
     @Column(name = "match_kind", nullable = false, length = 16) private MatchKind kind;
     @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
     @Column(name = "recording_stage", length = 16) private RecordingStage recordingStage;
+    @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Column(name = "formation_a", nullable = false, length = 8) private Formation formationA;
+    @Enumerated(EnumType.STRING) @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.VARCHAR)
+    @Column(name = "formation_b", nullable = false, length = 8) private Formation formationB;
     @Column(nullable = false, length = 100) private String venue;
     @Column(nullable = false, length = 100) private String opponent;
     @Column(nullable = false, length = 3000) private String notes;
@@ -37,9 +41,11 @@ public class MatchRecord {
         match.replace(request); return match;
     }
     void replace(MatchRequest request) {
+        request = request.resolveFormations(formationA, formationB);
         validateRules(request);
         if (id != null && kind != request.kind()) throw new IllegalArgumentException("저장한 경기의 유형은 변경할 수 없습니다. 별도 경기로 등록해 주세요.");
         kind = request.kind();
+        formationA = request.formationA(); formationB = request.formationB();
         // Older clients omit this field: preserve the saved checkpoint, including legacy NULL.
         if (request.recordingStage() != null) recordingStage = request.recordingStage();
         playedOn = request.playedOn(); kickoff = request.kickoff();
@@ -54,6 +60,8 @@ public class MatchRecord {
         });
     }
     static void validateRules(MatchRequest request) {
+        if (request.kind() == MatchKind.EXTERNAL && request.formation(MatchTeam.B) != Formation.F4123)
+            throw new IllegalArgumentException("외부 경기에는 상대 팀 포메이션을 지정하지 않습니다.");
         if (request.kind() == MatchKind.INTERNAL && !request.opponent().isBlank()) throw new IllegalArgumentException("자체전은 상대 팀 이름 대신 A팀·B팀으로 기록합니다.");
         if (request.kickoff() == null || request.kickoff().getMinute() % 30 != 0
                 || request.kickoff().getSecond() != 0 || request.kickoff().getNano() != 0)
@@ -73,6 +81,7 @@ public class MatchRecord {
             Map<String, Set<Integer>> slots = new HashMap<>(); Set<Long> players = new HashSet<>();
             for (var a : q.lineup()) {
                 validateTeam(request.kind(), a.team());
+                request.formation(a.team()).requireSlot(a.slot());
                 if (a.entryOrder() < 0 || a.entryOrder() > 1) throw new IllegalArgumentException("출전 구분은 선발 또는 교체여야 합니다.");
                 if (!slots.computeIfAbsent(a.team() + ":" + a.slot(), key -> new HashSet<>()).add(a.entryOrder())) throw new IllegalArgumentException(q.number() + "쿼터의 같은 팀 안의 같은 자리에는 선발 1명과 교체 1명만 기록할 수 있습니다.");
                 if (!players.add(a.playerId())) throw new IllegalArgumentException(q.number() + "쿼터에 같은 선수를 중복 배치할 수 없습니다.");
@@ -94,6 +103,7 @@ public class MatchRecord {
         Set<String> places = new HashSet<>(); Set<String> people = new HashSet<>();
         for (var a : request.plannedLineup()) {
             validateTeam(request.kind(), a.team());
+            request.formation(a.team()).requireSlot(a.slot());
             if (a.quarterNumber() < 1 || a.quarterNumber() > 4 || a.entryOrder() < 0 || a.entryOrder() > 1 || a.slot() == null)
                 throw new IllegalArgumentException("계획 스쿼드의 쿼터·자리·선발/교체를 확인해 주세요.");
             if (!voters.contains(a.playerId())) throw new IllegalArgumentException("계획 스쿼드에는 참석 예정으로 투표한 선수만 배치할 수 있습니다.");
@@ -106,6 +116,8 @@ public class MatchRecord {
     private static void validateTeam(MatchKind kind, MatchTeam team) {
         if (kind == MatchKind.EXTERNAL && team != MatchTeam.A) throw new IllegalArgumentException("외부 경기는 우리 팀(A)만 배치할 수 있습니다.");
     }
+    public Formation getFormationA() { return Formation.orDefault(formationA); }
+    public Formation getFormationB() { return Formation.orDefault(formationB); }
     public MatchKind getKind() { return kind; }
     public RecordingStage getRecordingStage() { return recordingStage; }
     public Long getId() { return id; }

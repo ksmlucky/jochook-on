@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 class MatchControllerTest extends com.jochookon.team.TeamMvcTestSupport {
     @Autowired MockMvc mvc;
     @MockitoBean MatchService service;
+    @MockitoBean MatchSaveService saves;
     @MockitoBean AccountUserDetailsService userDetailsService;
     @Test void membersReadButCannotCreateOrUpdate() throws Exception {
         given(service.list(0, 10)).willReturn(new MatchResponse.Page(List.of(), 0, 0, 0));

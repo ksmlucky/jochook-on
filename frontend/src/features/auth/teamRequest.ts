@@ -1,4 +1,4 @@
-import { fetchWithCsrf, identityOf, SessionExpiredError } from './api'
+import { AccessRequestError, fetchWithCsrf, identityOf, SessionExpiredError } from './api'
 import type { CurrentUser } from './api'
 import { TeamScopeStore } from './teamScope'
 import type { TeamRequestScope } from './teamScope'
@@ -28,7 +28,19 @@ export async function teamFetch(path: string, options: RequestInit = {}, scope =
   headers.set('X-Team-Id', String(scope.teamId))
   const signal = options.signal ? AbortSignal.any([options.signal, scope.controller.signal]) : scope.controller.signal
   const request = { ...options, headers, signal, cache: 'no-store' as const }
-  const response = await (options.method && !['GET', 'HEAD'].includes(options.method.toUpperCase()) ? fetchWithCsrf(path, request) : fetch(path, request))
+  let response: Response
+  try {
+    response = await (options.method && !['GET', 'HEAD'].includes(options.method.toUpperCase()) ? fetchWithCsrf(path, request) : fetch(path, request))
+  } catch (cause) {
+    // CSRF 확인 실패도 팀 접속 오류로 처리하되, 이전 팀의 늦은 오류는 현재 팀을 잠그지 않는다.
+    assertTeamScope(scope)
+    if (cause instanceof AccessRequestError && (cause.status === 401 || cause.status === 403)) {
+      const message = '접속 상태를 확인하지 못해 저장 요청을 보내지 않았습니다. 다시 접속해 주세요.'
+      lockTeamAccess(message)
+      throw new SessionExpiredError(message)
+    }
+    throw cause
+  }
   assertTeamScope(scope)
   if (response.status === 401 || response.status === 403 || response.status === 409) {
     const error = await response.clone().json().catch(() => null) as { code?: string; message?: string } | null

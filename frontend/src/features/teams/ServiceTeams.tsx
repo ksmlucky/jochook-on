@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { TeamDisplay } from '../../app/team'
 import { useEditGuard, useLeaveGuard } from '../../app/LeaveGuard'
+import { HelpDetails } from '../../app/HelpDetails'
 import { AccessRequestError } from '../auth/api'
 import { roleLabels } from '../auth/permissions'
 import type { ManagerRole } from '../auth/permissions'
@@ -74,7 +75,7 @@ export function ServiceTeams({ onSessionExpired, onMembershipChanged }: { onSess
   return <section className="access-section" aria-labelledby="service-teams-title">
     <div className="section-heading"><div><p className="eyebrow muted">SERVICE ADMIN</p><h2 id="service-teams-title">{creating ? '새 팀 만들기' : detail ? '운영진 지정 관리' : '서비스 팀 관리'}</h2></div>
       {(creating || selected !== null || secret) ? <button className="secondary-button" disabled={busy} onClick={() => void navigate(null)}>팀 목록으로</button> : <button className="primary-button" disabled={busy} onClick={() => void navigate('create')}>＋ 팀 생성</button>}</div>
-    <p className="section-description">팀과 운영진을 연결합니다. 서비스 관리 권한은 선수·경기·코드 운영 권한과 별개입니다.</p>
+    <p className="section-description">팀을 만들고 운영진을 지정해요. 선수·경기·코드 관리는 해당 팀의 운영 권한이 있어야 해요.</p>
     <AccessToast message={notice} clear={() => setNotice('')} />
     {error && <div className="access-error" role="alert"><p>{error}</p><button className="secondary-button" disabled={busy} onClick={() => setRevision(value => value + 1)}>최신 상태 확인</button></div>}
     {secret ? <OneTimeSecret invite title={`${secret.teamName} ${roleLabels[secret.issued.role]} 초대가 준비됐어요.`} value={`${window.location.origin}${window.location.pathname}#invite=${encodeURIComponent(secret.issued.token)}`}
@@ -83,15 +84,16 @@ export function ServiceTeams({ onSessionExpired, onMembershipChanged }: { onSess
         setCreating(false); setSelected(result.team.id); setRevision(value => value + 1)
         if (result.invitation) showInvite(result.invitation, result.team.name)
         else setNotice(result.replayed ? '이미 처리된 팀 생성 결과를 확인했습니다. 초대 원문이 필요하면 상세에서 재발급해 주세요.' : '팀과 최초 감독을 등록했습니다.')
-      }} /> : loading ? <p className="save-notice" role="status">팀 관리 정보를 불러오고 있습니다.</p>
+      }} /> : loading ? <p className="save-notice" role="status">팀 정보 불러오는 중…</p>
         : selected !== null && detail ? <>
           <div className="access-team-banner"><strong>{detail.team.name}</strong><span>{detail.team.description || '구분 설명 없음'}</span><small>{teamStatus[detail.team.status]}</small></div>
-          <section className="access-panel"><h3>지정된 감독 · 코치 · 조회 계정</h3><p className="access-note">마지막 활성 감독은 대체 감독이 참여하기 전 해제하거나 코치로 변경할 수 없습니다. 감독은 코치를 관리하며, 감독과 코치는 기록을 등록·수정합니다.</p>
+          <section className="access-panel"><h3>지정된 감독 · 코치 · 조회 계정</h3><p className="access-note">팀에는 감독이 최소 한 명 필요해요. 마지막 감독을 해제하거나 코치로 바꾸려면 새 감독을 먼저 지정해 주세요.</p>
+            <HelpDetails title="권한별로 할 수 있는 일"><ul><li>감독은 코치를 관리하고 선수·경기 기록을 수정해요.</li><li>코치는 선수·경기 기록을 수정해요.</li><li>조회 계정은 팀의 기록을 볼 수 있어요.</li></ul></HelpDetails>
             {!detail.members.length ? <p className="access-empty">아직 지정된 계정이 없습니다.</p> : <ul className="access-member-list">{detail.members.map(member => <li key={member.id}><div><strong>{member.username}</strong><small>{roleLabels[member.role]} · {member.active ? '활성' : '해제됨'}</small></div>
               {member.active && <button className="danger-button" disabled={busy || (member.role === 'DIRECTOR' && detail.members.filter(m => m.active && m.role === 'DIRECTOR').length <= 1)} onClick={() => setAction({ title: '이 계정의 팀 소속을 해제할까요?', description: `${member.username} 계정이 ${detail.team.name}에 접근할 수 없게 됩니다. 다른 팀의 소속에는 영향을 주지 않습니다.`, label: '소속 해제', danger: true, run: async () => { await removeTeamMember(detail.team.id, member.id); if (alive.current) { setNotice('팀 소속을 해제했습니다.'); await onMembershipChanged() } } })}>소속 해제</button>}</li>)}</ul>}
             <form className="access-inline-form" onSubmit={addMember}><label>기존 계정 로그인 아이디<input required maxLength={40} autoComplete="off" autoCapitalize="none" spellCheck={false} value={memberUsername} disabled={busy} onChange={event => setMemberUsername(event.target.value)} /></label><label className="access-role-field">지정할 권한<select value={memberRole} disabled={busy} onChange={event => setMemberRole(event.target.value as ManagerRole)}><option value="COACH">코치</option><option value="DIRECTOR">감독</option></select></label><button className="secondary-button" disabled={busy}>권한 지정 · 변경</button></form>
           </section>
-          <section className="access-panel"><h3>신규 운영진 초대</h3><p className="access-note">초대는 24시간 동안 한 번 사용할 수 있습니다. 표시명은 구분용 메모이며 본인 인증 수단이 아닙니다.</p>
+          <section className="access-panel"><h3>신규 운영진 초대</h3><p className="access-note">초대는 24시간 동안 한 번만 사용할 수 있어요. 표시명은 구분용 메모이니 링크는 본인에게 직접 전달해 주세요.</p>
             <form className="access-inline-form" onSubmit={invite}><label>초대 대상 표시명<input required maxLength={60} autoComplete="off" value={inviteLabel} disabled={busy} onChange={event => setInviteLabel(event.target.value)} /></label><label className="access-role-field">초대 권한<select value={inviteRole} disabled={busy} onChange={event => setInviteRole(event.target.value as ManagerRole)}><option value="COACH">코치</option><option value="DIRECTOR">감독</option></select></label><button className="primary-button" disabled={busy}>{busy ? '처리 중…' : '새 초대 발급'}</button></form>
             {!detail.invitations.length ? <p className="access-empty">발급한 초대가 없습니다.</p> : <ul className="access-member-list">{detail.invitations.map(invitation => <li key={invitation.id}><div><strong>{invitation.label}</strong><small>{roleLabels[invitation.role]} · {inviteStatus[invitation.status]} · {koreanTime(invitation.expiresAt)}</small></div>
               {invitation.status !== 'ACCEPTED' && <div className="access-actions compact"><button className="secondary-button" disabled={busy} onClick={() => setAction({ title: '초대를 재발급할까요?', description: '이전에 발급한 링크는 더 이상 사용할 수 없습니다. 새로운 링크를 지정한 운영진에게 개인적으로 전달해 주세요.', label: '초대 재발급', run: async () => showInvite(await reissueInvitation(detail.team.id, invitation.id), detail.team.name) })}>재발급</button>
@@ -138,16 +140,17 @@ function CreateTeamForm({ onCreated, onSessionExpired }: { onCreated: (result: A
     } finally { submitting.current = false; if (alive.current) setBusy(false) }
   }
   return <form className="access-panel access-form" onSubmit={prepare} aria-busy={busy}>
-    <h3>팀과 첫 감독을 함께 등록해요.</h3><p>감독은 코치를 임명하고 기록을 관리합니다. 동일한 팀 이름도 사용할 수 있어요. 구분 설명을 적으면 관리할 때 알아보기 쉽습니다.</p>
+    <h3>팀과 첫 감독 등록</h3><p>감독은 코치를 임명하고 팀의 기록을 관리해요.</p>
     <fieldset disabled={busy || uncertain}><label>팀명 <span>필수 · 2~40자</span><input minLength={2} maxLength={40} required value={name} onChange={event => setName(event.target.value)} /></label>
       <label>지역 / 구분 설명 <span>선택 · 40자 이내</span><input maxLength={40} value={description} onChange={event => setDescription(event.target.value)} /></label>
+      <p className="field-help">같은 이름의 팀이 있다면 지역이나 구분 설명을 적어 주세요.</p>
       <div className="access-assignment-options" role="group" aria-label="최초 감독 지정 방식"><label><input type="radio" name="assignment" checked={assignment === 'EXISTING'} onChange={() => setAssignment('EXISTING')} />기존 계정을 감독으로 지정</label><label><input type="radio" name="assignment" checked={assignment === 'INVITE'} onChange={() => setAssignment('INVITE')} />새 감독 초대</label></div>
-      {assignment === 'EXISTING' ? <><label>정확한 로그인 아이디 <span>필수</span><input required maxLength={40} autoComplete="off" autoCapitalize="none" spellCheck={false} value={username} onChange={event => setUsername(event.target.value)} /></label><p className="field-help">지정한 기존 계정에 팀 운영 권한을 바로 부여합니다. 별도의 초대 수락 링크는 없습니다.</p></>
-        : <><label>지정 대상 표시명 <span>필수 · 구분용 메모</span><input required maxLength={60} value={label} onChange={event => setLabel(event.target.value)} /></label><p className="field-help">대상자가 직접 아이디와 비밀번호를 설정하는 일회용 초대를 발급합니다. 초대 링크는 지정한 운영진에게만 개인 전달해 주세요.</p></>}
+      {assignment === 'EXISTING' ? <><label>정확한 로그인 아이디 <span>필수</span><input required maxLength={40} autoComplete="off" autoCapitalize="none" spellCheck={false} value={username} onChange={event => setUsername(event.target.value)} /></label><p className="field-help">초대 수락 없이 이 계정에 감독 권한이 바로 생겨요. 아이디를 꼭 확인해 주세요.</p></>
+        : <><label>지정 대상 표시명 <span>필수 · 구분용 메모</span><input required maxLength={60} value={label} onChange={event => setLabel(event.target.value)} /></label><p className="field-help">초대받은 감독이 직접 계정을 만들어요. 링크는 해당 감독에게만 전달해 주세요.</p></>}
     </fieldset>
     {error && <p className="form-error" role="alert">{error}</p>}
-    {uncertain && <p className="access-warning">생성 결과를 확인하지 못했습니다. 팀 목록을 먼저 확인하거나 아래 버튼으로 동일 요청의 처리 결과를 확인하세요. 새 요청을 중복 생성하지 않습니다.</p>}
-    <button className="primary-button" disabled={busy}>{busy ? '등록 중…' : uncertain ? '동일 요청 처리 결과 확인' : assignment === 'EXISTING' ? '팀 생성 · 감독 지정' : '팀 생성 · 감독 초대'}</button>
-    {confirm && <ConfirmAction title="팀과 최초 감독을 등록할까요?" description={assignment === 'EXISTING' ? `${name.trim()} 팀의 감독 권한을 ${username.trim()} 계정에 부여합니다. 정확한 아이디인지 확인해 주세요.` : `${name.trim()} 팀을 만들고 ${label.trim()} 대상으로 24시간 동안 유효한 감독 초대를 발급합니다.`} confirmLabel={uncertain ? '동일 요청 확인' : '팀 등록'} onConfirm={() => void save()} onCancel={() => setConfirm(false)} />}
+    {uncertain && <p className="access-warning"><strong>팀이 만들어졌는지 확인해 주세요.</strong><br />팀 목록을 보거나 아래 버튼을 눌러 확인할 수 있어요. 버튼을 다시 눌러도 팀이 중복 생성되지는 않아요.</p>}
+    <button className="primary-button" disabled={busy}>{busy ? '등록 중…' : uncertain ? '팀 생성 결과 확인' : assignment === 'EXISTING' ? '팀 생성 · 감독 지정' : '팀 생성 · 감독 초대'}</button>
+    {confirm && <ConfirmAction title="팀과 최초 감독을 등록할까요?" description={assignment === 'EXISTING' ? `${name.trim()} 팀의 감독 권한을 ${username.trim()} 계정에 부여합니다. 정확한 아이디인지 확인해 주세요.` : `${name.trim()} 팀을 만들고 ${label.trim()} 대상으로 24시간 동안 유효한 감독 초대를 발급합니다.`} confirmLabel={uncertain ? '생성 결과 확인' : '팀 등록'} onConfirm={() => void save()} onCancel={() => setConfirm(false)} />}
   </form>
 }

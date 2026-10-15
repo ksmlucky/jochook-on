@@ -7,8 +7,16 @@ import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.EnumSource;
 
 class PlayerTest {
+    @ParameterizedTest @EnumSource(value = PreferredPosition.class, names = {"LWB", "RWB"})
+    void wingbackGuestsAreDefendersAndKeepTheirExactPreference(PreferredPosition choice) {
+        var player = Player.registerGuest(new GuestPlayerRequest("윙백 검증", null, null, choice, null, null));
+        assertThat(player.getPosition()).isEqualTo(Position.DF);
+        assertThat(player.getFirstChoice()).isEqualTo(choice);
+        assertThat(player.getPlayerType()).isEqualTo(PlayerType.GUEST);
+    }
     @Test void preferencesRequireFirstChoiceAndRejectDuplicatesWithoutPartialChange() {
         Player player = Player.register("선수", null, Position.MF, null);
         player.updatePreferences(PreferredPosition.CM, PreferredPosition.CDM, PreferredPosition.ST);

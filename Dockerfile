@@ -6,6 +6,7 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY frontend/package.json ./frontend/package.json
 RUN pnpm install --frozen-lockfile
 COPY frontend ./frontend
+COPY docs/guides/content.json docs/guides/jochook-on-member-guide.pdf docs/guides/jochook-on-staff-guide.pdf ./docs/guides/
 RUN pnpm build
 
 FROM eclipse-temurin:21-jdk-jammy AS backend-build

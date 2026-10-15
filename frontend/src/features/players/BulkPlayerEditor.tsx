@@ -5,6 +5,7 @@ import type { BulkPlayerRow, ImportPreview } from './api'
 import { PreferenceFields } from './PreferenceFields'
 import { BirthYearField, ClubRoleField } from './ProfileFields'
 import { useEditGuard } from '../../app/LeaveGuard'
+import { HelpDetails } from '../../app/HelpDetails'
 
 type Draft = BulkPlayerRow & { key: string }
 const emptyRow = (): Draft => ({ key: crypto.randomUUID(), name: '', position: '', shirtNumber: '', joinedOn: '', firstChoice: '', secondChoice: '', thirdChoice: '', birthYear: '', clubRole: '' })
@@ -23,7 +24,7 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
   useEditGuard(!!fileName || rows.some(({ key: _key, ...row }) => Object.values(row).some(value => value.trim())), busy)
   function fail(cause: unknown) {
     if (cause instanceof SessionExpiredError) { onSessionExpired(); return }
-    setError(cause instanceof Error ? cause.message : '요청을 처리하지 못했습니다.')
+    setError(cause instanceof Error ? cause.message : '처리하지 못했어요. 잠시 후 다시 시도해 주세요.')
   }
   function change(index: number, patch: Partial<BulkPlayerRow>) {
     setRows(current => current.map((row, i) => i === index ? { ...row, ...patch } : row)); setPreview(null); setError('')
@@ -60,14 +61,20 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
   async function template() { try { await downloadPlayerTemplate() } catch (cause) { fail(cause) } }
   return <section className="player-editor bulk-editor" aria-labelledby="bulk-title">
     <div className="editor-heading"><p className="eyebrow muted">SQUAD MANAGEMENT</p><h3 id="bulk-title">{initialMode === 'excel' ? '엑셀로 선수 등록' : '여러 선수 한 번에 등록'}</h3>
-      <p>최대 200명 · 내용을 검토한 뒤 전체를 한 번에 등록합니다. 기존 선수를 수정하는 기능은 아닙니다.</p>
+      <p>새 선수는 한 번에 200명까지 등록할 수 있어요. 기존 선수의 정보는 바뀌지 않아요.</p>
     </div>
     <div className="import-tools">
       <button className="secondary-button" onClick={template} disabled={busy}>엑셀 양식 다운로드</button>
       <label className="upload-label">엑셀 파일 선택 (.xlsx, 2MB 이하)<input type="file" accept=".xlsx" disabled={busy || uncertain} onChange={event => { void upload(event.target.files?.[0]); event.target.value = '' }} /></label>
       {fileName && <p className="field-help">불러온 파일: {fileName}</p>}
     </div>
-    <p className="field-help">이름·기본 포지션·1지망 필수. 포지션 미확인(UN)은 지망을 비웁니다. 등번호·생년은 모르면 빈칸으로 두세요. 등번호는 활동 선수와 이번 입력 내에서 중복될 수 없습니다. 생년은 4자리 연도이며, 직책의 빈칸은 정회원으로 등록합니다.</p>
+    <p className="field-help">이름·기본 포지션·1지망은 필수예요. 포지션이 ‘미확인(UN)’이면 지망은 비워 주세요.</p>
+    <p className="field-help">등번호는 1~99번이며, 활동 선수나 함께 등록할 선수와 중복할 수 없어요.</p>
+    <HelpDetails title="양식 작성 안내">
+      <ul><li>등번호·생년을 모르면 비워 두세요. 생년은 4자리 연도로 입력해요.</li>
+        <li>직책을 비우면 ‘정회원’으로 등록돼요.</li>
+        <li>파일을 올린 뒤 내용을 검토하고 ‘전체 등록’을 눌러야 저장돼요.</li></ul>
+    </HelpDetails>
     <fieldset className="bulk-rows" disabled={busy || uncertain}>
       <legend className="sr-only">등록할 선수 목록</legend>
       {rows.map((row, i) => <div className="bulk-row" key={row.key}>
@@ -91,8 +98,8 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
       <button className="secondary-button" disabled={rows.length >= 200} onClick={() => { setRows(current => [...current, emptyRow()]); setPreview(null) }}>+ 선수 행 추가</button>
     </fieldset>
     {error && <p className="form-error editor-error" role="alert">{error}</p>}
-    {uncertain && <p role="alert" className="import-warning">저장 결과가 불확실합니다. 닫고 선수 목록을 먼저 확인해 주세요. 중복 등록을 막기 위해 재전송을 멈췄습니다.</p>}
-    {preview && <p className={preview.valid ? 'save-notice' : 'form-error editor-error'} role="status">{preview.rows.length}명 검토 · {preview.rows.filter(row => row.errors.length > 0).length}명 오류{preview.valid ? ' · 아직 저장하지 않았습니다.' : ' · 오류를 수정한 뒤 다시 검토하세요.'}</p>}
+    {uncertain && <p role="alert" className="import-warning"><strong>등록 여부를 먼저 확인해 주세요.</strong><br />이미 등록됐을 수 있어요. 이 창을 닫고 선수 목록을 확인한 뒤 다시 진행해 주세요.</p>}
+    {preview && <p className={preview.valid ? 'save-notice' : 'form-error editor-error'} role="status"><strong>{preview.valid ? `${preview.rows.length}명 검토 완료` : `${preview.rows.filter(row => row.errors.length > 0).length}명의 입력을 확인해 주세요`}</strong><br />{preview.valid ? '아직 저장되지 않았어요. 내용을 확인한 뒤 전체 등록을 눌러 주세요.' : '표시된 오류를 수정한 뒤 다시 검토해 주세요.'}</p>}
     <div className="editor-buttons">
       {!preview?.valid && <button className="primary-button" disabled={busy || uncertain || !rows.length} onClick={validate}>{busy ? '검토 중…' : '입력 내용 검토'}</button>}
       {preview?.valid && <button className="primary-button" disabled={busy || uncertain} onClick={save}>{busy ? '등록 중…' : `${preview.rows.length}명 전체 등록`}</button>}

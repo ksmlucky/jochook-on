@@ -44,19 +44,19 @@ export function TeamCodeManager({ team, onSessionExpired }: { team: TeamDisplay;
   }
   return <section className="access-section" aria-labelledby="team-code-title">
     <div className="section-heading"><div><p className="eyebrow muted">{team.name} · TEAM ACCESS</p><h2 id="team-code-title">팀 코드와 비밀번호</h2></div></div>
-    <p className="section-description">팀원은 팀 코드와 비밀번호로 조회하고, 운영진은 개인 계정으로 기록을 관리합니다.</p>
+    <p className="section-description">팀원에게 공유할 조회용 코드와 비밀번호를 관리해요.</p>
     <AccessToast message={notice} clear={() => setNotice('')} />
-    {loading && <p className="save-notice" role="status">코드 상태를 확인하고 있습니다.</p>}
+    {loading && <p className="save-notice" role="status">코드 상태 확인 중…</p>}
     {error && <div className="access-error" role="alert"><p>{error}</p><button className="secondary-button" disabled={busy} onClick={() => setAttempt(value => value + 1)}>최신 코드 상태 확인</button></div>}
     {result ? <OneTimeSecret title="팀 코드와 비밀번호가 준비됐어요." value={result.code.replace(/[\s-]/g, '').match(/.{1,4}/g)?.join('-') || result.code} password={result.password} expiresAt={result.expiresAt!} onClose={() => setResult(null)} />
       : code && !loading && <div className="access-panel code-management"><div className="access-panel-heading"><h3>회원 조회 코드</h3><span className={`access-status ${code.status === 'ACTIVE' ? 'active' : ''}`}>{statusLabels[code.status]}</span></div>
         <div className="masked-code" aria-label="팀 코드와 비밀번호 원문은 다시 표시하지 않습니다.">•••• — •••• — ••••</div>
         <dl className="access-details"><div><dt>접속 권한</dt><dd>현재 팀 조회만</dd></div><div><dt>발급일</dt><dd>{koreanTime(code.issuedAt)}</dd></div><div><dt>유효 기한</dt><dd>{koreanTime(code.expiresAt)}</dd></div></dl>
-        <p className="access-note">발급할 때 팀 코드와 숫자 6자리 비밀번호가 함께 생성됩니다. 90일 동안 사용할 수 있으며, 원문은 발급 직후 한 번만 보여 줍니다.</p>
-        <p className="access-note">비밀번호 없이 발급했던 예전 코드는 재발급해야 사용할 수 있습니다.</p>
+        <p className="access-note">코드와 6자리 비밀번호는 90일 동안 유효해요. 발급 직후 한 번만 볼 수 있으니 함께 보관해 주세요.</p>
+        <p className="access-note">비밀번호가 없는 예전 코드는 재발급해 주세요.</p>
         <div className="access-actions"><button className="primary-button" disabled={busy || blocked} onClick={() => setConfirm('issue')}>{busy ? '처리 중…' : code.status === 'ACTIVE' ? '코드·비밀번호 재발급' : '코드·비밀번호 발급'}</button>
           {code.status === 'ACTIVE' && <button className="danger-button" disabled={busy || blocked} onClick={() => setConfirm('revoke')}>현재 코드·비밀번호 폐기</button>}</div>
-        <p className="access-warning">재발급하면 코드와 비밀번호가 모두 바뀝니다. 재발급·폐기 시 기존 회원 접속도 종료됩니다. 운영진의 개인 로그인은 유지됩니다.</p>
+        <p className="access-warning"><strong>재발급·폐기하면 회원 접속이 종료돼요.</strong><br />재발급 시 코드와 비밀번호가 모두 바뀌어요. 운영진의 개인 로그인은 유지돼요.</p>
       </div>}
     <TeamCodeHistory revision={historyRevision} onSessionExpired={onSessionExpired} />
     {confirm && <ConfirmAction title={confirm === 'revoke' ? '코드와 비밀번호를 폐기할까요?' : code?.status === 'ACTIVE' ? '코드와 비밀번호를 재발급할까요?' : '코드와 비밀번호를 발급할까요?'}
@@ -84,8 +84,8 @@ function TeamCodeHistory({ revision, onSessionExpired }: { revision: number; onS
   }, [revision, attempt, onSessionExpired])
   return <section className="access-panel" aria-labelledby="code-history-title">
     <div className="access-panel-heading"><h3 id="code-history-title">코드 발급 이력</h3><button className="secondary-button" disabled={loading} onClick={() => setAttempt(value => value + 1)}>이력 새로고침</button></div>
-    <p className="access-note">최근 20건을 최신순으로 표시합니다. 코드와 비밀번호 원문은 이력에 저장하지 않습니다.</p>
-    {loading ? <p className="save-notice" role="status">코드 이력을 확인하고 있습니다.</p>
+    <p className="access-note">최근 20건 · 코드와 비밀번호 원문은 남기지 않아요.</p>
+    {loading ? <p className="save-notice" role="status">코드 이력 불러오는 중…</p>
       : error ? <p className="form-error access-error" role="alert">{error} 이력 새로고침으로 다시 확인해 주세요.</p>
         : !entries.length ? <p className="access-empty">아직 코드 발급 이력이 없습니다.</p>
           : <div className="code-history-scroll" tabIndex={0} role="region" aria-label="최근 코드 발급 이력 표"><table className="code-history-table">

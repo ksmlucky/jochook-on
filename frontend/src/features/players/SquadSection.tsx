@@ -26,7 +26,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
     window.location.hash = 'players'
   }
   function returnToList() {
-    if (busy) { setNotice('요청을 처리하고 있습니다. 완료된 후 선수단으로 돌아가 주세요.'); return false }
+    if (busy) { setNotice('처리 중이에요. 끝나면 선수단으로 돌아갈 수 있어요.'); return false }
     if (editor || bulkMode) { setConfirmLeave(true); return false }
     closeEditor()
     return true
@@ -34,7 +34,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
   useImperativeHandle(ref, () => ({ returnToList }))
   useEffect(() => { if (state.status === 'unauthorized') onSessionExpired() }, [state.status, onSessionExpired])
   function saved(player: Player) {
-    setNotice(`${player.name} 선수 ${editor?.player ? '수정' : '등록'}을 완료했습니다.`)
+    setNotice(`${player.name} 선수를 ${editor?.player ? '수정' : '등록'}했어요.`)
     if (!editor?.player) setPage(0)
     setEditor(null)
     retry()
@@ -44,7 +44,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
       <div><p className="eyebrow muted">SQUAD</p><h2 id="players-title">선수단</h2></div>
       {state.status === 'success' && <span className="squad-count">{filtered ? '조건에 맞는 선수' : '활동 선수'} <strong>{state.data.totalElements}</strong>명</span>}
     </div>
-    <div className="squad-toolbar"><p className="section-description">함께 뛰는 선수들의 등번호, 포지션과 연령을 한눈에.</p>
+    <div className="squad-toolbar"><p className="section-description">등번호·포지션·연령대로 우리 팀 선수를 찾아보세요.</p>
     {isAdmin && !editor && !bulkMode && <div className="registration-actions">
       <button className="primary-button" onClick={() => { setNotice(''); setEditor({ player: null }) }}>선수 등록</button>
       <button className="secondary-button" onClick={() => { setNotice(''); setBulkMode('manual') }}>여러 명 입력</button>
@@ -53,14 +53,14 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
     {notice && <p className="save-notice" role="status">{notice}</p>}
     {confirmLeave && <div className="dialog-backdrop"><div className="leave-dialog" role="alertdialog" aria-modal="true" aria-labelledby="leave-title" aria-describedby="leave-description"
       onKeyDown={event => { if (event.key === 'Escape') setConfirmLeave(false); if (event.key === 'Tab') { event.preventDefault(); const next = event.currentTarget.querySelector<HTMLButtonElement>(document.activeElement?.getAttribute('data-leave') === 'cancel' ? '[data-leave="confirm"]' : '[data-leave="cancel"]'); next?.focus() } }}>
-      <h3 id="leave-title">선수단 조회로 돌아갈까요?</h3><p id="leave-description">저장하지 않은 입력 내용이 사라집니다.</p><div className="registration-actions">
+      <h3 id="leave-title">선수단으로 돌아갈까요?</h3><p id="leave-description">저장하지 않은 입력 내용은 사라져요.</p><div className="registration-actions">
         <button autoFocus data-leave="cancel" className="secondary-button" onClick={() => setConfirmLeave(false)}>계속 수정</button>
         <button data-leave="confirm" className="primary-button" onClick={closeEditor}>입력 취소하고 선수단 보기</button>
       </div></div></div>}
     {isAdmin && editor && <PlayerEditor key={editor.player?.id ?? 'new'} player={editor.player} onSaved={saved} onCancel={returnToList} onBusyChange={setBusy} onSessionExpired={onSessionExpired} />}
     {isAdmin && bulkMode && <BulkPlayerEditor initialMode={bulkMode} onSessionExpired={onSessionExpired}
       onCancel={returnToList} onBusyChange={setBusy} onSaved={count => {
-        setBulkMode(null); setNotice(`${count}명의 선수를 등록했습니다.`)
+        setBulkMode(null); setNotice(`선수 ${count}명을 등록했어요.`)
         setPage(0)
         retry()
       }} />}
@@ -83,7 +83,7 @@ export function SquadSection({ isAdmin, onSessionExpired, ref }: { isAdmin: bool
       </div>
     </div>
     <div aria-live="polite" aria-busy={state.status === 'loading'}>
-      {state.status === 'loading' && <div className="empty-state"><span className="loading-dot" /><p role="status">선수단을 불러오고 있습니다.</p></div>}
+      {state.status === 'loading' && <div className="empty-state"><span className="loading-dot" /><p role="status">선수단을 불러오는 중이에요.</p></div>}
       {state.status === 'error' && <div className="empty-state error-state" role="alert">
         <span className="empty-number" aria-hidden="true">!</span><h3>선수단을 불러오지 못했어요</h3>
         <p>잠시 후 다시 시도해 주세요.</p><button className="secondary-button" onClick={retry}>다시 불러오기</button>

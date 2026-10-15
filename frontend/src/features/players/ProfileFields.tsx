@@ -7,7 +7,7 @@ export function ClubRoleField({ id, value, onChange }: { id: string; value: stri
   return <div><label htmlFor={id}>직책</label><select id={id} value={selected} aria-describedby={`${id}-role-help`} onChange={e => onChange(e.target.value)}>
     {!clubRoles.includes(selected) && <option value={selected} disabled>잘못된 값: {selected}</option>}
     {clubRoles.map(role => <option key={role} value={role}>{role}</option>)}
-  </select><p className="field-help" id={`${id}-role-help`}>명단에 표시할 직책입니다. 로그인 권한은 별도로 지정합니다.</p></div>
+  </select><p className="field-help" id={`${id}-role-help`}>선수단에 표시할 직책이에요. 이 선택으로 수정 권한이 생기지는 않아요.</p></div>
 }
 
 export function BirthYearField({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
@@ -24,6 +24,6 @@ export function BirthYearField({ id, value, onChange }: { id: string; value: str
         {years.map(year => <option key={year} value={year}>{year}년</option>)}
       </select>
     </div>
-    <p id={`${id}-help`} className={valid ? 'field-help' : 'form-error'}>{valid ? '직접 입력하거나 목록에서 선택하세요.' : `1900~${currentYear} 사이의 4자리 연도를 입력해 주세요.`}</p>
+    <p id={`${id}-help`} className={valid ? 'field-help' : 'form-error'}>{valid ? '4자리로 입력하거나 목록에서 골라 주세요.' : `1900~${currentYear} 사이의 4자리 연도를 입력해 주세요.`}</p>
   </div>
 }

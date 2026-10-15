@@ -7,13 +7,13 @@ import type { AgeGroup, PlayerQuery } from './query'
 export type { PlayerQuery } from './query'
 
 export type Position = 'GK' | 'DF' | 'MF' | 'FW' | 'UN'
-export const preferredPositions = ['LB', 'CB', 'RB', 'CDM', 'CM', 'LW', 'ST', 'RW', 'GK'] as const
+export const preferredPositions = ['LB', 'CB', 'RB', 'LWB', 'RWB', 'CDM', 'CM', 'LM', 'RM', 'CAM', 'LW', 'ST', 'RW', 'GK'] as const
 export type PreferredPosition = typeof preferredPositions[number]
 export function preferredPositionGroup(position: PreferredPosition | null): Position {
   if (position === 'GK') return 'GK'
   if (position === 'LW' || position === 'RW' || position === 'ST') return 'FW'
-  if (position === 'CM' || position === 'CDM') return 'MF'
-  if (position === 'LB' || position === 'CB' || position === 'RB') return 'DF'
+  if (position === 'CM' || position === 'CDM' || position === 'LM' || position === 'RM' || position === 'CAM') return 'MF'
+  if (position === 'LB' || position === 'CB' || position === 'RB' || position === 'LWB' || position === 'RWB') return 'DF'
   return 'UN'
 }
 

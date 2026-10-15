@@ -85,7 +85,8 @@
 .welcome-shell .install-card { background: transparent; }
 @media (max-width: 1000px) {
   .app-shell { padding: 0 28px; }
-  .site-header { gap: 24px; }
+  .site-header { gap: 16px; height: auto; padding-top: 16px; flex-wrap: wrap; }
+  .site-header .primary-navigation { order: 3; width: 100%; padding-bottom: 14px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .workspace-nav { padding: 10px 12px; }
   #access .login-panel { gap: 28px; }
   #access .login-form { padding: 26px; }
@@ -104,7 +105,7 @@
   .account-menu > span { min-width: 0; }
   .account-menu .secondary-button { padding: 8px 10px; font-size: 12px; flex-shrink: 0; }
   .site-header .primary-navigation { order: 3; width: 100%; gap: 8px; padding: 0 0 14px; }
-  .workspace-nav { flex: 1; justify-content: center; font-size: 14px; }
+  .workspace-nav { flex: 1; min-width: 0; justify-content: center; flex-direction: column; padding: 8px 2px; gap: 4px; font-size: 12px; white-space: nowrap; }
   .workspace-context { padding: 22px 0; gap: 12px; flex-wrap: wrap; }
   .context-emblem { width: 44px; height: 44px; border-radius: 12px; font-size: 20px; }
   .context-copy { flex: 1; }
@@ -140,6 +141,9 @@
 }
 @media (max-width: 400px) {
   .app-shell { padding: 0 16px; }
+  .site-header .primary-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+  .workspace-nav { min-width: 0; padding: 8px 2px; gap: 4px; font-size: 11.5px; white-space: nowrap; }
+  .workspace-nav svg { width: 16px; height: 16px; }
   .header-note { display: none; }
   .account-menu strong { font-size: 11px; }
   .account-menu small { font-size: 10px; }

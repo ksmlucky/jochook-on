@@ -38,7 +38,7 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
 
   function showError(cause: unknown) {
     if (cause instanceof SessionExpiredError) { onSessionExpired(); return }
-    setError(cause instanceof Error ? cause.message : '서버에 연결하지 못했습니다. 다시 시도해 주세요.')
+    setError(cause instanceof Error ? cause.message : '연결하지 못했어요. 잠시 후 다시 시도해 주세요.')
     if (cause instanceof PlayerRequestError) {
       setFieldErrors(cause.fieldErrors)
       setConflict(cause.status === 409)
@@ -48,7 +48,7 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
   async function submit(event: FormEvent) {
     event.preventDefault()
     if (busy || conflict) return
-    if (!name.trim() || !position || (position !== 'UN' && !choices[0])) { setError('이름, 기본 포지션, 선호 포지션 1지망을 입력해 주세요. 포지션 미확인은 지망을 비워 둡니다.'); return }
+    if (!name.trim() || !position || (position !== 'UN' && !choices[0])) { setError('이름·기본 포지션·1지망을 확인해 주세요. 포지션이 미확인이면 지망은 비워 주세요.'); return }
     setBusy(true)
     setError('')
     setFieldErrors({})
@@ -84,7 +84,7 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
   return <section className="player-editor" aria-labelledby="editor-title">
     <div className="editor-heading"><p className="eyebrow muted">SQUAD MANAGEMENT</p>
       <h3 id="editor-title">{player ? '선수 정보 수정' : '새 선수 등록'}</h3>
-      <p>이름·기본 포지션·선호 1지망은 필수입니다. 포지션을 모르면 미확인으로 선택하고 지망을 비워 둡니다. 생년은 선택이며 직책은 기본 정회원입니다.</p>
+      <p>이름·기본 포지션·1지망을 입력해 주세요. 나머지는 나중에 채워도 돼요.</p>
     </div>
     <form onSubmit={submit} aria-busy={busy}>
       <fieldset disabled={busy} className="player-fields">
@@ -98,24 +98,25 @@ export function PlayerEditor({ player, onSaved, onCancel, onSessionExpired, onBu
             <option value="" disabled>포지션 선택</option>
             {Object.entries(positionLabels).map(([value, label]) => <option key={value} value={value}>{label} ({value})</option>)}
           </select>
+          <p className="field-help">포지션을 모르면 ‘미확인’을 선택해 주세요. 1~3지망은 비워 둬요.</p>
           {fieldErrors.position && <p className="form-error" id="position-error">{fieldErrors.position}</p>}
         </div>
         <div><label htmlFor="player-shirt">등번호 <span>선택</span></label>
           <input id="player-shirt" type="number" min="1" max="99" step="1" inputMode="numeric" value={shirtNumber} onChange={e => setShirtNumber(e.target.value)} placeholder="미등록" aria-invalid={!!fieldErrors.shirtNumber} aria-describedby="shirt-help" />
-          <p id="shirt-help" className={fieldErrors.shirtNumber ? 'form-error' : 'field-help'}>{fieldErrors.shirtNumber ?? '1~99 · 활동 선수끼리 중복 불가. 번호가 없으면 비워 두세요.'}</p>
+          <p id="shirt-help" className={fieldErrors.shirtNumber ? 'form-error' : 'field-help'}>{fieldErrors.shirtNumber ?? '1~99번 중 활동 선수가 쓰지 않는 번호를 입력해 주세요.'}</p>
         </div>
         <div><label htmlFor="player-joined">가입일 <span>선택</span></label>
           <input id="player-joined" type="date" min="1000-01-01" max="9999-12-31" value={joinedOn} onChange={e => setJoinedOn(e.target.value)} aria-invalid={!!fieldErrors.joinedOn} aria-describedby="joined-help" />
           <p id="joined-help" className={fieldErrors.joinedOn ? 'form-error' : 'field-help'}>{fieldErrors.joinedOn ?? '정확한 날짜를 모르면 비워 두세요.'}</p>
         </div>
         <div><BirthYearField id="player-birth-year" value={birthYear} onChange={setBirthYear} />
-          <p className="field-help">{ageDescription(birthYear ? Number(birthYear) : null, seoulYear())} ({seoulYear()}년 기준, 만 나이 아님)</p></div>
+          <p className="field-help">{ageDescription(birthYear ? Number(birthYear) : null, seoulYear())} · {seoulYear()}년 − 생년 기준이에요.</p></div>
         <ClubRoleField id="player-club-role" value={clubRole} onChange={setClubRole} />
-        <div className="preference-heading"><h4>선호 포지션</h4><p className="field-help">원하는 순서대로 선택하세요. 2·3지망은 선택이며 같은 포지션을 반복할 수 없습니다.</p></div>
+        <div className="preference-heading"><h4>선호 포지션</h4><p className="field-help">원하는 순서대로 골라 주세요. 2·3지망은 선택이며, 중복할 수 없어요.</p></div>
         <PreferenceFields id="player" values={choices} onChange={setChoices} unknown={position === 'UN'} />
       </fieldset>
       {error && <p role="alert" className="form-error editor-error">{error}</p>}
-      {conflict && <div className="conflict-notice"><p>아래 버튼을 누르면 현재 입력 내용이 서버의 최신 정보로 바뀝니다.</p>
+      {conflict && <div className="conflict-notice"><p>다시 불러오면 지금 입력한 내용이 사라지고, 최근 저장된 정보로 바뀌어요.</p>
         <button type="button" className="secondary-button" disabled={busy} onClick={reload}>최신 정보로 다시 불러오기</button>
       </div>}
       <div className="editor-buttons">

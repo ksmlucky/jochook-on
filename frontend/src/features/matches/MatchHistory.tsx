@@ -39,7 +39,8 @@ export function MatchHistory({ onClose, onSessionExpired }: { onClose: () => voi
   const changes = currentDetail ? matchHistoryChanges(currentDetail.before, currentDetail.after) : []
   return <section className="match-history" aria-labelledby="match-history-title">
     <div className="section-heading"><h3 id="match-history-title">경기 기록 변경 이력</h3><button className="secondary-button" onClick={onClose}>경기 목록으로</button></div>
-    <p className="field-help">감독·코치만 볼 수 있어요. 기능 적용 이후의 등록·수정·삭제를 기록하며, 이전 변경 내역은 소급해서 만들지 않습니다. 시간은 한국 기준입니다.</p>
+    <p className="field-help">누가 언제 무엇을 바꿨는지 확인해 보세요. 감독·코치만 볼 수 있고, 시간은 한국 기준이에요.</p>
+    <p className="field-help">변경 이력 기능 도입 이후의 기록부터 확인할 수 있어요.</p>
     {error ? <div role="alert" className="save-notice"><p>{error}</p><button className="secondary-button" onClick={() => setRevision(value => value + 1)}>다시 불러오기</button></div>
       : !data ? <p role="status">변경 이력을 불러오고 있습니다.</p> : !data.items.length ? <div className="empty-state"><h3>아직 변경 이력이 없어요</h3><p>앞으로 경기 기록을 저장하거나 삭제하면 이곳에 남습니다.</p></div> : <>
         <ul className="match-history-list">{data.items.map(entry => <li key={entry.id}>

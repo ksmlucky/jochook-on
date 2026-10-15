@@ -34,7 +34,7 @@ export function TeamCodeForm({ onEntered, onLogin, onCancel, switching = false }
       <div className="access-form-title"><p className="form-kicker">TEAM ACCESS</p><h2>우리 팀 들어가기</h2><p>운영진에게 받은 팀 코드와 비밀번호를 입력해 주세요.</p></div>
       <label htmlFor="team-access-code">팀 코드</label><input id="team-access-code" name="team-shared-code" value={code} onChange={event => setCode(event.target.value)} autoComplete="off" autoCapitalize="characters" spellCheck={false}
         placeholder="운영진이 안내한 코드" maxLength={80} required disabled={busy || limit.seconds > 0} aria-describedby="code-input-help" />
-      <p id="code-input-help" className="field-help">대소문자·공백·하이픈은 구분하지 않습니다.</p>
+      <p id="code-input-help" className="field-help">대소문자를 구분하지 않아요. 공백·하이픈은 있어도 돼요.</p>
       <label htmlFor="team-access-password">팀 비밀번호</label>
       <div className="team-password-control">
         <input id="team-access-password" name="team-shared-pin" type={showPassword ? 'text' : 'password'} value={password}
@@ -44,11 +44,11 @@ export function TeamCodeForm({ onEntered, onLogin, onCancel, switching = false }
         <button type="button" className="team-password-toggle" aria-label={showPassword ? '팀 비밀번호 숨기기' : '팀 비밀번호 보기'} aria-pressed={showPassword}
           aria-controls="team-access-password" disabled={busy || limit.seconds > 0} onClick={() => setShowPassword(value => !value)}>{showPassword ? '숨기기' : '보기'}</button>
       </div>
-      <p id="team-password-help" className="field-help">팀 코드와 함께 안내받은 숫자 6자리예요.</p>
+      <p id="team-password-help" className="field-help">운영진에게 받은 숫자 6자리를 입력해 주세요.</p>
       {error && <p className="form-error" role="alert">{error}</p>}{limit.seconds > 0 && <p className="access-note" role="status">{limit.seconds}초 후 다시 시도해 주세요.</p>}
       <button className="primary-button" disabled={busy || limit.seconds > 0}>{busy ? '접속 확인 중…' : <>우리 팀 들어가기 <span aria-hidden="true">→</span></>}</button>
-      <p className="code-privacy-note">회원 가입 없이 조회할 수 있어요.</p>
-      {switching && <p className="access-note">새 팀 코드와 비밀번호가 확인되기 전에는 기존 팀의 조회 접속을 유지합니다.</p>}
+      <p className="code-privacy-note">가입 없이 선수단과 경기 기록을 볼 수 있어요.</p>
+      {switching && <p className="access-note">새 팀 접속을 완료할 때까지 현재 팀에 머물러요.</p>}
       <div className="manager-entry"><span>팀의 기록을 관리하시나요?</span><button className="secondary-button" type="button" onClick={() => { setPassword(''); setShowPassword(false); onLogin() }} disabled={busy}>운영진 로그인</button></div>
       {onCancel && <button type="button" className="access-text-button" onClick={() => { setPassword(''); setShowPassword(false); onCancel() }} disabled={busy}>현재 팀으로 돌아가기</button>}
     </form>

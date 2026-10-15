@@ -68,7 +68,7 @@ class MatchMigrationIntegrationTest {
 
         for (String table : tables) {
             var after = jdbc.queryForList("SELECT * FROM " + table);
-            after.forEach(row -> { row.remove("team_id"); row.remove("service_admin"); row.remove("recording_stage"); });
+            after.forEach(row -> { row.remove("team_id"); row.remove("service_admin"); row.remove("recording_stage"); row.remove("formation_a"); row.remove("formation_b"); });
             assertThat(after).as("existing values in %s", table).containsExactlyInAnyOrderElementsOf(before.get(table));
         }
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM teams WHERE id=1 AND name='HANA FC' AND status='ACTIVE'", Integer.class)).isEqualTo(1);
@@ -79,5 +79,66 @@ class MatchMigrationIntegrationTest {
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM accounts WHERE service_admin=true", Integer.class)).isZero();
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_appearances WHERE match_id=202 AND team='B'", Integer.class)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE version IN ('14','15') AND success=true", Integer.class)).isEqualTo(2);
+    }
+    @Test void upgradesV20WithoutLosingLineupsAndSupportsNewSlotsAndPreferences() {
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).target("20").load().migrate();
+        var jdbc = new JdbcTemplate(new DriverManagerDataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()));
+        jdbc.update("INSERT INTO players(id,team_id,name,position,first_choice) VALUES (1,1,'포메이션 검증','MF','CM')");
+        jdbc.update("INSERT INTO match_records(id,team_id,played_on,kickoff,venue,opponent,notes,match_kind,recording_stage) VALUES (1,1,'2026-10-15','11:00:00','','','','INTERNAL','ACTUAL')");
+        jdbc.update("INSERT INTO match_participants VALUES (1,1,'ATTENDING','PRESENT')");
+        jdbc.update("INSERT INTO match_quarters VALUES (1,1)");
+        jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists,entry_order,team) VALUES (1,1,'LCM',1,2,1,0,'A')");
+        jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,slot,player_id,entry_order,team) VALUES (1,1,'LCM',1,0,'A')");
+        var beforeActual = jdbc.queryForList("SELECT * FROM match_appearances");
+        var beforePlan = jdbc.queryForList("SELECT * FROM match_planned_lineups");
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).load().migrate();
+        assertThat(jdbc.queryForObject("SELECT CONCAT(formation_a,':',formation_b) FROM match_records WHERE id=1", String.class)).isEqualTo("F4123:F4123");
+        assertThat(jdbc.queryForList("SELECT * FROM match_appearances")).isEqualTo(beforeActual);
+        assertThat(jdbc.queryForList("SELECT * FROM match_planned_lineups")).isEqualTo(beforePlan);
+        jdbc.update("UPDATE match_records SET formation_a='F4231',formation_b='F442' WHERE id=1");
+        jdbc.update("UPDATE match_appearances SET slot='LCDM' WHERE match_id=1");
+        jdbc.update("UPDATE match_planned_lineups SET slot='RCDM' WHERE match_id=1");
+        jdbc.update("UPDATE players SET first_choice='LM',second_choice='RM',third_choice='CAM' WHERE id=1");
+        assertThat(jdbc.queryForObject("SELECT slot FROM match_appearances", String.class)).isEqualTo("LCDM");
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET match_kind='EXTERNAL' WHERE id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET formation_a='F999' WHERE id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_appearances SET slot='FAKE' WHERE match_id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+    }
+    @Test void upgradesV21PreservingExistingFormationsStatsPreferencesAndMigrationChecksum() {
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).target("21").load().migrate();
+        var jdbc = new JdbcTemplate(new DriverManagerDataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()));
+        jdbc.update("INSERT INTO players(id,team_id,name,position,first_choice) VALUES (1,1,'기존 선발 검증','FW','ST'),(2,1,'기존 교체 검증','MF','LM'),(3,1,'기존 상대 검증','MF','CDM')");
+        jdbc.update("INSERT INTO match_records(id,team_id,played_on,kickoff,venue,opponent,notes,match_kind,recording_stage,formation_a,formation_b,score_for,score_against) VALUES (1,1,'2026-10-14','11:00:00','','','보존 검증','INTERNAL','COMPLETED','F442','F4231',3,1)");
+        for (int player = 1; player <= 3; player++) jdbc.update("INSERT INTO match_participants VALUES (1,?,'ATTENDING','PRESENT')", player);
+        for (int quarter = 1; quarter <= 4; quarter++) jdbc.update("INSERT INTO match_quarters VALUES (1,?)", quarter);
+        jdbc.update("INSERT INTO match_appearances(match_id,quarter_number,slot,player_id,goals,assists,entry_order,team) VALUES (1,1,'LST',1,2,1,0,'A'),(1,1,'LST',2,1,0,1,'A'),(1,1,'LCDM',3,1,0,0,'B')");
+        jdbc.update("INSERT INTO match_planned_lineups(match_id,quarter_number,slot,player_id,entry_order,team) VALUES (1,1,'LST',1,0,'A'),(1,1,'LST',2,1,'A'),(1,1,'LCDM',3,0,'B')");
+        var tables = List.of("players", "match_records", "match_participants", "match_quarters", "match_appearances", "match_planned_lineups");
+        Map<String, List<Map<String, Object>>> before = new LinkedHashMap<>();
+        for (var table : tables) before.put(table, jdbc.queryForList("SELECT * FROM " + table));
+        var checksum = jdbc.queryForObject("SELECT checksum FROM flyway_schema_history WHERE version='21'", Integer.class);
+
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).load().migrate();
+
+        for (var table : tables) assertThat(jdbc.queryForList("SELECT * FROM " + table))
+                .as("V22 preserves every existing value in %s", table).containsExactlyInAnyOrderElementsOf(before.get(table));
+        assertThat(jdbc.queryForObject("SELECT checksum FROM flyway_schema_history WHERE version='21'", Integer.class)).isEqualTo(checksum);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM flyway_schema_history WHERE version='22' AND success=true", Integer.class)).isEqualTo(1);
+        jdbc.update("UPDATE match_records SET formation_a='F352',formation_b='F343' WHERE id=1");
+        jdbc.update("UPDATE match_appearances SET slot=CASE WHEN team='A' THEN 'CCB' ELSE 'LWB' END WHERE match_id=1");
+        jdbc.update("UPDATE match_planned_lineups SET slot=CASE WHEN team='A' THEN 'CCB' ELSE 'RWB' END WHERE match_id=1");
+        jdbc.update("UPDATE players SET first_choice='LWB',second_choice='RWB',third_choice='LB',position='DF' WHERE id=2");
+        assertThat(jdbc.queryForObject("SELECT SUM(goals) FROM match_appearances", Integer.class)).isEqualTo(4);
+        assertThat(jdbc.queryForObject("SELECT SUM(assists) FROM match_appearances", Integer.class)).isEqualTo(1);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_appearances WHERE slot='CCB'", Integer.class)).isEqualTo(2);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET match_kind='EXTERNAL' WHERE id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_records SET formation_a='F532' WHERE id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
+        assertThatThrownBy(() -> jdbc.update("UPDATE match_planned_lineups SET slot='FAKE' WHERE match_id=1"))
+                .isInstanceOf(org.springframework.dao.DataAccessException.class);
     }
 }

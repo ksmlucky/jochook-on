@@ -33,7 +33,7 @@ class BulkPlayerServiceTest {
         assertThat(result.isValid()).isFalse(); assertThat(result.rows()).allMatch(r -> !r.errors().isEmpty());
     }
     @Test void requiresFirstChoiceAndRejectsUnsupportedCodes() {
-        var result = service.preview(List.of(row("선수1", "", "", ""), row("선수2", "CAM", "", "")), null);
+        var result = service.preview(List.of(row("선수1", "", "", ""), row("선수2", "CF", "", "")), null);
         assertThat(result.isValid()).isFalse(); assertThat(result.rows()).allMatch(r -> !r.errors().isEmpty());
     }
     @Test void validatesEveryRowBeforeSavingAnything() {
