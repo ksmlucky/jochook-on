@@ -34,7 +34,7 @@
 <text x="78" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">하나의 Git 저장소</text>
 <text x="78" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">frontend/  React · TypeScript</text>
 <text x="78" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">backend/  기능별 Spring Boot</text>
-<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: 운영 V20 / 로컬 V21</text>
+<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: 운영 V20 / 로컬 V22</text>
 <text x="78" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">JUnit / 프론트 테스트</text>
 <rect x="525" y="380" width="350" height="252" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="525" y="400" width="5" height="212" rx="2" fill="#285d86"/>
@@ -65,7 +65,7 @@
 <rect x="714" y="686" width="631" height="183" rx="18" fill="#fff4df" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="706" width="5" height="143" rx="2" fill="#8b5b18"/>
 <text x="738" y="725" font-size="25" fill="#8b5b18" font-weight="600" text-anchor="start">현재 진행 상황</text>
-<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">시즌 집계·포메이션 4종은 로컬 구현</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">시즌 집계·포메이션 6종은 로컬 구현</text>
 <text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">그림·문서는 GitHub에 보관 · 앱 추가 배포 없음</text>
 <text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">인프라 후보 변경은 복구·비용·성능 검증 후 결정</text>
 <text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>

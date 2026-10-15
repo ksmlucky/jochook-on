@@ -6,7 +6,7 @@
 
 그림 내용이나 배치를 수정할 때 생성 소스를 갱신한 뒤 프로젝트 루트에서 `node scripts/Generate-SystemOverview.mjs`를 실행한다(Node.js 24, 추가 패키지 없음). 설명 문서의 Mermaid·문구도 함께 맞추고 생성된 `docs/diagrams/system-overview/` 파일을 같은 커밋에 반영한다. 문서용 그림에는 실제 회원 정보·접속 비밀값을 넣지 않는다. 운영 설정 화면 캡처는 Git 제외 `outputs/`에만 보관한다.
 
-로컬 확장판에는 선수 시즌 기록과 포메이션 네 종류를 추가했다. 운영 구성은 그대로이며, [별도 포메이션 그림과 기능 명세](player-stats-and-formations.md)에 운영 미반영 상태를 표시한다.
+로컬 확장판에는 선수 시즌 기록과 포메이션 여섯 종류(4백 4종·3백 2종)를 추가했다. 운영 구성은 그대로이며, [별도 포메이션 그림과 기능 명세](player-stats-and-formations.md)에 운영 미반영 상태를 표시한다.
 
 ## 그림 미리보기
 

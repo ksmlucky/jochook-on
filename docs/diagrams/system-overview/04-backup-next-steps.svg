@@ -54,9 +54,9 @@
 <path d="M 1015 797 L 1041 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="1044" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="1044" y="741" width="5" height="111" rx="2" fill="#246b51"/>
-<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">포메이션 4종 · 로컬</text>
-<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">4백 구성을 먼저 비교</text>
-<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">3백·다른 팀 도입은 이후</text>
+<text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">포메이션 6종 · 로컬</text>
+<text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">4백·3백과 윙백 지원</text>
+<text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">다른 팀 도입은 이후</text>
 <text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">현재 배포: dd67f92 · 실제 회원 정보·접속 비밀값 제외</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">조축ON · 시스템 안내도</text>
 </g></svg>
