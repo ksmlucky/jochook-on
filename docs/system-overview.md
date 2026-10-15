@@ -12,6 +12,8 @@
 
 ## 그림 미리보기
 
+로컬 후속 작업인 [경기 초안 복원·저장 재시도](match-draft-recovery.md)는 같은 탭의 임시 초안과 MySQL 저장 영수증(V23)을 사용한다. 운영에는 아직 적용하지 않았으며 [흐름 그림](diagrams/match-draft-recovery.svg)에 보관 위치와 재시도 경계를 표시한다.
+
 ![시스템 아키텍처와 서버 위치](diagrams/system-overview/01-system-architecture.svg)
 
 ![경기 기록 업무 흐름도](diagrams/system-overview/02-match-workflow.svg)
