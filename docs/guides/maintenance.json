@@ -35,7 +35,18 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [],
+  "pendingChanges": [
+    {
+      "feature": "선수별 시즌 상세·경기별 기록·읽기 전용 원본 경기 연결",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "local_ready_pending_deployment",
+      "reference": "../player-season-detail.md",
+      "review": "두 역할의 선수 기록 항목 갱신 대상. 운영 원고/PDF 1.1 유지, 다음 기능 배포 때 공통 원고와 함께 갱신."
+    }
+  ],
   "history": [
     {
       "date": "2026-10-15",

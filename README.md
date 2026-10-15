@@ -1,5 +1,7 @@
 # 조축ON
 
+[로컬 구현: 선수별 시즌 상세와 원본 경기](docs/player-season-detail.md) — 선수 이름을 눌러 경기별 기록과 원본을 조회합니다. 운영 배포 전이며 현재 서비스와 구분합니다.
+
 [앱 안의 사용 가이드](docs/in-app-user-guide.md) — 상단 메뉴에서 감독·코치는 운영진용, 회원은 회원용을 바로 읽고 PDF를 내려받습니다. 2026.10.15 기능확장판 운영 반영 완료.
 
 [사용자 가이드 모음](docs/guides/index.html) · [회원용 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 PDF](docs/guides/jochook-on-staff-guide.pdf) — 2026-10-15 현재 배포판 기준입니다. 기능 개발 때 함께 검토하고, 실제 배포 후 사용법·버전·공유본을 갱신합니다. [갱신 규칙과 대기 변경](docs/guides/maintenance.json).
