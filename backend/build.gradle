@@ -58,5 +58,10 @@ tasks.register('integrationTest', Test) {
     useJUnitPlatform {
         includeTags 'integration'
     }
+    // Keep long MySQL runs observable without logging request bodies or fixture data.
+    testLogging {
+        events 'started', 'failed', 'skipped'
+        exceptionFormat 'short'
+    }
     shouldRunAfter tasks.named('test')
 }

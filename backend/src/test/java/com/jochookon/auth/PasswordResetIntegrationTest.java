@@ -139,34 +139,45 @@ class PasswordResetIntegrationTest {
         assertThat(jdbc.queryForObject("SELECT credential_version FROM accounts WHERE id=?", Long.class, target)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM account_password_resets WHERE account_id=? AND used_at IS NOT NULL", Integer.class,target)).isEqualTo(1);
     }
-    @Test void roleRevocationCommittedAfterTokenPreviewIsSeenWhenAccountLockBecomesAvailable() throws Exception {
+    @Test @Timeout(value = 45, unit = TimeUnit.SECONDS)
+    void roleRevocationCommittedAfterTokenPreviewIsSeenBeforeEligibilityCheck() throws Exception {
         var issued = resets.issue(owner, target, true);
-        var reachedAccountLock = new CountDownLatch(1);
+        var previewRead = new CountDownLatch(1);
+        var allowAccountRead = new CountDownLatch(1);
         doAnswer(call -> {
             // complete() has already performed its first nonlocking token read at this point.
-            reachedAccountLock.countDown();
+            previewRead.countDown();
+            if (!allowAccountRead.await(10, TimeUnit.SECONDS)) throw new IllegalStateException("Test account-read barrier timed out");
             return call.callRealMethod();
         }).when(store).lockedAccount(target);
-        try (var blocker = dataSource.getConnection(); var executor = Executors.newSingleThreadExecutor()) {
-            blocker.setAutoCommit(false);
-            try (var statement = blocker.prepareStatement("SELECT id FROM accounts WHERE id=? FOR UPDATE")) {
+        // A latch preserves the RR snapshot ordering without a second account-row lock:
+        // holding that row while updating a referencing membership can itself create lock waits.
+        var executor = Executors.newSingleThreadExecutor(task -> {
+            var thread = new Thread(task, "password-reset-revocation-test"); thread.setDaemon(true); return thread;
+        });
+        int previousQueryTimeout = jdbc.getQueryTimeout();
+        jdbc.setQueryTimeout(10);
+        var completion = executor.submit(() -> {
+            try { resets.complete(issued.token(), "test-replacement-password"); return "completed"; }
+            catch (TeamAccessException exception) { return exception.code(); }
+        });
+        try {
+            assertThat(previewRead.await(10, TimeUnit.SECONDS)).isTrue();
+            try (var connection = dataSource.getConnection();
+                    var statement = connection.prepareStatement("UPDATE team_memberships SET role='MEMBER' WHERE account_id=?")) {
+                connection.setAutoCommit(true);
+                statement.setQueryTimeout(10);
                 statement.setLong(1, target);
-                try (var row = statement.executeQuery()) { assertThat(row.next()).isTrue(); }
+                assertThat(statement.executeUpdate()).isEqualTo(1);
             }
-            var completion = executor.submit(() -> {
-                try { resets.complete(issued.token(), "test-replacement-password"); return "completed"; }
-                catch (TeamAccessException exception) { return exception.code(); }
-            });
-            try {
-                assertThat(reachedAccountLock.await(10, TimeUnit.SECONDS)).isTrue();
-                // This separate autocommit statement commits while the account lock is still held.
-                jdbc.update("UPDATE team_memberships SET role='MEMBER' WHERE account_id=?", target);
-                blocker.commit();
-                assertThat(completion.get(30, TimeUnit.SECONDS)).isEqualTo("RESET_LINK_INVALID");
-            } finally {
-                // Release only our test lock even when an assertion fails, before closing the worker.
-                blocker.rollback();
-            }
+            allowAccountRead.countDown();
+            assertThat(completion.get(15, TimeUnit.SECONDS)).isEqualTo("RESET_LINK_INVALID");
+        } finally {
+            allowAccountRead.countDown();
+            completion.cancel(true);
+            executor.shutdownNow();
+            try { assertThat(executor.awaitTermination(5, TimeUnit.SECONDS)).isTrue(); }
+            finally { jdbc.setQueryTimeout(previousQueryTimeout); }
         }
         assertThat(jdbc.queryForObject("SELECT credential_version FROM accounts WHERE id=?", Long.class, target)).isZero();
         assertThat(jdbc.queryForObject("SELECT used_at FROM account_password_resets WHERE account_id=?", Timestamp.class, target)).isNull();
