@@ -81,9 +81,9 @@ class CalendarPeriodIntegrationTest {
                 .singleElement().satisfies(row -> assertThat(row.id()).isEqualTo(leapDay));
         assertThat(scoped(() -> matches.years())).containsExactly(2024, 2023);
         assertThat(scoped(2, () -> matches.years())).containsExactly(2030);
-        mvc.perform(get("/api/v1/matches/years").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/matches/years").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(content().json("[2024,2023]"));
-        mvc.perform(get("/api/v1/matches?year=2024&month=2&competitionScope=LEAGUE&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/matches?year=2024&month=2&competitionScope=LEAGUE&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(12)).andExpect(jsonPath("$.items.length()").value(2));
         var acrossYears = scoped(() -> matches.list(1, 10, null, CompetitionScope.LEAGUE, null, null, "2023-12", "2024-02"));
         assertThat(acrossYears.totalElements()).isEqualTo(14); assertThat(acrossYears.totalPages()).isEqualTo(2);
@@ -91,7 +91,7 @@ class CalendarPeriodIntegrationTest {
         assertThat(scoped(() -> matches.list(0, 100, null, CompetitionScope.ALL, null, null, "2023-12", "2024-02")).totalElements()).isEqualTo(15);
         assertThat(scoped(() -> matches.list(0, 100, cup, CompetitionScope.TOURNAMENT, null, null, "2023-12", "2024-02")).items())
                 .singleElement().satisfies(row -> assertThat(row.id()).isEqualTo(leapDay));
-        mvc.perform(get("/api/v1/matches?startMonth=2023-12&endMonth=2024-02&competitionScope=LEAGUE&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/matches?startMonth=2023-12&endMonth=2024-02&competitionScope=LEAGUE&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(14)).andExpect(jsonPath("$.items.length()").value(4));
     }
     @Test void tournamentsOverlapMonthAndYearInclusivelyAndYearsExpandTheWholePeriod() throws Exception {
@@ -110,9 +110,9 @@ class CalendarPeriodIntegrationTest {
         assertThat(scoped(() -> tournaments.list(0, 100, 2025, 2)).items()).isEmpty();
         assertThat(scoped(() -> tournaments.years())).containsExactly(2025, 2024, 2023);
         assertThat(scoped(2, () -> tournaments.years())).containsExactly(2031, 2030);
-        mvc.perform(get("/api/v1/tournaments/years").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/tournaments/years").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(content().json("[2025,2024,2023]"));
-        mvc.perform(get("/api/v1/tournaments?year=2024&month=2&page=1&size=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/tournaments?year=2024&month=2&page=1&size=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(3)).andExpect(jsonPath("$.items[0].id").value(firstBoundary));
         var range = scoped(() -> tournaments.list(0, 100, null, null, "2023-12", "2024-02"));
         assertThat(range.totalElements()).isEqualTo(4);
@@ -120,7 +120,7 @@ class CalendarPeriodIntegrationTest {
             assertThat(row.startDate()).isBeforeOrEqualTo(LocalDate.of(2024, 2, 29));
             assertThat(row.endDate()).isAfterOrEqualTo(LocalDate.of(2023, 12, 1));
         });
-        mvc.perform(get("/api/v1/tournaments?startMonth=2023-12&endMonth=2024-02&page=1&size=2").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/tournaments?startMonth=2023-12&endMonth=2024-02&page=1&size=2").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(4)).andExpect(jsonPath("$.items.length()").value(2));
     }
     @Test void statsMonthMatchesDetailTotalsFiltersAndHalfCreditWithoutNarrowingYearChoices() throws Exception {
@@ -161,7 +161,7 @@ class CalendarPeriodIntegrationTest {
         assertThat(scoped(() -> stats.matches(9002, 2024, StatsMatchKind.ALL, StatsRecordScope.COMPLETED, true, 0, null, CompetitionScope.LEAGUE, 2)).player().creditedQuarters()).isEqualTo(0.5);
         var future = today.plusDays(1);
         assertThat(scoped(() -> stats.list(future.getYear(), StatsMatchKind.ALL, StatsRecordScope.COMPLETED, false, null, CompetitionScope.ALL, future.getMonthValue())).matchCount()).isZero();
-        mvc.perform(get("/api/v1/stats/players/9001/matches?year=2024&month=2&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players/9001/matches?year=2024&month=2&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.month").value(2)).andExpect(jsonPath("$.player.goals").value(10)).andExpect(jsonPath("$.totalElements").value(3));
     }
     @Test void statsCrossYearRangeKeepsFullSummaryOnEveryPageAndMatchesMonthlySumsWithoutForeignOrFutureData() throws Exception {
@@ -212,7 +212,7 @@ class CalendarPeriodIntegrationTest {
         appearance(match(1, today.plusDays(1).toString(), "EXTERNAL", "COMPLETED", null), 9001, 0, 99, 0, 0);
         var current = YearMonth.from(today).toString(); var next = YearMonth.from(today).plusMonths(1).toString();
         assertThat(scoped(() -> stats.list(null, StatsMatchKind.ALL, StatsRecordScope.COMPLETED, false, null, CompetitionScope.ALL, null, current, next)).matchCount()).isZero();
-        mvc.perform(get("/api/v1/stats/players/9001/matches?startMonth=2023-12&endMonth=2024-02&kind=ALL&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players/9001/matches?startMonth=2023-12&endMonth=2024-02&kind=ALL&page=1").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.startMonth").value("2023-12")).andExpect(jsonPath("$.endMonth").value("2024-02"))
                 .andExpect(jsonPath("$.year").value(2023)).andExpect(jsonPath("$.player.goals").value(14)).andExpect(jsonPath("$.totalElements").value(12)).andExpect(jsonPath("$.items.length()").value(2));
     }
@@ -260,7 +260,7 @@ class CalendarPeriodIntegrationTest {
         jdbc.update("UPDATE match_records SET score_for=0,score_against=99 WHERE id=?", future);
         var after = scoped(() -> stats.list(null, StatsMatchKind.ALL, StatsRecordScope.COMPLETED, false, null, CompetitionScope.ALL, null, "2023-12", "9999-12"));
         assertThat(after.goalsAgainst()).isEqualTo(before.goalsAgainst()); assertThat(after.matchCount()).isEqualTo(before.matchCount());
-        mvc.perform(get("/api/v1/stats/players?startMonth=2023-12&endMonth=2024-02&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players?startMonth=2023-12&endMonth=2024-02&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.goalsAgainst").value(5)).andExpect(jsonPath("$.scoredExternalMatchCount").value(3))
                 .andExpect(jsonPath("$.missingExternalScoreCount").value(1)).andExpect(jsonPath("$.externalMatchCount").value(4)).andExpect(jsonPath("$.internalMatchCount").value(1));
     }
@@ -307,9 +307,12 @@ class CalendarPeriodIntegrationTest {
                 .hasMessage("현재 조건에서 선수 기록을 찾을 수 없습니다.");
         assertThat(scoped(2, () -> stats.list(null, StatsMatchKind.ALL, StatsRecordScope.COMPLETED, false, null, CompetitionScope.ALL, null, null, null, true)).matchCount()).isEqualTo(1);
         assertThat(scoped(2, () -> stats.list(null, StatsMatchKind.ALL, StatsRecordScope.COMPLETED, false, null, CompetitionScope.ALL, null, null, null, true)).items()).isEmpty();
-        mvc.perform(get("/api/v1/stats/players?allTime=true&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players?allTime=true&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.allTime").value(true)).andExpect(jsonPath("$.items[0].goals").value(10)).andExpect(jsonPath("$.matchCount").value(3));
-        mvc.perform(get("/api/v1/stats/players/9001/matches?allTime=true&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players/9001/matches?allTime=true&kind=ALL").header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.allTime").value(true)).andExpect(jsonPath("$.player.goals").value(10)).andExpect(jsonPath("$.totalElements").value(3));
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

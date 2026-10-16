@@ -24,9 +24,7 @@ public class PasswordChangeService {
         if (currentPassword == null || currentPassword.getBytes(StandardCharsets.UTF_8).length > 72
                 || !passwords.matches(currentPassword, account.passwordHash()))
             throw new TeamAccessException(400, "CURRENT_PASSWORD_INCORRECT", "현재 비밀번호가 맞지 않습니다.");
-        if (newPassword == null || newPassword.codePointCount(0, newPassword.length()) < 12
-                || newPassword.getBytes(StandardCharsets.UTF_8).length > 72)
-            throw new TeamAccessException(400, "INVALID_NEW_PASSWORD", "새 비밀번호는 12자 이상, UTF-8 기준 72바이트 이하여야 합니다.");
+        PasswordPolicy.validate(newPassword);
         if (passwords.matches(newPassword, account.passwordHash()))
             throw new TeamAccessException(400, "PASSWORD_UNCHANGED", "현재 비밀번호와 다른 비밀번호를 입력해 주세요.");
         store.jdbc().update("UPDATE accounts SET password_hash = ?, credential_version = credential_version + 1 WHERE id = ?",

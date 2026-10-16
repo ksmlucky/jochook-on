@@ -77,33 +77,33 @@ class TeamIsolationIntegrationTest {
     }
 
     @Test void playerPagesAndShirtUniquenessAreScopedToTheClub() throws Exception {
-        mvc.perform(get("/api/v1/players?size=1&sort=shirtNumber").header("X-Team-Id", "1"))
+        call(get("/api/v1/players?size=1&sort=shirtNumber").header("X-Team-Id", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.totalPages").value(2)).andExpect(jsonPath("$.items[0].id").value(ownKeeper));
-        mvc.perform(get("/api/v1/players/guests").header("X-Team-Id", "1"))
+        call(get("/api/v1/players/guests").header("X-Team-Id", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
         assertThat(inTeam(2, () -> playerQueries.findActivePlayers(0, 20, "shirtNumber", "asc")).items())
                 .extracting(p -> p.id()).containsExactly(otherPlayer, otherOnlyPlayer);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players WHERE shirt_number=7", Integer.class)).isEqualTo(2);
         assertThatThrownBy(() -> jdbc.update("INSERT INTO players(team_id,name,shirt_number,position) VALUES (1,'같은 팀 중복',7,'UN')"))
                 .isInstanceOf(DataAccessException.class);
-        mvc.perform(post("/api/v1/players").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"다른 팀 번호 허용\",\"position\":\"UN\",\"shirtNumber\":8}"))
                 .andExpect(status().isCreated());
-        mvc.perform(post("/api/v1/players").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"같은 팀 번호 거부\",\"position\":\"UN\",\"shirtNumber\":8}"))
                 .andExpect(status().isBadRequest());
     }
 
     @Test void foreignPlayerIdsCannotBeReadOrUpdatedAndExpectedTeamIsMandatory() throws Exception {
-        mvc.perform(get("/api/v1/players/" + otherPlayer).header("X-Team-Id", "1"))
+        call(get("/api/v1/players/" + otherPlayer).header("X-Team-Id", "1"))
                 .andExpect(status().isNotFound());
-        mvc.perform(put("/api/v1/players/" + otherPlayer).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(put("/api/v1/players/" + otherPlayer).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"허용되면 안 됨\",\"position\":\"UN\",\"version\":0}"))
                 .andExpect(status().isNotFound());
-        mvc.perform(get("/api/v1/players").header("X-Team-Id", "2"))
+        call(get("/api/v1/players").header("X-Team-Id", "2"))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("TEAM_CHANGED"));
-        mvc.perform(get("/api/v1/players")).andExpect(status().isConflict());
+        call(get("/api/v1/players")).andExpect(status().isConflict());
         assertThat(jdbc.queryForObject("SELECT name FROM players WHERE id=?", String.class, otherPlayer)).isEqualTo("공통 이름");
         assertThat(jdbc.queryForObject("SELECT version FROM players WHERE id=?", Long.class, otherPlayer)).isZero();
     }
@@ -111,9 +111,9 @@ class TeamIsolationIntegrationTest {
     @Test void matchIdsAndEveryParticipantLinkStayWithinTheCurrentClub() throws Exception {
         var own = inTeam(1, () -> matches.create(request(null, List.of(participant(ownPlayer, Attendance.PRESENT)), List.of())));
         var other = inTeam(2, () -> matches.create(request(null, List.of(participant(otherPlayer, Attendance.PRESENT)), List.of())));
-        mvc.perform(get("/api/v1/matches/" + other.id()).header("X-Team-Id", "1")).andExpect(status().isNotFound());
+        call(get("/api/v1/matches/" + other.id()).header("X-Team-Id", "1")).andExpect(status().isNotFound());
         var foreignUpdate = request(0L, List.of(participant(otherPlayer, Attendance.PRESENT)), List.of());
-        mvc.perform(put("/api/v1/matches/" + other.id()).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(put("/api/v1/matches/" + other.id()).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(foreignUpdate))).andExpect(status().isNotFound());
 
         var foreignParticipants = List.of(participant(ownPlayer, Attendance.PRESENT), participant(otherPlayer, Attendance.PRESENT));
@@ -122,10 +122,10 @@ class TeamIsolationIntegrationTest {
                 foreignParticipants, request(null, foreignParticipants, List.of()).quarters(),
                 List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, otherPlayer)));
         for (var invalid : List.of(request(null, foreignParticipants, List.of()), foreignActual, foreignPlan)) {
-            mvc.perform(post("/api/v1/matches").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+            call(post("/api/v1/matches").header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                     .content(json.writeValueAsString(invalid))).andExpect(status().isBadRequest());
         }
-        mvc.perform(put("/api/v1/matches/" + own.id()).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(put("/api/v1/matches/" + own.id()).header("X-Team-Id", "1").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(foreignUpdate))).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isEqualTo(2);
         assertThat(jdbc.queryForObject("SELECT version FROM match_records WHERE id=?", Long.class, own.id())).isZero();
@@ -138,7 +138,7 @@ class TeamIsolationIntegrationTest {
         var other = inTeam(2, () -> matches.create(request(null, List.of(participant(otherPlayer, Attendance.PRESENT)),
                 List.of(appearance(LineupSlot.ST, otherPlayer, 9, 0)))));
         jdbc.update("UPDATE match_records SET played_on='2026-10-11'");
-        mvc.perform(get("/api/v1/matches").header("X-Team-Id", "1"))
+        call(get("/api/v1/matches").header("X-Team-Id", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.items[0].id").value(own.id()))
                 .andExpect(jsonPath("$.items[0].scorers[0].playerId").value(ownPlayer))
@@ -167,21 +167,21 @@ class TeamIsolationIntegrationTest {
                 otherBase.participants(), otherBase.quarters(), List.of(new MatchRequest.PlannedEntry(1, LineupSlot.ST, 0, otherPlayer)));
         var other = inTeam(2, () -> matches.create(otherInput));
         long otherEvent = jdbc.queryForObject("SELECT id FROM match_record_events WHERE match_id=?", Long.class, other.id());
-        mvc.perform(get("/api/v1/matches/history/" + otherEvent).header("X-Team-Id", "1"))
+        call(get("/api/v1/matches/history/" + otherEvent).header("X-Team-Id", "1"))
                 .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("MATCH_HISTORY_NOT_FOUND"));
-        mvc.perform(get("/api/v1/matches/history?matchId=" + other.id()).header("X-Team-Id", "1"))
+        call(get("/api/v1/matches/history?matchId=" + other.id()).header("X-Team-Id", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
-        mvc.perform(delete("/api/v1/matches/" + other.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
+        call(delete("/api/v1/matches/" + other.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
                 .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("MATCH_NOT_FOUND"));
         assertThat(inTeam(2, () -> matches.get(other.id()))).isEqualTo(other);
-        mvc.perform(delete("/api/v1/matches/" + own.id() + "?version=0").header("X-Team-Id", "2").with(csrf()))
+        call(delete("/api/v1/matches/" + own.id() + "?version=0").header("X-Team-Id", "2").with(csrf()))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.code").value("TEAM_CHANGED"));
-        mvc.perform(delete("/api/v1/matches/" + own.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
+        call(delete("/api/v1/matches/" + own.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
                 .andExpect(status().isNoContent());
         assertThat(inTeam(2, () -> matches.get(other.id()))).isEqualTo(other);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(5);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isEqualTo(1);
-        mvc.perform(get("/api/v1/matches/history").header("X-Team-Id", "1"))
+        call(get("/api/v1/matches/history").header("X-Team-Id", "1"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.items[0].action").value("DELETED"));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events WHERE team_id=2", Long.class)).isEqualTo(1);
@@ -219,5 +219,8 @@ class TeamIsolationIntegrationTest {
             var output = new ByteArrayOutputStream(); book.write(output);
             return new MockMultipartFile("file", "team-match.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", output.toByteArray());
         } catch (java.io.IOException exception) { throw new java.io.UncheckedIOException(exception); }
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

@@ -1,6 +1,8 @@
 package com.jochookon.team;
 
 import com.jochookon.auth.AuthController;
+import com.jochookon.auth.AccountRecoveryController;
+import com.jochookon.auth.PasswordResetController;
 import java.util.Map;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.ResponseEntity;
@@ -8,7 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {TeamAccessController.class, TeamManagementController.class, TeamCoachController.class, TeamCodeController.class, AuthController.class})
+@RestControllerAdvice(assignableTypes = {TeamAccessController.class, TeamManagementController.class, TeamCoachController.class, TeamCodeController.class, AuthController.class, AccountRecoveryController.class, PasswordResetController.class})
 public class TeamErrorHandler {
     @ExceptionHandler(TeamAccessException.class)
     ResponseEntity<?> access(TeamAccessException exception) {

@@ -95,7 +95,10 @@ class MatchMigrationIntegrationTest {
 
         for (String table : tables) {
             var after = jdbc.queryForList("SELECT * FROM " + table);
-            after.forEach(row -> { row.remove("team_id"); row.remove("service_admin"); row.remove("recording_stage"); row.remove("formation_a"); row.remove("formation_b"); row.remove("tournament_id"); row.remove("tournament_stage"); row.remove("free_kick_goals"); row.remove("penalty_goals"); row.remove("planned_team"); row.remove("match_format"); });
+            after.forEach(row -> {
+                if (table.equals("accounts")) assertThat(((Number) row.remove("credential_version")).longValue()).isZero();
+                row.remove("team_id"); row.remove("service_admin"); row.remove("recording_stage"); row.remove("formation_a"); row.remove("formation_b"); row.remove("tournament_id"); row.remove("tournament_stage"); row.remove("free_kick_goals"); row.remove("penalty_goals"); row.remove("planned_team"); row.remove("match_format");
+            });
             assertThat(after).as("existing values in %s", table).containsExactlyInAnyOrderElementsOf(before.get(table));
         }
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM teams WHERE id=1 AND name='HANA FC' AND status='ACTIVE'", Integer.class)).isEqualTo(1);

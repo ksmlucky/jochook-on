@@ -37,7 +37,7 @@ export function LoginForm({ onLogin }: { onLogin: (user: CurrentUser) => void })
         value={password} onChange={event => setPassword(event.target.value)} disabled={pending} />
       {error && <p className="form-error" role="alert">{error}</p>}
       <button className="primary-button" type="submit" disabled={pending}>{pending ? '로그인 중…' : '로그인'}</button>
-      <p className="login-help">계정이 없거나 비밀번호를 잊었다면 초대해 준 관리자에게 문의해 주세요.</p>
+      <p className="login-help">계정이 없으면 팀 감독에게 문의해 주세요. 비밀번호를 잊었다면 서비스 관리자에게 본인 확인 후 복구 링크를 받을 수 있어요.</p>
     </form>
   </div>
 }

@@ -27,6 +27,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/team-code", "/api/v1/auth/invitation/inspect", "/api/v1/auth/invitation/accept").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/password-reset/inspect", "/api/v1/auth/password-reset/complete").permitAll()
                         .requestMatchers("/api/v1/auth/me", "/api/v1/auth/team").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/password/change").authenticated()
                         .requestMatchers("/api/v1/service/**").hasRole("SERVICE_ADMIN")

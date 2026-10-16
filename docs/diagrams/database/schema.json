@@ -1,5 +1,5 @@
 {
-  "basis": "V29 스키마 기준 · 2026.10.16 · 로컬 미배포",
+  "basis": "V30 스키마 기준 · 2026.10.16 · 로컬 미배포",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {
@@ -376,6 +376,52 @@
       ]
     },
     {
+      "name": "account_password_resets",
+      "title": "일회용 계정 비밀번호 재설정",
+      "domain": "access",
+      "fields": [
+        [
+          "PK",
+          "id",
+          "BIGINT"
+        ],
+        [
+          "FK",
+          "account_id",
+          "accounts.id · 재설정 대상"
+        ],
+        [
+          "FK",
+          "issued_by",
+          "accounts.id · 발급한 서비스 관리자"
+        ],
+        [
+          "UK",
+          "token_hash",
+          "재설정 토큰 해시 · 원문 저장 안 함"
+        ],
+        [
+          "",
+          "credential_version",
+          "발급 당시 계정 인증 버전"
+        ],
+        [
+          "",
+          "created_at / expires_at",
+          "발급 시각 / 30분 유효기간"
+        ],
+        [
+          "",
+          "used_at / revoked_at",
+          "사용 / 폐기 시각 · NULL 가능"
+        ]
+      ],
+      "notes": [
+        "사용·폐기·만료된 링크는 다시 사용 불가",
+        "계정 인증 버전이 달라져도 사용 불가"
+      ]
+    },
+    {
       "name": "team_memberships",
       "title": "계정의 팀별 권한",
       "domain": "access",
@@ -711,6 +757,22 @@
   ],
   "foreignKeys": [
     {
+      "name": "fk_password_reset_account",
+      "parent": "accounts",
+      "child": "account_password_resets",
+      "column": "account_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_password_reset_issuer",
+      "parent": "accounts",
+      "child": "account_password_resets",
+      "column": "issued_by",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
       "name": "fk_players_team",
       "parent": "teams",
       "child": "players",
@@ -966,6 +1028,7 @@
     "V26__refine_three_back_formation_slots.sql",
     "V27__add_internal_match_planned_teams.sql",
     "V28__add_match_format.sql",
-    "V29__account_credential_version.sql"
+    "V29__account_credential_version.sql",
+    "V30__account_password_resets.sql"
   ]
 }

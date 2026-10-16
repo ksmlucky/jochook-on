@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2220" viewBox="0 0 1800 2220" role="img" aria-labelledby="title desc"><title id="title">03 · 로그인, 팀 권한, 초대와 코드</title><desc id="desc">FK 행마다 참조 대상이 명시되어 있습니다. PK·FK가 같은 team_codes는 팀당 최대 한 행입니다.. V29 스키마 기준 · 2026.10.16 · 로컬 미배포. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="2220" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2840" viewBox="0 0 1800 2840" role="img" aria-labelledby="title desc"><title id="title">03 · 로그인, 팀 권한, 초대와 복구</title><desc id="desc">FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.. V30 스키마 기준 · 2026.10.16 · 로컬 미배포. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="2840" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V29 스키마 기준 · 2026.10.16 · 로컬 미배포</text>
-<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">03 · 로그인, 팀 권한, 초대와 코드</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">FK 행마다 참조 대상이 명시되어 있습니다. PK·FK가 같은 team_codes는 팀당 최대 한 행입니다.</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V30 스키마 기준 · 2026.10.16 · 로컬 미배포</text>
+<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">03 · 로그인, 팀 권한, 초대와 복구</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.</text>
 <rect x="60" y="190" width="510" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">teams</text>
 <text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">서비스 안의 축구팀 · 참조 노드</text>
@@ -158,6 +158,47 @@
 <text x="898" y="2025" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">회원은 코드+팀 비밀번호로 조회 · 개인 계정은 필수 아님</text>
 <text x="898" y="2057" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영진은 개인 계정 + 활성 팀 소속 권한으로 입력·수정</text>
 <text x="898" y="2089" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">service_admin은 팀 감독 권한과 별개의 서비스 관리 권한</text>
-<text x="52" y="2191" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
-<text x="1748" y="2191" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+<rect x="60" y="2220" width="860" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="2253" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">account_password_resets</text>
+<text x="82" y="2285" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">일회용 계정 비밀번호 재설정</text>
+<path d="M 60 2302 H 920" stroke="#cfddd4"/>
+<text x="80" y="2331" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="2331" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="2355" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="80" y="2385" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="154" y="2385" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">account_id</text>
+<text x="154" y="2409" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">accounts.id · 재설정 대상</text>
+<text x="80" y="2439" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="154" y="2439" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">issued_by</text>
+<text x="154" y="2463" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">accounts.id · 발급한 서비스 관리자</text>
+<text x="80" y="2493" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
+<text x="154" y="2493" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">token_hash</text>
+<text x="154" y="2517" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">재설정 토큰 해시 · 원문 저장 안 함</text>
+<text x="154" y="2547" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">credential_version</text>
+<text x="154" y="2571" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">발급 당시 계정 인증 버전</text>
+<text x="154" y="2601" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">created_at / expires_at</text>
+<text x="154" y="2625" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">발급 시각 / 30분 유효기간</text>
+<text x="154" y="2655" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">used_at / revoked_at</text>
+<text x="154" y="2679" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">사용 / 폐기 시각 · NULL 가능</text>
+<text x="82" y="2701" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">사용·폐기·만료된 링크는 다시 사용 불가</text>
+<text x="82" y="2729" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">계정 인증 버전이 달라져도 사용 불가</text>
+<rect x="1100" y="2220" width="640" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1122" y="2253" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">accounts</text>
+<text x="1122" y="2285" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">운영진 개인 로그인 계정 · 참조 노드</text>
+<path d="M 1100 2302 H 1740" stroke="#cfddd4"/>
+<text x="1120" y="2331" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1194" y="2331" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="1194" y="2355" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="1122" y="2377" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">같은 테이블을 연결 설명을 위해 다시 표시</text>
+<path d="M 1100 2331 L 1010 2331 L 1010 2385 L 920 2385" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<path d="M 1100 2331 L 1050 2331 L 1050 2439 L 920 2439" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<rect x="1100" y="2470" width="640" height="270" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1123" y="2509" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">복구 대상과 발급자는 별개의 FK</text>
+<text x="1123" y="2554" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts 1 : 재설정 요청 0..N (account_id)</text>
+<text x="1123" y="2586" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts 1 : 발급한 요청 0..N (issued_by)</text>
+<text x="1123" y="2618" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">계정 인증 버전 = 발급 당시 버전일 때만 사용</text>
+<text x="1123" y="2650" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">새 비밀번호 설정 후 이전 로그인 무효화</text>
+<text x="1123" y="2682" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">원문 토큰·새 비밀번호는 이 표에 저장 안 함</text>
+<text x="52" y="2811" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="2811" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
 </g></svg>

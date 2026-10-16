@@ -1,6 +1,6 @@
 # 조축ON 시스템 구성도와 업무 흐름도
 
-개발 브랜치의 새 홈·개인 비밀번호 변경·인증 버전 V29 흐름은 [후속 개발 그림](diagrams/home-account-followup/index.html)과 [개발 ERD](database-diagram.md)에 별도로 반영했습니다. 아래 운영 구성도는 배포 전까지 기존 상태를 유지합니다. 서버·네트워크 변경은 없습니다.
+개발 브랜치의 새 홈·개인 비밀번호 변경·운영진 복구 링크·V29/V30 흐름은 [후속 개발 그림](diagrams/home-account-followup/index.html)과 [개발 ERD](database-diagram.md)에 별도로 반영했습니다. 아래 운영 구성도는 배포 전까지 기존 상태를 유지합니다. 서버·네트워크 변경은 없습니다.
 
 **2026.10.15 대회·기록 확장판 · 운영 `9d3d347` · Flyway V28**
 

@@ -14,7 +14,8 @@ import tools.jackson.databind.ObjectMapper;
 
 public class TeamAccessFilter extends OncePerRequestFilter {
     private static final Set<String> PUBLIC_POSTS = Set.of("/api/v1/auth/login", "/api/v1/auth/team-code",
-            "/api/v1/auth/invitation/inspect", "/api/v1/auth/invitation/accept");
+            "/api/v1/auth/invitation/inspect", "/api/v1/auth/invitation/accept",
+            "/api/v1/auth/password-reset/inspect", "/api/v1/auth/password-reset/complete");
     private final TeamSessionService sessions;
     private final AccessRateLimiter limiter;
     private final ObjectMapper json;
@@ -26,7 +27,8 @@ public class TeamAccessFilter extends OncePerRequestFilter {
         TeamContext.clear();
         String path = request.getServletPath().isEmpty() ? request.getRequestURI() : request.getServletPath();
         boolean publicPost = request.getMethod().equals("POST") && PUBLIC_POSTS.contains(path);
-        boolean limited = publicPost || (request.getMethod().equals("POST") && path.equals("/api/v1/auth/password/change"));
+        boolean limited = publicPost || (request.getMethod().equals("POST") && (path.equals("/api/v1/auth/password/change")
+                || path.startsWith("/api/v1/service/account-recovery/")));
         try {
             if (limited) {
                 long retry = limiter.retryAfter(request);

@@ -181,10 +181,10 @@ class PlayerStatsIntegrationTest {
         assertThat(item(response, own).goals()).isEqualTo(1);
         assertThat(response.matchCount()).isEqualTo(1);
         assertThat(response.availableYears()).containsExactly(today.getYear());
-        mvc.perform(get("/api/v1/stats/players").header("X-Team-Id", "1").with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players").header("X-Team-Id", "1").with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].playerId").value(own)).andExpect(jsonPath("$.items[0].goals").value(1));
-        mvc.perform(get("/api/v1/stats/players").header("X-Team-Id", "2").with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/stats/players").header("X-Team-Id", "2").with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isConflict());
     }
 
@@ -375,14 +375,14 @@ class PlayerStatsIntegrationTest {
                     List.of(new MatchRequest.Quarter(1, List.of()), new MatchRequest.Quarter(2, List.of()),
                             new MatchRequest.Quarter(3, List.of()), new MatchRequest.Quarter(4, List.of())),
                     List.of(), null, null, MatchKind.EXTERNAL, RecordingStage.COMPLETED);
-            var created = mvc.perform(post("/api/v1/matches").header("X-Team-Id", "1").with(user("test-admin").roles("DIRECTOR"))
+            var created = call(post("/api/v1/matches").header("X-Team-Id", "1").with(user("test-admin").roles("DIRECTOR"))
                             .with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input)))
                     .andExpect(status().isCreated()).andReturn().getResponse().getContentAsString();
             long id = json.readTree(created).get("id").asLong();
             savedIds.add(id);
             // Separate HTTP requests force committed DB reads, rather than returning the entity just saved.
             assertThat(originalKickoff(id)).isEqualTo(time);
-            var detail = mvc.perform(get("/api/v1/stats/players/" + member + "/matches").header("X-Team-Id", "1")
+            var detail = call(get("/api/v1/stats/players/" + member + "/matches").header("X-Team-Id", "1")
                             .with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
             var row = json.readTree(detail).get("items").get(0);
@@ -395,7 +395,7 @@ class PlayerStatsIntegrationTest {
     }
 
     private LocalTime originalKickoff(long matchId) throws Exception {
-        var response = mvc.perform(get("/api/v1/matches/" + matchId).header("X-Team-Id", "1")
+        var response = call(get("/api/v1/matches/" + matchId).header("X-Team-Id", "1")
                         .with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
         return LocalTime.parse(json.readTree(response).get("kickoff").asString());
@@ -409,7 +409,7 @@ class PlayerStatsIntegrationTest {
         attendance(ownMatch, other, "PRESENT"); appearance(ownMatch, 1, "A", "ST", 1, other, 90, 0);
         record(2, other, today, "EXTERNAL", "COMPLETED", 99);
         for (long id : new long[]{inactive, guest, other, emptyGuest, Long.MAX_VALUE}) {
-            mvc.perform(get("/api/v1/stats/players/" + id + "/matches").header("X-Team-Id", "1")
+            call(get("/api/v1/stats/players/" + id + "/matches").header("X-Team-Id", "1")
                     .with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("PLAYER_STATS_NOT_FOUND"))
                     .andExpect(jsonPath("$.message").value("현재 조건에서 선수 기록을 찾을 수 없습니다."));
@@ -430,7 +430,7 @@ class PlayerStatsIntegrationTest {
                 .isInstanceOf(PlayerStatsNotFoundException.class);
         assertThatThrownBy(() -> details(emptyGuest, today.getYear(), StatsMatchKind.ALL, StatsRecordScope.ALL, true, 0))
                 .isInstanceOf(PlayerStatsNotFoundException.class);
-        mvc.perform(get("/api/v1/stats/players/" + guest + "/matches?includeGuests=true").header("X-Team-Id", "1")
+        call(get("/api/v1/stats/players/" + guest + "/matches?includeGuests=true").header("X-Team-Id", "1")
                 .with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].matchId").value(ownMatch));
@@ -473,5 +473,8 @@ class PlayerStatsIntegrationTest {
         attendance(game, player, "PRESENT");
         appearance(game, 1, "A", "ST", 0, player, goals, 0);
         return game;
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

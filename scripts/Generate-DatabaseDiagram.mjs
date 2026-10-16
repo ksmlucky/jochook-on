@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url'
 // Schema documentation only. No database connection or row data is used.
 const out = fileURLToPath(new URL('../docs/diagrams/database/', import.meta.url))
 const migrationDir = new URL('../backend/src/main/resources/db/migration/', import.meta.url)
-const basis = 'V29 스키마 기준 · 2026.10.16 · 로컬 미배포'
+const basis = 'V30 스키마 기준 · 2026.10.16 · 로컬 미배포'
 // Fields below are selected important columns, not a substitute for the Flyway DDL.
-// FK identifiers are validated against V1..V29 on every generation.
+// FK identifiers are validated against V1..V30 on every generation.
 const tables = [
   { name:'teams', title:'서비스 안의 축구팀', domain:'core', fields:[
     ['PK','id','BIGINT'],['','name / description','VARCHAR'],['','status','PENDING / ACTIVE / INACTIVE'],['','version / created_at','수정 충돌 확인 / 생성 시각']], notes:['모든 팀별 업무 자료의 기준점'] },
@@ -28,6 +28,8 @@ const tables = [
     ['PK·FK','match_id','match_records.id'],['PK','quarter_number / team','구간 번호 / A·B'],['PK','slot / entry_order','자리 / 선발 0·교체 1'],['FK','player_id','players.id'],['','goals / assists','골 / 도움'],['','free_kick_goals / penalty_goals','총 골 안의 직접 FK / PK'],['UK','match_id + quarter_number + player_id','같은 구간 중복 출전 금지']], notes:['PK (match_id, quarter_number, team, slot, entry_order)','FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터'] },
   { name:'accounts', title:'운영진 개인 로그인 계정', domain:'access', fields:[
     ['PK','id','BIGINT'],['UK','username','로그인 ID'],['','password_hash','해시만 저장'],['','credential_version','BIGINT · 이전 로그인 무효화'],['','enabled / service_admin','계정 활성 / 서비스 관리자 여부'],['','role','기존 호환 역할 ADMIN / MEMBER']], notes:['현재 팀 권한은 team_memberships.role에서 결정','선수 명단의 club_role과 권한은 별개'] },
+  { name:'account_password_resets', title:'일회용 계정 비밀번호 재설정', domain:'access', fields:[
+    ['PK','id','BIGINT'],['FK','account_id','accounts.id · 재설정 대상'],['FK','issued_by','accounts.id · 발급한 서비스 관리자'],['UK','token_hash','재설정 토큰 해시 · 원문 저장 안 함'],['','credential_version','발급 당시 계정 인증 버전'],['','created_at / expires_at','발급 시각 / 30분 유효기간'],['','used_at / revoked_at','사용 / 폐기 시각 · NULL 가능']], notes:['사용·폐기·만료된 링크는 다시 사용 불가','계정 인증 버전이 달라져도 사용 불가'] },
   { name:'team_memberships', title:'계정의 팀별 권한', domain:'access', fields:[
     ['PK','id','BIGINT'],['FK','team_id','teams.id'],['FK','account_id','accounts.id · 삭제 시 CASCADE'],['','role','DIRECTOR / COACH / MEMBER'],['','active / created_at','활성 여부 / 등록 시각'],['UK','team_id + account_id','계정당 같은 팀에 한 행']], notes:['accounts ↔ teams의 다대다 연결 테이블'] },
   { name:'team_invites', title:'감독·코치 초대', domain:'access', fields:[
@@ -46,6 +48,7 @@ const tables = [
     ['PK','installed_rank','적용 순서'],['','version / description / script','마이그레이션 버전과 파일'],['','checksum / success','스크립트 지문 / 성공 여부'],['','installed_by / installed_on','적용 주체 / 시각']], notes:['업무 테이블과 FK 없음','Flyway가 생성·관리 · 직접 편집하지 않음'] },
 ]
 const fk = [
+ ['fk_password_reset_account','accounts','account_password_resets','account_id'],['fk_password_reset_issuer','accounts','account_password_resets','issued_by'],
  ['fk_players_team','teams','players','team_id'],['fk_match_records_team','teams','match_records','team_id'],
  ['fk_tournament_team','teams','tournaments','team_id'],['fk_match_team_tournament','tournaments','match_records','team_id+tournament_id',true],
  ['fk_participant_match','match_records','match_participants','match_id'],['fk_participant_player','players','match_participants','player_id'],
@@ -65,20 +68,20 @@ const logical = [
  ['match_participants','match_appearances','match_id + player_id · 서비스가 참가·출석 검증'],
  ['match_participants','match_planned_lineups','match_id + player_id · 서비스가 투표·팀 검증'],
 ]
-const sources = (await fs.readdir(migrationDir)).filter(file=>/^V\d+__.*\.sql$/.test(file)&&Number(file.match(/^V(\d+)/)[1])<=29).sort((a,b)=>Number(a.match(/^V(\d+)/)[1])-Number(b.match(/^V(\d+)/)[1]))
+const sources = (await fs.readdir(migrationDir)).filter(file=>/^V\d+__.*\.sql$/.test(file)&&Number(file.match(/^V(\d+)/)[1])<=30).sort((a,b)=>Number(a.match(/^V(\d+)/)[1])-Number(b.match(/^V(\d+)/)[1]))
 const sql = (await Promise.all(sources.map(file=>fs.readFile(new URL(file,migrationDir),'utf8')))).join('\n')
 const actualNames=[...sql.matchAll(/CREATE TABLE\s+(\w+)/g)].map(m=>m[1]).sort()
 const mappedNames=tables.filter(t=>t.domain!=='metadata').map(t=>t.name).sort()
 const actualFks=[...sql.matchAll(/(?:ADD )?CONSTRAINT\s+(\w+)\s+FOREIGN KEY/g)].map(m=>m[1]).sort()
-if(JSON.stringify(actualNames)!==JSON.stringify(mappedNames)) throw Error('Database table catalog differs from V1..V29 CREATE TABLE statements')
-if(JSON.stringify(actualFks)!==JSON.stringify(fk.map(r=>r[0]).sort())) throw Error('FK catalog differs from V1..V29 constraints')
+if(JSON.stringify(actualNames)!==JSON.stringify(mappedNames)) throw Error('Database table catalog differs from V1..V30 CREATE TABLE statements')
+if(JSON.stringify(actualFks)!==JSON.stringify(fk.map(r=>r[0]).sort())) throw Error('FK catalog differs from V1..V30 constraints')
 const sqlFkSignatures=[]
 for(const statement of sql.replace(/^\s*--.*$/gm,'').split(';')){
  const owner=statement.match(/(?:CREATE TABLE|ALTER TABLE)\s+(\w+)/)?.[1]
  for(const match of statement.matchAll(/CONSTRAINT\s+(\w+)\s+FOREIGN KEY\s*\(([^)]+)\)\s+REFERENCES\s+(\w+)/g))
   sqlFkSignatures.push([match[1],match[3],owner,match[2].replace(/\s/g,'').replaceAll(',','+')].join('|'))
 }
-if(JSON.stringify(sqlFkSignatures.sort())!==JSON.stringify(fk.map(r=>r.slice(0,4).join('|')).sort())) throw Error('FK endpoints or columns differ from V1..V29')
+if(JSON.stringify(sqlFkSignatures.sort())!==JSON.stringify(fk.map(r=>r.slice(0,4).join('|')).sort())) throw Error('FK endpoints or columns differ from V1..V30')
 await fs.mkdir(out,{recursive:true})
 await fs.writeFile(path.join(out,'schema.json'),JSON.stringify({basis,scope:'Important columns, physical FK constraints and selected logical references; not row data.',tables,foreignKeys:fk.map(([name,parent,child,column,parentOptional=false,childUnique=false])=>({name,parent,child,column,parentOptional,childUnique})),logicalReferences:logical.map(([parent,child,column])=>({parent,child,column})),sources},null,2)+'\n')
 
@@ -95,12 +98,12 @@ function group(x,y,width,height,title,lines,fill='#fff'){rect(x,y,width,height,{
 function table(name,x,y,width,{ref=false}={}){const t=tables.find(t=>t.name===name);const rows=ref?t.fields.slice(0,1):t.fields;const notes=ref?['같은 테이블을 연결 설명을 위해 다시 표시']:t.notes;const height=106+rows.length*54+notes.length*28;rect(x,y,width,height,{fill:ref?C.sky:'#fff'});text(x+22,y+33,name,{size:23,color:C.green,weight:700,mono:true});text(x+22,y+65,t.title+(ref?' · 참조 노드':''),{size:20,color:C.muted});a.push(`<path d="M ${x} ${y+82} H ${x+width}" stroke="${C.border}"/>`);rows.forEach(([key,name,detail],i)=>{const yy=y+111+i*54;const color=key.includes('REF')?C.amber:key.includes('FK')?C.blue:key.includes('PK')?C.green:C.ink;if(key)text(x+20,yy,key,{size:16,color,weight:700});text(x+94,yy,name,{size:18,color,weight:key?600:400,mono:true});text(x+94,yy+24,detail,{size:17,color:C.muted})});notes.forEach((n,i)=>text(x+22,y+103+rows.length*54+i*28,n,{size:16,color:C.muted}));return {x,y,w:width,h:height}}
 function relation(x,y,parent,child,relation,{logical=false}={}){line([[x,y],[x+95,y]],'',{dashed:logical});text(x+115,y+6,`${parent} → ${child}`,{size:20,color:logical?C.amber:C.green,weight:600});text(x+115,y+36,relation,{size:18,color:C.muted})}
 
-begin('데이터베이스 구조 · 무엇이 어디에 저장될까?','16개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.',1310)
+begin('데이터베이스 구조 · 무엇이 어디에 저장될까?','17개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.',1310)
 group(60,190,490,230,'팀과 선수',['teams · 축구팀','players · 회원·용병 프로필','등번호는 선수 PK가 아님','활동 선수 등번호는 팀 안에서 중복 금지'],C.mint)
 group(655,190,490,230,'대회와 경기',['tournaments · 대회 기간·부문','match_records · 날짜·스코어·형식','팀 1 : 선수/대회/경기 0..N','대회 1 : 경기 0..N · 리그는 대회 없음'],C.mint)
 group(1250,190,490,230,'기록이 쌓이는 단계',['match_participants · 01 투표·출석','match_quarters · 구간 1/2 또는 1~4','match_planned_lineups · 02 계획','match_appearances · 03 실제·스탯'],C.mint)
 line([[550,298],[655,298]],'팀 FK',{x:602,y:278});line([[1145,298],[1250,298]],'경기 FK',{x:1197,y:278})
-group(60,545,800,355,'개인 계정과 팀 접근',['accounts · 개인 로그인 / 서비스 관리자','team_memberships · 팀별 감독·코치·회원 권한','team_invites · 운영진 초대','team_codes · 회원용 팀 코드·비밀번호 해시','team_creation_requests · 팀 생성 중복 방지','team_code_events · 코드 발급·교체·폐기 이력'],C.sky)
+group(60,545,800,355,'개인 계정과 팀 접근',['accounts · 개인 로그인 / 서비스 관리자','account_password_resets · 일회용 비밀번호 재설정','team_memberships · 팀별 감독·코치·회원 권한','team_invites · 운영진 초대','team_codes · 회원용 팀 코드·비밀번호 해시','team_creation_requests · 팀 생성 중복 방지','team_code_events · 코드 발급·교체·폐기 이력'],C.sky)
 group(965,545,775,355,'이력과 중복 저장 보호',['match_record_events · 변경 전후 JSON와 작업 시각','match_save_requests · 요청 키와 저장 결과 영수증','','이력: team_id만 실제 FK','영수증: 모든 ID가 논리 참조 · FK 없음','원본 경기 삭제 후에도 이력·영수증을 보존'],C.cream)
 line([[300,420],[300,545]],'팀 1 → 권한·접속 0..N',{x:470,y:495})
 line([[1470,420],[1470,545]],'경기·작업자 ID 논리 참조',{dashed:true,x:1470,y:495})
@@ -131,7 +134,7 @@ relation(980,875,'match_quarters / match_participants','배치','구간·참가�
 group(60,1660,1680,125,'구간·교체 규칙',['구간 수 2/4 · 같은 구간 선수 중복 금지 · 선발 0 / 교체 1 · 한 자리에 두 명이면 각각 0.5쿼터'])
 await end('02-lineups','투표·계획·실제')
 
-begin('03 · 로그인, 팀 권한, 초대와 코드','FK 행마다 참조 대상이 명시되어 있습니다. PK·FK가 같은 team_codes는 팀당 최대 한 행입니다.',2220)
+begin('03 · 로그인, 팀 권한, 초대와 복구','FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.',2840)
 table('teams',60,190,510,{ref:true});table('accounts',665,190,530);table('team_memberships',1280,190,460)
 line([[570,280],[610,280],[610,150],[1510,150],[1510,190]],'팀 1 → 소속 0..N',{x:1000,y:175})
 line([[1195,350],[1280,350]],'1 → 0..N',{x:1238,y:330,size:16})
@@ -139,7 +142,12 @@ table('team_invites',60,780,510);table('team_codes',665,780,530);table('team_cod
 table('team_creation_requests',60,1420,710)
 group(875,1440,865,365,'카디널리티 · 부모 : 자식',['teams 1 : team_memberships / team_invites 0..N','teams 1 : team_codes 0..1','teams 1 : team_code_events 0..N','accounts 1 : memberships / invites / events 0..N','accounts 0..1 : team_codes 0..N (issued_by 선택)','accounts 1 : team_creation_requests 0..N'])
 group(875,1845,865,310,'팀 생성과 로그인은 이렇게 이어져요',['team_creation_requests.team_id → teams.id (선택)','team_creation_requests.invite_id → team_invites.id (선택)','한 결과 팀·초대에 요청 여러 개를 연결할 수 있는 DB 구조','회원은 코드+팀 비밀번호로 조회 · 개인 계정은 필수 아님','운영진은 개인 계정 + 활성 팀 소속 권한으로 입력·수정','service_admin은 팀 감독 권한과 별개의 서비스 관리 권한'])
-await end('03-access','인증·권한·초대')
+table('account_password_resets',60,2220,860)
+table('accounts',1100,2220,640,{ref:true})
+line([[1100,2331],[1010,2331],[1010,2385],[920,2385]])
+line([[1100,2331],[1050,2331],[1050,2439],[920,2439]])
+group(1100,2470,640,270,'복구 대상과 발급자는 별개의 FK',['accounts 1 : 재설정 요청 0..N (account_id)','accounts 1 : 발급한 요청 0..N (issued_by)','계정 인증 버전 = 발급 당시 버전일 때만 사용','새 비밀번호 설정 후 이전 로그인 무효화','원문 토큰·새 비밀번호는 이 표에 저장 안 함'])
+await end('03-access','인증·권한·복구')
 
 begin('04 · 변경 이력과 중복 저장 보호','실제 FK가 없어도 이름이 비슷한 ID가 존재합니다. 이력·영수증은 원본 삭제 후에도 남도록 설계했습니다.',1900)
 table('teams',60,190,480,{ref:true});table('accounts',660,190,480,{ref:true});table('match_records',1260,190,480,{ref:true})
@@ -154,7 +162,7 @@ await end('04-audit','이력·저장 영수증')
 
 // Mermaid records every physical FK individually. Dotted Mermaid edges are
 // non-identifying relationships, so comments and labels explicitly say REF / NO FK.
-let mermaid='%% 조축ON · '+basis+'\n%% Solid lines: physical FK. Dotted REF lines: application-only logical references.\n%% Important columns only; exact SQL types/checks are in Flyway V1..V29.\nerDiagram\n'
+let mermaid='%% 조축ON · '+basis+'\n%% Solid lines: physical FK. Dotted REF lines: application-only logical references.\n%% Important columns only; exact SQL types/checks are in Flyway V1..V30.\nerDiagram\n'
 function sqlType(tableName,name){
  if(tableName==='flyway_schema_history'&&name==='version')return 'VARCHAR'
  if(['before_snapshot','after_snapshot'].includes(name))return 'JSON'
@@ -189,7 +197,7 @@ for(const t of tables){
 for(const [,parent,child,column,optional=false,unique=false]of fk)mermaid+=`  ${parent} ${optional?'|o':'||'}--${unique?'o|':'o{'} ${child} : "FK ${column}"\n`
 for(const [parent,child,column]of logical)mermaid+=`  ${parent} |o..o{ ${child} : "REF NO FK ${column}"\n`
 await fs.writeFile(path.join(out,'schema.mmd'),mermaid)
-const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON DB 구조 · V29</title><style>*{box-sizing:border-box}body{margin:0;font-family:'Malgun Gothic',sans-serif;background:${C.bg};color:${C.ink}}header{position:sticky;top:0;z-index:1;background:#fff;padding:16px 22px;border-bottom:1px solid ${C.border}}h1{font-size:22px;margin:0 0 10px}nav{display:flex;gap:8px;flex-wrap:wrap}button,a{font:inherit}button{padding:10px 14px;background:white;color:${C.ink};border:1px solid ${C.border};border-radius:9px;cursor:pointer}button[aria-selected=true]{background:${C.green};color:white}button:focus-visible,a:focus-visible{outline:3px solid #b48128;outline-offset:2px}main{max-width:1800px;margin:auto}section[hidden]{display:none}.figure{overflow:auto}.figure img{display:block;width:100%;height:auto;min-width:1050px}section p{padding:0 24px;line-height:1.7}footer{padding:16px 24px;line-height:1.7;color:${C.muted}}a{color:${C.green}}@media print{header,footer,section p{display:none}section[hidden]{display:block}.figure img{min-width:0}section{break-after:page}@page{size:A3 landscape;margin:7mm}}</style></head><body><header><h1>조축ON 데이터베이스 · ${basis}</h1><nav role="tablist" aria-label="DB 그림 선택">${rendered.map(({label},i)=>`<button id="tab-${i}" role="tab" aria-controls="panel-${i}" aria-selected="${i===0}" type="button">${label}</button>`).join('')}</nav></header><main>${rendered.map(({id,label},i)=>`<section id="panel-${i}" role="tabpanel" aria-labelledby="tab-${i}"${i?' hidden':''}><div class="figure"><img src="${id}.svg" alt="${label} 데이터베이스 관계도"></div><p><a href="${id}.svg" target="_blank" rel="noopener">이 그림 크게 열기 / SVG 저장</a> · <a href="schema.mmd">전체 Mermaid 원본</a> · <a href="schema.json">구조 JSON</a></p></section>`).join('')}</main><footer>실선은 실제 DB 외래키, 점선은 DB 외래키가 없는 논리 참조입니다. 1은 한 행, 0..1은 없거나 한 행, 0..N은 없거나 여러 행을 뜻합니다.<br>모바일에서는 그림을 가로로 밀어 볼 수 있습니다. 실제 DB 행은 읽지 않고 Flyway V1~V29과 코드만 확인했습니다. 운영 반영 여부는 배포 문서를 확인하세요.</footer><script>const tabs=[...document.querySelectorAll('[role=tab]')],panels=[...document.querySelectorAll('[role=tabpanel]')];tabs.forEach((t,i)=>t.addEventListener('click',()=>{tabs.forEach((x,j)=>{x.setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j})}));</script></body></html>`
+const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON DB 구조 · V30</title><style>*{box-sizing:border-box}body{margin:0;font-family:'Malgun Gothic',sans-serif;background:${C.bg};color:${C.ink}}header{position:sticky;top:0;z-index:1;background:#fff;padding:16px 22px;border-bottom:1px solid ${C.border}}h1{font-size:22px;margin:0 0 10px}nav{display:flex;gap:8px;flex-wrap:wrap}button,a{font:inherit}button{padding:10px 14px;background:white;color:${C.ink};border:1px solid ${C.border};border-radius:9px;cursor:pointer}button[aria-selected=true]{background:${C.green};color:white}button:focus-visible,a:focus-visible{outline:3px solid #b48128;outline-offset:2px}main{max-width:1800px;margin:auto}section[hidden]{display:none}.figure{overflow:auto}.figure img{display:block;width:100%;height:auto;min-width:1050px}section p{padding:0 24px;line-height:1.7}footer{padding:16px 24px;line-height:1.7;color:${C.muted}}a{color:${C.green}}@media print{header,footer,section p{display:none}section[hidden]{display:block}.figure img{min-width:0}section{break-after:page}@page{size:A3 landscape;margin:7mm}}</style></head><body><header><h1>조축ON 데이터베이스 · ${basis}</h1><nav role="tablist" aria-label="DB 그림 선택">${rendered.map(({label},i)=>`<button id="tab-${i}" role="tab" aria-controls="panel-${i}" aria-selected="${i===0}" type="button">${label}</button>`).join('')}</nav></header><main>${rendered.map(({id,label},i)=>`<section id="panel-${i}" role="tabpanel" aria-labelledby="tab-${i}"${i?' hidden':''}><div class="figure"><img src="${id}.svg" alt="${label} 데이터베이스 관계도"></div><p><a href="${id}.svg" target="_blank" rel="noopener">이 그림 크게 열기 / SVG 저장</a> · <a href="schema.mmd">전체 Mermaid 원본</a> · <a href="schema.json">구조 JSON</a></p></section>`).join('')}</main><footer>실선은 실제 DB 외래키, 점선은 DB 외래키가 없는 논리 참조입니다. 1은 한 행, 0..1은 없거나 한 행, 0..N은 없거나 여러 행을 뜻합니다.<br>모바일에서는 그림을 가로로 밀어 볼 수 있습니다. 실제 DB 행은 읽지 않고 Flyway V1~V30과 코드만 확인했습니다. 운영 반영 여부는 배포 문서를 확인하세요.</footer><script>const tabs=[...document.querySelectorAll('[role=tab]')],panels=[...document.querySelectorAll('[role=tabpanel]')];tabs.forEach((t,i)=>t.addEventListener('click',()=>{tabs.forEach((x,j)=>{x.setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j})}));</script></body></html>`
 await fs.writeFile(path.join(out,'index.html'),html)
 if(process.argv.includes('--png')){const require=createRequire(import.meta.url);const sharp=require(process.env.JOCHOOK_DIAGRAM_SHARP||'sharp');for(const {id,svg}of rendered)await sharp(Buffer.from(svg)).png().toFile(path.join(out,id+'.png'))}
 console.log(JSON.stringify({output:out,basis,businessTables:actualNames.length,metadataTables:1,foreignKeys:fk.length,logicalReferences:logical.length,diagrams:rendered.length,png:process.argv.includes('--png')}))

@@ -57,7 +57,7 @@ class PlayerFilterIntegrationTest {
             insert(1, "더 나이든 선수", 4, year - oldest - 1, "정회원", "CM", true, "MEMBER");
         }
         insert(1, "생년 미확인", 5, null, "정회원", "CM", true, "MEMBER");
-        mvc.perform(get("/api/v1/players").param("ageGroup", ageGroup).param("sort", "shirtNumber"))
+        call(get("/api/v1/players").param("ageGroup", ageGroup).param("sort", "shirtNumber"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.items[0].shirtNumber").value(1))
                 .andExpect(jsonPath("$.items[1].shirtNumber").value(2));
@@ -69,11 +69,11 @@ class PlayerFilterIntegrationTest {
         insert(1, "생년만 미확인", 2, null, "정회원", "CM", true, "MEMBER");
         insert(1, "포지션만 미확인", 3, 2000, "정회원", null, true, "MEMBER");
         insert(1, "모두 확인", 4, 2000, "정회원", "CM", true, "MEMBER");
-        mvc.perform(get("/api/v1/players?ageGroup=UNKNOWN"))
+        call(get("/api/v1/players?ageGroup=UNKNOWN"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
-        mvc.perform(get("/api/v1/players?firstChoice=UNKNOWN"))
+        call(get("/api/v1/players?firstChoice=UNKNOWN"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
-        mvc.perform(get("/api/v1/players?ageGroup=UNKNOWN&firstChoice=UNKNOWN"))
+        call(get("/api/v1/players?ageGroup=UNKNOWN&firstChoice=UNKNOWN"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.items[0].shirtNumber").value(1));
     }
@@ -94,7 +94,7 @@ class PlayerFilterIntegrationTest {
         insert(1, "용병", 15, year - 30, "코치", "CM", true, "GUEST");
         insert(2, "다른 팀 선수", 1, year - 30, "코치", "CM", true, "MEMBER");
         for (String direction : new String[]{"asc", "desc"}) {
-            var result = mvc.perform(get("/api/v1/players").param("ageGroup", "30").param("clubRole", "코치")
+            var result = call(get("/api/v1/players").param("ageGroup", "30").param("clubRole", "코치")
                             .param("firstChoice", "CM").param("sort", "shirtNumber").param("direction", direction)
                             .param("size", "2").param("page", "1"))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(5))
@@ -102,13 +102,13 @@ class PlayerFilterIntegrationTest {
                     .andExpect(jsonPath("$.items[0].shirtNumber").value(5));
             result.andExpect(jsonPath("$.items[1].shirtNumber").value(direction.equals("asc") ? 7 : 3));
         }
-        mvc.perform(get("/api/v1/players").param("clubRole", "감독"))
+        call(get("/api/v1/players").param("clubRole", "감독"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
-        mvc.perform(get("/api/v1/players?ageGroup=&clubRole=&firstChoice="))
+        call(get("/api/v1/players?ageGroup=&clubRole=&firstChoice="))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(8));
-        mvc.perform(get("/api/v1/players/guests"))
+        call(get("/api/v1/players/guests"))
                 .andExpect(status().isForbidden());
-        mvc.perform(get("/api/v1/players/guests").with(user("test-admin").roles("DIRECTOR")))
+        call(get("/api/v1/players/guests").with(user("test-admin").roles("DIRECTOR")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.availableAgeGroups").isEmpty());
     }
@@ -125,7 +125,7 @@ class PlayerFilterIntegrationTest {
         jdbc.update("UPDATE players SET position='FW' WHERE team_id=1");
         jdbc.update("UPDATE players SET second_choice='ST', third_choice='LW' WHERE first_choice='GK'");
         String[] positions = expected.split("\\|");
-        mvc.perform(get("/api/v1/players").param("positionGroup", group).param("sort", "shirtNumber"))
+        call(get("/api/v1/players").param("positionGroup", group).param("sort", "shirtNumber"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(positions.length))
                 .andExpect(jsonPath("$.items[*].firstChoice", contains(positions)));
     }
@@ -137,17 +137,17 @@ class PlayerFilterIntegrationTest {
         insert(1, "오른쪽 공격", 2, 2000, "정회원", "RW", true, "MEMBER");
         insert(1, "미드필더", 4, 2000, "정회원", "CM", true, "MEMBER");
         insert(1, "미확인", 5, 2000, "정회원", null, true, "MEMBER");
-        mvc.perform(get("/api/v1/players?positionGroup=FW&size=2&page=1&sort=shirtNumber"))
+        call(get("/api/v1/players?positionGroup=FW&size=2&page=1&sort=shirtNumber"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(3))
                 .andExpect(jsonPath("$.totalPages").value(2)).andExpect(jsonPath("$.items.length()").value(1))
                 .andExpect(jsonPath("$.items[0].firstChoice").value("LW"));
-        mvc.perform(get("/api/v1/players?positionGroup=MF&firstChoice=CM"))
+        call(get("/api/v1/players?positionGroup=MF&firstChoice=CM"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(1));
-        mvc.perform(get("/api/v1/players?positionGroup=FW&firstChoice=CM"))
+        call(get("/api/v1/players?positionGroup=FW&firstChoice=CM"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
-        mvc.perform(get("/api/v1/players?positionGroup=FW&firstChoice=UNKNOWN"))
+        call(get("/api/v1/players?positionGroup=FW&firstChoice=UNKNOWN"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(0));
-        mvc.perform(get("/api/v1/players?positionGroup="))
+        call(get("/api/v1/players?positionGroup="))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(5));
     }
     @Test void wingbacksFilterAndSortWithDefendersInBothDirections() throws Exception {
@@ -155,13 +155,13 @@ class PlayerFilterIntegrationTest {
         insert(1, "왼쪽 윙백 검증", 3, 2000, "정회원", "LWB", true, "MEMBER");
         insert(1, "오른쪽 윙백 검증", 2, 2000, "정회원", "RWB", true, "MEMBER");
         insert(1, "키퍼 검증", 4, 2000, "정회원", "GK", true, "MEMBER");
-        mvc.perform(get("/api/v1/players?positionGroup=DF&firstChoice=LWB"))
+        call(get("/api/v1/players?positionGroup=DF&firstChoice=LWB"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("LWB")));
-        mvc.perform(get("/api/v1/players?positionGroup=DF&firstChoice=RWB"))
+        call(get("/api/v1/players?positionGroup=DF&firstChoice=RWB"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("RWB")));
-        mvc.perform(get("/api/v1/players?sort=preferredPosition&direction=asc"))
+        call(get("/api/v1/players?sort=preferredPosition&direction=asc"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("GK", "RWB", "LWB", "LM")));
-        mvc.perform(get("/api/v1/players?sort=preferredPosition&direction=desc"))
+        call(get("/api/v1/players?sort=preferredPosition&direction=desc"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items[*].firstChoice", contains("LM", "RWB", "LWB", "GK")));
     }
 
@@ -180,18 +180,18 @@ class PlayerFilterIntegrationTest {
         String[] expected = {"UNDER_20", "20", "30", "40", "60", "90", "100_PLUS", "UNKNOWN"};
         for (String query : new String[]{"size=1&page=0", "size=1&page=9",
                 "ageGroup=30&clubRole=코치&positionGroup=MF", "ageGroup=50", "clubRole=감독"}) {
-            mvc.perform(get("/api/v1/players?" + query)).andExpect(status().isOk())
+            call(get("/api/v1/players?" + query)).andExpect(status().isOk())
                     .andExpect(jsonPath("$.availableAgeGroups", contains(expected)));
         }
     }
 
     @Test
     void emptyRosterAndAbsentUnknownBirthYearDoNotInventAgeOptions() throws Exception {
-        mvc.perform(get("/api/v1/players")).andExpect(status().isOk())
+        call(get("/api/v1/players")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.availableAgeGroups").isEmpty());
         int year = Year.now(ZoneId.of("Asia/Seoul")).getValue();
         insert(1, "확인된 생년", 1, year - 36, "정회원", "CM", true, "MEMBER");
-        mvc.perform(get("/api/v1/players?ageGroup=UNKNOWN")).andExpect(status().isOk())
+        call(get("/api/v1/players?ageGroup=UNKNOWN")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(0))
                 .andExpect(jsonPath("$.availableAgeGroups", contains("30")));
     }
@@ -208,5 +208,8 @@ class PlayerFilterIntegrationTest {
                 INSERT INTO players(team_id,name,shirt_number,birth_year,club_role,position,first_choice,active,player_type)
                 VALUES (?,?,?,?,?,?,?,?,?)
                 """, teamId, name, shirt, birthYear, clubRole, position, firstChoice, active, type);
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

@@ -20,6 +20,29 @@ class TeamSessionServiceTest {
     private final TeamDtos.Team team = new TeamDtos.Team(1, "Test club", "", "ACTIVE");
     @AfterEach void cleanup() { SecurityContextHolder.clearContext(); TeamContext.clear(); }
 
+    @Test void featureFixtureKeepsExplicitRequestPrincipalAndUsesPersistedVersion() {
+        var jdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        when(jdbc.queryForMap("SELECT id, credential_version FROM accounts WHERE username=?", "test-member"))
+                .thenReturn(java.util.Map.of("id", 2L, "credential_version", 7L));
+        var request = org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                .user("test-member").roles("MEMBER").postProcessRequest(new MockHttpServletRequest());
+        TeamTestData.accountSession(jdbc).postProcessRequest(request);
+        var state = (TeamSessionService.SessionState) request.getSession().getAttribute(TeamSessionService.SESSION_KEY);
+        assertThat(state.accountId()).isEqualTo(2L);
+        assertThat(state.teamId()).isEqualTo(1L);
+        assertThat(state.credentialVersion()).isEqualTo(7L);
+    }
+
+    @Test void featureFixtureDoesNotRefreshAnExistingStaleSession() {
+        var jdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
+        var request = new MockHttpServletRequest();
+        var stale = new TeamSessionService.SessionState("ACCOUNT", 2L, 1L, 0, Instant.now(), 0L);
+        request.getSession().setAttribute(TeamSessionService.SESSION_KEY, stale);
+        TeamTestData.accountSession(jdbc).postProcessRequest(request);
+        assertThat(request.getSession().getAttribute(TeamSessionService.SESSION_KEY)).isSameAs(stale);
+        verifyNoInteractions(jdbc);
+    }
+
     @Test void platformAdministratorWithoutMembershipHasNoTeamWriteRole() {
         when(store.account("test-owner")).thenReturn(Optional.of(new TeamStore.AccountInfo(3, "test-owner", "hash", true, true, 0)));
         when(store.memberships(3)).thenReturn(List.of());

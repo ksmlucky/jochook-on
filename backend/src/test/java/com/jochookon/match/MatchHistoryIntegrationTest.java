@@ -83,7 +83,7 @@ class MatchHistoryIntegrationTest {
         jdbc.update("UPDATE players SET name='이후 변경된 선수', shirt_number=9 WHERE id=?", player);
         assertThat(detail(createdId).after().participants().getFirst().name()).isEqualTo("이력 검증 선수");
 
-        mvc.perform(delete("/api/v1/matches/" + initial.id() + "?version=1").header("X-Team-Id", "1").with(csrf()))
+        call(delete("/api/v1/matches/" + initial.id() + "?version=1").header("X-Team-Id", "1").with(csrf()))
                 .andExpect(status().isNoContent());
         long deletedId = eventId(initial.id(), "DELETED");
         var removed = detail(deletedId);
@@ -93,15 +93,15 @@ class MatchHistoryIntegrationTest {
         assertThat(removed.before().quarters().getFirst().lineup().getFirst().goals()).isEqualTo(3);
         assertThat(removed.after()).isNull();
         assertThat(removed.afterVersion()).isNull();
-        mvc.perform(get("/api/v1/matches/" + initial.id())).andExpect(status().isNotFound());
-        mvc.perform(get("/api/v1/matches/history?matchId=" + initial.id() + "&size=2"))
+        call(get("/api/v1/matches/" + initial.id())).andExpect(status().isNotFound());
+        call(get("/api/v1/matches/history?matchId=" + initial.id() + "&size=2"))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.items.length()").value(2))
                 .andExpect(jsonPath("$.totalElements").value(3)).andExpect(jsonPath("$.totalPages").value(2))
                 .andExpect(jsonPath("$.items[0].action").value("DELETED")).andExpect(jsonPath("$.items[1].action").value("UPDATED"))
                 .andExpect(jsonPath("$.items[0].before").doesNotExist());
-        mvc.perform(get("/api/v1/matches/history?matchId=" + initial.id() + "&size=2&page=1"))
+        call(get("/api/v1/matches/history?matchId=" + initial.id() + "&size=2&page=1"))
                 .andExpect(jsonPath("$.items[0].action").value("CREATED"));
-        mvc.perform(get("/api/v1/matches/history/" + deletedId)).andExpect(status().isOk())
+        call(get("/api/v1/matches/history/" + deletedId)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.before.notes").value("바뀐 코멘트")).andExpect(jsonPath("$.after").isEmpty())
                 .andExpect(jsonPath("$.actorUsername").value("test-admin"));
         // An old account's later rename does not rewrite actor identity in historical events.
@@ -113,13 +113,13 @@ class MatchHistoryIntegrationTest {
         var saved = inTeam(() -> matches.create(input(null, "기록", 1)));
         inTeam(() -> matches.update(saved.id(), input(0L, "수정", 2)));
         long count = jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events", Long.class);
-        mvc.perform(put("/api/v1/matches/" + saved.id()).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(put("/api/v1/matches/" + saved.id()).with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content(json.writeValueAsString(input(0L, "오래된 수정", 4)))).andExpect(status().isConflict());
-        mvc.perform(delete("/api/v1/matches/" + saved.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
+        call(delete("/api/v1/matches/" + saved.id() + "?version=0").header("X-Team-Id", "1").with(csrf()))
                 .andExpect(status().isConflict());
-        mvc.perform(delete("/api/v1/matches/999999?version=0").header("X-Team-Id", "1").with(csrf()))
+        call(delete("/api/v1/matches/999999?version=0").header("X-Team-Id", "1").with(csrf()))
                 .andExpect(status().isNotFound());
-        mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
+        call(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("{}"))
                 .andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events", Long.class)).isEqualTo(count);
         assertThat(inTeam(() -> matches.get(saved.id())).notes()).isEqualTo("수정");
@@ -156,5 +156,8 @@ class MatchHistoryIntegrationTest {
         assertThat(recorded.after()).isEqualTo(after);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events", Long.class)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_record_events WHERE action='CREATED'", Long.class)).isZero();
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

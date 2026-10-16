@@ -80,7 +80,7 @@ class TournamentIntegrationTest {
             var actual = new ArrayList<Long>();
             int totalPages = (expected.size() + 9) / 10;
             for (int page = 0; page <= totalPages; page++) {
-                String body = mvc.perform(get("/api/v1/matches").param("competitionScope", scope.name()).param("page", String.valueOf(page))
+                String body = call(get("/api/v1/matches").param("competitionScope", scope.name()).param("page", String.valueOf(page))
                                 .header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                         .andExpect(status().isOk()).andExpect(jsonPath("$.competitionScope").value(scope.name()))
                         .andExpect(jsonPath("$.totalElements").value(expected.size())).andExpect(jsonPath("$.totalPages").value(totalPages))
@@ -124,7 +124,7 @@ class TournamentIntegrationTest {
                 if (scope == CompetitionScope.LEAGUE) assertThat(row.tournamentId()).isNull();
                 if (scope == CompetitionScope.TOURNAMENT) assertThat(row.tournamentId()).isEqualTo(t.id());
             });
-            mvc.perform(get("/api/v1/stats/players/8101/matches").param("competitionScope", scope.name())
+            call(get("/api/v1/stats/players/8101/matches").param("competitionScope", scope.name())
                             .header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.competitionScope").value(scope.name()));
         }
@@ -219,7 +219,7 @@ class TournamentIntegrationTest {
         assertThat(oldDetail.items()).singleElement().satisfies(row -> assertThat(row.matchId()).isEqualTo(previous));
         assertThat(oldDetail.player().goals()).isEqualTo(9);
         assertThat(oldSeason.availableYears()).containsExactly(y, y - 1);
-        mvc.perform(get("/api/v1/stats/players/8301/matches").param("kind", "ALL").param("competitionScope", "LEAGUE").param("year", String.valueOf(y))
+        call(get("/api/v1/stats/players/8301/matches").param("kind", "ALL").param("competitionScope", "LEAGUE").param("year", String.valueOf(y))
                         .header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.player.goals").value(5)).andExpect(jsonPath("$.player.freeKickGoals").value(2));
@@ -263,7 +263,7 @@ class TournamentIntegrationTest {
         assertThat(edited.version()).isEqualTo(1);
         assertThatThrownBy(() -> scoped(() -> tournaments.update(created.id(), tournamentInput("충돌", 0L))))
                 .isInstanceOf(org.springframework.dao.OptimisticLockingFailureException.class);
-        mvc.perform(get("/api/v1/tournaments/" + created.id()).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/tournaments/" + created.id()).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.name").value("수정 대회"));
     }
     @Test void filteredMatchListHttpUsesAssociationPathAndCorrectPageCount() throws Exception {
@@ -275,7 +275,7 @@ class TournamentIntegrationTest {
         scoped(() -> matches.create(input(null, null, null, true, MatchKind.EXTERNAL)));
         for (int page = 0; page < 2; page++) {
             long expectedId = page == 0 ? second.id() : first.id();
-            mvc.perform(get("/api/v1/matches").param("tournamentId", selected.id().toString())
+            call(get("/api/v1/matches").param("tournamentId", selected.id().toString())
                             .param("page", String.valueOf(page)).param("size", "1")
                             .header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.page").value(page))
@@ -284,7 +284,7 @@ class TournamentIntegrationTest {
                     .andExpect(jsonPath("$.items[0].tournamentId").value(selected.id()))
                     .andExpect(jsonPath("$.items[0].tournamentName").value(selected.name()));
         }
-        mvc.perform(get("/api/v1/matches").param("tournamentId", selected.id().toString())
+        call(get("/api/v1/matches").param("tournamentId", selected.id().toString())
                         .param("page", "2").param("size", "1").header("X-Team-Id", 1)
                         .with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2))
@@ -322,12 +322,12 @@ class TournamentIntegrationTest {
         assertThatThrownBy(() -> scoped(() -> matches.create(input(null, t.id(), null, true, MatchKind.INTERNAL)))).isInstanceOf(IllegalArgumentException.class);
         assertThatThrownBy(() -> scoped(() -> matches.create(input(null, null, TournamentStage.FINAL, true, MatchKind.EXTERNAL)))).isInstanceOf(IllegalArgumentException.class);
         for (long id : new long[]{other.id(), Long.MAX_VALUE}) {
-            mvc.perform(post("/api/v1/matches").header("X-Team-Id", 1).with(user("test-admin").roles("DIRECTOR")).with(csrf())
+            call(post("/api/v1/matches").header("X-Team-Id", 1).with(user("test-admin").roles("DIRECTOR")).with(csrf())
                     .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input(null, id, null, true, MatchKind.EXTERNAL))))
                     .andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("TOURNAMENT_NOT_FOUND"));
-            mvc.perform(get("/api/v1/matches?tournamentId=" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+            call(get("/api/v1/matches?tournamentId=" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isNotFound());
-            mvc.perform(get("/api/v1/stats/players?tournamentId=" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+            call(get("/api/v1/stats/players?tournamentId=" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                     .andExpect(status().isNotFound());
         }
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM match_records", Long.class)).isZero();
@@ -382,5 +382,8 @@ class TournamentIntegrationTest {
         jdbc.update("UPDATE match_records SET tournament_id=? WHERE id=?", second.id(), a.id());
         assertThat(scoped(() -> stats.matches(member, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0, first.id())).items()).isEmpty();
         assertThat(scoped(() -> stats.matches(member, today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 0, second.id())).totalElements()).isEqualTo(2);
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

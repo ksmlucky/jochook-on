@@ -57,7 +57,7 @@ class GoalTypesIntegrationTest {
                 List.of(), null, null, MatchKind.EXTERNAL, RecordingStage.COMPLETED);
     }
     @Test void httpSaveReadOldUpdatePreservationExplicitResetAndSubsetFailureAreAtomic() throws Exception {
-        String created = mvc.perform(post("/api/v1/matches").header("X-Team-Id", 1).with(user("test-admin").roles("DIRECTOR")).with(csrf())
+        String created = call(post("/api/v1/matches").header("X-Team-Id", 1).with(user("test-admin").roles("DIRECTOR")).with(csrf())
                         .contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(input(null, 3, 1, 2))))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.quarters[0].lineup[0].freeKickGoals").value(1))
                 .andExpect(jsonPath("$.quarters[0].lineup[0].penaltyGoals").value(2)).andReturn().getResponse().getContentAsString();
@@ -65,7 +65,7 @@ class GoalTypesIntegrationTest {
         var kept = scoped(() -> matches.update(id, input(0L, 3, null, null)));
         assertThat(kept.quarters().getFirst().lineup().getFirst().penaltyGoals()).isEqualTo(2);
         UUID key = UUID.randomUUID();
-        mvc.perform(put("/api/v1/matches/" + id).header("X-Team-Id", 1).header("Idempotency-Key", key)
+        call(put("/api/v1/matches/" + id).header("X-Team-Id", 1).header("Idempotency-Key", key)
                         .with(user("test-admin").roles("DIRECTOR")).with(csrf()).contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(input(kept.version(), 2, null, null))))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.code").value("VALIDATION_ERROR"));
@@ -76,7 +76,7 @@ class GoalTypesIntegrationTest {
         assertThat(reset.quarters().getFirst().lineup().getFirst().freeKickGoals()).isZero();
         String snapshot = jdbc.queryForObject("SELECT before_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
         assertThat(json.readTree(snapshot).get("quarters").get(0).get("lineup").get(0).get("penaltyGoals").asInt()).isEqualTo(2);
-        mvc.perform(get("/api/v1/matches/" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
+        call(get("/api/v1/matches/" + id).header("X-Team-Id", 1).with(user("test-member").roles("MEMBER")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.quarters[0].lineup[0].penaltyGoals").value(0));
     }
     @Test void changedTypesCannotReplayReceiptButIdenticalOldAndNewRequestsDo() {
@@ -141,5 +141,8 @@ class GoalTypesIntegrationTest {
         var specific = scoped(() -> stats.list(today.getYear(), StatsMatchKind.EXTERNAL, StatsRecordScope.COMPLETED, false, 1L, CompetitionScope.TOURNAMENT));
         assertThat(specific.items().getFirst().freeKickGoals()).isEqualTo(2);
         assertThat(specific.items().getFirst().penaltyGoals()).isEqualTo(1);
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }

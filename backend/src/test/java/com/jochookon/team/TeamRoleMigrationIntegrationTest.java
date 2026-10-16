@@ -29,7 +29,9 @@ class TeamRoleMigrationIntegrationTest {
 
         Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).load().migrate();
 
-        assertThat(jdbc.queryForList("SELECT * FROM accounts ORDER BY id")).isEqualTo(accounts);
+        var afterAccounts = jdbc.queryForList("SELECT * FROM accounts ORDER BY id");
+        afterAccounts.forEach(row -> assertThat(((Number) row.remove("credential_version")).longValue()).isZero());
+        assertThat(afterAccounts).isEqualTo(accounts);
         assertThat(jdbc.queryForList("SELECT id,team_id,account_id,active,created_at FROM team_memberships ORDER BY id")).isEqualTo(memberships);
         assertThat(jdbc.queryForList("SELECT role FROM team_memberships ORDER BY id", String.class)).containsExactly("COACH", "MEMBER", "COACH");
         var afterInvitations = jdbc.queryForList("SELECT * FROM team_invites ORDER BY id");

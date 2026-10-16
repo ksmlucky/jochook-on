@@ -56,32 +56,32 @@ class PlayerIntegrationTest {
     @Test
     @WithMockUser(username = "test-member", roles = "MEMBER")
     void flywaySchemaAndJpaReturnOnlyActivePlayersWithStablePagination() throws Exception {
-        mvc.perform(get("/api/v1/players?page=0&size=1"))
+        call(get("/api/v1/players?page=0&size=1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(2))
                 .andExpect(jsonPath("$.totalPages").value(2))
                 .andExpect(jsonPath("$.items[0].name").value("첫 번째 선수"));
-        mvc.perform(get("/api/v1/players?page=1&size=1"))
+        call(get("/api/v1/players?page=1&size=1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.items[0].name").value("두 번째 선수"))
                 .andExpect(jsonPath("$.items[0].shirtNumber").isEmpty());
     }
 
     @Test @WithMockUser(username = "test-admin", roles = "DIRECTOR") void guestsHavePersistentIdentityAndSeparateRegistryWithoutInventedShirtNumbers() throws Exception {
-        for (int i = 0; i < 2; i++) mvc.perform(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        for (int i = 0; i < 2; i++) call(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"검증 용병\",\"firstChoice\":\"CM\",\"secondChoice\":\"GK\"}"))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.playerType").value("GUEST"))
                 .andExpect(jsonPath("$.shirtNumber").isEmpty()).andExpect(jsonPath("$.joinedOn").isEmpty());
-        mvc.perform(get("/api/v1/players")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
-        mvc.perform(get("/api/v1/players/guests?size=1&page=0")).andExpect(status().isOk())
+        call(get("/api/v1/players")).andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(2));
+        call(get("/api/v1/players/guests?size=1&page=0")).andExpect(status().isOk())
                 .andExpect(jsonPath("$.totalElements").value(2)).andExpect(jsonPath("$.items[0].playerType").value("GUEST"));
         Long guest = jdbc.queryForObject("SELECT MIN(id) FROM players WHERE player_type='GUEST'", Long.class);
-        mvc.perform(get("/api/v1/players/" + guest)).andExpect(status().isOk()).andExpect(jsonPath("$.secondChoice").value("GK"));
+        call(get("/api/v1/players/" + guest)).andExpect(status().isOk()).andExpect(jsonPath("$.secondChoice").value("GK"));
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players WHERE player_type='MEMBER'", Integer.class)).isEqualTo(3);
-        mvc.perform(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"번호 충돌\",\"shirtNumber\":7}"))
                 .andExpect(status().isBadRequest());
-        mvc.perform(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players/guests").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("{\"name\":\"선호 중복\",\"firstChoice\":\"CM\",\"secondChoice\":\"CM\"}"))
                 .andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players WHERE player_type='GUEST'", Integer.class)).isEqualTo(2);
@@ -90,7 +90,7 @@ class PlayerIntegrationTest {
     @Test
     @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void persistsEditsAndRejectsStaleVersionWithoutLosingTheNewerData() throws Exception {
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"등록 테스트","position":"MF","firstChoice":"CM","shirtNumber":1,"joinedOn":"2026-10-13"}
                 """))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0));
@@ -98,12 +98,12 @@ class PlayerIntegrationTest {
         String update = """
                 {"name":"수정 테스트","position":"GK","firstChoice":"CM","shirtNumber":null,"joinedOn":null,"version":0}
                 """;
-        mvc.perform(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(update))
+        call(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(update))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.version").value(1))
                 .andExpect(jsonPath("$.shirtNumber").isEmpty()).andExpect(jsonPath("$.joinedOn").isEmpty());
-        mvc.perform(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(update))
+        call(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(update))
                 .andExpect(status().isConflict());
-        mvc.perform(get("/api/v1/players/" + id)).andExpect(status().isOk())
+        call(get("/api/v1/players/" + id)).andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("수정 테스트")).andExpect(jsonPath("$.version").value(1));
         assertThat(jdbc.queryForObject("SELECT version FROM players WHERE id = ?", Long.class, id)).isEqualTo(1);
     }
@@ -111,22 +111,22 @@ class PlayerIntegrationTest {
     @Test
     @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void storesUnknownPositionAndProfileAndProtectsAtomicBulkWrites() throws Exception {
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"프로필 테스트","position":"UN","birthYear":1996,"clubRole":"코치"}
                 """))
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.birthYear").value(1996))
                 .andExpect(jsonPath("$.clubRole").value("코치")).andExpect(jsonPath("$.firstChoice").isEmpty());
         long id = jdbc.queryForObject("SELECT id FROM players WHERE name='프로필 테스트'", Long.class);
-        mvc.perform(get("/api/v1/players/" + id)).andExpect(jsonPath("$.birthYear").value(1996));
+        call(get("/api/v1/players/" + id)).andExpect(jsonPath("$.birthYear").value(1996));
         assertThatThrownBy(() -> jdbc.update("UPDATE players SET first_choice='CM' WHERE id=?", id)).isInstanceOf(org.springframework.dao.DataAccessException.class);
         assertThatThrownBy(() -> jdbc.update("UPDATE players SET birth_year=1899 WHERE id=?", id)).isInstanceOf(org.springframework.dao.DataAccessException.class);
         long before = jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class);
-        mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"rows":[{"name":"정상 프로필","position":"UN","birthYear":"1996"},
                 {"name":"미래 프로필","position":"UN","birthYear":"9999"}]}
                 """ )).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(before);
-        mvc.perform(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(put("/api/v1/players/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"프로필 테스트","position":"MF","firstChoice":"CM","birthYear":null,"clubRole":null,"version":0}
                 """ )).andExpect(status().isOk()).andExpect(jsonPath("$.birthYear").isEmpty())
                 .andExpect(jsonPath("$.clubRole").value("정회원")).andExpect(jsonPath("$.version").value(1));
@@ -137,13 +137,13 @@ class PlayerIntegrationTest {
     @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void bulkImportIsAtomicAndPreferencesPersistWithDatabaseConstraints() throws Exception {
         long before = jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class);
-        mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"rows":[{"name":"정상 선수","position":"MF","firstChoice":"CM"},
                          {"name":"잘못된 선수","position":"MF","firstChoice":"CM","secondChoice":"CM"}]}
                 """))
                 .andExpect(status().isBadRequest()).andExpect(jsonPath("$.rows[1].errors").isNotEmpty());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(before);
-        mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"rows":[{"name":"일괄 선수1","position":"MF","firstChoice":"CM","secondChoice":"CDM","thirdChoice":"ST"},
                          {"name":"일괄 선수2","position":"GK","firstChoice":"GK"}]}
                 """))
@@ -176,7 +176,7 @@ class PlayerIntegrationTest {
         String[] directions = {"asc", "desc"};
         for (int d = 0; d < directions.length; d++) {
             for (int page = 0; page < 3; page++) {
-                var response = mvc.perform(get("/api/v1/players?sort=preferredPosition&direction=" + directions[d] + "&size=4&page=" + page))
+                var response = call(get("/api/v1/players?sort=preferredPosition&direction=" + directions[d] + "&size=4&page=" + page))
                         .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(12))
                         .andExpect(jsonPath("$.totalPages").value(3)).andExpect(jsonPath("$.items.length()").value(4));
                 for (int row = 0; row < 4; row++) {
@@ -198,45 +198,45 @@ class PlayerIntegrationTest {
                 "가상선수%02d".formatted(i), i, 1990 + i);
         jdbc.update("INSERT INTO players(team_id,name,position,active) VALUES (1,'미확인선수','UN',true)");
         for (int size : new int[]{10, 20, 30}) {
-            mvc.perform(get("/api/v1/players?size=" + size + "&sort=shirtNumber"))
+            call(get("/api/v1/players?size=" + size + "&sort=shirtNumber"))
                     .andExpect(jsonPath("$.items.length()").value(size))
                     .andExpect(jsonPath("$.items[0].shirtNumber").value(1))
                     .andExpect(jsonPath("$.items[" + (size - 1) + "].shirtNumber").value(size));
-            mvc.perform(get("/api/v1/players?page=1&size=" + size + "&sort=shirtNumber"))
+            call(get("/api/v1/players?page=1&size=" + size + "&sort=shirtNumber"))
                     .andExpect(jsonPath("$.items[0].shirtNumber").value(size + 1));
         }
         for (String sort : new String[]{"shirtNumber", "age"}) {
             for (String direction : new String[]{"asc", "desc"}) {
-                mvc.perform(get("/api/v1/players?page=3&size=10&sort=" + sort + "&direction=" + direction))
+                call(get("/api/v1/players?page=3&size=10&sort=" + sort + "&direction=" + direction))
                         .andExpect(status().isOk()).andExpect(jsonPath("$.totalElements").value(32))
                         .andExpect(jsonPath("$.items[1].name").value("미확인선수"));
             }
         }
-        mvc.perform(get("/api/v1/players?sort=shirtNumber&direction=desc"))
+        call(get("/api/v1/players?sort=shirtNumber&direction=desc"))
                 .andExpect(jsonPath("$.items[0].shirtNumber").value(31));
-        mvc.perform(get("/api/v1/players?sort=age&direction=asc"))
+        call(get("/api/v1/players?sort=age&direction=asc"))
                 .andExpect(jsonPath("$.items[0].birthYear").value(2021));
-        mvc.perform(get("/api/v1/players?sort=age&direction=desc"))
+        call(get("/api/v1/players?sort=age&direction=desc"))
                 .andExpect(jsonPath("$.items[0].birthYear").value(1991));
-        mvc.perform(get("/api/v1/players?sort=name"))
+        call(get("/api/v1/players?sort=name"))
                 .andExpect(jsonPath("$.items[0].name").value("가상선수01"));
-        mvc.perform(get("/api/v1/players?sort=name&direction=desc"))
+        call(get("/api/v1/players?sort=name&direction=desc"))
                 .andExpect(jsonPath("$.items[0].name").value("미확인선수"));
         jdbc.update("UPDATE players SET birth_year=2000");
         Long firstId = jdbc.queryForObject("SELECT MIN(id) FROM players", Long.class);
-        mvc.perform(get("/api/v1/players?size=1&sort=age&direction=desc"))
+        call(get("/api/v1/players?size=1&sort=age&direction=desc"))
                 .andExpect(jsonPath("$.items[0].id").value(firstId));
     }
 
     @Test
     @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void invalidClubRoleCannotBeSavedViaApiBulkOrSql() throws Exception {
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("""
                 {"name":"직책검증","position":"UN","clubRole":"골키퍼"}
                 """)).andExpect(status().isBadRequest());
         long before = jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class);
-        mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON)
+        call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON)
                 .content("""
                 {"rows":[{"name":"정상직책","position":"UN","clubRole":"정회원"},
                 {"name":"잘못된직책","position":"UN","clubRole":"골키퍼"}]}
@@ -251,16 +251,16 @@ class PlayerIntegrationTest {
     @Test @WithMockUser(username = "test-admin", roles = "DIRECTOR")
     void activeShirtsAreUniqueWhileUnnumberedAndInactivePlayersAreAllowed() throws Exception {
         long existingId = jdbc.queryForObject("SELECT id FROM players WHERE shirt_number=7", Long.class);
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"중복 등록","position":"UN","shirtNumber":7}
                 """ )).andExpect(status().isBadRequest()).andExpect(jsonPath("$.fieldErrors.shirtNumber").isNotEmpty());
-        mvc.perform(put("/api/v1/players/" + existingId).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(put("/api/v1/players/" + existingId).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"본인 번호 유지","position":"UN","shirtNumber":7,"version":0}
                 """ )).andExpect(status().isOk()).andExpect(jsonPath("$.shirtNumber").value(7));
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"종료 선수 번호 재사용","position":"UN","shirtNumber":9}
                 """ )).andExpect(status().isCreated());
-        mvc.perform(put("/api/v1/players/" + existingId).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(put("/api/v1/players/" + existingId).with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"중복 변경","position":"UN","shirtNumber":9,"version":1}
                 """ )).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT shirt_number FROM players WHERE id=?", Integer.class, existingId)).isEqualTo(7);
@@ -269,10 +269,10 @@ class PlayerIntegrationTest {
         assertThatThrownBy(() -> jdbc.update("UPDATE players SET active=true WHERE active=false AND shirt_number=9"))
                 .isInstanceOf(org.springframework.dao.DataAccessException.class);
         jdbc.update("INSERT INTO players(team_id,name,position,shirt_number,active) VALUES (1,'종료 중복 허용','UN',7,false)");
-        for (int i = 0; i < 2; i++) mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        for (int i = 0; i < 2; i++) call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"등번호 미등록","position":"UN","shirtNumber":null}
                 """ )).andExpect(status().isCreated());
-        mvc.perform(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
+        call(post("/api/v1/players").with(csrf()).contentType(MediaType.APPLICATION_JSON).content("""
                 {"name":"영번 거부","position":"UN","shirtNumber":0}
                 """ )).andExpect(status().isBadRequest());
         assertThatThrownBy(() -> jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'영번 거부','UN',0)"))
@@ -289,18 +289,21 @@ class PlayerIntegrationTest {
                 """
                 {"rows":[{"name":"검증 A","position":"UN","shirtNumber":"8"},{"name":"검증 B","position":"UN","shirtNumber":"7"}]}
                 """)) {
-            mvc.perform(post("/api/v1/players/bulk/preview").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(rows))
+            call(post("/api/v1/players/bulk/preview").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(rows))
                     .andExpect(status().isOk()).andExpect(jsonPath("$.valid").value(false));
-            mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(rows)).andExpect(status().isBadRequest());
+            call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(rows)).andExpect(status().isBadRequest());
         }
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(before);
         String initiallyFree = """
                 {"rows":[{"name":"대기 중 선수","position":"UN","shirtNumber":"8"}]}
                 """;
-        mvc.perform(post("/api/v1/players/bulk/preview").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree))
+        call(post("/api/v1/players/bulk/preview").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree))
                 .andExpect(jsonPath("$.valid").value(true));
         jdbc.update("INSERT INTO players(team_id,name,position,shirt_number) VALUES (1,'먼저 저장한 선수','UN',8)");
-        mvc.perform(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree)).andExpect(status().isBadRequest());
+        call(post("/api/v1/players/bulk").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(initiallyFree)).andExpect(status().isBadRequest());
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM players", Long.class)).isEqualTo(before + 1);
+    }
+    private org.springframework.test.web.servlet.ResultActions call(org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder request) throws Exception {
+        return mvc.perform(request.with(com.jochookon.team.TeamTestData.accountSession(jdbc)));
     }
 }
