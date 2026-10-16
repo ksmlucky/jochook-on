@@ -82,4 +82,6 @@ V30은 `account_password_resets`에 대상·발급자 FK, 토큰 해시 UK, 발�
 
 ## 검증
 
+최종 코드 `e634a9f`의 [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/38863512331)에서 프론트260개·단위/API476개·실제 MySQL157개·백업 점검9개와 빌드가 통과했다. 추가 권한 해제 경합 테스트도 성공했다. 가상 응답을 이용한 320/390px 홈·복구 화면을 확인했으며 실제 iPhone과 운영 계정으로는 시험하지 않았다. 운영 배포·마이그레이션 없음.
+
 실제 실행 결과는 [검증 기록](verification.md)의 같은 날짜 후속 항목에 기록한다. 가상 데이터 브라우저 검증과 격리 MySQL 검증을 실제 iPhone·운영 DB 검증과 구분한다. 사용자 비밀번호나 실제 회원 기록으로 시험하지 않는다.
