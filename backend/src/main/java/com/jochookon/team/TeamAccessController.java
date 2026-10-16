@@ -32,7 +32,9 @@ public class TeamAccessController {
     @PostMapping("/invitation/accept")
     TeamDtos.CurrentUser accept(@RequestBody TeamDtos.InvitationAccept input, HttpServletRequest request, HttpServletResponse response) {
         Long accountId = request.getAttribute(TeamSessionService.REQUEST_KEY) instanceof TeamSessionService.Access access ? access.accountId() : null;
+        Long authenticatedVersion = accountId == null ? null : sessions.credentialVersion(request);
         var accepted = management.accept(input, accountId);
-        return sessions.beginAccount(accepted.username(), accepted.teamId(), request, response);
+        return sessions.beginAccount(accepted.username(), accepted.teamId(),
+                authenticatedVersion == null ? accepted.credentialVersion() : authenticatedVersion, request, response);
     }
 }

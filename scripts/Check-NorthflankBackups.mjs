@@ -32,32 +32,48 @@ export function assessBackupState(schedules, backups, now = Date.now()) {
   };
 }
 
-async function main() {
+export async function runBackupCheck(args = process.argv.slice(2), logger = console) {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const {values} = parseArgs({options:{
+  const {values} = parseArgs({args,options:{
     'sdk-dir':{type:'string',default:path.join(root,'work/tools/northflank/node_modules/@northflank/js-client')},
     context:{type:'string',default:'jochook-on-deploy'},
     project:{type:'string',default:'default'}, addon:{type:'string',default:'jochook-on-mysql'},
     output:{type:'string',default:path.join(root,'work/northflank-backup-status.json')},
   }});
-  const {ApiClient,ApiClientFileContextProvider} = await import(pathToFileURL(path.resolve(values['sdk-dir'],'dist/api-client.mjs')));
-  const context = new ApiClientFileContextProvider();
-  if(context.getCurrentName() !== values.context) throw Error('Unexpected CLI context.');
-  const client = new ApiClient(context,{throwErrorOnHttpErrorCode:true});
-  const parameters = {projectId:values.project,addonId:values.addon};
-  const [schedules,backups] = await Promise.all([
-    client.get.addon.backupSchedules.all({parameters}),client.get.addon.backups.all({parameters}),
-  ]);
-  const report = assessBackupState(schedules.data.schedules ?? [],backups.data.backups ?? []);
-  await fs.writeFile(values.output,JSON.stringify(report,null,2));
-  console.log(JSON.stringify(report));
-  if(!report.ok) process.exitCode=1;
+  try {
+    const {ApiClient,ApiClientFileContextProvider} = await import(pathToFileURL(path.resolve(values['sdk-dir'],'dist/api-client.mjs')));
+    const context = new ApiClientFileContextProvider();
+    if(context.getCurrentName() !== values.context) throw Error('Unexpected CLI context.');
+    const client = new ApiClient(context,{throwErrorOnHttpErrorCode:true});
+    const parameters = {projectId:values.project,addonId:values.addon};
+    const [schedules,backups] = await Promise.all([
+      client.get.addon.backupSchedules.all({parameters}),client.get.addon.backups.all({parameters}),
+    ]);
+    const report = { ...assessBackupState(schedules.data.schedules ?? [],backups.data.backups ?? []), verified:true };
+    await fs.writeFile(values.output,JSON.stringify(report,null,2));
+    logger.log(JSON.stringify(report));
+    return report.ok ? 0 : 1;
+  } catch (error) {
+    // Replace any earlier result so a failed check cannot leave a stale success on disk.
+    // SDK errors may contain signed URLs or credentials; persist only a numeric HTTP status.
+    const status = Number.isInteger(error?.status) && error.status >= 100 && error.status <= 599 ? error.status : null;
+    const report = {checkedAt:new Date().toISOString(),ok:false,verified:false,status,
+      message:'Backup status unavailable; check CLI login, read permission and SDK path.'};
+    try {
+      await fs.writeFile(values.output,JSON.stringify(report,null,2));
+    } catch {
+      report.reportPersisted = false;
+      report.message = 'Backup status unavailable and report could not be updated; do not rely on the previous report.';
+    }
+    logger.error(JSON.stringify(report));
+    return 2;
+  }
 }
 
 if(process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  main().catch(error=>{
+  runBackupCheck().then(code=>{process.exitCode=code;}).catch(()=>{
     // Do not log SDK errors verbatim: they can carry connection details or signed URLs.
-    console.error(JSON.stringify({ok:false,verified:false,status:error.status ?? null,message:'Backup status unavailable; check CLI login, read permission and SDK path.'}));
+    console.error(JSON.stringify({ok:false,verified:false,message:'Backup check could not start; check command arguments.'}));
     process.exitCode=2;
   });
 }

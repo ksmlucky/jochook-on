@@ -182,7 +182,7 @@ public class TeamManagementService {
         TeamStore.InviteInfo invite = usableInvite(token, false);
         return new TeamDtos.InvitationInfo(team(invite.teamId()), invite.label(), invite.expiresAt(), invite.role());
     }
-    public record Accepted(String username, long teamId) { }
+    public record Accepted(String username, long teamId, long credentialVersion) { }
     @Transactional
     public Accepted accept(TeamDtos.InvitationAccept request, Long accountId) {
         TeamStore.InviteInfo preview = usableInvite(request.token(), false);
@@ -202,7 +202,7 @@ public class TeamManagementService {
         }
         grant(invite.teamId(), account.id(), invite.role(), true);
         store.jdbc().update("UPDATE team_invites SET used_at = ?, version = version + 1 WHERE id = ?", Timestamp.from(Instant.now()), invite.id());
-        return new Accepted(account.username(), invite.teamId());
+        return new Accepted(account.username(), invite.teamId(), account.credentialVersion());
     }
     private TeamDtos.InviteIssued issueInvite(long actor, long teamId, String label, String role) {
         String token = AccessTokens.invite();

@@ -14,7 +14,7 @@ public class TeamStore {
     private final JdbcTemplate jdbc;
     public TeamStore(JdbcTemplate jdbc) { this.jdbc = jdbc; }
     public JdbcTemplate jdbc() { return jdbc; }
-    public record AccountInfo(long id, String username, String passwordHash, boolean enabled, boolean serviceAdmin) { }
+    public record AccountInfo(long id, String username, String passwordHash, boolean enabled, boolean serviceAdmin, long credentialVersion) { }
     public record CodeInfo(long teamId, String hash, String passwordHash, long version, Instant issuedAt, Instant expiresAt, Instant revokedAt) { }
     public record InviteInfo(long id, long teamId, String label, String hash, long version, Instant expiresAt, Instant usedAt, Instant cancelledAt, String role, long createdBy) { }
 
@@ -23,6 +23,9 @@ public class TeamStore {
     }
     public Optional<AccountInfo> account(String username) {
         return jdbc.query("SELECT * FROM accounts WHERE username = ?", TeamStore::account, username).stream().findFirst();
+    }
+    public Optional<AccountInfo> lockedAccount(long id) {
+        return jdbc.query("SELECT * FROM accounts WHERE id = ? FOR UPDATE", TeamStore::account, id).stream().findFirst();
     }
     public Optional<TeamDtos.Team> team(long id) {
         return jdbc.query("SELECT * FROM teams WHERE id = ?", TeamStore::team, id).stream().findFirst();
@@ -52,7 +55,7 @@ public class TeamStore {
             throw new TeamAccessException(403, "FORBIDDEN", "이 작업에 접근할 수 없습니다.");
     }
     static AccountInfo account(ResultSet r, int n) throws SQLException {
-        return new AccountInfo(r.getLong("id"), r.getString("username"), r.getString("password_hash"), r.getBoolean("enabled"), r.getBoolean("service_admin"));
+        return new AccountInfo(r.getLong("id"), r.getString("username"), r.getString("password_hash"), r.getBoolean("enabled"), r.getBoolean("service_admin"), r.getLong("credential_version"));
     }
     static TeamDtos.Team team(ResultSet r, int n) throws SQLException {
         return new TeamDtos.Team(r.getLong("id"), r.getString("name"), r.getString("description"), r.getString("status"));

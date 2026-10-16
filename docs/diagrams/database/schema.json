@@ -1,5 +1,5 @@
 {
-  "basis": "V28 스키마 기준 · 2026.10.15",
+  "basis": "V29 스키마 기준 · 2026.10.16 · 로컬 미배포",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {
@@ -353,6 +353,11 @@
           "",
           "password_hash",
           "해시만 저장"
+        ],
+        [
+          "",
+          "credential_version",
+          "BIGINT · 이전 로그인 무효화"
         ],
         [
           "",
@@ -960,6 +965,7 @@
     "V25__add_goal_types.sql",
     "V26__refine_three_back_formation_slots.sql",
     "V27__add_internal_match_planned_teams.sql",
-    "V28__add_match_format.sql"
+    "V28__add_match_format.sql",
+    "V29__account_credential_version.sql"
   ]
 }

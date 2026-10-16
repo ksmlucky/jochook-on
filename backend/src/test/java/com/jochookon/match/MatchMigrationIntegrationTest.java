@@ -35,7 +35,7 @@ class MatchMigrationIntegrationTest {
         Map<String, List<Map<String, Object>>> before = new LinkedHashMap<>();
         for (var table : tables) before.put(table, jdbc.queryForList("SELECT * FROM " + table));
         var checksums = jdbc.queryForList("SELECT version,checksum FROM flyway_schema_history ORDER BY installed_rank");
-        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).load().migrate();
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).target("28").load().migrate();
         for (var table : tables) {
             var after = jdbc.queryForList("SELECT * FROM " + table); after.forEach(row -> row.remove("match_format"));
             assertThat(after).as(table).containsExactlyInAnyOrderElementsOf(before.get(table));
@@ -189,7 +189,7 @@ class MatchMigrationIntegrationTest {
         var beforeActual = jdbc.queryForList("SELECT * FROM match_appearances ORDER BY player_id");
         var beforePlan = jdbc.queryForList("SELECT * FROM match_planned_lineups ORDER BY player_id,quarter_number");
         var checksums = jdbc.queryForList("SELECT version,checksum FROM flyway_schema_history ORDER BY installed_rank");
-        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).load().migrate();
+        Flyway.configure().dataSource(MYSQL.getJdbcUrl(), MYSQL.getUsername(), MYSQL.getPassword()).target("28").load().migrate();
         var afterRecords = jdbc.queryForList("SELECT * FROM match_records ORDER BY id");
         afterRecords.forEach(row -> row.remove("match_format"));
         assertThat(afterRecords).isEqualTo(beforeRecords);

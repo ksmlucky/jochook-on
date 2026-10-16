@@ -25,7 +25,8 @@ public class TeamAccessFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         TeamContext.clear();
         String path = request.getServletPath().isEmpty() ? request.getRequestURI() : request.getServletPath();
-        boolean limited = request.getMethod().equals("POST") && PUBLIC_POSTS.contains(path);
+        boolean publicPost = request.getMethod().equals("POST") && PUBLIC_POSTS.contains(path);
+        boolean limited = publicPost || (request.getMethod().equals("POST") && path.equals("/api/v1/auth/password/change"));
         try {
             if (limited) {
                 long retry = limiter.retryAfter(request);
@@ -43,7 +44,7 @@ public class TeamAccessFilter extends OncePerRequestFilter {
                 } catch (TeamAccessException exception) {
                     if (request.getSession(false) != null) request.getSession(false).invalidate();
                     SecurityContextHolder.clearContext();
-                    if (!limited) throw exception;
+                    if (!publicPost) throw exception;
                     access = null;
                 }
                 if (access != null) {

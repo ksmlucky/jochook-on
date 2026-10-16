@@ -28,7 +28,7 @@ import { YearOptionsStatus } from '../../app/YearOptionsStatus'
 import { useAvailableYears } from '../../app/useAvailableYears'
 import type { MonthRangeSelection } from '../../app/yearMonth'
 
-export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, initialTournamentId = null }: { team: TeamDisplay; isAdmin: boolean; recoveryOwner: DraftOwner | null; onSessionExpired: () => void; initialTournamentId?: number | null }) {
+export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, initialTournamentId = null, initialOpen }: { team: TeamDisplay; isAdmin: boolean; recoveryOwner: DraftOwner | null; onSessionExpired: () => void; initialTournamentId?: number | null; initialOpen?: number | 'new' }) {
   const [competition, setCompetition] = useState<CompetitionSelection>(() => ({ competitionScope: initialTournamentId == null ? 'ALL' : 'TOURNAMENT', tournamentId: initialTournamentId }))
   const { tournamentId, competitionScope } = competition
   const [page, setPage] = useState(0)
@@ -55,6 +55,15 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     const controller = new AbortController(); lifetime.current = controller
     return () => controller.abort()
   }, [])
+  useEffect(() => {
+    if (initialOpen === undefined || (initialOpen === 'new' && !isAdmin)) return
+    // Deferred to the committed mount, so StrictMode's cancelled mount cannot open twice.
+    const timer = window.setTimeout(() => {
+      if (recovery) setError('보관 중인 초안이 있어요. 먼저 아래에서 이어서 작성하거나 초안을 버린 뒤 경기를 열어 주세요.')
+      else void open(initialOpen === 'new' ? undefined : initialOpen)
+    }, 0)
+    return () => window.clearTimeout(timer)
+  }, [initialOpen])
   useEffect(() => { if (!isAdmin) { setDeleteTarget(null); setHistory(false) } }, [isAdmin])
   useEffect(() => {
     setRecovery(isAdmin && recoveryOwner ? loadMatchRecovery(recoveryOwner) : null)
@@ -84,15 +93,18 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     return () => controller.abort()
   }, [page, revision, onSessionExpired, tournamentId, competitionScope, period])
   async function open(id?: number) {
-    if (opening.current || removing.current || deleteTarget || recovery) return
+    const signal = lifetime.current?.signal
+    if (opening.current || removing.current || deleteTarget || recovery || !signal || signal.aborted) return
     opening.current = true; setBusy(true); setError(''); setDeleteError(''); setNotice(null)
     try {
-      const [record, players] = await Promise.all([id ? fetchMatch(id) : Promise.resolve(null), isAdmin ? fetchMatchPlayers(new AbortController().signal) : Promise.resolve([])])
+      const [record, players] = await Promise.all([id ? fetchMatch(id, signal) : Promise.resolve(null), isAdmin ? fetchMatchPlayers(signal) : Promise.resolve([])])
+      if (signal.aborted) return
       setEditor({ record, players })
     } catch (cause) {
+      if (signal.aborted) return
       if (cause instanceof SessionExpiredError) onSessionExpired()
       else setError('경기 또는 선수 정보를 불러오지 못했습니다. 다시 시도해 주세요.')
-    } finally { opening.current = false; setBusy(false) }
+    } finally { opening.current = false; if (!signal.aborted) setBusy(false) }
   }
   async function restore() {
     const signal = lifetime.current?.signal

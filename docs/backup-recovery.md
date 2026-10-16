@@ -1,5 +1,13 @@
 # 운영 DB 백업과 복구
 
+## 후속 읽기 점검 — 2026-10-16 15:03 KST
+
+API 조회는 성공(`verified:true`)했으나 자동 일정은 없고, native 최신 완료는 10/15 08:38 KST(약30.42시간 전)였다. 실패·정체는 없었다. **10/15 23:45 로컬 DPAPI 사본은 별도로 존재**하므로 모든 사본이 30시간 전이라는 뜻이 아니다. 이 점검은 백업 생성·복원·권한 변경을 수행하지 않았다.
+
+`Check-NorthflankBackups.mjs`는 이제 인증·연결·SDK 실패 때도 최신 확인 시각과 `verified:false`를 상태 JSON에 기록한다. 과거 성공 JSON이 남아 최신 성공처럼 보이던 문제를 수정했다. 조회 성공/정책 불충족은 종료1, 확인 불가 또는 결과 기록 실패는 종료2다. 9개 회귀 검증 통과.
+
+무료 cron 2개는 [공식 가격표](https://northflank.com/pricing)에 있으나, 자동 DB 백업·외부 저장·전송까지 무료라는 근거는 아니다. daily 거절 계정에서 weekly가 무료인지 공개 자료만으로 확인하지 못했다. [운영 저장소 문서](https://northflank.com/docs/v1/application/production-workloads/persistent-storage-in-production)의 job 백업·외부 반출은 후보로만 검토한다. [후속 과제·지원 문의 초안](home-account-followup-2026-10-16.md)의 허용 주기·독립 목적지·복구 키 보관을 확인한 뒤 실제 자동 실행과 격리 복원을 검증한다.
+
 ## 최신 배포 전 사본 — 2026-10-15 23:45 KST
 
 대회·기록 확장 배포 전 V23 운영 자료 16개 테이블을 일관된 스냅샷으로 읽어 DPAPI 암호화하고 새 네이티브 MySQL에 격리 복원했습니다. 전체 행 지문과 스키마 이력을 대조한 뒤 임시 복원 데이터를 정리했습니다. API 정지 후 백업 이후 변경이 없음을 재확인하고, V28 배포 후 기존 업무 자료 보존도 확인했습니다. Git 제외 경로는 `backups/northflank/20261015-before-tournament-expansion/`이며 평문 SQL 파일은 만들지 않았습니다. [검증·복구 경계](release-tournament-expansion-2026-10-15.md).

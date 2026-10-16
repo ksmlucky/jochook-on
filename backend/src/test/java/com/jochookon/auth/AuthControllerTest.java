@@ -28,6 +28,7 @@ class AuthControllerTest extends TeamMvcTestSupport {
     @Autowired MockMvc mvc;
     @Autowired PasswordEncoder encoder;
     @MockitoBean AccountRepository accounts;
+    @MockitoBean PasswordChangeService passwords;
 
     @BeforeEach
     void account() {

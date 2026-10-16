@@ -1,5 +1,6 @@
 package com.jochookon.config;
 
+import com.jochookon.auth.AccountPrincipal;
 import com.jochookon.team.AccessRateLimiter;
 import com.jochookon.team.TeamAccessFilter;
 import com.jochookon.team.TeamSessionService;
@@ -27,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/actuator/health", "/api/v1/auth/csrf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/auth/team-code", "/api/v1/auth/invitation/inspect", "/api/v1/auth/invitation/accept").permitAll()
                         .requestMatchers("/api/v1/auth/me", "/api/v1/auth/team").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/auth/password/change").authenticated()
                         .requestMatchers("/api/v1/service/**").hasRole("SERVICE_ADMIN")
                         .requestMatchers("/api/v1/team/coaches", "/api/v1/team/coaches/**").hasRole("DIRECTOR")
                         .requestMatchers("/api/v1/team/**").hasAnyRole("DIRECTOR", "COACH")
@@ -59,7 +61,8 @@ public class SecurityConfig {
                         .loginPage("/")
                         .loginProcessingUrl("/api/v1/auth/login")
                         .successHandler((request, response, authentication) -> {
-                            sessions.beginAccount(authentication.getName(), null, request, response);
+                            sessions.beginAccount(authentication.getName(), null,
+                                    ((AccountPrincipal) authentication.getPrincipal()).credentialVersion(), request, response);
                             response.setStatus(204);
                         })
                         .failureHandler((request, response, exception) -> error(json, response, 401, "INVALID_CREDENTIALS", "아이디 또는 비밀번호를 확인해 주세요."))

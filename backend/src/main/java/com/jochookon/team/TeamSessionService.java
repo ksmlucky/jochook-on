@@ -22,7 +22,11 @@ public class TeamSessionService {
     private final TeamStore store;
     public TeamSessionService(TeamStore store) { this.store = store; }
 
-    record SessionState(String authType, Long accountId, Long teamId, long codeVersion, Instant createdAt) implements Serializable { }
+    record SessionState(String authType, Long accountId, Long teamId, long codeVersion, Instant createdAt, Long credentialVersion) implements Serializable {
+        SessionState(String authType, Long accountId, Long teamId, long codeVersion, Instant createdAt) {
+            this(authType, accountId, teamId, codeVersion, createdAt, null);
+        }
+    }
     public record Access(TeamDtos.CurrentUser user, Long accountId) {
         public List<SimpleGrantedAuthority> authorities() {
             return user.serviceAdmin()
@@ -39,11 +43,9 @@ public class TeamSessionService {
         TeamStore.AccountInfo account = store.account(authentication.getName()).filter(TeamStore.AccountInfo::enabled)
                 .orElseThrow(() -> expired("로그인이 만료되었습니다. 다시 로그인해 주세요."));
         List<TeamDtos.MyTeam> teams = store.memberships(account.id());
-        if (state == null || state.accountId() == null || state.accountId() != account.id()) {
-            state = new SessionState("ACCOUNT", account.id(), teams.size() == 1 ? teams.getFirst().id() : null, 0, Instant.now());
-        }
+        validateAccountState(state, account);
         TeamDtos.MyTeam selected = selected(teams, state.teamId());
-        if (state.teamId() != null && selected == null) state = new SessionState("ACCOUNT", account.id(), null, 0, state.createdAt());
+        if (state.teamId() != null && selected == null) state = new SessionState("ACCOUNT", account.id(), null, 0, state.createdAt(), state.credentialVersion());
         session = request.getSession(true);
         session.setMaxInactiveInterval(30 * 60);
         session.setAttribute(SESSION_KEY, state);
@@ -68,7 +70,7 @@ public class TeamSessionService {
     }
     public long requireAccount(HttpServletRequest request) {
         Access access = current(request);
-        if (access.accountId() == null) throw new TeamAccessException(403, "ACCOUNT_REQUIRED", "운영진 계정으로 로그인해 주세요.");
+        if (access.accountId() == null || !access.user().authType().equals("ACCOUNT")) throw new TeamAccessException(403, "ACCOUNT_REQUIRED", "운영진 계정으로 로그인해 주세요.");
         return access.accountId();
     }
     public long requireServiceAdmin(HttpServletRequest request) {
@@ -92,23 +94,42 @@ public class TeamSessionService {
         long accountId = requireAccount(request);
         TeamStore.AccountInfo account = store.account(accountId).filter(TeamStore.AccountInfo::enabled)
                 .orElseThrow(() -> expired("로그인이 필요합니다."));
+        SessionState state = accountState(request);
+        validateAccountState(state, account);
         var teams = store.memberships(accountId);
         TeamDtos.MyTeam team = selected(teams, teamId);
         if (team == null) throw new TeamAccessException(403, "TEAM_FORBIDDEN", "이 팀에 접근할 수 없습니다.");
-        request.getSession().setAttribute(SESSION_KEY, new SessionState("ACCOUNT", accountId, teamId, 0, Instant.now()));
+        request.getSession().setAttribute(SESSION_KEY, new SessionState("ACCOUNT", accountId, teamId, 0, state.createdAt(), state.credentialVersion()));
         return new TeamDtos.CurrentUser(account.username(), team.role(), "ACCOUNT", account.serviceAdmin(), team.team(), teams);
     }
-    public TeamDtos.CurrentUser beginAccount(String username, Long selectedTeamId, HttpServletRequest request, HttpServletResponse response) {
+    public TeamDtos.CurrentUser beginAccount(String username, Long selectedTeamId, long authenticatedVersion, HttpServletRequest request, HttpServletResponse response) {
         TeamStore.AccountInfo account = store.account(username).filter(TeamStore.AccountInfo::enabled)
                 .orElseThrow(() -> expired("계정을 확인할 수 없습니다."));
+        if (account.credentialVersion() != authenticatedVersion) throw expired("비밀번호가 변경되었습니다. 다시 로그인해 주세요.");
         var teams = store.memberships(account.id());
         TeamDtos.MyTeam selected = selected(teams, selectedTeamId);
         if (selected == null && teams.size() == 1) selected = teams.getFirst();
         var user = new TeamDtos.CurrentUser(account.username(), selected == null ? "MEMBER" : selected.role(), "ACCOUNT", account.serviceAdmin(),
                 selected == null ? null : selected.team(), teams);
-        replace(new SessionState("ACCOUNT", account.id(), selected == null ? null : selected.id(), 0, Instant.now()),
+        replace(new SessionState("ACCOUNT", account.id(), selected == null ? null : selected.id(), 0, Instant.now(), account.credentialVersion()),
                 new Access(user, account.id()), username, request, response, 30 * 60);
         return user;
+    }
+    public long credentialVersion(HttpServletRequest request) {
+        requireAccount(request);
+        SessionState state = accountState(request);
+        if (state == null || state.credentialVersion() == null) throw expired("다시 로그인해 주세요.");
+        return state.credentialVersion();
+    }
+    private static SessionState accountState(HttpServletRequest request) {
+        var session = request.getSession(false);
+        return session != null && session.getAttribute(SESSION_KEY) instanceof SessionState state ? state : null;
+    }
+    private static void validateAccountState(SessionState state, TeamStore.AccountInfo account) {
+        // Legacy personal sessions are expired instead of being upgraded to a newer credential version.
+        if (state == null || !state.authType().equals("ACCOUNT") || state.accountId() == null || state.accountId() != account.id()
+                || state.credentialVersion() == null || state.credentialVersion() != account.credentialVersion())
+            throw expired("비밀번호가 변경되었거나 로그인이 만료되었습니다. 다시 로그인해 주세요.");
     }
     public TeamDtos.CurrentUser beginCode(TeamStore.CodeInfo code, TeamDtos.Team team, HttpServletRequest request, HttpServletResponse response) {
         if (code.teamId() != team.id() || !team.status().equals("ACTIVE") || !TeamCodeService.status(code, Instant.now()).equals("ACTIVE"))

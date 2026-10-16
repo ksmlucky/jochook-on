@@ -6,9 +6,9 @@ import { fileURLToPath } from 'node:url'
 // Schema documentation only. No database connection or row data is used.
 const out = fileURLToPath(new URL('../docs/diagrams/database/', import.meta.url))
 const migrationDir = new URL('../backend/src/main/resources/db/migration/', import.meta.url)
-const basis = 'V28 스키마 기준 · 2026.10.15'
+const basis = 'V29 스키마 기준 · 2026.10.16 · 로컬 미배포'
 // Fields below are selected important columns, not a substitute for the Flyway DDL.
-// FK identifiers are validated against V1..V28 on every generation.
+// FK identifiers are validated against V1..V29 on every generation.
 const tables = [
   { name:'teams', title:'서비스 안의 축구팀', domain:'core', fields:[
     ['PK','id','BIGINT'],['','name / description','VARCHAR'],['','status','PENDING / ACTIVE / INACTIVE'],['','version / created_at','수정 충돌 확인 / 생성 시각']], notes:['모든 팀별 업무 자료의 기준점'] },
@@ -27,7 +27,7 @@ const tables = [
   { name:'match_appearances', title:'03 · 실제 출전과 스탯', domain:'lineups', fields:[
     ['PK·FK','match_id','match_records.id'],['PK','quarter_number / team','구간 번호 / A·B'],['PK','slot / entry_order','자리 / 선발 0·교체 1'],['FK','player_id','players.id'],['','goals / assists','골 / 도움'],['','free_kick_goals / penalty_goals','총 골 안의 직접 FK / PK'],['UK','match_id + quarter_number + player_id','같은 구간 중복 출전 금지']], notes:['PK (match_id, quarter_number, team, slot, entry_order)','FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터'] },
   { name:'accounts', title:'운영진 개인 로그인 계정', domain:'access', fields:[
-    ['PK','id','BIGINT'],['UK','username','로그인 ID'],['','password_hash','해시만 저장'],['','enabled / service_admin','계정 활성 / 서비스 관리자 여부'],['','role','기존 호환 역할 ADMIN / MEMBER']], notes:['현재 팀 권한은 team_memberships.role에서 결정','선수 명단의 club_role과 권한은 별개'] },
+    ['PK','id','BIGINT'],['UK','username','로그인 ID'],['','password_hash','해시만 저장'],['','credential_version','BIGINT · 이전 로그인 무효화'],['','enabled / service_admin','계정 활성 / 서비스 관리자 여부'],['','role','기존 호환 역할 ADMIN / MEMBER']], notes:['현재 팀 권한은 team_memberships.role에서 결정','선수 명단의 club_role과 권한은 별개'] },
   { name:'team_memberships', title:'계정의 팀별 권한', domain:'access', fields:[
     ['PK','id','BIGINT'],['FK','team_id','teams.id'],['FK','account_id','accounts.id · 삭제 시 CASCADE'],['','role','DIRECTOR / COACH / MEMBER'],['','active / created_at','활성 여부 / 등록 시각'],['UK','team_id + account_id','계정당 같은 팀에 한 행']], notes:['accounts ↔ teams의 다대다 연결 테이블'] },
   { name:'team_invites', title:'감독·코치 초대', domain:'access', fields:[
@@ -65,20 +65,20 @@ const logical = [
  ['match_participants','match_appearances','match_id + player_id · 서비스가 참가·출석 검증'],
  ['match_participants','match_planned_lineups','match_id + player_id · 서비스가 투표·팀 검증'],
 ]
-const sources = (await fs.readdir(migrationDir)).filter(file=>/^V\d+__.*\.sql$/.test(file)&&Number(file.match(/^V(\d+)/)[1])<=28).sort((a,b)=>Number(a.match(/^V(\d+)/)[1])-Number(b.match(/^V(\d+)/)[1]))
+const sources = (await fs.readdir(migrationDir)).filter(file=>/^V\d+__.*\.sql$/.test(file)&&Number(file.match(/^V(\d+)/)[1])<=29).sort((a,b)=>Number(a.match(/^V(\d+)/)[1])-Number(b.match(/^V(\d+)/)[1]))
 const sql = (await Promise.all(sources.map(file=>fs.readFile(new URL(file,migrationDir),'utf8')))).join('\n')
 const actualNames=[...sql.matchAll(/CREATE TABLE\s+(\w+)/g)].map(m=>m[1]).sort()
 const mappedNames=tables.filter(t=>t.domain!=='metadata').map(t=>t.name).sort()
 const actualFks=[...sql.matchAll(/(?:ADD )?CONSTRAINT\s+(\w+)\s+FOREIGN KEY/g)].map(m=>m[1]).sort()
-if(JSON.stringify(actualNames)!==JSON.stringify(mappedNames)) throw Error('Database table catalog differs from V1..V28 CREATE TABLE statements')
-if(JSON.stringify(actualFks)!==JSON.stringify(fk.map(r=>r[0]).sort())) throw Error('FK catalog differs from V1..V28 constraints')
+if(JSON.stringify(actualNames)!==JSON.stringify(mappedNames)) throw Error('Database table catalog differs from V1..V29 CREATE TABLE statements')
+if(JSON.stringify(actualFks)!==JSON.stringify(fk.map(r=>r[0]).sort())) throw Error('FK catalog differs from V1..V29 constraints')
 const sqlFkSignatures=[]
 for(const statement of sql.replace(/^\s*--.*$/gm,'').split(';')){
  const owner=statement.match(/(?:CREATE TABLE|ALTER TABLE)\s+(\w+)/)?.[1]
  for(const match of statement.matchAll(/CONSTRAINT\s+(\w+)\s+FOREIGN KEY\s*\(([^)]+)\)\s+REFERENCES\s+(\w+)/g))
   sqlFkSignatures.push([match[1],match[3],owner,match[2].replace(/\s/g,'').replaceAll(',','+')].join('|'))
 }
-if(JSON.stringify(sqlFkSignatures.sort())!==JSON.stringify(fk.map(r=>r.slice(0,4).join('|')).sort())) throw Error('FK endpoints or columns differ from V1..V28')
+if(JSON.stringify(sqlFkSignatures.sort())!==JSON.stringify(fk.map(r=>r.slice(0,4).join('|')).sort())) throw Error('FK endpoints or columns differ from V1..V29')
 await fs.mkdir(out,{recursive:true})
 await fs.writeFile(path.join(out,'schema.json'),JSON.stringify({basis,scope:'Important columns, physical FK constraints and selected logical references; not row data.',tables,foreignKeys:fk.map(([name,parent,child,column,parentOptional=false,childUnique=false])=>({name,parent,child,column,parentOptional,childUnique})),logicalReferences:logical.map(([parent,child,column])=>({parent,child,column})),sources},null,2)+'\n')
 
@@ -154,14 +154,14 @@ await end('04-audit','이력·저장 영수증')
 
 // Mermaid records every physical FK individually. Dotted Mermaid edges are
 // non-identifying relationships, so comments and labels explicitly say REF / NO FK.
-let mermaid='%% 조축ON · '+basis+'\n%% Solid lines: physical FK. Dotted REF lines: application-only logical references.\n%% Important columns only; exact SQL types/checks are in Flyway V1..V28.\nerDiagram\n'
+let mermaid='%% 조축ON · '+basis+'\n%% Solid lines: physical FK. Dotted REF lines: application-only logical references.\n%% Important columns only; exact SQL types/checks are in Flyway V1..V29.\nerDiagram\n'
 function sqlType(tableName,name){
  if(tableName==='flyway_schema_history'&&name==='version')return 'VARCHAR'
  if(['before_snapshot','after_snapshot'].includes(name))return 'JSON'
  if(['active','enabled','service_admin'].includes(name))return 'BIT'
  if(name==='success')return 'BOOLEAN'
  if(['quarter_number','entry_order','shirt_number','active_shirt_number','birth_year','goals','assists','free_kick_goals','penalty_goals','score_for','score_against','installed_rank','checksum'].includes(name))return 'INT'
- if(['id','team_id','player_id','match_id','tournament_id','actor_account_id','account_id','invite_id','target_match_id','created_by','issued_by','version','before_version','after_version','result_version'].includes(name))return 'BIGINT'
+ if(['id','team_id','player_id','match_id','tournament_id','actor_account_id','account_id','invite_id','target_match_id','created_by','issued_by','version','before_version','after_version','result_version','credential_version'].includes(name))return 'BIGINT'
  if(['played_on','start_date','end_date','joined_on'].includes(name))return 'DATE'
  if(name==='kickoff')return 'TIME'
  if(name.endsWith('_at')||name==='installed_on')return ['match_record_events','match_save_requests'].includes(tableName)?'DATETIME':'TIMESTAMP'
@@ -189,7 +189,7 @@ for(const t of tables){
 for(const [,parent,child,column,optional=false,unique=false]of fk)mermaid+=`  ${parent} ${optional?'|o':'||'}--${unique?'o|':'o{'} ${child} : "FK ${column}"\n`
 for(const [parent,child,column]of logical)mermaid+=`  ${parent} |o..o{ ${child} : "REF NO FK ${column}"\n`
 await fs.writeFile(path.join(out,'schema.mmd'),mermaid)
-const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON DB 구조 · V28</title><style>*{box-sizing:border-box}body{margin:0;font-family:'Malgun Gothic',sans-serif;background:${C.bg};color:${C.ink}}header{position:sticky;top:0;z-index:1;background:#fff;padding:16px 22px;border-bottom:1px solid ${C.border}}h1{font-size:22px;margin:0 0 10px}nav{display:flex;gap:8px;flex-wrap:wrap}button,a{font:inherit}button{padding:10px 14px;background:white;color:${C.ink};border:1px solid ${C.border};border-radius:9px;cursor:pointer}button[aria-selected=true]{background:${C.green};color:white}button:focus-visible,a:focus-visible{outline:3px solid #b48128;outline-offset:2px}main{max-width:1800px;margin:auto}section[hidden]{display:none}.figure{overflow:auto}.figure img{display:block;width:100%;height:auto;min-width:1050px}section p{padding:0 24px;line-height:1.7}footer{padding:16px 24px;line-height:1.7;color:${C.muted}}a{color:${C.green}}@media print{header,footer,section p{display:none}section[hidden]{display:block}.figure img{min-width:0}section{break-after:page}@page{size:A3 landscape;margin:7mm}}</style></head><body><header><h1>조축ON 데이터베이스 · ${basis}</h1><nav role="tablist" aria-label="DB 그림 선택">${rendered.map(({label},i)=>`<button id="tab-${i}" role="tab" aria-controls="panel-${i}" aria-selected="${i===0}" type="button">${label}</button>`).join('')}</nav></header><main>${rendered.map(({id,label},i)=>`<section id="panel-${i}" role="tabpanel" aria-labelledby="tab-${i}"${i?' hidden':''}><div class="figure"><img src="${id}.svg" alt="${label} 데이터베이스 관계도"></div><p><a href="${id}.svg" target="_blank" rel="noopener">이 그림 크게 열기 / SVG 저장</a> · <a href="schema.mmd">전체 Mermaid 원본</a> · <a href="schema.json">구조 JSON</a></p></section>`).join('')}</main><footer>실선은 실제 DB 외래키, 점선은 DB 외래키가 없는 논리 참조입니다. 1은 한 행, 0..1은 없거나 한 행, 0..N은 없거나 여러 행을 뜻합니다.<br>모바일에서는 그림을 가로로 밀어 볼 수 있습니다. 실제 DB 행은 읽지 않고 Flyway V1~V28과 코드만 확인했습니다. 운영 반영 여부는 배포 문서를 확인하세요.</footer><script>const tabs=[...document.querySelectorAll('[role=tab]')],panels=[...document.querySelectorAll('[role=tabpanel]')];tabs.forEach((t,i)=>t.addEventListener('click',()=>{tabs.forEach((x,j)=>{x.setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j})}));</script></body></html>`
+const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON DB 구조 · V29</title><style>*{box-sizing:border-box}body{margin:0;font-family:'Malgun Gothic',sans-serif;background:${C.bg};color:${C.ink}}header{position:sticky;top:0;z-index:1;background:#fff;padding:16px 22px;border-bottom:1px solid ${C.border}}h1{font-size:22px;margin:0 0 10px}nav{display:flex;gap:8px;flex-wrap:wrap}button,a{font:inherit}button{padding:10px 14px;background:white;color:${C.ink};border:1px solid ${C.border};border-radius:9px;cursor:pointer}button[aria-selected=true]{background:${C.green};color:white}button:focus-visible,a:focus-visible{outline:3px solid #b48128;outline-offset:2px}main{max-width:1800px;margin:auto}section[hidden]{display:none}.figure{overflow:auto}.figure img{display:block;width:100%;height:auto;min-width:1050px}section p{padding:0 24px;line-height:1.7}footer{padding:16px 24px;line-height:1.7;color:${C.muted}}a{color:${C.green}}@media print{header,footer,section p{display:none}section[hidden]{display:block}.figure img{min-width:0}section{break-after:page}@page{size:A3 landscape;margin:7mm}}</style></head><body><header><h1>조축ON 데이터베이스 · ${basis}</h1><nav role="tablist" aria-label="DB 그림 선택">${rendered.map(({label},i)=>`<button id="tab-${i}" role="tab" aria-controls="panel-${i}" aria-selected="${i===0}" type="button">${label}</button>`).join('')}</nav></header><main>${rendered.map(({id,label},i)=>`<section id="panel-${i}" role="tabpanel" aria-labelledby="tab-${i}"${i?' hidden':''}><div class="figure"><img src="${id}.svg" alt="${label} 데이터베이스 관계도"></div><p><a href="${id}.svg" target="_blank" rel="noopener">이 그림 크게 열기 / SVG 저장</a> · <a href="schema.mmd">전체 Mermaid 원본</a> · <a href="schema.json">구조 JSON</a></p></section>`).join('')}</main><footer>실선은 실제 DB 외래키, 점선은 DB 외래키가 없는 논리 참조입니다. 1은 한 행, 0..1은 없거나 한 행, 0..N은 없거나 여러 행을 뜻합니다.<br>모바일에서는 그림을 가로로 밀어 볼 수 있습니다. 실제 DB 행은 읽지 않고 Flyway V1~V29과 코드만 확인했습니다. 운영 반영 여부는 배포 문서를 확인하세요.</footer><script>const tabs=[...document.querySelectorAll('[role=tab]')],panels=[...document.querySelectorAll('[role=tabpanel]')];tabs.forEach((t,i)=>t.addEventListener('click',()=>{tabs.forEach((x,j)=>{x.setAttribute('aria-selected',String(i===j));panels[j].hidden=i!==j})}));</script></body></html>`
 await fs.writeFile(path.join(out,'index.html'),html)
 if(process.argv.includes('--png')){const require=createRequire(import.meta.url);const sharp=require(process.env.JOCHOOK_DIAGRAM_SHARP||'sharp');for(const {id,svg}of rendered)await sharp(Buffer.from(svg)).png().toFile(path.join(out,id+'.png'))}
 console.log(JSON.stringify({output:out,basis,businessTables:actualNames.length,metadataTables:1,foreignKeys:fk.length,logicalReferences:logical.length,diagrams:rendered.length,png:process.argv.includes('--png')}))

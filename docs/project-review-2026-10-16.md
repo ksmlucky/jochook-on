@@ -1,5 +1,7 @@
 # 조축ON 전체 리뷰와 첫 사용성 보완
 
+후속 작업: [새 홈·본인 비밀번호 변경·백업 점검](home-account-followup-2026-10-16.md)과 [진행 상황 그림](diagrams/home-account-followup/index.html)을 추가했습니다. 아래는 첫 리뷰 시점의 결과이며, 후속 로컬 구현과 운영 미반영 상태는 별도 문서에서 구분합니다.
+
 기준일: 2026-10-16. **이번 변경은 로컬 구현·검증이며 운영 앱에는 미반영**이다. 운영 기준은 기존 `9d3d347` / Flyway V28 / 가이드 1.2로 유지한다. 현 운영 상태를 새로 배포 검증한 문서가 아니다.
 
 [한눈에 보는 리뷰](diagrams/project-review-2026-10-16/index.html) · [요약 그림 PNG](diagrams/project-review-2026-10-16/overview.png) · [SVG 원본](diagrams/project-review-2026-10-16/overview.svg) · [현재 시스템 구성](system-overview.md)

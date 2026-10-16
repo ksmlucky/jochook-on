@@ -21,9 +21,11 @@ class TeamSessionServiceTest {
     @AfterEach void cleanup() { SecurityContextHolder.clearContext(); TeamContext.clear(); }
 
     @Test void platformAdministratorWithoutMembershipHasNoTeamWriteRole() {
-        when(store.account("test-owner")).thenReturn(Optional.of(new TeamStore.AccountInfo(3, "test-owner", "hash", true, true)));
+        when(store.account("test-owner")).thenReturn(Optional.of(new TeamStore.AccountInfo(3, "test-owner", "hash", true, true, 0)));
         when(store.memberships(3)).thenReturn(List.of());
-        var result = sessions.inspect(UsernamePasswordAuthenticationToken.authenticated("test-owner", null, List.of()), new MockHttpServletRequest());
+        var request = new MockHttpServletRequest();
+        sessions.beginAccount("test-owner", null, 0, request, new MockHttpServletResponse());
+        var result = sessions.inspect(UsernamePasswordAuthenticationToken.authenticated("test-owner", null, List.of()), request);
         assertThat(result.user().serviceAdmin()).isTrue();
         assertThat(result.user().role()).isEqualTo("MEMBER");
         assertThat(result.user().team()).isNull();
@@ -32,14 +34,49 @@ class TeamSessionServiceTest {
     @Test void removedMembershipStopsAccessWithoutEndingPersonalLogin() {
         var request = new MockHttpServletRequest();
         var authentication = UsernamePasswordAuthenticationToken.authenticated("test-admin", null, List.of());
-        when(store.account("test-admin")).thenReturn(Optional.of(new TeamStore.AccountInfo(4, "test-admin", "hash", true, false)));
+        when(store.account("test-admin")).thenReturn(Optional.of(new TeamStore.AccountInfo(4, "test-admin", "hash", true, false, 0)));
         when(store.memberships(4)).thenReturn(List.of(new TeamDtos.MyTeam(1, team.name(), "", "ACTIVE", "DIRECTOR")));
+        sessions.beginAccount("test-admin", null, 0, request, new MockHttpServletResponse());
         assertThat(sessions.inspect(authentication, request).user().role()).isEqualTo("DIRECTOR");
         when(store.memberships(4)).thenReturn(List.of());
         var revoked = sessions.inspect(authentication, request);
         assertThat(revoked.user().team()).isNull();
         assertThat(revoked.user().authType()).isEqualTo("ACCOUNT");
         assertThat(revoked.user().role()).isEqualTo("MEMBER");
+    }
+    @Test void changedCredentialsInvalidateEveryPersonalSessionAndCannotBeRefreshedBySelectingATeam() {
+        var account = new TeamStore.AccountInfo(4, "test-admin", "hash", true, false, 2);
+        when(store.account("test-admin")).thenReturn(Optional.of(account));
+        when(store.memberships(4)).thenReturn(List.of(new TeamDtos.MyTeam(1, team.name(), "", "ACTIVE", "DIRECTOR")));
+        var first = new MockHttpServletRequest();
+        var other = new MockHttpServletRequest();
+        sessions.beginAccount("test-admin", null, 2, first, new MockHttpServletResponse());
+        sessions.beginAccount("test-admin", null, 2, other, new MockHttpServletResponse());
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        var changed = new TeamStore.AccountInfo(4, "test-admin", "changed-hash", true, false, 3);
+        when(store.account("test-admin")).thenReturn(Optional.of(changed));
+        when(store.account(4)).thenReturn(Optional.of(changed));
+        for (var request : List.of(first, other)) {
+            assertThatThrownBy(() -> sessions.inspect(authentication, request)).isInstanceOf(TeamAccessException.class)
+                    .extracting(e -> ((TeamAccessException) e).code()).isEqualTo("SESSION_EXPIRED");
+            assertThatThrownBy(() -> sessions.select(1, request)).isInstanceOf(TeamAccessException.class);
+            assertThatThrownBy(() -> sessions.beginAccount("test-admin", null, 2, request, new MockHttpServletResponse()))
+                    .isInstanceOf(TeamAccessException.class);
+        }
+        assertThatThrownBy(() -> sessions.beginAccount("test-admin", null, 2L, new MockHttpServletRequest(), new MockHttpServletResponse()))
+                .isInstanceOf(TeamAccessException.class);
+        var fresh = new MockHttpServletRequest();
+        sessions.beginAccount("test-admin", null, 3L, fresh, new MockHttpServletResponse());
+        assertThat(sessions.inspect(authentication, fresh).user().username()).isEqualTo("test-admin");
+    }
+    @Test void legacyOrMissingPersonalStateRequiresFreshLogin() {
+        when(store.account("test-admin")).thenReturn(Optional.of(new TeamStore.AccountInfo(4, "test-admin", "hash", true, false, 0)));
+        var authentication = UsernamePasswordAuthenticationToken.authenticated("test-admin", null, List.of());
+        var request = new MockHttpServletRequest();
+        assertThatThrownBy(() -> sessions.inspect(authentication, request)).isInstanceOf(TeamAccessException.class);
+        request.getSession().setAttribute(TeamSessionService.SESSION_KEY,
+                new TeamSessionService.SessionState("ACCOUNT", 4L, null, 0, Instant.now()));
+        assertThatThrownBy(() -> sessions.inspect(authentication, request)).isInstanceOf(TeamAccessException.class);
     }
     @Test void rotationInvalidatesEveryCodeSessionAndAbsoluteExpiryCannotBeExtendedByActivity() {
         Instant now = Instant.now();
