@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 const out = fileURLToPath(new URL('../docs/diagrams/system-overview/', import.meta.url));
 await fs.mkdir(out, {recursive:true});
 // Confirm these release fields only after live API/web and data preservation checks.
-const releaseLabel = '2026.10.15 대회·기록 확장판';
+const releaseLabel = '2026.10.16 홈·계정 보호 개선판';
 const releaseStatus = '운영 배포 확인';
-const schemaLabel = 'V28';
-const guideLabel = '1.2';
+const schemaLabel = 'V30';
+const guideLabel = '1.3';
 const C={ink:'#203a33',muted:'#566d65',line:'#8b9e96',green:'#246b51',mint:'#e7f3eb',blue:'#285d86',sky:'#edf4fa',amber:'#8b5b18',cream:'#fff4df',paper:'#ffffff',bg:'#f7f8f4',border:'#d8e3dc'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 let a=[];
@@ -26,7 +26,7 @@ function arrow(x1,y1,x2,y2,label='',{color=C.line,dash=false,labelY=-14}={}){
   if(label)text((x1+x2)/2,(y1+y2)/2+labelY,label,{size:18,anchor:'middle',color:C.muted});
 }
 function tag(x,y,label,{fill=C.mint,color=C.green,w=154}={}){rect(x,y,w,34,{fill,stroke:fill,r:17});text(x+w/2,y+23,label,{size:17,weight:600,color,anchor:'middle'})}
-function begin(n,title,subtitle){a=[`<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">${esc(title)}</title><desc id="desc">${esc(subtitle)}</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="${C.line}" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="${C.bg}"/>`];text(54,43,'JOCHOOK ON  /  조축ON',{size:19,weight:600,color:C.green});text(1346,43,`${n} / 4   ·   2026.10.15`,{size:17,anchor:'end',color:C.muted});text(54,97,title,{size:36,weight:700});text(54,130,subtitle,{size:20,color:C.muted});}
+function begin(n,title,subtitle){a=[`<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">${esc(title)}</title><desc id="desc">${esc(subtitle)}</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="${C.line}" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="${C.bg}"/>`];text(54,43,'JOCHOOK ON  /  조축ON',{size:19,weight:600,color:C.green});text(1346,43,`${n} / 4   ·   2026.10.16`,{size:17,anchor:'end',color:C.muted});text(54,97,title,{size:36,weight:700});text(54,130,subtitle,{size:20,color:C.muted});}
 async function end(name){text(54,918,`${releaseLabel} · ${releaseStatus} · DB ${schemaLabel}`,{size:16,color:C.muted});text(1346,918,'실제 회원 정보·접속 비밀값 제외',{size:16,anchor:'end',color:C.muted});a.push('</g></svg>');await fs.writeFile(path.join(out,name+'.svg'),a.join('\n'));}
 
 begin('01','시스템 아키텍처 · 어디에서 실행될까?','휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.');
@@ -44,10 +44,11 @@ box(714,681,631,185,'아직 운영 경로에 없는 것',['Oracle 도쿄: 서버
 await end('01-system-architecture');
 
 begin('02','업무 흐름도 · 한 경기를 어떻게 남길까?','회원은 조회하고, 감독·코치는 선수와 경기 기록을 관리합니다.');
-box(54,166,397,143,'서비스 관리자',['팀 생성 · 최초 감독 지정','서비스 권한과 팀 기록 권한은 별개'],{fill:C.sky,accent:C.blue,size:21});
+box(54,166,397,143,'서비스 관리자',['팀 생성 · 감독 지정 · 운영진 복구','본인 확인 후 30분·일회용 링크'],{fill:C.sky,accent:C.blue,size:21});
 box(501,166,397,143,'감독 · 코치',['개인 계정 로그인 · 기록 입력/수정','감독이 코치 임명 · 팀 접속 정보 발급'],{fill:C.mint,size:21});
 box(948,166,397,143,'회원',['팀 코드 + 팀 비밀번호로 조회','선수 · 경기 · 스쿼드 · 시즌 기록'],{size:21});
 arrow(452,240,498,240);arrow(899,240,945,240);
+text(54,342,'팀 접속 → 우리 팀 홈 → 최근 경기·선수 기록 / 운영진은 새 기록·이어서 작성',{size:21,color:C.green,weight:600});
 const stages=[
  ['01 · 투표·출석',['날짜·시각 · 리그/대회 선택','대회 2구간 / 기본 4쿼터','자체전 A·B팀 먼저 체크','참석 예정과 실제 출석 구분']],
  ['02 · 스쿼드 계획',['참석 예정자 + 용병','선호 1·2·3지망으로 편성','6종 선택 · 팀별 계획 유지','자동 편성 / 작전판 편집']],
@@ -57,31 +58,31 @@ const stages=[
 stages.forEach(([title,lines],i)=>{box(54+i*330,367,300,240,title,lines,{size:20});if(i<3)arrow(355+i*330,485,381+i*330,485);arrow(204+i*330,608,204+i*330,646)});
 rect(54,649,1291,73,{fill:C.mint,stroke:'#c9dfd0'});text(699,681,'단계별 저장 → 경기 DB + 변경 이력 + 저장 영수증 → 목록에 작성 상태 표시',{size:24,weight:600,anchor:'middle'});text(699,707,'올해 기본 · 전체 기간 / 연월 범위 · 리그+대회 합산 · 자체전 포함 · 완료 후에도 수정 가능',{size:18,color:C.muted,anchor:'middle'});
 box(54,756,625,116,'입력 보호 · 저장 영수증',['같은 탭 24시간 초안 · 동일 요청 중복 저장 방지','서버 저장은 단계별 버튼 · 충돌 시 덮어쓰기 차단'],{fill:C.sky,accent:C.blue,size:20});
-box(714,756,631,116,'조회 메뉴 · 역할별 가이드',['선수단 / 경기 기록 / 선수 기록 / 대회 / 가이드',`운영진·회원별 앱 가이드 / 공유 PDF ${guideLabel}`],{size:20});
+box(714,756,631,116,'조회 메뉴 · 역할별 가이드',['홈 / 선수단 / 경기 / 선수 기록 / 대회 / 가이드',`운영진·회원별 앱 가이드 / 공유 PDF ${guideLabel}`],{size:20});
 await end('02-match-workflow');
 
 begin('03','개발 · 검증 · 배포 흐름도','GitHub는 소스와 검증 결과를 보관하고, 실제 서비스는 Northflank에서 실행됩니다.');
 const roles=[['요구사항','사용자 · 실제 운영'],['기획','정의서 · 스토리보드'],['개발','화면 / API / DB'],['검증','개발자 + 총괄'],['사용자 확인','휴대전화 실사용']];
 roles.forEach(([title,sub],i)=>{box(54+i*264,169,234,125,title,[sub],{fill:i===0?C.mint:C.paper,size:19});if(i<4)arrow(290+i*264,231,314+i*264,231)});
 text(54,335,'요청에 맞춰 역할을 나누고, 기능 하나씩 구현·검증합니다.',{size:20,color:C.muted});
-box(54,380,350,252,'① 로컬 개발',['하나의 Git 저장소','frontend/  React · TypeScript','backend/  기능별 Spring Boot','Flyway: V24~V28 추가','JUnit / 프론트 테스트'],{size:21});
+box(54,380,350,252,'① 로컬 개발',['하나의 Git 저장소','frontend/  React · TypeScript','backend/  기능별 Spring Boot','Flyway: V29·V30 계정 보호','JUnit / 프론트 테스트'],{size:21});
 box(525,380,350,252,'② GitHub + Actions',['ksmlucky/jochook-on','push / PR 때 자동 검증','Java 단위·API / 프론트 테스트','Testcontainers로 MySQL 검증','실행 JAR · 웹 빌드'],{fill:C.sky,accent:C.blue,size:21});
 box(995,380,350,252,'③ Northflank 배포',['선택한 커밋을 수동 빌드·배포','Dockerfile의 2개 target','api → Java 실행 이미지','web-northflank → Caddy + 웹','배포 후 HTTPS·권한·화면 확인'],{fill:C.mint,size:20});
 arrow(405,485,523,485,'Git push');arrow(876,485,993,485,'검증 후 배포');
-box(54,686,625,183,'운영 배포 확인',['백업·격리 복원 → 구 API 쓰기 종료','새 API·V28 검증 → 새 웹 → 권한·화면 확인','V26 이후 구 API 이미지 단독 롤백 금지'],{size:21});
-box(714,686,631,183,'이번 출시 범위',['대회·기간 조회 · 선수 상세와 FK/PK','자체전 팀 체크 · 3백 배치 · 대회 전·후반',`사용 가이드 ${guideLabel} · 앱과 공유 PDF 반영 확인`],{fill:C.mint,size:21});
+box(54,686,625,183,'운영 배포 확인',['백업·격리 복원 → 구 API 쓰기 종료','새 API·V30 검증 → 새 웹 → 권한·화면 확인','V26 이후 구 API 이미지 단독 롤백 금지'],{size:21});
+box(714,686,631,183,'이번 출시 범위',['우리 팀 홈 · 모바일 기록·필터 개선','개인 비밀번호 변경 · 운영진 일회용 복구',`사용 가이드 ${guideLabel} · 앱과 공유 PDF 반영 확인`],{fill:C.mint,size:21});
 await end('03-development-deployment');
 
-begin('04','백업 · 복구 흐름도와 다음 과제','배포 전 백업·격리 복원과 V28 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.');
+begin('04','백업 · 복구 흐름도와 다음 과제','배포 전 백업·격리 복원과 V30 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.');
 box(54,173,350,239,'배포 직전 백업',['Northflank 비공개 MySQL','운영 자료 수동 백업','기존 테이블 원본 지문 확인','실제 자료·비밀값은 공개 제외'],{fill:C.mint,size:21});
 box(525,173,350,239,'암호화된 로컬 사본',['백업 내용을 DPAPI로 암호화','Windows DPAPI · Git 제외','격리 복원 시험에 사용','현재 Windows 사용자에 종속'],{fill:C.sky,accent:C.blue,size:21});
-box(995,173,350,239,'복원 · 자료 보존 확인',['별도 MySQL에 V23 복원','16개 테이블 지문 대조','운영 V24~V28 적용 후','기존 4쿼터·득점 보존 확인'],{size:21});
+box(995,173,350,239,'복원 · 자료 보존 확인',['별도 MySQL에 V28 복원','17개 테이블 지문 대조','운영 V29·V30 적용 후','기존 16개 업무 테이블 보존'],{size:21});
 arrow(405,277,523,277,'보관');arrow(876,277,993,277,'해독·복원');
 rect(54,461,1291,176,{fill:C.cream,stroke:'#e1c895'});
 text(79,501,'매일 04시 · 7일 보관 → 무료 계정에서 거절',{size:27,weight:600,color:C.amber});
 text(79,540,['일정 등록 API: daily 예약 불가(400) · 자동 일정 생성되지 않음','승인된 설정 권한 한 개를 잠깐 추가 → 오류 확인 → 즉시 회수 → 원래 권한과 일치 확인','무료 요금표의 백업 포함과 매일 자동 예약 허용은 다릅니다.'],{size:21,gap:32});
-text(54,688,'출시 완료: 대회·기록 확장과 기존 자료 보존 / 자동 백업은 후속 과제',{size:24,weight:600});
-const next=[['후속 · 운영 자료 보호',['허용되는 무료 자동화 확인','별도 사본·키·정기 복원']],['출시 · 입력 안정성',['초안 복원 · 저장 영수증','모바일 편집 · 가이드 1.2']],['출시 · 선수 기록',['기간·대회·FK/PK 조회','시상·동률 정책은 이후']],['출시 · 경기 형식',['대회 2구간 · 기본 4쿼터','자체전 A/B는 먼저 선택']]];
+text(54,688,'출시 완료: 홈·계정 보호와 기존 자료 보존 / 자동 백업은 후속 과제',{size:24,weight:600});
+const next=[['후속 · 운영 자료 보호',['허용되는 무료 자동화 확인','별도 사본·키·정기 복원']],['출시 · 입력 안정성',['초안 복원 · 저장 영수증','모바일 편집 · 가이드 1.3']],['출시 · 선수 기록',['기간·대회·FK/PK 조회','시상·동률 정책은 이후']],['출시 · 계정 보호',['본인 비밀번호 변경','관리자 확인 · 일회용 복구']]];
 next.forEach(([title,lines],i)=>{box(54+i*330,721,300,151,title,lines,{size:20,fill:i===0?C.cream:C.paper,accent:i===0?C.amber:C.green});if(i<3)arrow(355+i*330,797,381+i*330,797)});
 await end('04-backup-next-steps');
 

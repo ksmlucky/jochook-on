@@ -1,8 +1,8 @@
 # 우리 팀 홈·계정 복구·백업 후속 점검
 
-2026-10-16 · **개발 브랜치의 로컬 변경, 운영 미배포**. 운영 기준은 `9d3d347` / V28 / 가이드 1.2다.
+2026-10-16 16:31 KST 운영 검증 완료: `d8b2763` / Flyway V30 / 가이드1.3. [배포 결과·휴대폰 확인 항목](release-home-account-2026-10-16.md). 아래 구현 과정의 미배포 표시는 당시 이력이다.
 
-[한눈에 보기](diagrams/home-account-followup/index.html) · [그림 PNG](diagrams/home-account-followup/overview.png) · [V30 개발 ERD](database-diagram.md)
+[한눈에 보기](diagrams/home-account-followup/index.html) · [그림 PNG](diagrams/home-account-followup/overview.png) · [V30 운영 ERD](database-diagram.md)
 
 ## 이번 범위
 
@@ -78,7 +78,7 @@ V30은 `account_password_resets`에 대상·발급자 FK, 토큰 해시 UK, 발�
 - 운영진 가이드 예정 변경: 새 홈/이어서 작성/비밀번호 변경/관리자 본인 확인·복구 링크/재로그인 순서. 서비스 관리자 발급 절차는 별도 관리자 안내로 구분한다.
 - 회원 가이드 예정 변경: 새 홈과 최근 경기·기록 바로가기. 회원 코드 접속 권한은 그대로다.
 - 운영용 `docs/guides/content.json`·HTML·PDF·앱 가이드는 배포 전 기능을 안내하지 않도록 1.2를 유지한다. 배포할 때 함께 반영하고 역할별 화면과 PDF 전 페이지를 확인한다.
-- V30 개발 ERD 원본·JSON·Mermaid·SVG·PNG·HTML을 함께 갱신한다. 업무·계정 변경 흐름은 이 문서의 새 그림에 반영한다. 서버/네트워크 구성은 변경하지 않았다.
+- V30 운영 ERD 원본·JSON·Mermaid·SVG·PNG·HTML을 함께 갱신한다. 업무·계정 변경 흐름은 이 문서의 새 그림에 반영한다. 서버/네트워크 구성은 변경하지 않았다.
 
 ## 검증
 

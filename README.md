@@ -1,10 +1,10 @@
 # 조축ON
 
-[홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30 개발 코드와 새 홈은 **운영 미배포**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
+[홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30과 새 홈은 **운영 반영 완료**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
 
-[2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선은 운영 미배포입니다.
+[2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선도 운영 반영했습니다.
 
-**최신 운영 배포:** `9d3d347` · Flyway V28 · **대회·기록 확장판 / 가이드 1.2**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-tournament-expansion-2026-10-15.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
+**최신 운영 배포:** `d8b2763` · Flyway V30 · **홈·계정 보호 개선판 / 가이드 1.3**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-home-account-2026-10-16.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
 
 이번 확장판의 기능과 사용 흐름:
 
@@ -15,7 +15,7 @@
 - [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
 - [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
 
-[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 6쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 14쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.2를 기능과 함께 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 7쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 17쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.3을 기능과 함께 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
 
 [시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
 
