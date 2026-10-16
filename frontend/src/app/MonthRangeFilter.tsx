@@ -23,6 +23,9 @@ export function MonthRangeFilter({ value, years, onChange, resetValue = allTime,
   }
   function choosePreset(next: MonthRangeSelection) { setDraft(monthRangeDraft(next)); setError(''); onChange({ ...next }) }
   return <div className="month-range-filter" role="group" aria-label="조회 기간" aria-describedby={`${id}-applied${error ? ` ${id}-error` : ''}`}>
+    <details className="month-range-disclosure">
+    <summary className="month-range-summary"><span><span className="month-range-summary-title">조회 기간</span><strong id={`${id}-applied`}>{monthRangeLabel(value)}</strong>{changed && <span className="month-range-pending">변경한 기간 미적용</span>}</span><span className="month-range-summary-action">기간 변경</span></summary>
+    <div className="month-range-content">
     <div className="month-range-fields">
       <div className="month-range-bound">
         <label htmlFor={`${id}-start-year`}>시작 연도<select id={`${id}-start-year`} value={draft.startYear} disabled={disabled} onChange={event => update('startYear', event.target.value)}>
@@ -46,6 +49,8 @@ export function MonthRangeFilter({ value, years, onChange, resetValue = allTime,
     <div className="month-range-actions"><button type="button" className="primary-button" disabled={disabled} onClick={apply}>조회</button>
       <button type="button" className="secondary-button" disabled={disabled} aria-pressed={value.startMonth === resetValue.startMonth && value.endMonth === resetValue.endMonth} onClick={() => choosePreset(resetValue)}>{resetLabel}</button>
       {showAllTime && <button type="button" className="secondary-button" disabled={disabled} aria-pressed={value.startMonth === null && value.endMonth === null} onClick={() => choosePreset(allTime)}>전체 기간</button>}</div>
-    <p id={`${id}-applied`} className="field-help month-range-applied">조회 중: <strong>{monthRangeLabel(value)}</strong>{changed && <span> · 기간을 바꿨어요. ‘조회’를 눌러 적용하세요.</span>}</p>
+    {changed && <p className="field-help month-range-applied">‘조회’를 누르면 변경한 기간이 적용돼요.</p>}
+    </div>
+    </details>
   </div>
 }

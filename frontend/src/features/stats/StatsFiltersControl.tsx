@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { CompetitionFilter } from '../tournaments/CompetitionFilter'
 import { MonthRangeFilter } from '../../app/MonthRangeFilter'
 import { koreaYear, statsMonthRange, withStatsCompetition, withStatsKind, withStatsRange } from './stats'
@@ -9,16 +10,19 @@ const recordLabels = { COMPLETED: '기록 완료만', RECORDED: '완료 + 이전
 export function StatsFiltersControl({ filters, years, onChange, onSessionExpired }: {
   filters: StatsFilters; years: number[]; onChange: (filters: StatsFilters) => void; onSessionExpired: () => void
 }) {
+  const [extraOpen, setExtraOpen] = useState(false)
+  const [competitionError, setCompetitionError] = useState(false)
+  useEffect(() => { if (competitionError) setExtraOpen(true) }, [competitionError])
   return <div className="stats-filter-controls" role="group" aria-label="시즌 집계 범위">
     <div className="stats-primary-filters">
       <MonthRangeFilter value={statsMonthRange(filters)} years={years} showAllTime
         resetValue={{ startMonth: `${koreaYear()}-01`, endMonth: `${koreaYear()}-12` }} resetLabel="올해"
         onChange={range => onChange(withStatsRange(filters, range))} />
+    </div>
+    <details className="stats-extra-filters" open={extraOpen} onToggle={event => setExtraOpen(event.currentTarget.open)}><summary>경기 조건 <span>{filters.tournamentId != null ? filters.tournamentName || '선택한 대회' : filters.competitionScope === 'LEAGUE' ? '리그만' : filters.competitionScope === 'TOURNAMENT' ? '대회만' : '리그 + 대회'} · {kindLabels[filters.kind]} · {recordLabels[filters.recordScope]} · {filters.includeGuests ? '용병 포함' : '회원만'}{competitionError ? ' · 대회 목록 확인 필요' : ''}</span></summary>
       <CompetitionFilter scope={filters.competitionScope} tournamentId={filters.tournamentId} tournamentName={filters.tournamentName}
         onChange={selection => onChange(withStatsCompetition(filters, selection))} onSessionExpired={onSessionExpired}
-        allLabel="전체 · 리그 + 대회" />
-    </div>
-    <details className="stats-extra-filters"><summary>상세 조건 <span>{kindLabels[filters.kind]} · {recordLabels[filters.recordScope]} · {filters.includeGuests ? '용병 포함' : '회원만'}</span></summary>
+        allLabel="전체 · 리그 + 대회" onLoadError={setCompetitionError} />
       <div className="stats-filters">
         <label>경기 유형<select value={filters.kind} onChange={event => onChange(withStatsKind(filters, event.target.value as StatsKind))}>
           {Object.entries(kindLabels).map(([kind, label]) => <option key={kind} value={kind}>{label}</option>)}

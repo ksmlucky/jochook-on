@@ -1,0 +1,14 @@
+.match-basics-disclosure { margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.match-basics-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; padding: 12px 16px; list-style: none; cursor: pointer; color: var(--ink); }
+.match-basics-summary::-webkit-details-marker { display: none; }
+.match-basics-summary > span:first-child { display: grid; gap: 5px; min-width: 0; }
+.match-basics-summary strong { font-size: 16px; }
+.match-basics-summary > span:first-child > span { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.match-basics-toggle { flex-shrink: 0; font-size: 14px; font-weight: 700; }
+.match-basics-summary:focus-visible { outline: 2px solid var(--accent, #28634f); outline-offset: 2px; border-radius: 10px; }
+.match-basics-content { padding: 0 16px 16px; }
+.match-basics-content .match-basics { margin-top: 4px; }
+@media (max-width: 600px) {
+  .match-basics-summary { padding: 12px; }
+  .match-basics-content { padding: 0 12px 12px; }
+}

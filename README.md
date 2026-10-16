@@ -1,5 +1,7 @@
 # 조축ON
 
+[2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선은 운영 미배포입니다.
+
 **최신 운영 배포:** `9d3d347` · Flyway V28 · **대회·기록 확장판 / 가이드 1.2**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-tournament-expansion-2026-10-15.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
 
 이번 확장판의 기능과 사용 흐름:

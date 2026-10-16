@@ -11,11 +11,18 @@ export function PlayerFilters({ values, availableAgeGroups, onChange, onReset }:
   onReset: () => void
 }) {
   const active = hasPlayerFilters(values)
+  const appliedLabels = [
+    ageGroupOptions.find(([value]) => value === values.ageGroup)?.[1],
+    values.clubRole,
+    positionGroupOptions.find(([value]) => value === values.positionGroup)?.[1],
+  ].filter(Boolean)
   return <section className={`player-filters${active ? ' has-filters' : ''}`} aria-labelledby="player-filters-title">
     <div className="player-filters-heading">
       <h3 id="player-filters-title">선수 필터</h3>
       <button type="button" className="secondary-button" disabled={!active} onClick={onReset}>필터 초기화</button>
     </div>
+    <details className="player-filter-disclosure">
+    <summary className="player-filter-summary"><span>{active ? appliedLabels.join(' · ') : '전체 활동 선수'}</span><span className="player-filter-summary-action">조건 변경</span></summary>
     <div className="player-filter-fields">
       <label>연령대<select value={values.ageGroup ?? ''} onChange={event => onChange({ ageGroup: event.target.value as FilterValues['ageGroup'] })}>
         <option value="">전체 연령대</option>
@@ -35,5 +42,6 @@ export function PlayerFilters({ values, availableAgeGroups, onChange, onReset }:
       <ul><li>여러 조건을 고르면 모두 만족하는 선수만 보여요.</li>
         <li>연령대는 생일과 관계없이 {seoulYear()}년 − 생년으로 계산해요.</li></ul>
     </HelpDetails>
+    </details>
   </section>
 }

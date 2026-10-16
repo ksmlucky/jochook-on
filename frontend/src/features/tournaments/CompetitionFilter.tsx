@@ -7,23 +7,24 @@ import { tournamentDateRange } from './types'
 import type { Tournament } from './types'
 import './tournaments.css'
 
-export function CompetitionFilter({ scope = 'ALL', tournamentId = null, tournamentName, onChange, disabled = false, onSessionExpired, allLabel = '전체 경기 · 자체전 포함', id }: {
+export function CompetitionFilter({ scope = 'ALL', tournamentId = null, tournamentName, onChange, disabled = false, onSessionExpired, allLabel = '전체 경기 · 자체전 포함', id, onLoadError }: {
   scope?: CompetitionScope; tournamentId?: number | null; tournamentName?: string | null
   onChange: (value: CompetitionSelection) => void; disabled?: boolean; onSessionExpired: () => void; allLabel?: string; id?: string
+  onLoadError?: (failed: boolean) => void
 }) {
   const generatedId = useId(), controlId = id ?? `competition-${generatedId}`
   const [items, setItems] = useState<Tournament[] | null>(null)
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
   useEffect(() => {
-    const controller = new AbortController(); setItems(null); setError('')
+    const controller = new AbortController(); setItems(null); setError(''); onLoadError?.(false)
     fetchAllTournaments(controller.signal).then(result => { if (!controller.signal.aborted) setItems(result) }).catch(cause => {
       if (controller.signal.aborted || cause instanceof DOMException && cause.name === 'AbortError') return
       if (cause instanceof SessionExpiredError) onSessionExpired()
-      else setError('대회 목록을 불러오지 못했어요. 전체·리그만·대회만은 계속 선택할 수 있어요.')
+      else { setError('대회 목록을 불러오지 못했어요. 전체·리그만·대회만은 계속 선택할 수 있어요.'); onLoadError?.(true) }
     })
     return () => controller.abort()
-  }, [revision, onSessionExpired])
+  }, [revision, onSessionExpired, onLoadError])
   return <div className="tournament-picker competition-filter"><label htmlFor={controlId}>경기 구분</label>
     <select id={controlId} value={competitionFilterValue(scope, tournamentId)} disabled={disabled} aria-describedby={`${controlId}-help${error ? ` ${controlId}-error` : ''}`} onChange={event => {
       const value = event.target.value

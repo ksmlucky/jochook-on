@@ -44,6 +44,7 @@ import { checkInternalPlanTeams } from './internalTeams'
 import { currentDraftSlot, legacyDraftEntries, upgradeEditableMatchDraft } from './legacyMatchDraft'
 import { changeMatchFormat, matchPeriodSummary, normalizeMatchFormat, quarterLabel, quarterNumbers, validateMatchPeriods } from './matchFormat'
 import type { MatchFormat } from './matchFormat'
+import './match-editor-basics.css'
 
 const editorSteps = ['투표·출석', '스쿼드 계획', '실제 출전', '결과·코멘트']
 const stepHeadings = ['attendance-title', 'plan-title', 'lineup-title', 'match-totals']
@@ -54,6 +55,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
 }) {
   // 단계 저장 이후에도 편집을 유지하며 다음 저장은 새 ID/version으로 갱신한다.
   const [record, setRecord] = useState(recovered?.record ?? initialRecord)
+  const [basicsOpen, setBasicsOpen] = useState(!(recovered?.record ?? initialRecord))
   const [players, setPlayers] = useState(initialPlayers)
   const [draft, setDraft] = useState<MatchDraft>(() => {
     const newDraft = { ...emptyMatch(players), tournamentId: initialTournamentId }
@@ -70,7 +72,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     fetchTournament(draft.tournamentId, controller.signal).then(value => { if (!controller.signal.aborted) setSelectedTournament(value) }).catch(cause => {
       if (controller.signal.aborted) return
       if (cause instanceof SessionExpiredError) onSessionExpired()
-      else setTournamentError('연결된 대회 정보를 불러오지 못했어요. 대회 선택은 유지돼요.')
+      else { setTournamentError('연결된 대회 정보를 불러오지 못했어요. 대회 선택은 유지돼요.'); setBasicsOpen(true) }
     })
     return () => controller.abort()
   }, [draft.tournamentId, tournamentRevision, onSessionExpired])
@@ -228,9 +230,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   }
   async function persist(next: MatchDraft, destination: string) {
     if (submitting.current || busy || blocked || pending || !isAdmin) return
-    try { validateMatchPeriods(next) } catch (cause) { setError((cause as Error).message); return }
-    if (!next.playedOn || Number(next.playedOn.slice(0, 4)) < 1000) { setError('경기 날짜를 입력해 주세요.'); return }
-    if (!validKickoff(next.kickoff)) { setError('시작 시와 분을 모두 선택해 주세요. 분은 00분 또는 30분만 선택할 수 있습니다.'); return }
+    try { validateMatchPeriods(next) } catch (cause) { setBasicsOpen(true); setError((cause as Error).message); return }
+    if (!next.playedOn || Number(next.playedOn.slice(0, 4)) < 1000) { setBasicsOpen(true); setError('경기 날짜를 입력해 주세요.'); return }
+    if (!validKickoff(next.kickoff)) { setBasicsOpen(true); setError('시작 시와 분을 모두 선택해 주세요. 분은 00분 또는 30분만 선택할 수 있습니다.'); return }
     if (next.kind === 'INTERNAL') {
       try { checkInternalPlanTeams(next.plannedLineup, next.participants) }
       catch (cause) { goToStep('attendance-title'); setError((cause as Error).message); return }
@@ -362,6 +364,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       {serverMissing && <p role="status">경기 기록을 찾지 못했어요. 삭제되었거나 아직 저장되지 않았을 수 있어요.</p>}
       {latestServer && <details className="match-recovery-server" open><summary>최근 저장된 기록</summary><p>{latestServer.playedOn} · {matchTimeRange(latestServer.kickoff, latestServer.matchFormat)} · {latestServer.kind === 'INTERNAL' ? '자체전 A팀 vs B팀' : latestServer.opponent || '상대 팀 미입력'}</p><p>장소: {latestServer.venue || '장소 미입력'}</p><p>{recordingStageLabel(latestServer.recordingStage)} · 스코어 {latestServer.scoreFor === null ? '미입력' : `${latestServer.scoreFor} : ${latestServer.scoreAgainst}`} · 참석 {latestServer.participants.filter(canPlay).length}명</p><p>{latestServer.notes || '코멘트 없음'}</p><div className="match-table-scroll"><table className="match-table"><thead><tr><th>선수</th><th>출석</th><th>총 골 · 세부 득점</th><th>도움</th></tr></thead><tbody>{latestServer.participants.map(p => { const appearances = latestServer.quarters.flatMap(q => q.lineup).filter(a => a.playerId === p.playerId); return <tr key={p.playerId}><th scope="row">{playerLabel(p)}</th><td>{attendanceLabels[p.attendance]}</td><td>{appearances.reduce((sum, a) => sum + a.goals, 0)}<small>{goalBreakdownText(sumGoalBreakdown(appearances))}</small></td><td>{appearances.reduce((sum, a) => sum + a.assists, 0)}</td></tr> })}</tbody></table></div></details>}
     </div>}
+    <details className="match-basics-disclosure" open={basicsOpen} onToggle={event => setBasicsOpen(event.currentTarget.open)} onInvalidCapture={() => setBasicsOpen(true)}>
+      <summary className="match-basics-summary"><span><strong>경기 기본 정보</strong><span>{draft.playedOn || '날짜 미입력'} · {validKickoff(draft.kickoff) ? matchTimeRange(draft.kickoff, draft.matchFormat) : '시작 시간 미입력'}</span><span>{internal ? '자체전 · A팀 vs B팀' : draft.opponent || '상대 팀 미입력'} · {matchPeriodSummary(draft.matchFormat)}</span></span><span className="match-basics-toggle">{basicsOpen ? '접기 −' : '펼치기 +'}</span></summary>
+    <div className="match-basics-content">
     <fieldset disabled={!editable} className="player-fields match-basics"><legend className="sr-only">경기 기본 정보</legend>
       <div className="match-kind-field"><label htmlFor="match-kind">경기 유형</label><select id="match-kind" value={draft.kind} disabled={kindLocked} onChange={e => { const next = { ...draft, kind: e.target.value as MatchKind, opponent: '', participants: draft.participants.map(p => ({ ...p, plannedTeam: null })), ...(e.target.value === 'INTERNAL' ? { tournamentId: null, tournamentName: null, tournamentStage: null, tournamentSelectionSpecified: true } : {}) }; change(e.target.value === 'INTERNAL' ? changeMatchFormat(next, 'FOUR_QUARTERS') : next); setTeam('A'); setQuarter(1) }}><option value="EXTERNAL">외부 경기 · 리그 / 대회</option><option value="INTERNAL">자체전 · A팀 vs B팀</option></select>
         <small className="match-time-help">{kindLocked ? '배치·스코어 입력 후 또는 저장 후에는 유형을 변경할 수 없습니다.' : '한 경기 전체에 적용됩니다.'}</small></div>
@@ -397,6 +402,8 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       <p className="field-help">{internal ? '자체전은 4쿼터로 기록해요.' : draft.matchFormat === 'TWO_HALVES_30' ? '전반은 1쿼터, 후반은 2쿼터예요. 선발은 1쿼터, 교체한 두 선수는 각각 0.5쿼터로 집계하며 시간으로 환산하지 않아요.' : draft.tournamentId != null ? '기존 4쿼터 기록은 유지돼요. 3·4쿼터에 계획·실제 기록이 없다면 전·후반 형식으로 바꿀 수 있어요.' : '리그는 4쿼터로 시작해요. 대회를 선택하면 전·후반 형식을 사용할 수 있어요.'}</p>
     </section>
     <FormationSelector draft={draft} editable={editable} onChange={next => { change(next); setPlanRevision(value => value + 1) }} />
+    </div>
+    </details>
     {!pending && !blocked && errorNotice}
     <div className="match-step-tabs" id="match-step-tabs" role="tablist" aria-label="경기 기록 입력 단계">{editorSteps.map((label, index) =>
       <button key={label} type="button" role="tab" id={`match-tab-${index}`} aria-selected={step === index} aria-controls={`match-panel-${index}`} disabled={busy}

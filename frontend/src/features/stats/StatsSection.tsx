@@ -7,6 +7,7 @@ import { HelpDetails } from '../../app/HelpDetails'
 import { PlayerSeasonDetail } from './PlayerSeasonDetail'
 import { StatsFiltersControl } from './StatsFiltersControl'
 import { StatsDisplayControl } from './StatsDisplayControl'
+import { StatsCards } from './StatsCards'
 import { displayScoringValue, isScoringMetric, scoringMetrics, statsDisplayModes } from './scoringMetrics'
 import type { StatsDisplayMode } from './scoringMetrics'
 import './stats.css'
@@ -19,6 +20,7 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
   const { key: sort, direction } = sorting
   const [displayMode, setDisplayMode] = useState<StatsDisplayMode>('TOTAL')
   const [search, setSearch] = useState('')
+  const [view, setView] = useState<'cards' | 'table'>(() => window.matchMedia('(max-width: 680px)').matches ? 'cards' : 'table')
   const [revision, setRevision] = useState(0)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState<number | null>(null)
@@ -72,10 +74,12 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
         {data.matchCount === 0 && <p className="stats-empty-note" role="status"><strong>선택한 조건의 경기가 없어요.</strong><br />예전 경기를 찾는다면 ‘완료 + 이전 기록’을 골라 보세요. 활동 회원의 기록은 0으로 표시돼요.</p>}
         <StatsDisplayControl value={displayMode} onChange={setDisplayMode} />
         <div className="stats-table-tools"><label>선수 찾기<input type="search" placeholder="이름 또는 등번호" value={search} onChange={event => setSearch(event.target.value)} /></label>
+          {view === 'cards' && <div className="stats-card-sorting"><label>정렬 기준<select value={sort} onChange={event => { const key = event.target.value as StatsSort; setSorting({ key, direction: defaultStatsSortDirection(key) }) }}>{Object.entries(statsSorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><button type="button" className="secondary-button" aria-label={`정렬 방향 변경: 현재 ${direction === 'asc' ? '오름차순' : '내림차순'}`} onClick={() => setSorting(previous => ({ ...previous, direction: previous.direction === 'asc' ? 'desc' : 'asc' }))}>{direction === 'asc' ? '오름차순 ↑' : '내림차순 ↓'}</button></div>}
           <p className="stats-sort-status" role="status">{statsSorts[sort]} {direction === 'asc' ? '오름차순 ↑' : '내림차순 ↓'}{displayMode !== 'TOTAL' && isScoringMetric(sort) ? ` · ${statsDisplayModes[displayMode]}` : ''}</p></div>
+        <div className="stats-view-switch" role="group" aria-label="선수 기록 보기 방식"><button type="button" aria-pressed={view === 'cards'} onClick={() => setView('cards')}>간단 보기</button><button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>표 보기</button></div>
         {sort === 'attendances' && <p className="field-help">출석·지각한 경기마다 1회로 세요. 같은 날 두 경기에 참석하면 2회예요. 출전 여부·참석 예정 투표와는 달라요.</p>}
-        <p className="stats-table-hint" id="stats-table-hint">{rows.length}명 · 열 제목을 누르면 정렬 방향이 바뀌어요. 선수 이름·등번호는 상세 보기예요. 표를 좌우로 밀면 전체 기록을 볼 수 있어요.</p>
-        <div className="stats-table-scroll" tabIndex={0} role="region" aria-label="선수 시즌 기록 표" aria-describedby="stats-table-hint">
+        <p className="stats-table-hint" id="stats-table-hint">{rows.length}명 · {view === 'cards' ? '선수 이름을 누르면 경기별 기록을 볼 수 있어요.' : '열 제목으로 정렬해요. 이름·등번호를 누르면 상세 기록을 볼 수 있어요. 표는 좌우로 밀어 보세요.'}</p>
+        {view === 'cards' ? <StatsCards rows={rows} displayMode={displayMode} onSelect={setSelected} /> : <div className="stats-table-scroll" tabIndex={0} role="region" aria-label="선수 시즌 기록 표" aria-describedby="stats-table-hint">
           <table className="stats-table"><caption className="sr-only">{statsScopeLabel(filters)} 선수 기록 · {statsDisplayModes[displayMode]}</caption><thead><tr>
             {sortHeader('shirtNumber', 'stats-number-cell')}{sortHeader('name', 'stats-player-cell')}{scoringMetrics.map(metric => sortHeader(metric))}
             {sortHeader('appearances')}{sortHeader('creditedQuarters')}{sortHeader('attendances')}
@@ -83,8 +87,8 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
             <td className={`stats-number-cell${sort === 'shirtNumber' ? ' stats-emphasis' : ''}`}><button type="button" className="stats-player-link stats-number-link" aria-label={`${item.name} 등번호 ${item.shirtNumber ?? '없음'} 상세 보기`} onClick={() => setSelected(item.playerId)}>{item.shirtNumber === null ? '—' : `#${item.shirtNumber}`}</button></td>
             <th scope="row" className={`stats-player-cell${sort === 'name' ? ' stats-emphasis' : ''}`}><button type="button" id={`season-player-${item.playerId}`} className="stats-player-link" aria-label={`${item.shirtNumber === null ? '등번호 없음' : `${item.shirtNumber}번`} ${item.name} 시즌 상세 기록`} onClick={() => setSelected(item.playerId)}><span className="stats-player-name">{item.name}</span>
             {(item.playerType === 'GUEST' || !item.active) && <small className="stats-player-status">{item.playerType === 'GUEST' ? '용병' : '비활동'}</small>}</button></th>{scoringMetrics.map(metric => <td key={metric} className={sort === metric ? 'stats-emphasis' : undefined}>{displayScoringValue(item, metric, displayMode)}</td>)}<td className={sort === 'appearances' ? 'stats-emphasis' : undefined}>{item.appearances}</td><td className={sort === 'creditedQuarters' ? 'stats-emphasis' : undefined}>{item.creditedQuarters}</td><td className={sort === 'attendances' ? 'stats-emphasis' : undefined}>{item.attendances}</td></tr>)}</tbody></table>
-          {rows.length === 0 && <p className="stats-no-players">{search ? '검색한 선수가 없어요.' : '집계할 선수가 없어요.'}</p>}
-        </div>
+        </div>}
+        {rows.length === 0 && <p className="stats-no-players" role="status">{search ? '검색한 선수가 없어요.' : '집계할 선수가 없어요.'}</p>}
       </>}
     <HelpDetails title="집계 기준 보기"><ul>
       <li><strong>득점·도움:</strong> 03 실제 출전 기록을 합산해요. 상대 자책골 등이 있어 팀 스코어와 다를 수 있어요.</li>

@@ -1,11 +1,18 @@
 .player-filters { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
 .player-filters.has-filters { border-color: #95b5a3; background: #f7faf4; }
-.player-filters-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.player-filters-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 4px; }
 .player-filters-heading h3 { margin: 0; font-size: 15px; color: var(--ink); }
 .player-filters-heading .secondary-button { margin: 0; min-height: 44px; }
-.player-filter-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.player-filter-summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; list-style: none; color: var(--ink); cursor: pointer; font-size: 14px; }
+.player-filter-summary::-webkit-details-marker { display: none; }
+.player-filter-summary > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+.player-filter-summary-action { flex-shrink: 0; font-weight: 700; }
+.player-filter-summary-action::after { content: ' +'; }
+.player-filter-disclosure[open] > summary .player-filter-summary-action::after { content: ' −'; }
+.player-filter-summary:focus-visible { outline: 2px solid var(--accent, #28634f); outline-offset: 4px; border-radius: 6px; }
+.player-filter-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; padding-top: 12px; }
 .player-filter-fields label { display: flex; flex-direction: column; gap: 6px; min-width: 0; color: var(--ink); font-size: 13px; font-weight: 600; }
-.player-filter-fields select { width: 100%; min-width: 0; min-height: 44px; padding: 8px 28px 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; }
+.player-filter-fields select { box-sizing: border-box; width: 100%; min-width: 0; min-height: 44px; padding: 8px 28px 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--ink); font: inherit; font-size: 16px; }
 .player-filters .field-help { margin: 10px 0 0; }
 @media (max-width: 600px) {
   .player-filters { padding: 12px; }
