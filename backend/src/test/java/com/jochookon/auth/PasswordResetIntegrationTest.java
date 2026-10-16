@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.*;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
+import com.jochookon.team.TeamStore;
+import static org.mockito.Mockito.doAnswer;
 import org.testcontainers.junit.jupiter.*;
 import org.testcontainers.mysql.MySQLContainer;
 
@@ -31,6 +35,8 @@ class PasswordResetIntegrationTest {
     @Autowired PasswordResetService resets;
     @Autowired PasswordChangeService changes;
     @Autowired MockMvc mvc;
+    @Autowired DataSource dataSource;
+    @MockitoSpyBean TeamStore store;
     String prefix, username, fixtureHash;
     long owner, target, team;
     @BeforeEach void syntheticAccountsOnly() {
@@ -132,6 +138,38 @@ class PasswordResetIntegrationTest {
         }
         assertThat(jdbc.queryForObject("SELECT credential_version FROM accounts WHERE id=?", Long.class, target)).isEqualTo(1);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM account_password_resets WHERE account_id=? AND used_at IS NOT NULL", Integer.class,target)).isEqualTo(1);
+    }
+    @Test void roleRevocationCommittedAfterTokenPreviewIsSeenWhenAccountLockBecomesAvailable() throws Exception {
+        var issued = resets.issue(owner, target, true);
+        var reachedAccountLock = new CountDownLatch(1);
+        doAnswer(call -> {
+            // complete() has already performed its first nonlocking token read at this point.
+            reachedAccountLock.countDown();
+            return call.callRealMethod();
+        }).when(store).lockedAccount(target);
+        try (var blocker = dataSource.getConnection(); var executor = Executors.newSingleThreadExecutor()) {
+            blocker.setAutoCommit(false);
+            try (var statement = blocker.prepareStatement("SELECT id FROM accounts WHERE id=? FOR UPDATE")) {
+                statement.setLong(1, target);
+                try (var row = statement.executeQuery()) { assertThat(row.next()).isTrue(); }
+            }
+            var completion = executor.submit(() -> {
+                try { resets.complete(issued.token(), "test-replacement-password"); return "completed"; }
+                catch (TeamAccessException exception) { return exception.code(); }
+            });
+            try {
+                assertThat(reachedAccountLock.await(10, TimeUnit.SECONDS)).isTrue();
+                // This separate autocommit statement commits while the account lock is still held.
+                jdbc.update("UPDATE team_memberships SET role='MEMBER' WHERE account_id=?", target);
+                blocker.commit();
+                assertThat(completion.get(30, TimeUnit.SECONDS)).isEqualTo("RESET_LINK_INVALID");
+            } finally {
+                // Release only our test lock even when an assertion fails, before closing the worker.
+                blocker.rollback();
+            }
+        }
+        assertThat(jdbc.queryForObject("SELECT credential_version FROM accounts WHERE id=?", Long.class, target)).isZero();
+        assertThat(jdbc.queryForObject("SELECT used_at FROM account_password_resets WHERE account_id=?", Timestamp.class, target)).isNull();
     }
     private static void assertInvalid(Runnable action) { assertCode(action, "RESET_LINK_INVALID"); }
     private static void assertCode(Runnable action, String code) {

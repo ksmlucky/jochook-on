@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Isolation;
 
 @Service
 public class PasswordResetService {
@@ -47,7 +48,7 @@ public class PasswordResetService {
                 """, (row, n) -> new PasswordResetDtos.RecoveryAccount(row.getLong("id"), row.getString("username"), List.of()), search);
         return accounts.stream().map(a -> new PasswordResetDtos.RecoveryAccount(a.id(), a.username(), teams(a.id()))).toList();
     }
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public PasswordResetDtos.Issued issue(long actor, long accountId, Boolean verified) {
         requireServiceAdmin(actor);
         if (!Boolean.TRUE.equals(verified))
@@ -72,7 +73,7 @@ public class PasswordResetService {
         validate(reset, account);
         return new PasswordResetDtos.Inspected(account.username(), reset.expiresAt());
     }
-    @Transactional
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public void complete(String token, String newPassword) {
         Reset preview = find(token, false).orElseThrow(PasswordResetService::invalid);
         // Every mutation locks account first, then its tokens, including issue/reissue.
