@@ -1,0 +1,19 @@
+/* Preserve touch targets; compact the spacing instead. */
+.bulk-editor .bulk-preferences { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.bulk-editor .bulk-preferences > div { min-width: 0; }
+.bulk-editor input[type="date"] { box-sizing: border-box; max-width: 100%; min-width: 0; }
+.bulk-editor input[type="date"]::-webkit-date-and-time-value { text-align: left; }
+@media (max-width: 700px) {
+  .bulk-editor .bulk-row { padding: 12px 10px; margin-top: 10px; }
+  .bulk-editor .bulk-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 8px; margin: 8px 0; }
+  .bulk-editor .bulk-fields label { font-size: 12px; margin-bottom: 4px; }
+  .bulk-editor .bulk-fields label span { margin-left: 3px; font-size: 10px; }
+  .bulk-editor .bulk-fields input, .bulk-editor .bulk-fields select { height: 44px; padding: 6px; font-size: 16px; }
+  .bulk-editor .player-value-controls { gap: 4px; }
+  .bulk-editor .bulk-fields .field-help { font-size: 11px; line-height: 1.45; margin: 4px 0 0; }
+  .bulk-editor .bulk-row-heading .edit-button { min-height: 44px; }
+}
+
+@media (max-width: 360px) {
+  .bulk-editor .bulk-fields > .shirt-number-field, .bulk-editor .bulk-fields > div:has(.player-value-controls) { grid-column: 1 / -1; }
+}

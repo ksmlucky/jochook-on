@@ -339,7 +339,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     const appearances = draft.quarters.flatMap(q => q.lineup.filter(a => a.playerId === p.playerId).map(a => ({ ...a, quarter: q.number, share: quarterShare(q, a) })))
     return { ...p, appearances, credited: appearances.reduce((s, a) => s + a.share, 0), goals: appearances.reduce((s, a) => s + a.goals, 0), assists: appearances.reduce((s, a) => s + a.assists, 0),
       freeKickGoals: appearances.reduce((s, a) => s + (a.freeKickGoals ?? 0), 0), penaltyGoals: appearances.reduce((s, a) => s + (a.penaltyGoals ?? 0), 0) }
-  })
+  }).filter(player => player.appearances.length > 0)
   function stepActions(destination: 'plan' | 'lineup' | 'totals') {
     const label = destination === 'plan' ? '투표 저장 · 스쿼드 계획으로' : destination === 'lineup' ? '계획 저장 · 실제 기록으로' : '출전 기록 저장 · 집계 확인'
     return <div className="match-step-actions">
@@ -482,9 +482,11 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
         return score !== null && score !== enteredGoals(value) && <p key={value} className="import-warning" role="status">{internal ? `${value}팀` : '우리 팀'} 스코어 {score}골과 해당 팀 선수별 득점 합계 {enteredGoals(value)}골이 다릅니다. 득점자 미입력·자책골 등이 있는지 확인해 주세요.</p>
       })}
       <label className="match-notes" htmlFor="match-notes">경기 후 코멘트 <span>선택 · 최대 3,000자</span><textarea id="match-notes" rows={3} maxLength={3000} disabled={!editable} value={draft.notes} onChange={e => change({ ...draft, notes: e.target.value })} placeholder="경기 흐름, 기억할 장면, 다음 경기를 위한 메모를 남겨 주세요." /></label>
-      <h5>선수별 실제 기록 집계</h5>
+      <h5>선수별 실제 기록 집계 · {totals.length}명</h5>
+      <p className="field-help">03단계에 실제 출전이 기록된 선수만 표시해요. 교체 선수도 포함하며, 출석만 한 선수는 01단계에서 확인해 주세요.</p>
       <p className="field-help">총 골은 일반 골·직접 프리킥·경기 중 PK의 합계예요. 승부차기는 포함하지 않아요.</p>
       <div className="match-table-scroll"><table className="match-table"><thead><tr><th scope="col">선수</th><th scope="col">출석</th><th scope="col">출전 쿼터</th><th scope="col">총 골 · 세부 득점</th><th scope="col">도움</th></tr></thead><tbody>
+        {totals.length === 0 && <tr><td colSpan={5}>아직 실제 출전 기록이 없어요. 03단계에서 출전 선수를 입력해 주세요.</td></tr>}
         {totals.map(p => <tr key={p.playerId}><th scope="row">{p.playerType === 'GUEST' && '용병 · '}{p.name}<small>{shirtLabel(p.shirtNumber)} · {ageBand(p.birthYear, referenceYear)}</small></th><td>{attendanceLabels[p.attendance]}</td><td>{p.appearances.length ? <>{p.appearances.map(a => `${a.quarter}Q${internal ? ` ${a.team}팀` : ''}(${a.share})`).join(' · ')}<small>합계 {p.credited}쿼터</small></> : '출전 기록 없음'}</td><td>{p.goals}<small>{goalBreakdownText(p)}</small></td><td>{p.assists}</td></tr>)}
       </tbody></table></div>
       {isAdmin && <div className="match-step-actions match-complete-action">

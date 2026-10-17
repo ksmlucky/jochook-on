@@ -1,3 +1,4 @@
+import './bulk-player-editor.css'
 import { useEffect, useState } from 'react'
 import { SessionExpiredError } from '../auth/api'
 import { downloadPlayerTemplate, PlayerRequestError, positionLabels, previewBulk, registerBulk, uploadWorkbook } from './api'
@@ -17,7 +18,7 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
   initialMode: 'manual' | 'excel'; onSaved: (count: number) => void; onCancel: () => void; onSessionExpired: () => void
   onBusyChange: (busy: boolean) => void
 }) {
-  const [rows, setRows] = useState<Draft[]>(initialMode === 'manual' ? [emptyRow(), emptyRow()] : [])
+  const [rows, setRows] = useState<Draft[]>(initialMode === 'manual' ? [emptyRow()] : [])
   const shirtOptions = useShirtNumbers(onSessionExpired)
   const [preview, setPreview] = useState<ImportPreview | null>(null)
   const [busy, setBusy] = useState(false)
@@ -74,7 +75,9 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
     </div>}
     <p className="field-help">이름·기본 포지션·1지망은 필수예요. 포지션이 ‘미확인(UN)’이면 지망은 비워 주세요.</p>
     <p className="field-help">등번호는 1~99번이며, 활동 선수나 함께 등록할 선수와 중복할 수 없어요.</p>
+    <HelpDetails title="등번호 확인·입력 안내">
     <ShirtNumberAvailability loading={shirtOptions.loading} error={shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy || uncertain} />
+    </HelpDetails>
     <HelpDetails title={initialMode === 'excel' ? '양식 작성 안내' : '입력 안내'}>
       <ul><li>등번호·생년을 모르면 비워 두세요. 생년은 4자리 연도로 입력해요.</li>
         <li>직책을 비우면 ‘정회원’으로 등록돼요.</li>
@@ -93,15 +96,15 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
           </select></div>
           <ShirtNumberField id={`${row.key}-shirt`} value={row.shirtNumber} onChange={shirtNumber => change(i, { shirtNumber })}
             available={shirtOptions.roster === null ? null : availableShirtNumbersForRow(shirtOptions.roster, rows, row.key)} />
-          <div><label htmlFor={`${row.key}-joined`}>가입일 <span>선택</span></label><input id={`${row.key}-joined`} value={row.joinedOn} onChange={e => change(i, { joinedOn: e.target.value })} placeholder="YYYY-MM-DD" maxLength={30} /></div>
+          <div><label htmlFor={`${row.key}-joined`}>가입일 <span>선택</span></label><input id={`${row.key}-joined`} type="date" min="1000-01-01" max="9999-12-31" value={/^\d{4}-\d{2}-\d{2}$/.test(row.joinedOn) ? row.joinedOn : ''} onChange={e => change(i, { joinedOn: e.target.value })} />{row.joinedOn && !/^\d{4}-\d{2}-\d{2}$/.test(row.joinedOn) && <p className="form-error">불러온 가입일: {row.joinedOn}. 달력에서 다시 선택해 주세요.</p>}</div>
           <BirthYearField id={`${row.key}-birth`} value={row.birthYear} onChange={birthYear => change(i, { birthYear })} />
           <ClubRoleField id={`${row.key}-role`} value={row.clubRole} onChange={clubRole => change(i, { clubRole })} />
-          <PreferenceFields id={row.key} values={[row.firstChoice, row.secondChoice, row.thirdChoice]} unknown={row.position === 'UN'} onChange={([firstChoice, secondChoice, thirdChoice]) => change(i, { firstChoice, secondChoice, thirdChoice })} />
+          <div className="bulk-preferences"><PreferenceFields id={row.key} values={[row.firstChoice, row.secondChoice, row.thirdChoice]} unknown={row.position === 'UN'} onChange={([firstChoice, secondChoice, thirdChoice]) => change(i, { firstChoice, secondChoice, thirdChoice })} /></div>
         </div>
         {preview?.rows[i]?.errors.map((message, j) => <p className="form-error" key={j}>오류: {message}</p>)}
         {preview?.rows[i]?.warnings.map((message, j) => <p className="import-warning" key={j}>확인: {message}</p>)}
       </div>)}
-      <button className="secondary-button" disabled={rows.length >= 200} onClick={() => { setRows(current => [...current, emptyRow()]); setPreview(null) }}>+ 선수 행 추가</button>
+      {initialMode === 'manual' && <button type="button" className="secondary-button" disabled={rows.length >= 200} onClick={() => { setRows(current => [...current, emptyRow()]); setPreview(null) }}>+ 선수 행 추가</button>}
     </fieldset>
     {error && <p className="form-error editor-error" role="alert">{error}</p>}
     {uncertain && <p role="alert" className="import-warning"><strong>등록 여부를 먼저 확인해 주세요.</strong><br />이미 등록됐을 수 있어요. 이 창을 닫고 선수 목록을 확인한 뒤 다시 진행해 주세요.</p>}
