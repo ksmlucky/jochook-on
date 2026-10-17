@@ -1,6 +1,7 @@
 import { positionLabels, preferredPositionGroup } from './api'
 import type { Player, PlayerPage } from './api'
 import { ageBand, ageDescription, seoulYear, yearAge } from './age'
+import './player-directory.css'
 
 export function PlayerDirectory({ data, view, onPageChange, onEdit, filtered = false, onResetFilters }: {
   data: PlayerPage
@@ -35,20 +36,22 @@ export function PlayerDirectory({ data, view, onPageChange, onEdit, filtered = f
           <td>{player.joinedOn ?? '미등록'}</td>{onEdit && <td><button className="edit-button" onClick={() => onEdit(player)} aria-label={`${player.name} 수정`}>수정</button></td>}
         </tr>)}</tbody>
       </table>
-    </div> : <ul className="player-grid" aria-label="활동 중인 선수">
+    </div> : <ul className="player-grid compact-roster" aria-label="활동 중인 선수">
       {data.items.map(player => <li className={`player-card position-${preferredPositionGroup(player.firstChoice)}`} key={player.id}>
         <span className="shirt-number" aria-label={`등번호 ${player.shirtNumber ?? '미등록'}`}>
           {player.shirtNumber ?? '—'}
         </span>
-        <div className="player-info"><h3>{player.name}</h3><p>{positionLabels[preferredPositionGroup(player.firstChoice)]}</p>
-          <p className="player-age">{ageDescription(player.birthYear, seoulYear())}</p>
-          {player.clubRole && <p className="player-club-role">{player.clubRole}</p>}
-          {player.joinedOn && <p><time dateTime={player.joinedOn}>{player.joinedOn}</time> 가입</p>}
-          <p className="player-preferences">{player.firstChoice ? [player.firstChoice, player.secondChoice, player.thirdChoice].filter(Boolean).map((p, i) => `${i + 1}지망 ${p}`).join(' · ') : '선호 포지션 미입력'}</p>
+        <div className="player-info"><h3>{player.name}</h3>
+          <p>{ageBand(player.birthYear, seoulYear())} · {player.clubRole ?? '정회원'}</p>
         </div>
         <div className="player-actions"><span className="position-code position-badge" aria-label={`1지망 ${player.firstChoice ?? '미입력'}`}>{player.firstChoice ?? '?'}</span>
           {onEdit && <button className="edit-button" onClick={() => onEdit(player)} aria-label={`${player.name} 수정`}>수정</button>}
         </div>
+        <details className="player-card-details"><summary aria-label={`${player.name} 상세 정보`}>상세 정보</summary>
+          <p>{ageDescription(player.birthYear, seoulYear())}</p>
+          <p>{player.firstChoice ? [player.firstChoice, player.secondChoice, player.thirdChoice].filter(Boolean).map((p, i) => `${i + 1}지망 ${p}`).join(' · ') : '선호 포지션 미입력'}</p>
+          <p>{player.joinedOn ? <><time dateTime={player.joinedOn}>{player.joinedOn}</time> 가입</> : '가입일 미등록'}</p>
+        </details>
       </li>)}
     </ul>}
     {data.totalPages > 1 && <nav className="pagination" aria-label="선수 목록 페이지">

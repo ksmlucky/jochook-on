@@ -1,5 +1,9 @@
 .season-stats { min-width: 0; }
 .stats-filter-controls { min-width: 0; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: var(--soft); }
+.stats-page-controls { display: inline-flex; margin: 14px 0 0 12px; }
+.stats-page-controls label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 13px; }
+.stats-page-controls select { min-height: 44px; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font: inherit; font-size: 16px; }
+#stats-table-hint { scroll-margin-top: 90px; }
 .stats-primary-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
 .stats-primary-filters > * { min-width: 0; }
 .stats-extra-filters { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 8px; }

@@ -67,18 +67,18 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
     <div className="editor-heading"><p className="eyebrow muted">SQUAD MANAGEMENT</p><h3 id="bulk-title">{initialMode === 'excel' ? '엑셀로 선수 등록' : '여러 선수 한 번에 등록'}</h3>
       <p>새 선수는 한 번에 200명까지 등록할 수 있어요. 기존 선수의 정보는 바뀌지 않아요.</p>
     </div>
-    <div className="import-tools">
+    {initialMode === 'excel' && <div className="import-tools">
       <button className="secondary-button" onClick={template} disabled={busy}>엑셀 양식 다운로드</button>
       <label className="upload-label">엑셀 파일 선택 (.xlsx, 2MB 이하)<input type="file" accept=".xlsx" disabled={busy || uncertain} onChange={event => { void upload(event.target.files?.[0]); event.target.value = '' }} /></label>
       {fileName && <p className="field-help">불러온 파일: {fileName}</p>}
-    </div>
+    </div>}
     <p className="field-help">이름·기본 포지션·1지망은 필수예요. 포지션이 ‘미확인(UN)’이면 지망은 비워 주세요.</p>
     <p className="field-help">등번호는 1~99번이며, 활동 선수나 함께 등록할 선수와 중복할 수 없어요.</p>
     <ShirtNumberAvailability loading={shirtOptions.loading} error={shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy || uncertain} />
-    <HelpDetails title="양식 작성 안내">
+    <HelpDetails title={initialMode === 'excel' ? '양식 작성 안내' : '입력 안내'}>
       <ul><li>등번호·생년을 모르면 비워 두세요. 생년은 4자리 연도로 입력해요.</li>
         <li>직책을 비우면 ‘정회원’으로 등록돼요.</li>
-        <li>파일을 올린 뒤 내용을 검토하고 ‘전체 등록’을 눌러야 저장돼요.</li></ul>
+        <li>{initialMode === 'excel' ? '파일을 올린 뒤 내용을 검토하고 ‘전체 등록’을 눌러야 저장돼요.' : '선수 행을 추가해 입력한 뒤, 입력 내용 검토 → 전체 등록 순서로 저장해요.'}</li></ul>
     </HelpDetails>
     <fieldset className="bulk-rows" disabled={busy || uncertain}>
       <legend className="sr-only">등록할 선수 목록</legend>

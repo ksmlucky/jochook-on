@@ -11,6 +11,7 @@ import { StatsCards } from './StatsCards'
 import { displayScoringValue, isScoringMetric, scoringMetrics, statsDisplayModes } from './scoringMetrics'
 import type { StatsDisplayMode } from './scoringMetrics'
 import './stats.css'
+import { statsPage } from './pagination'
 
 export function StatsSection({ onSessionExpired }: { onSessionExpired: () => void }) {
   const [filters, setFilters] = useState<StatsFilters>(() => defaultStatsFilters())
@@ -24,6 +25,8 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
   const [revision, setRevision] = useState(0)
   const [error, setError] = useState('')
   const [selected, setSelected] = useState<number | null>(null)
+  const [pageSize, setPageSize] = useState(20)
+  const [pagination, setPagination] = useState({ scope: '', page: 0 })
   useEffect(() => {
     const controller = new AbortController()
     setData(null); setError('')
@@ -39,6 +42,16 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
     return () => controller.abort()
   }, [filters, revision, onSessionExpired])
   const rows = data ? selectStats(data.items, sort, search, displayMode, direction) : []
+  const pageScope = JSON.stringify([filters, sort, direction, search, displayMode, pageSize])
+  useEffect(() => { setPagination({ scope: pageScope, page: 0 }) }, [pageScope])
+  const pageData = statsPage(rows, pagination.scope === pageScope ? pagination.page : 0, pageSize)
+  function changePage(page: number) {
+    setPagination({ scope: pageScope, page })
+    requestAnimationFrame(() => {
+      const target = document.getElementById('stats-table-hint')
+      target?.focus({ preventScroll: true }); target?.scrollIntoView({ block: 'start' })
+    })
+  }
   function sortHeader(key: StatsSort, className?: string) {
     const active = sort === key
     const next = active ? direction === 'asc' ? 'desc' : 'asc' : defaultStatsSortDirection(key)
@@ -77,17 +90,23 @@ export function StatsSection({ onSessionExpired }: { onSessionExpired: () => voi
           {view === 'cards' && <div className="stats-card-sorting"><label>정렬 기준<select value={sort} onChange={event => { const key = event.target.value as StatsSort; setSorting({ key, direction: defaultStatsSortDirection(key) }) }}>{Object.entries(statsSorts).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><button type="button" className="secondary-button" aria-label={`정렬 방향 변경: 현재 ${direction === 'asc' ? '오름차순' : '내림차순'}`} onClick={() => setSorting(previous => ({ ...previous, direction: previous.direction === 'asc' ? 'desc' : 'asc' }))}>{direction === 'asc' ? '오름차순 ↑' : '내림차순 ↓'}</button></div>}
           <p className="stats-sort-status" role="status">{statsSorts[sort]} {direction === 'asc' ? '오름차순 ↑' : '내림차순 ↓'}{displayMode !== 'TOTAL' && isScoringMetric(sort) ? ` · ${statsDisplayModes[displayMode]}` : ''}</p></div>
         <div className="stats-view-switch" role="group" aria-label="선수 기록 보기 방식"><button type="button" aria-pressed={view === 'cards'} onClick={() => setView('cards')}>간단 보기</button><button type="button" aria-pressed={view === 'table'} onClick={() => setView('table')}>표 보기</button></div>
+        <div className="stats-page-controls"><label>페이지당 인원<select value={pageSize} onChange={event => setPageSize(Number(event.target.value))}>{[10, 20, 30].map(size => <option key={size} value={size}>{size}명</option>)}</select></label></div>
         {sort === 'attendances' && <p className="field-help">출석·지각한 경기마다 1회로 세요. 같은 날 두 경기에 참석하면 2회예요. 출전 여부·참석 예정 투표와는 달라요.</p>}
-        <p className="stats-table-hint" id="stats-table-hint">{rows.length}명 · {view === 'cards' ? '선수 이름을 누르면 경기별 기록을 볼 수 있어요.' : '열 제목으로 정렬해요. 이름·등번호를 누르면 상세 기록을 볼 수 있어요. 표는 좌우로 밀어 보세요.'}</p>
-        {view === 'cards' ? <StatsCards rows={rows} displayMode={displayMode} onSelect={setSelected} /> : <div className="stats-table-scroll" tabIndex={0} role="region" aria-label="선수 시즌 기록 표" aria-describedby="stats-table-hint">
+        <p className="stats-table-hint" id="stats-table-hint" tabIndex={-1}>{pageData.from}–{pageData.to} / {rows.length}명 · {view === 'cards' ? '선수 이름을 누르면 경기별 기록을 볼 수 있어요.' : '열 제목으로 정렬해요. 이름·등번호를 누르면 상세 기록을 볼 수 있어요. 표는 좌우로 밀어 보세요.'}</p>
+        {view === 'cards' ? <StatsCards rows={pageData.items} displayMode={displayMode} onSelect={setSelected} /> : <div className="stats-table-scroll" tabIndex={0} role="region" aria-label="선수 시즌 기록 표" aria-describedby="stats-table-hint">
           <table className="stats-table"><caption className="sr-only">{statsScopeLabel(filters)} 선수 기록 · {statsDisplayModes[displayMode]}</caption><thead><tr>
             {sortHeader('shirtNumber', 'stats-number-cell')}{sortHeader('name', 'stats-player-cell')}{scoringMetrics.map(metric => sortHeader(metric))}
             {sortHeader('appearances')}{sortHeader('creditedQuarters')}{sortHeader('attendances')}
-          </tr></thead><tbody>{rows.map(item => <tr key={item.playerId}>
+          </tr></thead><tbody>{pageData.items.map(item => <tr key={item.playerId}>
             <td className={`stats-number-cell${sort === 'shirtNumber' ? ' stats-emphasis' : ''}`}><button type="button" className="stats-player-link stats-number-link" aria-label={`${item.name} 등번호 ${item.shirtNumber ?? '없음'} 상세 보기`} onClick={() => setSelected(item.playerId)}>{item.shirtNumber === null ? '—' : `#${item.shirtNumber}`}</button></td>
             <th scope="row" className={`stats-player-cell${sort === 'name' ? ' stats-emphasis' : ''}`}><button type="button" id={`season-player-${item.playerId}`} className="stats-player-link" aria-label={`${item.shirtNumber === null ? '등번호 없음' : `${item.shirtNumber}번`} ${item.name} 시즌 상세 기록`} onClick={() => setSelected(item.playerId)}><span className="stats-player-name">{item.name}</span>
             {(item.playerType === 'GUEST' || !item.active) && <small className="stats-player-status">{item.playerType === 'GUEST' ? '용병' : '비활동'}</small>}</button></th>{scoringMetrics.map(metric => <td key={metric} className={sort === metric ? 'stats-emphasis' : undefined}>{displayScoringValue(item, metric, displayMode)}</td>)}<td className={sort === 'appearances' ? 'stats-emphasis' : undefined}>{item.appearances}</td><td className={sort === 'creditedQuarters' ? 'stats-emphasis' : undefined}>{item.creditedQuarters}</td><td className={sort === 'attendances' ? 'stats-emphasis' : undefined}>{item.attendances}</td></tr>)}</tbody></table>
         </div>}
+        {pageData.totalPages > 1 && <nav className="pagination" aria-label="선수 기록 페이지">
+          <button className="secondary-button" disabled={pageData.page === 0} onClick={() => changePage(pageData.page - 1)}>이전</button>
+          <span aria-live="polite">{pageData.page + 1} / {pageData.totalPages}</span>
+          <button className="secondary-button" disabled={pageData.page + 1 >= pageData.totalPages} onClick={() => changePage(pageData.page + 1)}>다음</button>
+        </nav>}
         {rows.length === 0 && <p className="stats-no-players" role="status">{search ? '검색한 선수가 없어요.' : '집계할 선수가 없어요.'}</p>}
       </>}
     <HelpDetails title="집계 기준 보기"><ul>

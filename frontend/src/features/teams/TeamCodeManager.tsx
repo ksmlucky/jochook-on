@@ -53,7 +53,7 @@ export function TeamCodeManager({ team, onSessionExpired }: { team: TeamDisplay;
         <div className="masked-code" aria-label="팀 코드와 비밀번호 원문은 다시 표시하지 않습니다.">•••• — •••• — ••••</div>
         <dl className="access-details"><div><dt>접속 권한</dt><dd>현재 팀 조회만</dd></div><div><dt>발급일</dt><dd>{koreanTime(code.issuedAt)}</dd></div><div><dt>유효 기한</dt><dd>{koreanTime(code.expiresAt)}</dd></div></dl>
         <p className="access-note">코드와 6자리 비밀번호는 90일 동안 유효해요. 발급 직후 한 번만 볼 수 있으니 함께 보관해 주세요.</p>
-        <p className="access-note">비밀번호가 없는 예전 코드는 재발급해 주세요.</p>
+        <p className="access-note"><strong>현재 코드가 안 보이나요?</strong><br />위의 점 표시는 눌러서 열 수 없어요. 발급할 때 따로 보관한 코드·비밀번호를 확인해 주세요. 보관한 내용이 없다면 아래에서 재발급할 수 있어요.</p>
         <div className="access-actions"><button className="primary-button" disabled={busy || blocked} onClick={() => setConfirm('issue')}>{busy ? '처리 중…' : code.status === 'ACTIVE' ? '코드·비밀번호 재발급' : '코드·비밀번호 발급'}</button>
           {code.status === 'ACTIVE' && <button className="danger-button" disabled={busy || blocked} onClick={() => setConfirm('revoke')}>현재 코드·비밀번호 폐기</button>}</div>
         <p className="access-warning"><strong>재발급·폐기하면 회원 접속이 종료돼요.</strong><br />재발급 시 코드와 비밀번호가 모두 바뀌어요. 운영진의 개인 로그인은 유지돼요.</p>
