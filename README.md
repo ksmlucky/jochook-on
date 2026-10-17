@@ -1,6 +1,6 @@
 # 조축ON
 
-로컬 개발: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 운영 미배포)
+운영 반영: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 웹 072ac46 / 가이드1.4)
 
 [홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30과 새 홈은 **운영 반영 완료**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
 

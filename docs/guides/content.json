@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.4",
   "publishedOn": "2026.10.17",
-  "appCommit": "pending",
-  "scope": "pending_deployment",
+  "appCommit": "072ac468db775376f79db44d4a513c3fd708750d",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -695,5 +695,5 @@
     }
   ],
   "releaseLabel": "2026.10.17 선수 목록 개선판",
-  "lastVerifiedProductionCommit": "9d3d3473fd00a31c42924d7fd47a5b4772334fe8"
+  "lastVerifiedProductionCommit": "072ac468db775376f79db44d4a513c3fd708750d"
 }
