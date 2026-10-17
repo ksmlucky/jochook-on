@@ -1,12 +1,14 @@
 # 조축ON
 
+최신 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
+
 운영 반영: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 웹 072ac46 / 가이드1.4)
 
 [홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30과 새 홈은 **운영 반영 완료**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
 
 [2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선도 운영 반영했습니다.
 
-**최신 운영 배포:** `d8b2763` · Flyway V30 · **홈·계정 보호 개선판 / 가이드 1.3**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-home-account-2026-10-16.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
+**이전 API·웹 동시 배포:** `d8b2763` · Flyway V30 · **홈·계정 보호 개선판 / 가이드 1.3**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-home-account-2026-10-16.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
 
 이번 확장판의 기능과 사용 흐름:
 

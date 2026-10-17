@@ -3,15 +3,15 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.4",
+    "guideVersion": "1.5",
     "date": "2026-10-17",
-    "appCommit": "072ac468db775376f79db44d4a513c3fd708750d",
+    "appCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
     "deployment": "Northflank production",
     "status": "deployed",
-    "lastVerifiedProductionCommit": "072ac468db775376f79db44d4a513c3fd708750d",
-    "releaseLabel": "2026.10.17 선수 목록 개선판",
-    "previousProductionCommit": "9d3d3473fd00a31c42924d7fd47a5b4772334fe8",
-    "verifiedAtKst": "2026-10-17 22:35 KST",
+    "lastVerifiedProductionCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
+    "releaseLabel": "2026.10.17 선수 입력 개선판",
+    "previousProductionCommit": "072ac468db775376f79db44d4a513c3fd708750d",
+    "verifiedAtKst": "2026-10-17 22:51 KST",
     "apiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
   },
   "artifacts": [
@@ -36,22 +36,7 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "date": "2026-10-17",
-      "scope": "local_only",
-      "spec": "../bulk-input-mobile-2026-10-17.md",
-      "roles": [
-        "staff",
-        "member"
-      ],
-      "changes": [
-        "운영진 수동 등록 1행 시작·모바일 간격 축소·가입일 달력·엑셀 선수 행 추가 제거",
-        "회원/운영진 선수 기록 기본 10명, 20/30명 선택 유지",
-        "04단계 선수별 집계는 실제 출전자만 표시, 출석만 한 선수는 01단계에서 확인"
-      ]
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "date": "2026-10-15",
@@ -112,6 +97,11 @@
       "status": "deployed",
       "appCommit": "072ac468db775376f79db44d4a513c3fd708750d",
       "change": "웹 전용 배포와 공개 자산/PDF 일치 확인. API·DB 유지."
+    },
+    {
+      "date": "2026-10-17",
+      "version": "1.5",
+      "change": "웹 db2391d 운영 반영 확인. 수동 입력 1행·달력·엑셀 행 추가 제거, 선수 기록 기본 10명, 04 실제 출전자 집계. PDF 전체 24쪽 렌더·역할별 앱 목차/PDF 연결 확인."
     }
   ],
   "releasedChanges": [

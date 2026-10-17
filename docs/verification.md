@@ -616,3 +616,7 @@ Docker 설치와 Testcontainers 통합 테스트는 여전히 미완료입니다
 3. `scripts/Start-Backend.ps1 -Task integrationTest`로 실제 MySQL 통합 검증을 합니다.
 4. README대로 API와 프론트엔드를 실행해 빈 선수 목록을 확인합니다.
 5. 운영진 로그인과 선수 등록·수정을 첫 사용 가능한 기능으로 추가합니다.
+
+
+### 2026-10-17 22:50 KST 선수 입력 개선 배포
+웹 db2391d·가이드1.5 운영 반영. API d8b2763·DB V30 유지. [기능·검증·배포 결과](bulk-input-mobile-2026-10-17.md). 수동 1행 시작·모바일 축소·가입일 달력·엑셀 행 추가 제거·선수 기록 기본10명·04 실제 출전자 표시. 로컬 프론트263개, 공개 HTTPS9개, JS/CSS/PDF 일치 확인. 실제 iPhone·운영 저장 시험은 미실행.

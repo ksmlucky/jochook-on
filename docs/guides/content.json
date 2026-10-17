@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.5",
   "publishedOn": "2026.10.17",
-  "appCommit": "65e4a22",
-  "scope": "pending_deployment",
+  "appCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -695,5 +695,5 @@
     }
   ],
   "releaseLabel": "2026.10.17 선수 입력 개선판",
-  "lastVerifiedProductionCommit": "072ac468db775376f79db44d4a513c3fd708750d"
+  "lastVerifiedProductionCommit": "db2391dd21409336de169d52c0b87dd2d6a17585"
 }
