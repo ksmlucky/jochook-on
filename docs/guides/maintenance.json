@@ -3,15 +3,15 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.5",
+    "guideVersion": "1.6",
     "date": "2026-10-17",
-    "appCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
+    "appCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b",
     "deployment": "Northflank production",
     "status": "deployed",
-    "lastVerifiedProductionCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
-    "releaseLabel": "2026.10.17 선수 입력 개선판",
-    "previousProductionCommit": "072ac468db775376f79db44d4a513c3fd708750d",
-    "verifiedAtKst": "2026-10-17 22:51 KST",
+    "lastVerifiedProductionCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b",
+    "releaseLabel": "2026.10.17 선수단 표 개선판",
+    "previousProductionCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
+    "verifiedAtKst": "2026-10-17 23:06 KST",
     "apiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
   },
   "artifacts": [
@@ -102,6 +102,14 @@
       "date": "2026-10-17",
       "version": "1.5",
       "change": "웹 db2391d 운영 반영 확인. 수동 입력 1행·달력·엑셀 행 추가 제거, 선수 기록 기본 10명, 04 실제 출전자 집계. PDF 전체 24쪽 렌더·역할별 앱 목차/PDF 연결 확인."
+    },
+    {
+      "date": "2026-10-17",
+      "version": "1.6",
+      "status": "deployed",
+      "appCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b",
+      "verifiedAtKst": "2026-10-17 23:06 KST",
+      "change": "선수단 표 열 통합·여백 축소, 여러 명 입력의 등번호·생년 선택 전용 반영. 역할별 앱 목차/PDF 링크 확인, PDF 24쪽 렌더 검토, 운영 JS/CSS/PDF SHA256 일치."
     }
   ],
   "releasedChanges": [
@@ -250,15 +258,15 @@
     }
   ],
   "validation": {
-    "guideVersion": "1.4",
+    "guideVersion": "1.6",
     "date": "2026-10-17",
     "memberPages": 7,
     "staffPages": 17,
     "pdfVisualReview": "회원7·운영진17 전24쪽 렌더 확인",
-    "appRoleScreenReview": "역할별1.4·목차7/17·PDF 링크 확인",
+    "appRoleScreenReview": "역할별1.6·목차7/17·선수단 안내·PDF 링크 확인",
     "productionStatus": "deployed",
-    "verifiedAtKst": "2026-10-17 22:35 KST",
-    "productionAssets": "웹072ac46 JS/CSS/PDF SHA256 일치; API d8b2763 유지",
+    "verifiedAtKst": "2026-10-17 23:06 KST",
+    "productionAssets": "웹 bdb4f04 JS/CSS/PDF SHA256 일치; API d8b2763 유지",
     "metadataNote": "배포 후 scope/appCommit 메타데이터 확정. 운영 번들 원고는 배포전 pending 메타데이터를 포함하지만 이를 표시하지 않으며 본문/HTML/PDF는 동일"
   },
   "pendingRosterPagination": {

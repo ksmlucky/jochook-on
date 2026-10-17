@@ -1,6 +1,8 @@
 # 조축ON
 
-최신 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
+최신 웹 운영 반영: [컴팩트한 선수단 표·선택형 일괄 입력](docs/compact-roster-table-2026-10-17.md) · [모바일 표](docs/diagrams/roster-table-mobile-20261017.jpg) · [선택형 입력](docs/diagrams/bulk-select-mobile-20261017.jpg). 2026-10-17 23:06 KST · 웹 `bdb4f04` / API `d8b2763` / DB V30 / 가이드1.6.
+
+이전 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
 
 운영 반영: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 웹 072ac46 / 가이드1.4)
 
@@ -19,7 +21,7 @@
 - [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
 - [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
 
-[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 7쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 17쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.3을 기능과 함께 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 7쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 17쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.6을 기능과 함께 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
 
 [시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
 

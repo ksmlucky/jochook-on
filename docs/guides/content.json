@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.6",
   "publishedOn": "2026.10.17",
-  "appCommit": "db2391dd21409336de169d52c0b87dd2d6a17585",
-  "scope": "pending_deployment",
+  "appCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -695,5 +695,5 @@
     }
   ],
   "releaseLabel": "2026.10.17 선수단 표 개선판",
-  "lastVerifiedProductionCommit": "db2391dd21409336de169d52c0b87dd2d6a17585"
+  "lastVerifiedProductionCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b"
 }
