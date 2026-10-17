@@ -76,10 +76,10 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
     <p className="field-help">이름·기본 포지션·1지망은 필수예요. 포지션이 ‘미확인(UN)’이면 지망은 비워 주세요.</p>
     <p className="field-help">등번호는 1~99번이며, 활동 선수나 함께 등록할 선수와 중복할 수 없어요.</p>
     <HelpDetails title="등번호 확인·입력 안내">
-    <ShirtNumberAvailability loading={shirtOptions.loading} error={shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy || uncertain} />
+    <ShirtNumberAvailability selectOnly={initialMode === 'manual'} loading={shirtOptions.loading} error={initialMode === 'manual' && shirtOptions.error ? '등번호를 불러오지 못했어요. 다시 불러오거나 번호 없이 등록해 주세요.' : shirtOptions.error} onRefresh={shirtOptions.refresh} disabled={busy || uncertain} />
     </HelpDetails>
     <HelpDetails title={initialMode === 'excel' ? '양식 작성 안내' : '입력 안내'}>
-      <ul><li>등번호·생년을 모르면 비워 두세요. 생년은 4자리 연도로 입력해요.</li>
+      <ul><li>등번호·생년을 모르면 비워 두세요. {initialMode === 'manual' ? '등번호와 생년은 목록에서 골라요.' : '생년은 4자리 연도로 입력해요.'}</li>
         <li>직책을 비우면 ‘정회원’으로 등록돼요.</li>
         <li>{initialMode === 'excel' ? '파일을 올린 뒤 내용을 검토하고 ‘전체 등록’을 눌러야 저장돼요.' : '선수 행을 추가해 입력한 뒤, 입력 내용 검토 → 전체 등록 순서로 저장해요.'}</li></ul>
     </HelpDetails>
@@ -94,10 +94,10 @@ export function BulkPlayerEditor({ initialMode, onSaved, onCancel, onSessionExpi
             <option value="">포지션 선택</option>{!['', 'GK', 'DF', 'MF', 'FW', 'UN'].includes(row.position) && <option value={row.position}>잘못된 값: {row.position}</option>}
             {Object.entries(positionLabels).map(([code, label]) => <option key={code} value={code}>{label} ({code})</option>)}
           </select></div>
-          <ShirtNumberField id={`${row.key}-shirt`} value={row.shirtNumber} onChange={shirtNumber => change(i, { shirtNumber })}
+          <ShirtNumberField selectOnly={initialMode === 'manual'} id={`${row.key}-shirt`} value={row.shirtNumber} onChange={shirtNumber => change(i, { shirtNumber })}
             available={shirtOptions.roster === null ? null : availableShirtNumbersForRow(shirtOptions.roster, rows, row.key)} />
           <div><label htmlFor={`${row.key}-joined`}>가입일 <span>선택</span></label><input id={`${row.key}-joined`} type="date" min="1000-01-01" max="9999-12-31" value={/^\d{4}-\d{2}-\d{2}$/.test(row.joinedOn) ? row.joinedOn : ''} onChange={e => change(i, { joinedOn: e.target.value })} />{row.joinedOn && !/^\d{4}-\d{2}-\d{2}$/.test(row.joinedOn) && <p className="form-error">불러온 가입일: {row.joinedOn}. 달력에서 다시 선택해 주세요.</p>}</div>
-          <BirthYearField id={`${row.key}-birth`} value={row.birthYear} onChange={birthYear => change(i, { birthYear })} />
+          <BirthYearField selectOnly={initialMode === 'manual'} id={`${row.key}-birth`} value={row.birthYear} onChange={birthYear => change(i, { birthYear })} />
           <ClubRoleField id={`${row.key}-role`} value={row.clubRole} onChange={clubRole => change(i, { clubRole })} />
           <div className="bulk-preferences"><PreferenceFields id={row.key} values={[row.firstChoice, row.secondChoice, row.thirdChoice]} unknown={row.position === 'UN'} onChange={([firstChoice, secondChoice, thirdChoice]) => change(i, { firstChoice, secondChoice, thirdChoice })} /></div>
         </div>

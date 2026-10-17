@@ -18,3 +18,26 @@
   .compact-roster .player-info h3 { font-size: 14px; }
   .compact-roster .player-info p { font-size: 11px; }
 }
+
+/* Related values share a cell so the roster stays compact without hiding data. */
+.roster-table-scroll:has(.compact-roster-table) { max-width: 900px; }
+.roster-table.compact-roster-table { min-width: 540px; table-layout: fixed; font-size: 12px; line-height: 1.35; }
+.compact-roster-table .col-shirt { width: 44px; }
+.compact-roster-table .col-player { width: 110px; }
+.compact-roster-table .col-age { width: 94px; }
+.compact-roster-table .col-preferences { width: 108px; }
+.compact-roster-table .col-joined { width: 94px; }
+.compact-roster-table .col-edit { width: 58px; }
+.roster-table.compact-roster-table th, .roster-table.compact-roster-table td { padding: 5px 8px; vertical-align: middle; }
+.compact-roster-table small { display: block; margin-top: 3px; font-size: 11px; font-weight: 400; color: var(--muted); }
+.roster-table.compact-roster-table .table-player { white-space: normal; overflow-wrap: anywhere; }
+.compact-roster-table .position-badge { padding: 2px 6px; font-size: 11px; line-height: 1.3; border-radius: 5px; }
+.compact-roster-table .preference-rank { font-size: 10px; opacity: .75; }
+.compact-roster-table .edit-button { min-height: 40px; padding: 6px; font-size: 12px; }
+.compact-roster-table thead th { height: 34px; }
+@media (max-width: 680px) {
+  .compact-roster-table .edit-button { min-height: 44px; }
+  .roster-table.compact-roster-table th, .roster-table.compact-roster-table td { padding-top: 3px; padding-bottom: 3px; }
+  .roster-table.compact-roster-table tr > :nth-child(2) { position: sticky; left: 0; z-index: 1; background: #fff; box-shadow: 2px 0 3px #183d3410; }
+  .roster-table.compact-roster-table thead tr > :nth-child(-n+2) { background: var(--soft); }
+}

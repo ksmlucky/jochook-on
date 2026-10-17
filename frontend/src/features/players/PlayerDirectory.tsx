@@ -26,13 +26,15 @@ export function PlayerDirectory({ data, view, onPageChange, onEdit, filtered = f
       <span>{data.page * data.size + 1}–{data.page * data.size + data.items.length} / {data.totalElements}명</span></div>
     <div className="position-legend" aria-label="포지션 색상 안내">{(['FW', 'MF', 'DF', 'GK', 'UN'] as const).map(code => <span className={`position-badge position-${code}`} key={code}>{positionLabels[code]}</span>)}</div>
     {view === 'table' ? <div className="roster-table-scroll" role="region" aria-label="선수 명단 표 (가로 스크롤 가능)" tabIndex={0}>
-      <table className="roster-table"><caption className="sr-only">활동 중인 선수 · {data.page + 1}페이지</caption>
-        <thead><tr>{['등번호', '이름', '직책', '생년', '나이·연령대', '1지망', '2지망', '3지망', '가입일', ...(onEdit ? ['관리'] : [])].map(label => <th scope="col" key={label}>{label}</th>)}</tr></thead>
+      <table className="roster-table compact-roster-table"><caption className="sr-only">활동 중인 선수 · {data.page + 1}페이지</caption>
+        <colgroup><col className="col-shirt" /><col className="col-player" /><col className="col-age" /><col className="col-preferences" /><col className="col-joined" />{onEdit && <col className="col-edit" />}</colgroup>
+        <thead><tr><th scope="col" aria-label="등번호">번호</th><th scope="col">선수</th><th scope="col">나이</th><th scope="col">선호 포지션</th><th scope="col">가입일</th>{onEdit && <th scope="col">관리</th>}</tr></thead>
         <tbody>{data.items.map(player => <tr key={player.id}>
-          <td className="table-shirt">{player.shirtNumber ?? '—'}</td><th scope="row">{player.name}</th><td>{player.clubRole ?? '정회원'}</td>
-          <td>{player.birthYear ?? '미확인'}</td><td>{yearAge(player.birthYear, seoulYear()) === null ? '미확인' : `${yearAge(player.birthYear, seoulYear())}세 · ${ageBand(player.birthYear, seoulYear())}`}</td>
-          <td><span className={`position-badge position-${preferredPositionGroup(player.firstChoice)}`}>{player.firstChoice ?? '미입력'}</span></td>
-          <td>{player.secondChoice ?? '—'}</td><td>{player.thirdChoice ?? '—'}</td>
+          <td className="table-shirt">{player.shirtNumber ?? '—'}</td>
+          <th scope="row" className="table-player">{player.name}<small>{player.clubRole ?? '정회원'}</small></th>
+          <td>{yearAge(player.birthYear, seoulYear()) === null ? '미확인' : `${yearAge(player.birthYear, seoulYear())}세 · ${ageBand(player.birthYear, seoulYear())}`}<small>{player.birthYear ? `${player.birthYear}년생` : '생년 미확인'}</small></td>
+          <td><span className={`position-badge position-${preferredPositionGroup(player.firstChoice)}`} aria-label={`1지망 ${player.firstChoice ?? '미입력'}`}><span className="preference-rank">1</span> {player.firstChoice ?? '미입력'}</span>
+            <small className="table-other-preferences">2 {player.secondChoice ?? '—'} <span aria-hidden="true"> / </span>3 {player.thirdChoice ?? '—'}</small></td>
           <td>{player.joinedOn ?? '미등록'}</td>{onEdit && <td><button className="edit-button" onClick={() => onEdit(player)} aria-label={`${player.name} 수정`}>수정</button></td>}
         </tr>)}</tbody>
       </table>

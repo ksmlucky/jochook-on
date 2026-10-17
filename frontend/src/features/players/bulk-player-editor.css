@@ -15,5 +15,5 @@
 }
 
 @media (max-width: 360px) {
-  .bulk-editor .bulk-fields > .shirt-number-field, .bulk-editor .bulk-fields > div:has(.player-value-controls) { grid-column: 1 / -1; }
+  .bulk-editor .bulk-fields > div:has(.player-value-controls) { grid-column: 1 / -1; }
 }
