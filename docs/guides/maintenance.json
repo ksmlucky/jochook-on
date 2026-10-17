@@ -3,13 +3,13 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.3",
-    "date": "2026-10-16",
-    "appCommit": "d8b27631a9204489ab1b5e16993a4e639041222f",
+    "guideVersion": "1.4",
+    "date": "2026-10-17",
+    "appCommit": "pending",
     "deployment": "Northflank production",
-    "status": "deployed",
+    "status": "pending_deployment",
     "lastVerifiedProductionCommit": "d8b27631a9204489ab1b5e16993a4e639041222f",
-    "releaseLabel": "2026.10.16 홈·계정 관리판",
+    "releaseLabel": "2026.10.17 선수 목록 개선판",
     "previousProductionCommit": "9d3d3473fd00a31c42924d7fd47a5b4772334fe8",
     "verifiedAtKst": "2026-10-16 16:31 KST"
   },
@@ -83,6 +83,12 @@
       "appCommit": "d8b27631a9204489ab1b5e16993a4e639041222f",
       "verifiedAtKst": "2026-10-16 16:31 KST",
       "change": "회원7/운영진17쪽과 새 홈·모바일 조회·개인 비밀번호·운영진 복구를 운영 반영. API/web 완료와 JS/CSS/PDF 해시·기존 감독 조회 검증"
+    },
+    {
+      "date": "2026-10-17",
+      "version": "1.4",
+      "status": "pending_deployment",
+      "change": "선수단 2열·상세 정보, 수동/엑셀 분리, 통계10/20/30명 페이지, 코드 재확인 불가와 재발급 안내."
     }
   ],
   "releasedChanges": [
