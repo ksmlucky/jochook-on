@@ -384,7 +384,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       <div><label htmlFor="match-venue">장소 <span>선택</span></label><input id="match-venue" maxLength={100} value={draft.venue} onChange={e => change({ ...draft, venue: e.target.value })} placeholder="경기장 이름" /></div>
     </fieldset>
     {!internal && <div className="match-tournament-fields">
-      {isAdmin && <TournamentPicker label="리그 / 대회" value={draft.tournamentId ?? null} selectedLabel={selectedTournament?.name ?? draft.tournamentName ?? undefined} disabled={!editable} onSessionExpired={onSessionExpired}
+      {isAdmin && <TournamentPicker allowCreate label="리그 / 대회" value={draft.tournamentId ?? null} selectedLabel={selectedTournament?.name ?? draft.tournamentName ?? undefined} disabled={!editable} onSessionExpired={onSessionExpired}
         onChange={chooseTournament} />
         }
       {draft.tournamentId != null && <div><label htmlFor="match-tournament-stage">대회 단계 <span>선택</span></label>
@@ -397,9 +397,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     <section className="formation-settings" aria-labelledby="match-format-title">
       <h4 id="match-format-title">경기 형식</h4>
       <label htmlFor="match-format">기록할 구간</label><select id="match-format" value={normalizeMatchFormat(draft.matchFormat)} disabled={!editable || internal} onChange={event => changeFormat(event.target.value as MatchFormat)}>
-        <option value="FOUR_QUARTERS">4쿼터</option><option value="TWO_HALVES_30" disabled={internal || (draft.tournamentId == null && draft.matchFormat !== 'TWO_HALVES_30')}>전·후반 각 30분 · 2쿼터</option>
+        <option value="FOUR_QUARTERS">4쿼터</option><option value="TWO_HALVES_30" disabled={internal}>전·후반 각 30분 · 2쿼터</option>
       </select>
-      <p className="field-help">{internal ? '자체전은 4쿼터로 기록해요.' : draft.matchFormat === 'TWO_HALVES_30' ? '전반은 1쿼터, 후반은 2쿼터예요. 선발은 1쿼터, 교체한 두 선수는 각각 0.5쿼터로 집계하며 시간으로 환산하지 않아요.' : draft.tournamentId != null ? '기존 4쿼터 기록은 유지돼요. 3·4쿼터에 계획·실제 기록이 없다면 전·후반 형식으로 바꿀 수 있어요.' : '리그는 4쿼터로 시작해요. 대회를 선택하면 전·후반 형식을 사용할 수 있어요.'}</p>
+      <p className="field-help">{internal ? '자체전은 4쿼터로 기록해요.' : draft.matchFormat === 'TWO_HALVES_30' ? '전반은 1쿼터, 후반은 2쿼터예요. 선발은 1쿼터, 교체한 두 선수는 각각 0.5쿼터로 집계하며 시간으로 환산하지 않아요.' : draft.tournamentId != null ? '기존 4쿼터 기록은 유지돼요. 3·4쿼터에 계획·실제 기록이 없다면 전·후반 형식으로 바꿀 수 있어요.' : '리그는 4쿼터로 시작해요. 외부 경기는 대회 등록 전에도 전·후반 형식을 선택할 수 있어요. 대회 기록으로 집계하려면 대회를 연결해 주세요.'}</p>
     </section>
     <FormationSelector draft={draft} editable={editable} onChange={next => { change(next); setPlanRevision(value => value + 1) }} />
     </div>

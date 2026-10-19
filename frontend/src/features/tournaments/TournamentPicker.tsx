@@ -4,15 +4,17 @@ import { fetchAllTournaments } from './api'
 import { tournamentDateRange } from './types'
 import type { Tournament } from './types'
 import './tournaments.css'
+import { CreateTournamentDialog } from './CreateTournamentDialog'
 
-export function TournamentPicker({ value, onChange, disabled = false, onSessionExpired, id, label = '대회', emptyLabel = '리그 · 매주 하는 경기', selectedLabel }: {
+export function TournamentPicker({ value, onChange, disabled = false, onSessionExpired, id, label = '대회', emptyLabel = '리그 · 매주 하는 경기', selectedLabel, allowCreate = false }: {
   value: number | null; onChange: (id: number | null, tournament: Tournament | null) => void
-  disabled?: boolean; onSessionExpired: () => void; id?: string; label?: string; emptyLabel?: string; selectedLabel?: string
+  disabled?: boolean; onSessionExpired: () => void; id?: string; label?: string; emptyLabel?: string; selectedLabel?: string; allowCreate?: boolean
 }) {
   const generatedId = useId(), controlId = id ?? `tournament-${generatedId}`
   const [items, setItems] = useState<Tournament[] | null>(null)
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
+  const [creating, setCreating] = useState(false)
   useEffect(() => {
     const controller = new AbortController(); setItems(null); setError('')
     fetchAllTournaments(controller.signal).then(result => { if (!controller.signal.aborted) setItems(result) }).catch(cause => {
@@ -31,6 +33,11 @@ export function TournamentPicker({ value, onChange, disabled = false, onSessionE
       {items?.map(item => <option key={item.id} value={item.id}>{item.name} · {tournamentDateRange(item)}</option>)}
     </select>
     {!items && !error && <small role="status">대회 목록을 불러오는 중이에요.</small>}
+    {items?.length === 0 && <small role="status">등록된 대회가 없어요.{allowCreate ? ' 아래에서 대회를 등록하면 선택할 수 있어요.' : ''}</small>}
+    {allowCreate && <div className="tournament-picker-actions"><button type="button" className="secondary-button" disabled={disabled} onClick={() => setCreating(true)}>+ 대회 등록</button><button type="button" className="secondary-button" disabled={disabled || !items} onClick={() => setRevision(previous => previous + 1)}>목록 새로고침</button></div>}
     {error && <div id={`${controlId}-error`} className="tournament-picker-error" role="alert"><span>{error}</span><button type="button" className="secondary-button" disabled={disabled} onClick={() => setRevision(value => value + 1)}>다시 불러오기</button></div>}
+    {creating && <CreateTournamentDialog onClose={() => setCreating(false)} onSessionExpired={onSessionExpired} onSaved={item => {
+      setItems(previous => [...(previous ?? []).filter(row => row.id !== item.id), item]); onChange(item.id, item); setCreating(false); setRevision(previous => previous + 1)
+    }} />}
   </div>
 }

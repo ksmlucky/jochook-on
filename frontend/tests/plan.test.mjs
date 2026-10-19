@@ -3,6 +3,15 @@ import assert from 'node:assert/strict'
 import { placeInPlan, checkPlan, plannedShare } from '../src/features/matches/plan.ts'
 
 const entry = (playerId, slot = 'ST', entryOrder = 0, quarterNumber = 1, team = 'A') => ({ team, quarterNumber, slot, entryOrder, playerId })
+test('tap swap exchanges starters only, preserving substitutes, other teams and quarters', () => {
+  const source = [entry(1), entry(2, 'GK'), entry(3, 'ST', 1), entry(4, 'GK', 1), entry(5, 'ST', 0, 1, 'B'), entry(1, 'ST', 0, 2)]
+  const result = placeInPlan(source, 1, 'GK', 0, 1)
+  assert.equal(result.find(a => a.slot === 'ST' && a.entryOrder === 0 && a.quarterNumber === 1 && a.team === 'A').playerId, 2)
+  assert.equal(result.find(a => a.slot === 'GK' && a.entryOrder === 0).playerId, 1)
+  for (const preserved of source.slice(2)) assert.ok(result.includes(preserved))
+  assert.equal(plannedShare(result, result.find(a => a.playerId === 3)), 0.5)
+  assert.deepEqual(placeInPlan(result, 1, 'ST', 0, 1).sort((a,b) => a.playerId-b.playerId || a.quarterNumber-b.quarterNumber), [...source].sort((a,b) => a.playerId-b.playerId || a.quarterNumber-b.quarterNumber))
+})
 test('moving and swapping preserve one place per player and other quarters', () => {
   const source = [entry(1), entry(2, 'GK'), entry(1, 'ST', 0, 2)]
   const swapped = placeInPlan(source, 1, 'GK', 0, 1)

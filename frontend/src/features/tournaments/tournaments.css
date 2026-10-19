@@ -28,6 +28,9 @@
 .tournament-picker small { display: block; margin-top: 8px; color: var(--muted); font-size: 12px; }
 .tournament-picker-error { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 8px; color: #963c2f; font-size: 12px; }
 .tournament-picker-error button { min-height: 36px; padding: 6px 10px; }
+.tournament-picker-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.create-tournament-dialog { width: min(680px, calc(100vw - 24px)); max-height: 90dvh; overflow-y: auto; box-sizing: border-box; padding: 20px; border: 1px solid var(--line); border-radius: 18px; color: var(--ink); background: var(--paper, white); }
+.create-tournament-dialog::backdrop { background: #132e2866; }
 .competition-filter .field-help { margin: 8px 0 0; }
 .match-competition-filter { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 14px; margin: 18px 0; }
 .competition-manage-link { display: flex; align-items: center; justify-content: center; min-height: 44px; margin-top: 30px; text-align: center; }

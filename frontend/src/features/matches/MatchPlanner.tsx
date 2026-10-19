@@ -74,7 +74,8 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 경기 전 스쿼드 계획</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석 예정자 직접 배치</span></div>
     <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={canEdit} onEdit={canEdit ? editOverview : undefined} />
     {assignmentPending && <p className="import-warning" role="status">참석 예정 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
-    <p className="field-help">선수를 누른 뒤 자리를 선택해 주세요. 끌어서 배치하거나 자리를 바꿀 수도 있어요.</p>
+    <p className="field-help">명단이나 작전판의 선수를 누른 뒤 다른 자리를 눌러 주세요. 선수가 있으면 서로 자리를 바꿔요. 같은 선수를 다시 누르면 선택을 취소해요.</p>
+    {selected !== null && <p role="status" className="planner-message">{participants.find(p => p.playerId === selected)?.name} 선택 중 · 이동할 자리를 눌러 주세요.<button type="button" className="secondary-button" onClick={() => setSelected(null)}>선택 취소</button></p>}
     {tools}
     <div className="quarter-tabs" role="group" aria-label="계획 쿼터 선택">{quarterNumbers(matchFormat).map(n => <button type="button" key={n} aria-pressed={quarter === n} onClick={() => { setQuarter(n); setSelected(null); setMessage(''); setConfirmCopy(false) }}>{quarterLabel(n, matchFormat)} <small>{internal ? `${team}팀 ` : ''}선발 {entries.filter(a => a.quarterNumber === n && a.team === team && a.entryOrder === 0).length}/11</small></button>)}</div>
     {internal && <><TeamSelector team={team} disabled={false} label="계획 편성 팀" counts={{ A: allQuarter.filter(a => a.team === 'A').length, B: allQuarter.filter(a => a.team === 'B').length }} onChange={value => { setTeam(value); setSelected(null); setMessage(''); setConfirmCopy(false) }} />
@@ -121,9 +122,12 @@ export function MatchPlanner({ entries, participants, players, editable, referen
           const validTarget = canPlace(slot, order)
           return <div className={`plan-place${order === 1 ? ' is-substitute' : ''}${emptySubstitute ? ' is-empty-substitute' : ''}`} key={order}><button type="button" className={`${entry ? 'plan-filled ' : ''}${selected !== null && validTarget ? 'plan-drop-ready ' : ''}${hoveredPlace === `${slot}:${order}` ? 'plan-drop-hover' : ''}`} disabled={!canEdit || !validTarget}
             data-plan-slot={slot} data-plan-order={order}
+            aria-pressed={!!entry && selected === entry.playerId}
             aria-label={`${quarterLabel(quarter, matchFormat)} 계획 ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 자리`}
             title={emptySubstitute ? '후보 선수를 선택한 뒤 누르거나 이곳으로 끌어 놓으세요.' : undefined}
             onClick={() => {
+              if (entry && selected === entry.playerId) { setSelected(null); setMessage('선택을 취소했어요.'); return }
+              if (entry && selected === null) { setSelected(entry.playerId); setMessage('바꿀 선수 또는 빈 자리를 눌러 주세요.'); return }
               if (emptySubstitute && selected === null) { setMessage('참석 예정 선수에서 교체할 선수를 먼저 선택한 뒤, 이 자리의 + 교체를 눌러 주세요.'); return }
               place(slot, order, selected)
             }}>

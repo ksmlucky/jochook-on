@@ -139,3 +139,5 @@ body:has(.lineup-position-dialog[open]) { overflow: hidden; }
   .match-editor .planner-bench { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .match-editor .attendee-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+.plan-place > button[aria-pressed='true'] { outline: 3px solid var(--accent, #28634e); outline-offset: 2px; background: #d8eee4; }

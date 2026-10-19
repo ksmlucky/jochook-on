@@ -7,8 +7,8 @@ import { fetchTournament, saveTournament, TournamentRequestError } from './api'
 import { emptyTournament, tournamentDraft, validateTournament } from './types'
 import type { Tournament, TournamentDraft } from './types'
 
-export function TournamentEditor({ tournament, onSaved, onClose, onSessionExpired }: {
-  tournament: Tournament | null; onSaved: (value: Tournament) => void; onClose: () => void; onSessionExpired: () => void
+export function TournamentEditor({ tournament, onSaved, onClose, onSessionExpired, embedded = false }: {
+  tournament: Tournament | null; onSaved: (value: Tournament) => void; onClose: () => void; onSessionExpired: () => void; embedded?: boolean
 }) {
   const [baseline, setBaseline] = useState(tournament)
   const [draft, setDraft] = useState<TournamentDraft>(() => tournament ? tournamentDraft(tournament) : emptyTournament())
@@ -34,9 +34,14 @@ export function TournamentEditor({ tournament, onSaved, onClose, onSessionExpire
   function change(field: keyof TournamentDraft, value: string) {
     setDraft(previous => ({ ...previous, [field]: value })); setFields(previous => ({ ...previous, [field]: undefined }))
   }
-  async function close() { if (await guard.confirmLeave()) onClose() }
+  async function close() {
+    if (busy) return
+    if (embedded) { if (!dirty || window.confirm('작성 중인 대회 정보는 저장하지 않고 닫을까요? 경기 초안은 유지돼요.')) onClose(); return }
+    if (await guard.confirmLeave()) onClose()
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
+    if (embedded) event.stopPropagation()
     if (submitting.current || busy || blocked || !request.current || request.current.signal.aborted) return
     const errors = validateTournament(draft); setFields(errors)
     if (Object.keys(errors).length) { setError('대회 이름과 날짜, 입력한 내용을 확인해 주세요.'); return }
@@ -72,7 +77,7 @@ export function TournamentEditor({ tournament, onSaved, onClose, onSessionExpire
   }
   return <section className="tournament-editor" aria-labelledby="tournament-editor-title">
     <div className="section-heading"><div><p className="eyebrow muted">TOURNAMENT</p><h3 id="tournament-editor-title" ref={heading} tabIndex={-1}>{baseline ? '대회 정보 수정' : '새 대회 등록'}</h3></div>
-      <button type="button" className="secondary-button" disabled={busy} onClick={() => void close()}>대회 목록으로</button></div>
+      <button type="button" className="secondary-button" data-tournament-close disabled={busy} onClick={() => void close()}>{embedded ? '경기 작성으로' : '대회 목록으로'}</button></div>
     <p className="field-help">대회 이름과 기간을 입력해 주세요. 경기 기록은 대회를 만든 뒤 연결할 수 있어요.</p>
     <p className="field-help">이름 예시: 2026 봄대회 / 2026 가을대회 / 2027 K7. 같은 대회도 참가 연도별로 따로 등록해요.</p>
     <form onSubmit={submit} noValidate aria-busy={busy}>

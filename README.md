@@ -275,3 +275,8 @@ PK는 고정된 선수 ID를 유지합니다. 같은 팀의 활동 선수끼리 
 - [React + Vite 구성](https://react.dev/learn/build-a-react-app-from-scratch)
 - [MySQL 8.4](https://dev.mysql.com/doc/refman/8.4/en/)
 - [Testcontainers MySQL](https://java.testcontainers.org/modules/databases/mysql/)
+
+
+## 2026-10-19 경기 입력·작전판 개선
+
+[변경·검증·배포 기록](docs/match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 배포 검증 중. API/DB 변경 없음.
