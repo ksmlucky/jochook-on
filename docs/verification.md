@@ -1,10 +1,11 @@
 # 조축ON 검증 기록
 
-## 2026-10-19 경기 입력 통합 (로컬 / 미배포)
+## 2026-10-19 경기 입력 통합 (운영 반영)
 
 - 프론트 테스트 270개 통과, TypeScript 및 Vite 빌드 통과.
 - 가상 API·390px에서 3단계 저장, 참석 자동 처리, 선발·교체 0.5, 골/PK/도움, 한눈에 보기 편집, 결과 집계와 완료 저장 확인.
-- 실제 DB 쓰기·MySQL 통합·실제 iPhone·운영 배포 미실행. 기존 배포와 가이드 1.7 유지.
+- 웹 a229bbb·가이드 1.8 배포 확인. 공개 HTTPS 9개·배포 자산 4개 해시 일치. GitHub CI에서 서버 단위/API/MySQL 통합·JAR와 프론트 검증 통과.
+- 실제 운영 DB 쓰기·로컬 MySQL 통합·실제 iPhone 검증은 미실행. API d8b2763·DB V30 유지.
 - [상세 범위와 인수 기준](unified-match-entry-2026-10-19.md).
 
 2026-10-17 22:35 KST 운영 반영: 웹 `072ac46`, API `d8b2763` 유지 / DB V30 변경 없음 / 가이드1.4. [배포 결과](release-roster-pagination-2026-10-17.md).
@@ -636,3 +637,8 @@ Docker 설치와 Testcontainers 통합 테스트는 여전히 미완료입니다
 ## 2026-10-19 경기 입력·작전판 개선
 
 [변경·검증·배포 기록](match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 반영 확인: 2026-10-19 09:26 KST, 웹 `46ab4ce`, Northflank `fuzzy-finger-6520`. 공개 HTTPS9개·JS/CSS/PDF일치. API d8b2763·DB V30 유지.
+
+
+## 2026-10-19 경기 입력 통합 배포
+
+2026-10-19 10:54 KST · 웹 `a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603` · Northflank `windy-sunlight-8772` 완료. [기능·검증·가이드 상세](unified-match-entry-2026-10-19.md). 270개 프론트 테스트·타입·빌드·GitHub CI, PDF24쪽·역할별 가이드, 공개HTTPS9개·JS/CSS/PDF4개 일치. API d8b2763·DB V30 유지. 실제 iPhone·운영 쓰기·로컬 MySQL 미실행.

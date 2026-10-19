@@ -5,13 +5,13 @@
   "release": {
     "guideVersion": "1.8",
     "date": "2026-10-19",
-    "appCommit": "99a50f2e4b3aa64e97576c526722dbddba96b7bf",
+    "appCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
     "deployment": "Northflank production",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "46ab4ce90810e1ce14f4f065342926d70086faba",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
     "releaseLabel": "2026.10.19 경기 입력 3단계",
     "previousProductionCommit": "46ab4ce90810e1ce14f4f065342926d70086faba",
-    "verifiedAtKst": "2026-10-19 09:26 KST",
+    "verifiedAtKst": "2026-10-19 10:54 KST",
     "apiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
   },
   "artifacts": [
@@ -36,17 +36,15 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "date": "2026-10-19",
-      "status": "local_not_deployed",
-      "source": "../unified-match-entry-2026-10-19.md",
-      "staff": "01 참석 체크=참석, 02 스쿼드·개인 기록 통합, 03 결과, 경기 완료 유지. 기존 계획 복사 절차 삭제. 앱/HTML/PDF/관련 그림을 다음 배포 전 함께 갱신.",
-      "member": "경기 조회의 3단계·PLAN/ACTUAL 공통02 표시 갱신 필요. 조회 권한·통계 기본조건은 변경 없음.",
-      "productionGuide": "1.7 유지; 이번 로컬 변경의 공유용 PDF는 아직 미생성"
-    }
-  ],
+  "pendingChanges": [],
   "history": [
+    {
+      "guideVersion": "1.8",
+      "date": "2026-10-19",
+      "appCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
+      "changes": "경기 입력 3단계, 참석 선택 시 실제 참석 반영, 같은 작전판에서 배치·교체·개인 기록 입력. 회원 조회와 운영진 절차 함께 갱신.",
+      "validation": "프론트270개·타입·빌드, GitHub CI, 가상 역할별 앱 가이드/PDF연결, PDF24쪽 및 그림8개 렌더 검토, 운영 HTTPS9개·JS/CSS/PDF4개 SHA-256 대조. 실제 iPhone/운영DB 쓰기/로컬MySQL 통합 미실행."
+    },
     {
       "guideVersion": "1.7",
       "date": "2026-10-19",

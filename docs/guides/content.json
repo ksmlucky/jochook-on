@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.8",
   "publishedOn": "2026.10.19",
-  "appCommit": "99a50f2e4b3aa64e97576c526722dbddba96b7bf",
-  "scope": "pending_deployment",
+  "appCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -695,5 +695,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 경기 입력 3단계",
-  "lastVerifiedProductionCommit": "46ab4ce90810e1ce14f4f065342926d70086faba"
+  "lastVerifiedProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603"
 }
