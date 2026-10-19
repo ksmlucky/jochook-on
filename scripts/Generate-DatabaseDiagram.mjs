@@ -26,7 +26,7 @@ const tables = [
     ['PK·FK','match_id','match_records.id'],['PK','quarter_number / team','구간 번호 / A·B'],['PK','slot / entry_order','자리 / 선발 0·교체 1'],['FK','player_id','players.id'],['UK','match_id + quarter_number + player_id','같은 구간의 양 팀 중복 배치 금지']], notes:['PK (match_id, quarter_number, team, slot, entry_order)','계획은 득점·출전 통계에 합산하지 않음'] },
   { name:'match_appearances', title:'02 · 출전과 스탯 집계값', domain:'lineups', fields:[
     ['PK·FK','match_id','match_records.id'],['PK','quarter_number / team','구간 번호 / A·B'],['PK','slot / entry_order','자리 / 선발 0·교체 1'],['FK','player_id','players.id'],['','goals / assists','골 / 도움'],['','free_kick_goals / penalty_goals','총 골 안의 직접 FK / PK'],['UK','match_id + quarter_number + player_id','같은 구간 중복 출전 금지']], notes:['PK (match_id, quarter_number, team, slot, entry_order)','FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터'] },
-  { name:'match_goal_events', title:'02 · 골 한 건과 도움 연결', domain:'lineups', fields:[
+  { name:'match_goal_events', title:'03 · 골 한 건과 도움 연결', domain:'lineups', fields:[
     ['PK·FK','match_id','match_records.id · 경기 삭제 시 CASCADE'],['PK','event_order','경기 전체 이벤트 목록 순서 · 0부터'],['','quarter_number / team','구간 번호 / 득점 팀 A·B'],['FK','scorer_id','players.id · 득점 선수'],['FK','assist_id','players.id · 도움 선수 · NULL 가능'],['','goal_type','NORMAL / FREE_KICK / PENALTY']], notes:['PK (match_id, event_order) · 분/초를 기록하지 않음','자기 도움 금지 · 직접 FK/PK는 도움 없음','같은 구간·같은 팀 출전은 서비스에서 검증'] },
   { name:'accounts', title:'운영진 개인 로그인 계정', domain:'access', fields:[
     ['PK','id','BIGINT'],['UK','username','로그인 ID'],['','password_hash','해시만 저장'],['','credential_version','BIGINT · 이전 로그인 무효화'],['','enabled / service_admin','계정 활성 / 서비스 관리자 여부'],['','role','기존 호환 역할 ADMIN / MEMBER']], notes:['현재 팀 권한은 team_memberships.role에서 결정','선수 명단의 club_role과 권한은 별개'] },
@@ -106,7 +106,7 @@ function relation(x,y,parent,child,relation,{logical=false}={}){line([[x,y],[x+9
 begin('데이터베이스 구조 · 무엇이 어디에 저장될까?','18개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.',1310)
 group(60,190,490,230,'팀과 선수',['teams · 축구팀','players · 회원·용병 프로필','등번호는 선수 PK가 아님','활동 선수 등번호는 팀 안에서 중복 금지'],C.mint)
 group(655,190,490,230,'대회와 경기',['tournaments · 대회 기간·부문','match_records · 날짜·스코어·형식','팀 1 : 선수/대회/경기 0..N','대회 1 : 경기 0..N · 리그는 대회 없음'],C.mint)
-group(1250,190,490,230,'기록이 쌓이는 단계',['match_participants · 01 투표·출석','match_quarters · 구간 1/2 또는 1~4','match_planned_lineups · 02 배치 호환','match_appearances · 02 출전·스탯','match_goal_events · 골·도움 연결'],C.mint)
+group(1250,190,490,230,'기록이 쌓이는 단계',['match_participants · 01 투표·출석','match_quarters · 구간 1/2 또는 1~4','match_planned_lineups · 02 배치 호환','match_appearances · 02 배치 / 03 스탯','match_goal_events · 골·도움 연결'],C.mint)
 line([[550,298],[655,298]],'팀 FK',{x:602,y:278});line([[1145,298],[1250,298]],'경기 FK',{x:1197,y:278})
 group(60,545,800,355,'개인 계정과 팀 접근',['accounts · 개인 로그인 / 서비스 관리자','account_password_resets · 일회용 비밀번호 재설정','team_memberships · 팀별 감독·코치·회원 권한','team_invites · 운영진 초대','team_codes · 회원용 팀 코드·비밀번호 해시','team_creation_requests · 팀 생성 중복 방지','team_code_events · 코드 발급·교체·폐기 이력'],C.sky)
 group(965,545,775,355,'이력과 중복 저장 보호',['match_record_events · 변경 전후 JSON와 작업 시각','match_save_requests · 요청 키와 저장 결과 영수증','','이력: team_id만 실제 FK','영수증: 모든 ID가 논리 참조 · FK 없음','원본 경기 삭제 후에도 이력·영수증을 보존'],C.cream)

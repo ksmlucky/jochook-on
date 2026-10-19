@@ -1,7 +1,7 @@
 // Source-controlled workflow illustration. No production screenshots or member data.
 import fs from 'node:fs/promises'
 const out = new URL('../docs/diagrams/mobile-workflow-guide.svg', import.meta.url)
-const releaseLabel = '2026.10.19 선수 즉시 배치 · 배포 상태는 기능 문서 참조'
+const releaseLabel = '2026.10.19 배치·결과 입력 간소화 · 배포 상태는 기능 문서 참조'
 const esc = value => String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')
 let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc"><title id="title">조축ON 모바일 작전판과 사용 가이드 흐름</title><desc id="desc">${releaseLabel}. 주요 메뉴 네 개, 02 스쿼드 전체보기와 초안 편집, 단계별 서버 저장, 감독·코치와 회원의 역할별 가이드. DB V31 유지. 배포 상태는 기능 문서 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#80968a" stroke-width="1.5"/></marker></defs><rect width="1400" height="980" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, sans-serif">`
 function text(x,y,value,size=20,color='#243c34',weight=400,anchor='start') { svg += `<text x="${x}" y="${y}" font-size="${size}" fill="${color}" font-weight="${weight}" text-anchor="${anchor}">${esc(value)}</text>` }
@@ -19,7 +19,7 @@ box(78,377,227,117,'① 전체보기 열기',['11명 배치를 한 화면에','6
 box(338,377,227,117,'② 쿼터·팀 선택',['쿼터·전후반 / A·B팀','팀별 포메이션 표시'],'#fff',17)
 box(598,377,232,117,'③ 자리 눌러 편집',['이름순 목록에서 선수 선택','즉시 배치 후 창 닫힘'],'#fff',17)
 arrow(306,434,334,434);arrow(566,434,594,434);arrow(713,495,713,527)
-box(78,534,752,146,'선수 선택 → 작전판 반영 → 서버 저장',['이름순 · 배치 선수는 포지션 색상과 현재 자리 표시','전체보기 닫기 → 오른쪽 아래 저장·다음 또는 저장·목록','조회 회원은 작전판·상세 기록만 확인'],'#fff',20)
+box(78,534,752,146,'선수 선택 → 작전판 반영 → 서버 저장',['이름순 · 배치 선수는 포지션 색상과 현재 자리 표시','전체보기 닫기 → 목록 / 다음으로 저장 → 03 골·도움','선발이 있는 자리의 + 교체 → 교체 선수 즉시 선택'],'#fff',20)
 rect(884,318,462,391,'#edf3f8');text(908,351,'사용 가이드 · 계정 권한 기준',25,'#285d86',700)
 box(908,377,414,117,'감독·코치 → 운영진용',['등록·편집·단계별 저장·초안 복원','팀 접속 관리와 운영 흐름'],'#fff',19)
 box(908,518,414,117,'회원·코드 접속 → 회원용',['선수단·경기·스쿼드·선수 기록 조회','모바일 목차 / 이전·다음 / PDF'],'#fff',19)

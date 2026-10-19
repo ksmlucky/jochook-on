@@ -20,7 +20,7 @@
 <text x="1273" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_participants · 01 투표·출석</text>
 <text x="1273" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_quarters · 구간 1/2 또는 1~4</text>
 <text x="1273" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_planned_lineups · 02 배치 호환</text>
-<text x="1273" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_appearances · 02 출전·스탯</text>
+<text x="1273" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_appearances · 02 배치 / 03 스탯</text>
 <text x="1273" y="402" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_goal_events · 골·도움 연결</text>
 <path d="M 550 298 L 655 298" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
 <text x="602" y="278" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 FK</text>

@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.11",
   "publishedOn": "2026.10.19",
-  "appCommit": "b1b29bcac2211c6ff6c7769257c11c0da957cccd",
-  "scope": "pending_deployment",
+  "appCommit": "351321852808c058932b07e4086effd2e1ad54b3",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -724,5 +724,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 스쿼드 배치·결과 입력 간소화",
-  "lastVerifiedProductionCommit": "be49b2ffd2d29d0e30e54256c7e7ce8721098e18"
+  "lastVerifiedProductionCommit": "351321852808c058932b07e4086effd2e1ad54b3"
 }

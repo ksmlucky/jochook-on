@@ -57,6 +57,6 @@
 <text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 계정 보호</text>
 <text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">본인 비밀번호 변경</text>
 <text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">관리자 확인 · 일회용 복구</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 골별 기록·모바일 입력 · 운영 dd29444 · DB V31</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 배치·결과 입력 간소화 · 웹 3513218 / API dd29444 · 배포 확인은 문서 참조 · DB V31</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

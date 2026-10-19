@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 const out = fileURLToPath(new URL('../docs/diagrams/system-overview/', import.meta.url));
 await fs.mkdir(out, {recursive:true});
 // Confirm these release fields only after live API/web and data preservation checks.
-const releaseLabel = '2026.10.19 골별 기록·모바일 입력';
-const releaseStatus = '운영 dd29444';
+const releaseLabel = '2026.10.19 배치·결과 입력 간소화';
+const releaseStatus = '웹 3513218 / API dd29444 · 배포 확인은 문서 참조';
 const schemaLabel = 'V31';
-const guideLabel = '1.9';
+const guideLabel = '1.11';
 const C={ink:'#203a33',muted:'#566d65',line:'#8b9e96',green:'#246b51',mint:'#e7f3eb',blue:'#285d86',sky:'#edf4fa',amber:'#8b5b18',cream:'#fff4df',paper:'#ffffff',bg:'#f7f8f4',border:'#d8e3dc'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 let a=[];
@@ -51,8 +51,8 @@ arrow(452,240,498,240);arrow(899,240,945,240);
 text(54,342,'팀 접속 → 우리 팀 홈 → 최근 경기·선수 기록 / 운영진은 새 기록·이어서 작성',{size:21,color:C.green,weight:600});
 const stages=[
  ['01 · 참석 명단',['날짜·시각 · 리그/대회 선택','전·후반 또는 4쿼터 선택','선택하면 참석도 함께 반영','자체전 A·B팀 먼저 체크']],
- ['02 · 스쿼드·기록',['자동 편성 / 자리 눌러 배치','골마다 득점자·도움 연결','하단 고정 버튼으로 저장','교체 1쌍은 각 0.5쿼터']],
- ['03 · 결과·코멘트',['스코어 · 간단 코멘트','입력한 선수별 기록 확인','기록 완료 버튼으로 확정','완료된 경기만 기본 통계']]
+ ['02 · 스쿼드·기록',['자동 편성 / 자리 눌러 배치','이름순 선발·교체 바로 선택','목록 / 다음으로 저장','교체 1쌍은 각 0.5쿼터']],
+ ['03 · 결과·코멘트',['쿼터별 골·도움 입력·저장','스코어·코멘트·합계 확인','완료 버튼으로 확정','완료된 경기만 기본 통계']]
 ];
 stages.forEach(([title,lines],i)=>{box(54+i*444,367,402,240,title,lines,{size:20});if(i<2)arrow(457+i*444,485,495+i*444,485);arrow(255+i*444,608,255+i*444,646)});
 rect(54,649,1291,73,{fill:C.mint,stroke:'#c9dfd0'});text(699,681,'단계별 저장 → 경기 DB + 변경 이력 + 저장 영수증 → 목록에 작성 상태 표시',{size:24,weight:600,anchor:'middle'});text(699,707,'올해 기본 · 전체 기간 / 연월 범위 · 리그+대회 합산 · 자체전 포함 · 완료 후에도 수정 가능',{size:18,color:C.muted,anchor:'middle'});

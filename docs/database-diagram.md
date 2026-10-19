@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | 전체 구조 | 명단·경기·권한·이력이 어떻게 나뉘는지 | [SVG](diagrams/database/00-overview.svg) · [PNG](diagrams/database/00-overview.png) |
 | 팀·선수·대회·경기 | 팀별 자료 분리와 대회 연결 | [SVG](diagrams/database/01-team-match.svg) · [PNG](diagrams/database/01-team-match.png) |
-| 투표·계획·실제 출전 | 참석·통합 02 배치·교체와 득점 기록 | [SVG](diagrams/database/02-lineups.svg) · [PNG](diagrams/database/02-lineups.png) |
+| 투표·계획·실제 출전 | 참석·02 배치·교체와 03 득점 기록 | [SVG](diagrams/database/02-lineups.svg) · [PNG](diagrams/database/02-lineups.png) |
 | 골·도움 연결 | 골 한 건의 득점자와 선택적 도움 선수, 구간별 집계 방식 | [SVG](diagrams/database/05-goals.svg) · [PNG](diagrams/database/05-goals.png) |
 | 인증·권한·복구 | 개인 로그인, 감독·코치 권한, 팀 코드, 비밀번호 재설정 | [SVG](diagrams/database/03-access.svg) · [PNG](diagrams/database/03-access.png) |
 | 변경 이력·저장 영수증 | 수정 이력과 중복 저장 방지 | [SVG](diagrams/database/04-audit.svg) · [PNG](diagrams/database/04-audit.png) |
@@ -120,3 +120,5 @@ node scripts/Generate-DatabaseDiagram.mjs --png
 | 서버·배포·백업 | 시스템 구성도, 개발·배포, 백업·복구 그림 |
 
 원본 수정 → 열람본 재생성 → 렌더·링크·동작 확인 → 관련 설명·README 연결 → GitHub 반영 순서로 관리합니다. 운영 전 기능은 개발 상태로 표시하고, 실제 배포 확인 후 운영 상태를 확정합니다. 그림을 올리는 작업만으로 앱을 다시 배포하지 않습니다.
+
+2026-10-19 화면 간소화: 골·도움 입력 위치를 03으로 옮겨 관련 ERD 설명만 갱신했다. 테이블·컬럼·키·관계와 V31은 변경하지 않았다.

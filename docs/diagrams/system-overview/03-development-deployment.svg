@@ -67,7 +67,7 @@
 <text x="738" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이번 출시 범위</text>
 <text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">골마다 득점자·도움 선수 연결</text>
 <text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자리 눌러 배치 · 고정 저장 · 7일 세션</text>
-<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.9 · 앱과 공유 PDF 반영 확인</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 골별 기록·모바일 입력 · 운영 dd29444 · DB V31</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.11 · 앱과 공유 PDF 반영 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 배치·결과 입력 간소화 · 웹 3513218 / API dd29444 · 배포 확인은 문서 참조 · DB V31</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>
