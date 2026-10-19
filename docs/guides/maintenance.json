@@ -5,12 +5,12 @@
   "release": {
     "guideVersion": "1.10",
     "date": "2026-10-19",
-    "appCommit": "pending",
-    "deployment": "Northflank production (API and web verified 2026-10-19 17:51 KST)",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
+    "appCommit": "be49b2ffd2d29d0e30e54256c7e7ce8721098e18",
+    "deployment": "Northflank production web verified 2026-10-19 18:36:21 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "be49b2ffd2d29d0e30e54256c7e7ce8721098e18",
     "releaseLabel": "2026.10.19 선수 즉시 배치·간결한 저장",
-    "previousProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
+    "previousProductionCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
     "lastVerifiedApiCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed"
   },
   "artifacts": [
@@ -35,10 +35,16 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    "02 선수 이름순·즉시 반영·배치 색상 및 오른쪽 하단 간결한 저장. 회원 조회 절차 변경 없음."
-  ],
+  "pendingChanges": [],
   "history": [
+    {
+      "guideVersion": "1.10",
+      "date": "2026-10-19",
+      "appCommit": "be49b2ffd2d29d0e30e54256c7e7ce8721098e18",
+      "status": "deployed",
+      "changes": "02 이름순 목록·선발/교체 즉시 배치·현재 자리 색상, 오른쪽 아래 간결한 저장. 회원 조회 절차는 검토 후 유지.",
+      "validation": "프론트276개·타입·빌드, GitHub CI, 가상320/390px·전체보기·단계 저장, PDF26쪽 렌더, 공개HTTPS9개·운영자산SHA·감독 로그인/조회. 실제 iPhone·운영 쓰기·로컬MySQL 미실행."
+    },
     {
       "guideVersion": "1.8",
       "date": "2026-10-19",
