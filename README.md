@@ -1,5 +1,7 @@
 # 조축ON
 
+로컬 구현·미배포: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
+
 운영 반영 · 웹43e8fd6 / API1519c9d / 가이드1.13: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).
 
 운영 반영: [작전판 드래그와 쿼터별 실점](docs/pitch-drag-quarter-scores-2026-10-19.md).

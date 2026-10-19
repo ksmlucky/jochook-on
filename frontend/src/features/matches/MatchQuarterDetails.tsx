@@ -1,11 +1,12 @@
 import { useEffect, useId, useState } from 'react'
+import type { ReactNode } from 'react'
 import { SessionExpiredError } from '../auth/api'
 import { fetchMatch } from './api'
 import type { MatchRecord } from './api'
 import { quarterHighlights } from './quarterHighlights'
 import './match-quarter-details.css'
 
-export function MatchQuarterDetails({ id, disabled, onSessionExpired }: { id: number; disabled: boolean; onSessionExpired: () => void }) {
+export function MatchQuarterDetails({ id, disabled, onSessionExpired, actions }: { id: number; disabled: boolean; onSessionExpired: () => void; actions?: ReactNode }) {
   const [open, setOpen] = useState(false)
   const [record, setRecord] = useState<MatchRecord | null>(null)
   const [error, setError] = useState('')
@@ -25,7 +26,7 @@ export function MatchQuarterDetails({ id, disabled, onSessionExpired }: { id: nu
     return () => controller.abort()
   }, [id, open, attempt, onSessionExpired])
   return <div className="match-quarter-details">
-    <button type="button" className="text-button" aria-expanded={open} aria-controls={panelId} disabled={disabled} onClick={() => setOpen(value => !value)}>{open ? '쿼터별 기록 접기 ▴' : '쿼터별 기록 펼치기 ▾'}</button>
+    <div className="match-record-actions">{actions}<button type="button" className="text-button" aria-expanded={open} aria-controls={panelId} disabled={disabled} onClick={() => setOpen(value => !value)}>{open ? '쿼터별 기록 접기 ▴' : '쿼터별 기록 펼치기 ▾'}</button></div>
     <div id={panelId} hidden={!open}>
       {error ? <p role="alert">{error} <button type="button" className="text-button" onClick={() => setAttempt(a => a + 1)}>다시 불러오기</button></p>
         : !record ? <p role="status">기록을 불러오고 있어요.</p>

@@ -31,8 +31,8 @@
 .team-home-score { display: flex; gap: 8px; justify-content: space-between; align-items: center; padding: 10px 0; }
 .team-home-score > span { color: var(--muted); font-size: 12px; }
 .team-home-score strong { font-size: 19px; }
-.team-home-match .recording-status { align-self: flex-start; margin-bottom: 4px; }
-.team-home-match > button { margin-top: auto !important; }
+.team-home-match > .match-quarter-details { padding: 0; margin-top: auto; }
+.team-home-match .match-quarter-highlights { grid-template-columns: minmax(0,1fr); }
 .team-home-empty,.team-home-message { padding: 20px 0; color: var(--muted); font-size: 14px; }
 .team-home-message .secondary-button { margin-top: 12px; }
 @media(max-width: 900px) { .team-home-match-list { grid-template-columns: 1fr; } }
@@ -40,14 +40,14 @@
   .team-home-match-list { gap: 10px; }
   .team-home-match { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 5px 10px; padding: 12px 14px; }
   .team-home-match-meta { grid-column: 1 / -1; gap: 8px; }
-  .team-home-match h4 { grid-column: 1; grid-row: 2; font-size: 17px; line-height: 1.35; }
-  .team-home-score { grid-column: 2; grid-row: 2; padding: 0; display: grid; gap: 0; text-align: right; }
+  .team-home-match > .match-title-row { grid-column: 1 / -1; grid-row: 2; }
+  .team-home-match h4 { font-size: 17px; line-height: 1.35; }
+  .team-home-score { grid-column: 2; grid-row: 3; padding: 0; display: grid; gap: 0; text-align: right; }
   .team-home-score > span { font-size: 11px; line-height: 1.25; }
   .team-home-score strong { font-size: 18px; line-height: 1.4; }
-  .team-home-match-details { grid-column: 1 / -1; grid-row: 3; gap: 0; }
+  .team-home-match-details { grid-column: 1; grid-row: 3; gap: 0; }
   .team-home-tournament,.team-home-time { font-size: 12px; line-height: 1.5; }
-  .team-home-match > .recording-status { grid-column: 1; grid-row: 4; align-self: center; justify-self: start; min-width: 0; max-width: 100%; margin: 0; font-size: 11px; padding: 4px 6px; overflow-wrap: anywhere; }
-  .team-home-match > button { grid-column: 2; grid-row: 4; align-self: center; padding: 7px 10px; font-size: 12px; }
+  .team-home-match > .match-quarter-details { grid-column: 1 / -1; grid-row: 4; }
 }
 @media(max-width: 480px) {
   .team-home-heading { align-items: stretch; flex-direction: column; gap: 12px; }

@@ -1,5 +1,25 @@
 .match-quarter-details { padding: 0 16px 12px; background: var(--surface, white); border-radius: 0 0 12px 12px; }
-.match-quarter-details > button { min-height: 44px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); color: var(--ink); font: inherit; font-size: 13px; cursor: pointer; }
+.match-record-actions { display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+.match-record-actions > button { min-height: 44px; margin: 0; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; }
+.match-title-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.match-title-row > strong, .match-title-row > h4 { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.match-title-row > .recording-status { flex-shrink: 0; margin: 0; padding: 3px 6px; font-size: 11px; white-space: nowrap; }
+.match-list .match-list-item { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; }
+.match-list .match-card { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 6px 20px; padding: 16px 16px 8px; border: 0; border-radius: 0; }
+.match-list .match-date { grid-column: 1; grid-row: 1 / 3; }
+.match-list .match-title-row { grid-column: 2; grid-row: 1; }
+.match-list .match-card-details { grid-column: 2; grid-row: 2; }
+.match-list .match-score { grid-column: 3; grid-row: 1 / 3; }
+.match-list .match-scorers { margin-top: 4px; }
+.match-list .match-card small { margin-top: 0; }
+@media(max-width:700px) {
+  .match-list .match-card { grid-template-columns: minmax(0,1fr) auto; gap: 6px 10px; padding: 12px 12px 6px; }
+  .match-list .match-date { grid-column: 1 / -1; grid-row: 1; }
+  .match-list .match-title-row { grid-column: 1 / -1; grid-row: 2; }
+  .match-list .match-card-details { grid-column: 1; grid-row: 3; }
+  .match-list .match-score { grid-column: 2; grid-row: 3; min-width: 62px; font-size: 21px; }
+  .match-list .match-quarter-details { padding: 0 12px 8px; }
+}
 .match-quarter-highlights { list-style: none; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 0; margin: 8px 0; }
 .match-quarter-highlights > li { border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
 .match-quarter-highlights h4 { margin: 0 0 6px; }

@@ -193,16 +193,16 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
       {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id} className={isAdmin ? 'match-list-item managed' : 'match-list-item'} data-category={competitionCategory(m).key}>
         <button className="match-card" disabled={locked} onClick={() => void open(m.id)}>
           <span className="match-date"><MatchCategoryBadge match={m} /><span>{m.playedOn}</span><small>{matchTimeRange(m.kickoff, m.matchFormat)}</small></span>
-          <span className="match-card-details"><RecordingStatus stage={m.recordingStage} /><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><small>{m.venue || '장소 미입력'} · {m.kind === 'INTERNAL' ? `A ${formationLabel(m.formationA)} / B ${formationLabel(m.formationB)}` : formationLabel(m.formationA)} · {matchFormatLabel(m.matchFormat)}</small>
+          <span className="match-title-row"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><RecordingStatus stage={m.recordingStage} compact /></span><span className="match-card-details"><small>{m.venue || '장소 미입력'} · {m.kind === 'INTERNAL' ? `A ${formationLabel(m.formationA)} / B ${formationLabel(m.formationB)}` : formationLabel(m.formationA)} · {matchFormatLabel(m.matchFormat)}</small>
             {m.tournamentId != null && <span className="match-tournament-title">{m.tournamentName || '연결된 대회'}{m.tournamentStage && ` · ${tournamentStageLabels[m.tournamentStage]}`}</span>}
             <span className="match-scorers">{m.scorers.length ? <>득점 · {m.scorers.map(p => `${playerLabel(p)} ${m.kind === 'INTERNAL' ? [p.goalsA > 0 ? `A팀 ${p.goalsA}골` : '', p.goalsB > 0 ? `B팀 ${p.goalsB}골` : ''].filter(Boolean).join(' / ') : `${p.goals}골`}`).join(' · ')}{m.scorerCount > 3 && ` · 외 ${m.scorerCount - 3}명`}</> : '등록된 득점자 없음'}</span>
           </span>
           <span className={`match-score${m.scoreFor === null ? ' unrecorded' : ''}`} aria-label={m.scoreFor === null ? '스코어 미입력' : `${m.kind === 'INTERNAL' ? 'A팀' : '우리 팀'} ${m.scoreFor} 대 ${m.kind === 'INTERNAL' ? 'B팀' : '상대 팀'} ${m.scoreAgainst}`}>
             {m.scoreFor === null ? '스코어 미입력' : `${m.scoreFor} : ${m.scoreAgainst}`}<small>{m.kind === 'INTERNAL' ? 'A팀 : B팀' : '우리 팀 : 상대 팀'}</small>
           </span>
-          <span className="match-open">{isAdmin && m.recordingStage && m.recordingStage !== 'COMPLETED' ? '이어서 작성 ↗' : '기록 보기 ↗'}</span>
         </button>
-        <MatchQuarterDetails key={`${m.id}-${m.version}`} id={m.id} disabled={locked} onSessionExpired={onSessionExpired} />
+        <MatchQuarterDetails key={`${m.id}-${m.version}`} id={m.id} disabled={locked} onSessionExpired={onSessionExpired}
+          actions={<button type="button" disabled={locked} onClick={() => void open(m.id)}>{isAdmin && m.recordingStage && m.recordingStage !== 'COMPLETED' ? '이어서 작성 ↗' : '기록 보기 ↗'}</button>} />
         {isAdmin && <div className="match-card-actions"><button type="button" className="danger-button" disabled={locked}
           aria-label={`${m.playedOn} ${m.kind === 'INTERNAL' ? '자체전' : m.opponent || '상대 팀 미입력'} 경기 기록 삭제`}
           onClick={() => { setDeleteError(''); setDeleteTarget(m) }}>삭제</button></div>}

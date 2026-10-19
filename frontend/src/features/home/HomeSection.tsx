@@ -4,11 +4,13 @@ import { fetchMatches } from '../matches/api'
 import type { MatchPage, MatchSummary } from '../matches/api'
 import { MatchCategoryBadge } from '../matches/MatchCategoryBadge'
 import { RecordingStatus } from '../matches/RecordingStatus'
+import { MatchQuarterDetails } from '../matches/MatchQuarterDetails'
 import { matchTimeRange } from '../matches/time'
 import { selectHomeMatches } from './homeMatches'
 import './home.css'
 
 interface HomeSectionProps {
+  teamName: string
   isAdmin: boolean
   onOpenMatch: (id: number) => void
   onCreateMatch: () => void
@@ -17,7 +19,7 @@ interface HomeSectionProps {
   onSessionExpired: () => void
 }
 
-export function HomeSection({ isAdmin, onOpenMatch, onCreateMatch, onOpenStats, onOpenPlayers, onSessionExpired }: HomeSectionProps) {
+export function HomeSection({ teamName, isAdmin, onOpenMatch, onCreateMatch, onOpenStats, onOpenPlayers, onSessionExpired }: HomeSectionProps) {
   const [data, setData] = useState<MatchPage | null>(null)
   const [error, setError] = useState('')
   const [revision, setRevision] = useState(0)
@@ -57,24 +59,23 @@ export function HomeSection({ isAdmin, onOpenMatch, onCreateMatch, onOpenStats, 
           </section>}
           <section aria-labelledby="home-recent-heading">
             <div className="team-home-section-heading"><h3 id="home-recent-heading">최근 경기</h3><button type="button" className="secondary-button" onClick={() => setRevision(value => value + 1)}>새로고침</button></div>
-            {recent.length ? <><p className="team-home-caption">경기 날짜가 최근인 순서로 최대 3개를 보여줘요.</p><ul className="team-home-match-list">{recent.map(match => <li key={match.id}><RecentMatch match={match} onOpen={onOpenMatch} /></li>)}</ul></>
+            {recent.length ? <><p className="team-home-caption">경기 날짜가 최근인 순서로 최대 3개를 보여줘요.</p><ul className="team-home-match-list">{recent.map(match => <li key={`${match.id}-${match.version}`}><RecentMatch teamName={teamName} match={match} onOpen={onOpenMatch} onSessionExpired={onSessionExpired} /></li>)}</ul></>
               : <p className="team-home-empty">{isAdmin ? '아직 등록한 경기가 없어요. 새 경기 기록으로 시작해 보세요.' : '아직 등록된 경기가 없어요. 운영진이 기록을 등록하면 여기에 보여요.'}</p>}
           </section>
         </>}
   </section>
 }
 
-function RecentMatch({ match, onOpen }: { match: MatchSummary; onOpen: (id: number) => void }) {
+function RecentMatch({ teamName, match, onOpen, onSessionExpired }: { teamName: string; match: MatchSummary; onOpen: (id: number) => void; onSessionExpired: () => void }) {
   const internal = match.kind === 'INTERNAL'
   return <article className="team-home-match">
     <div className="team-home-match-meta"><time dateTime={match.playedOn}>{match.playedOn}</time><MatchCategoryBadge match={match} /></div>
-    <h4>{internal ? 'A팀 · B팀 자체전' : match.opponent || '상대 팀 미입력'}</h4>
+    <div className="match-title-row"><h4>{internal ? 'A팀 vs B팀' : `${teamName} vs ${match.opponent || '상대 팀 미입력'}`}</h4><RecordingStatus stage={match.recordingStage} compact /></div>
     <div className="team-home-match-details">
       {match.tournamentName && <p className="team-home-tournament">{match.tournamentName}</p>}
       <p className="team-home-time">{matchTimeRange(match.kickoff, match.matchFormat)}{match.venue && ` · ${match.venue}`}</p>
     </div>
     <div className="team-home-score"><span>{internal ? 'A팀 : B팀' : '우리 팀 : 상대 팀'}</span><strong>{match.scoreFor == null && match.scoreAgainst == null ? '스코어 미입력' : `${match.scoreFor ?? '—'} : ${match.scoreAgainst ?? '—'}`}</strong></div>
-    <RecordingStatus stage={match.recordingStage} />
-    <button type="button" className="secondary-button" onClick={() => onOpen(match.id)} aria-label={`${match.playedOn} ${internal ? '자체전' : match.opponent || '경기'} 기록 보기`}>경기 기록 보기</button>
+    <MatchQuarterDetails id={match.id} disabled={false} onSessionExpired={onSessionExpired} actions={<button type="button" onClick={() => onOpen(match.id)} aria-label={`${match.playedOn} ${internal ? '자체전' : match.opponent || '경기'} 기록 보기`}>기록 보기 ↗</button>} />
   </article>
 }
