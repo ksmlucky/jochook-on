@@ -454,6 +454,13 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       </div>}
     </section>
     </div>
-    {isAdmin && <div className="match-save-bar match-save-dock" aria-label="경기 저장"><span>{pending ? '저장 여부를 먼저 확인해 주세요.' : blocked ? '최신 기록 확인이 필요해요.' : <>{dirty ? '아직 저장하지 않은 변경이 있어요. ' : ''}{record?.recordingStage === 'COMPLETED' ? '중간 저장하면 작성 중으로 바뀌어요.' : `저장할 단계: 0${visibleSteps.indexOf(step) + 1} ${editorSteps[step]}`}</>}</span><div className="match-save-dock-actions"><button type="submit" value="save" className="secondary-button" disabled={!editable}>{busy ? '처리 중…' : '중간 저장 · 목록으로'}</button><button type="submit" value={step === 0 ? 'plan' : step === 1 ? 'totals' : 'complete'} className="primary-button" disabled={!editable}>{busy ? '처리 중…' : step === 0 ? '참석 명단 저장 · 스쿼드로' : step === 1 ? '스쿼드·기록 저장 · 결과로' : '기록 완료 · 목록으로'}</button></div></div>}
+    {isAdmin && <div className="match-save-bar match-save-dock" aria-label="경기 저장">
+      <span>{pending ? '저장 여부를 먼저 확인해 주세요.' : blocked ? '최신 기록 확인이 필요해요.' : record?.recordingStage === 'COMPLETED' ? '중간 저장 시 작성 중으로 변경' : `${dirty ? '미저장 · ' : ''}0${visibleSteps.indexOf(step) + 1} ${editorSteps[step]}`}</span>
+      <div className="match-save-dock-actions">
+        <button type="submit" value="save" className="secondary-button" disabled={!editable} aria-label="중간 저장 후 경기 목록으로">{busy ? '처리 중…' : '저장·목록'}</button>
+        <button type="submit" value={step === 0 ? 'plan' : step === 1 ? 'totals' : 'complete'} className="primary-button" disabled={!editable}
+          aria-label={step === 0 ? '참석 명단 저장 후 스쿼드로' : step === 1 ? '스쿼드·기록 저장 후 결과로' : '기록 완료 후 경기 목록으로'}>{busy ? '처리 중…' : step === 0 || step === 1 ? '저장·다음' : '기록 완료'}</button>
+      </div>
+    </div>}
   </form>
 }

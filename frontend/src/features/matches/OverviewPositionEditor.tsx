@@ -4,6 +4,7 @@ import { canPlay, playerLabel, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, PlannedEntry, Slot } from './api'
 import { GoalBreakdownFields } from './GoalBreakdownFields'
 import { usePitchDialog } from './usePitchDialog'
+import { slotGroup } from './formations'
 import { quarterLabel } from './matchFormat'
 import type { MatchFormat } from './matchFormat'
 
@@ -29,19 +30,20 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
   const candidates = participants.filter(player => mode === 'plan'
     ? player.vote === 'ATTENDING' && (!internal || player.plannedTeam === team)
     : canPlay(player))
-    .sort((a, b) => (a.shirtNumber ?? 100) - (b.shirtNumber ?? 100) || a.name.localeCompare(b.name, 'ko') || a.playerId - b.playerId)
+    .sort((a, b) => a.name.localeCompare(b.name, 'ko') || (a.shirtNumber ?? 100) - (b.shirtNumber ?? 100) || a.playerId - b.playerId)
 
   usePitchDialog(dialog)
   const close = () => onClose()
   function edit(order: 0 | 1, patch: Partial<Appearance> | null) {
-    if (!editable) return
+    if (!editable) return false
     try {
       if (mode === 'plan' && internal && patch?.playerId !== undefined && !participants.some(player => player.playerId === patch.playerId && player.plannedTeam === team)) {
         throw new Error(`${team}팀에 지정한 선수만 배치할 수 있어요. 01에서 팀을 먼저 확인해 주세요.`)
       }
       onEdit(order, patch); setError(''); setChanged(true)
+      return true
     }
-    catch (cause) { setError(cause instanceof Error ? cause.message : '입력 내용을 확인해 주세요.') }
+    catch (cause) { setError(cause instanceof Error ? cause.message : '입력 내용을 확인해 주세요.'); return false }
   }
 
   return createPortal(<dialog ref={dialog} className="overview-position-editor" aria-labelledby={titleId}
@@ -69,9 +71,11 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
                 const assigned = entries.find(item => item.playerId === candidate.playerId)
                 const isCurrent = assigned?.team === team && assigned.slot === slot && assigned.entryOrder === order
                 const blocked = !!assigned && !isCurrent && (mode === 'actual' || assigned.team !== team)
-                return <button key={candidate.playerId} type="button" disabled={blocked} aria-pressed={isCurrent} onClick={() => edit(order, { playerId: candidate.playerId })}>
+                return <button key={candidate.playerId} type="button" disabled={blocked} aria-pressed={isCurrent}
+                  className={assigned ? `is-assigned position-${slotGroup(assigned.slot)}` : undefined}
+                  onClick={() => { if (edit(order, { playerId: candidate.playerId })) close() }}>
                   <small>{candidate.shirtNumber === null ? candidate.playerType === 'GUEST' ? '용병' : '등번호 없음' : `#${candidate.shirtNumber}`}</small><strong>{candidate.name}</strong>
-                  <small>{assigned && !isCurrent ? assigned.team !== team ? '다른 팀' : `${slotLabels[assigned.slot]} · ${mode === 'actual' ? '출전 중' : '이동/교환'}` : isCurrent ? '선택됨' : '미배치'}</small>
+                  <small className="overview-player-assignment">{assigned ? `${assigned.team !== team ? `${assigned.team}팀 · ` : ''}${slotLabels[assigned.slot]}` : '미배치'}</small>
                 </button>
               })}
             </div>
