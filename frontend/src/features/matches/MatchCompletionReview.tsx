@@ -39,16 +39,16 @@ export function CompletionReview({ draft, onNavigate, disabled = false }: Props)
     <p className="completion-review-intro">출석과 실제 기록을 한 번 더 확인해 주세요. 빈 배치·미입력 스코어만으로 완료를 막지는 않아요.</p>
     <div className="completion-review-grid">
       <section className="completion-review-item">
-        <div className="completion-review-item-heading"><h6>투표·실제 출석</h6>
+        <div className="completion-review-item-heading"><h6>참석 명단</h6>
           <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 0 })}>01 출석 확인 <span aria-hidden="true">→</span></button>
         </div>
-        <p>{review.unconfirmedAttendees.length ? <>참석 예정자 중 <strong>{review.unconfirmedAttendees.length}명</strong>의 실제 출석이 미확인이에요.</> : '참석 예정자 중 실제 출석이 미확인인 선수는 없어요.'}</p>
+        <p>{review.unconfirmedAttendees.length ? <>참석 예정자 중 <strong>{review.unconfirmedAttendees.length}명</strong>의 실제 출석이 미확인이에요.</> : '선택한 선수의 참석이 반영돼 있어요.'}</p>
         {review.unconfirmedAttendees.length > 0 && <ReviewPlayers players={review.unconfirmedAttendees} step={0} onNavigate={onNavigate} disabled={disabled} />}
       </section>
 
       <section className="completion-review-item">
         <div className="completion-review-item-heading"><h6>쿼터별 선발 배치</h6>
-          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 2, quarter: firstMissing?.quarter ?? 1, team: firstMissing?.team ?? 'A' })}>03 배치 확인 <span aria-hidden="true">→</span></button>
+          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 2, quarter: firstMissing?.quarter ?? 1, team: firstMissing?.team ?? 'A' })}>02 배치 확인 <span aria-hidden="true">→</span></button>
         </div>
         <p>{missingQuarters.length ? <><strong>{missingQuarters.length}개</strong>의 {internal ? '쿼터·팀' : '쿼터'}에 빈 선발 자리가 있어요.</> : `${internal ? '양 팀 모두 ' : ''}${matchPeriodSummary(draft.matchFormat)}에 선발 11명이 배치돼 있어요.`}</p>
         <details className="completion-review-details"><summary>쿼터별 인원·빈 자리 보기</summary>
@@ -64,16 +64,16 @@ export function CompletionReview({ draft, onNavigate, disabled = false }: Props)
 
       <section className="completion-review-item">
         <div className="completion-review-item-heading"><h6>참석자의 출전 기록</h6>
-          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 2, quarter: 1 })}>03 출전 확인 <span aria-hidden="true">→</span></button>
+          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 2, quarter: 1 })}>02 출전 확인 <span aria-hidden="true">→</span></button>
         </div>
         <p>{review.attendeesWithoutAppearance.length ? <>참석·지각한 선수 중 <strong>{review.attendeesWithoutAppearance.length}명</strong>은 실제 출전 기록이 없어요.</> : '참석·지각한 선수 중 실제 출전 기록이 없는 선수는 없어요.'}</p>
         {review.attendeesWithoutAppearance.length > 0 && <ReviewPlayers players={review.attendeesWithoutAppearance} step={2} onNavigate={onNavigate} disabled={disabled} />}
-        <p className="completion-review-hint">참석만 하고 뛰지 않은 경우는 그대로 두면 돼요. 02 계획은 실제 출전으로 세지 않아요.</p>
+        <p className="completion-review-hint">참석만 하고 뛰지 않은 경우는 그대로 두면 돼요. 02에서 배치한 선수의 출전·개인 기록을 집계해요.</p>
       </section>
 
       <section className="completion-review-item">
         <div className="completion-review-item-heading"><h6>스코어·선수 득점</h6>
-          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 3 })}>04 스코어 확인 <span aria-hidden="true">→</span></button>
+          <button type="button" className="completion-review-jump" disabled={disabled} onClick={() => onNavigate({ step: 3 })}>03 스코어 확인 <span aria-hidden="true">→</span></button>
         </div>
         {review.scoreInput === 'unrecorded' ? <p>최종 스코어가 비어 있어요. 아직 모른다면 비워 두고 완료할 수 있어요.</p>
           : review.scoreInput === 'partial' ? <p>스코어가 한쪽만 입력돼 있어요. 양쪽 모두 입력하거나 모두 비워 주세요.</p>

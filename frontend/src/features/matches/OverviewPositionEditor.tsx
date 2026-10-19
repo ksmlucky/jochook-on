@@ -8,8 +8,8 @@ import type { MatchFormat } from './matchFormat'
 
 export type OverviewEntry = PlannedEntry | Appearance
 
-export function OverviewPositionEditor({ mode, slot, quarter, team, internal, participants, entries, editable, onEdit, onClose, matchFormat }: {
-  mode: 'plan' | 'actual'; slot: Slot; quarter: number; team: MatchTeam; internal: boolean
+export function OverviewPositionEditor({ mode, slot, quarter, team, internal, participants, entries, editable, onEdit, onClose, matchFormat, recordStats = false }: {
+  recordStats?: boolean; mode: 'plan' | 'actual'; slot: Slot; quarter: number; team: MatchTeam; internal: boolean
   participants: Participant[]; entries: OverviewEntry[]; editable: boolean; matchFormat?: MatchFormat | null
   onEdit: (order: 0 | 1, patch: Partial<Appearance> | null) => void; onClose: () => void
 }) {
@@ -48,7 +48,7 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
     onCancel={event => { event.preventDefault(); event.stopPropagation(); close() }}>
     <div className="overview-editor-heading"><h3 id={titleId}>{quarterLabel(quarter, matchFormat)} {internal ? `${team}팀 ` : ''}{slotLabels[slot]} 수정</h3>
       <button type="button" className="secondary-button" onClick={close}>닫기</button></div>
-    <p className="overview-editor-hint">{mode === 'plan' ? `${internal ? `01에서 ${team}팀으로 정한 ` : ''}참석 예정 선수 중에서 배치해요. 이미 배치한 같은 팀 선수는 이동하거나 서로 자리를 바꿔요.` : '실제 참석·지각한 선수 중에서 선택해요. 골·도움이 있는 선수를 바꾸려면 기록을 먼저 정정해 주세요.'}</p>
+    <p className="overview-editor-hint">{mode === 'plan' ? `${internal ? `01에서 ${team}팀으로 정한 ` : ''}참석 선수 중에서 배치해요. 이미 배치한 같은 팀 선수는 이동하거나 서로 자리를 바꿔요.` : '실제 참석·지각한 선수 중에서 선택해요. 골·도움이 있는 선수를 바꾸려면 기록을 먼저 정정해 주세요.'}</p>
     <fieldset disabled={!editable}>
       <legend className="sr-only">선발과 교체 수정</legend>
       {([0, 1] as const).map(order => {
@@ -56,7 +56,7 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
         const player = participants.find(item => item.playerId === entry?.playerId)
         const label = order === 0 ? '선발' : '교체'
         return <div className={`overview-editor-entry${order === 1 ? ' is-substitute' : ''}`} key={order}>
-          <label htmlFor={`${fieldsId}-${order}`}>{label}{entry ? ` · ${share}쿼터${mode === 'plan' ? ' 예정' : ''}` : ''}</label>
+          <label htmlFor={`${fieldsId}-${order}`}>{label}{entry ? ` · ${share}쿼터${mode === 'plan' && !recordStats ? ' 예정' : ''}` : ''}</label>
           <select id={`${fieldsId}-${order}`} aria-label={`${label} 선수`} value={entry?.playerId ?? ''} disabled={!editable || (order === 1 && !starter)}
             onChange={event => edit(order, event.target.value ? { playerId: Number(event.target.value) } : null)}>
             <option value="">{order === 0 ? '미배치 / 선발 해제' : starter ? '교체 없음 / 교체 해제' : '선발을 먼저 선택하세요'}</option>
@@ -70,18 +70,18 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
               </option>
             })}
           </select>
-          {mode === 'actual' && entry && 'goals' in entry && <div className="overview-editor-stats">
+          {(mode === 'actual' || recordStats) && entry && 'goals' in entry && <div className="overview-editor-stats">
             <label>총 골<input aria-label={`${label} 골`} type="number" inputMode="numeric" min={0} max={99} step={1} value={entry.goals}
               onChange={event => edit(order, { goals: event.target.valueAsNumber })} /></label>
             <label>도움<input aria-label={`${label} 도움`} type="number" inputMode="numeric" min={0} max={99} step={1} value={entry.assists}
               onChange={event => edit(order, { assists: event.target.valueAsNumber })} /></label>
           </div>}
-          {mode === 'actual' && entry && 'goals' in entry && <GoalBreakdownFields entry={entry} label={label} editable={editable} expanded onChange={patch => edit(order, patch)} />}
+          {(mode === 'actual' || recordStats) && entry && 'goals' in entry && <GoalBreakdownFields entry={entry} label={label} editable={editable} expanded onChange={patch => edit(order, patch)} />}
         </div>
       })}
     </fieldset>
     {error && <p className="overview-editor-error" role="alert">{error}</p>}
-    <p className="overview-editor-notice" role="status">{changed ? '초안에 반영했어요. ' : ''}DB 저장은 전체보기를 닫고 단계별 저장 버튼을 눌러 주세요.</p>
+    <p className="overview-editor-notice" role="status">{changed ? '초안에 반영했어요. ' : ''}작전판으로 돌아가 저장을 눌러 주세요.</p>
     <button type="button" className="primary-button overview-editor-done" onClick={close}>입력 완료 · 작전판으로</button>
   </dialog>, document.body)
 }

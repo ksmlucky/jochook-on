@@ -50,9 +50,9 @@ export function MatchWorkbookImport({ disabled, onBusy, onApply, onSessionExpire
         {preview.rows.map(row => <tr key={row.rowNumber}><td>{row.rowNumber}</td><td>{row.values[0]}</td><td>{row.values[1]}</td><td>{row.values[2]}</td>
           <td>{row.name ?? row.values[3]}</td><td>{row.shirtNumber ?? (row.values[4] || '없음')}</td><td>{row.values[5] || '0'} / {row.values[6] || '0'}</td><td>{row.values.length < 10 ? '기존 값 유지' : `${row.values[8] || '0'} / ${row.values[9] || '0'}`}</td><td className={row.errors.length ? 'form-error' : ''}>{row.errors.join(' ') || '확인'}</td></tr>)}
       </tbody></table></div>
-      <div className="import-warning"><strong>기존 {matchPeriodSummary(matchFormat)} 기록을 교체해요</strong><p>{teamLabel ? `${teamLabel}의 ` : ''}배치·골·도움이 파일 내용으로 바뀌고, 파일에 없는 쿼터는 비워져요. 예전 양식은 같은 쿼터·선수의 프리킥·PK를 유지하고, 새 양식은 두 값도 반영해요.</p><p>{teamLabel && '다른 팀의 기록과 '}투표·출석·기본 정보·코멘트는 유지돼요.</p></div>
+      <div className="import-warning"><strong>기존 {matchPeriodSummary(matchFormat)} 기록을 교체해요</strong><p>{teamLabel ? `${teamLabel}의 ` : ''}배치·골·도움이 파일 내용으로 바뀌고, 파일에 없는 쿼터는 비워져요. 예전 양식은 같은 쿼터·선수의 프리킥·PK를 유지하고, 새 양식은 두 값도 반영해요.</p><p>{teamLabel && '다른 팀의 기록과 '}기본 정보·코멘트는 유지돼요. 파일의 선수는 참석으로 기록돼요.</p></div>
       <button type="button" className="secondary-button" disabled={disabled || !preview.valid} onClick={() => {
-        if (onApply(preview)) { setPreview(null); setMessage('초안에 반영했어요. 실제 출석을 확인한 뒤 저장해 주세요.') }
+        if (onApply(preview)) { setPreview(null); setMessage('초안에 반영했어요. 스쿼드·기록을 확인한 뒤 저장해 주세요.') }
       }}>검토한 엑셀로 {matchPeriodSummary(matchFormat)} 초안 교체</button>
     </div>}
   </div>

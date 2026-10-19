@@ -173,7 +173,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     {!editor && !history && isAdmin && recovery && <div className="match-recovery-notice" role="region" aria-labelledby="match-recovery-title">
       <div className="match-recovery-heading"><h3 id="match-recovery-title">작성 중인 경기</h3><span className="match-recovery-badge">{recovery.pending ? '저장 확인 필요' : '미저장 초안'}</span></div>
       <p className="match-recovery-match">{recovery.draft.kind === 'INTERNAL' ? '자체전 · A팀 vs B팀' : recovery.draft.opponent || '상대 팀 미입력'}</p>
-      <p className="match-recovery-meta"><span>{recovery.draft.playedOn || '날짜 미입력'}</span><span>{['01 투표·출석', '02 스쿼드 계획', '03 실제 출전', '04 결과·코멘트'][recovery.step]}</span></p>
+      <p className="match-recovery-meta"><span>{recovery.draft.playedOn || '날짜 미입력'}</span><span>{['01 참석 명단', '02 스쿼드·기록', '02 스쿼드·기록', '03 결과·코멘트'][recovery.step]}</span></p>
       <p className="match-recovery-updated">최근 작성 <time dateTime={new Date(recovery.savedAt).toISOString()}>{new Date(recovery.savedAt).toLocaleString('ko-KR', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false })}</time></p>
       {recovery.pending && <p>초안을 열어 저장 여부를 먼저 확인해 주세요.</p>}
       <div className="registration-actions"><button type="button" className="primary-button" disabled={busy || deleting} onClick={() => void restore()}>{recovery.pending ? '초안 열기' : '이어서 작성'}</button>{!recovery.pending && <button type="button" className="secondary-button" disabled={busy || deleting} onClick={() => setDiscardingRecovery(true)}>초안 버리기</button>}</div>

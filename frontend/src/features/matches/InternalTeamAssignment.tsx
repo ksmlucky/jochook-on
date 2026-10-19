@@ -82,13 +82,13 @@ export function InternalTeamAssignment({ draft, players, editable, onChange }: {
       </div>
     })}</div>
     {!candidates.length && <p className="field-help">조건에 맞는 선수가 없어요.</p>}
-    <p className="field-help">체크를 해제하면 미투표로 돌아가요. 실제 출석·출전·득점 기록은 유지돼요.</p>
+    <p className="field-help">체크를 해제하면 미투표로 돌아가요. 선택 해제 시 배치도 정리돼요. 골·도움 기록이 있으면 먼저 정정해야 해요.</p>
     {unassigned.length > 0 && <p className="field-help">참석 예정 중 미배정 선수가 {unassigned.length}명 있어요. 팀을 골라 체크해 주세요. 중간 저장은 할 수 있어요.</p>}
     {confirmation && pendingPlayer && <div className="conflict-notice" role="alert" tabIndex={-1} ref={confirmationPanel}>
       <p><strong>{playerLabel(pendingPlayer)}</strong> 선수를 {confirmation.kind === 'remove' ? `${confirmation.team}팀에서 선택 해제하고 미투표로 변경` : `${confirmation.team}팀으로 ${confirmation.kind === 'move' ? '이동' : '배정'}`}할까요?</p>
-      {teamChangeRemovesPlan(draft, confirmation.playerId, confirmation.kind === 'remove' ? null : confirmation.team) && <p>이 선수의 기존 팀 계획 배치가 해제돼요. 같은 자리의 교체 선수는 선발로 올라가요.</p>}
-      <p>실제 출석·출전·득점 기록은 유지돼요.</p>
-      <div className="registration-actions"><button type="button" className="primary-button" disabled={!editable} onClick={() => apply(confirmation, true)}>{confirmation.kind === 'remove' ? '선택 해제 · 계획 정리' : '팀 배정 변경'}</button>
+      {teamChangeRemovesPlan(draft, confirmation.playerId, confirmation.kind === 'remove' ? null : confirmation.team) && <p>이 선수의 기존 팀 배치가 해제돼요. 같은 자리의 교체 선수는 선발로 올라가요.</p>}
+      <p>선택 해제 시 배치도 정리돼요. 골·도움 기록이 있으면 먼저 정정해야 해요.</p>
+      <div className="registration-actions"><button type="button" className="primary-button" disabled={!editable} onClick={() => apply(confirmation, true)}>{confirmation.kind === 'remove' ? '선택 해제 · 배치 정리' : '팀 배정 변경'}</button>
         <button type="button" className="secondary-button" onClick={() => setConfirmation(null)}>취소</button></div>
     </div>}
     {error && <p className="form-error" role="alert">{error}</p>}

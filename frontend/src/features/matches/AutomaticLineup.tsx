@@ -52,9 +52,9 @@ export function AutomaticLineup({ draft, players, matchId, disabled, onBusy, onA
     }
   }
   return <section className="automatic-lineup" aria-labelledby="auto-title" aria-busy={pending}>
-    <div className="match-block-title"><h4 id="auto-title">참석 명단 확인 · 자동 편성</h4><span>참석 예정 {selected.length}명</span></div>
-    <p>{internal ? `01에서 나눈 팀별로 A팀 ${formationLabel(formation)} · B팀 ${formationLabel(formationFor(draft, 'B'))} 계획을 만들어요. 팀을 섞지 않고 각각 계산해요.` : `참석 예정 선수로 ${formationLabel(formation)} · ${periodSummary} 계획을 만들어요.`} 모두 {periods.length}쿼터에 참여할 수 있을 때 사용해 주세요.</p>
-    {incompleteTeams && <p className="field-help">01에서 참석 예정 선수를 A·B팀에 모두 배정한 뒤 자동 편성해 주세요.</p>}
+    <div className="match-block-title"><h4 id="auto-title">참석 명단 확인 · 자동 편성</h4><span>참석 {selected.length}명</span></div>
+    <p>{internal ? `01에서 나눈 팀별로 A팀 ${formationLabel(formation)} · B팀 ${formationLabel(formationFor(draft, 'B'))} 스쿼드를 만들어요. 팀을 섞지 않고 각각 계산해요.` : `참석 선수로 ${formationLabel(formation)} · ${periodSummary} 스쿼드를 만들어요.`} 모두 {periods.length}쿼터에 참여할 수 있을 때 사용해 주세요.</p>
+    {incompleteTeams && <p className="field-help">01에서 참석 선수를 A·B팀에 모두 배정한 뒤 자동 편성해 주세요.</p>}
     <details className="auto-policy"><summary>자동 편성 기준 보기</summary><ul className="auto-rules">
       <li>1~3지망에 GK가 있으면 GK 그룹으로 배정 · 한 명이면 {periods.length}쿼터 전담</li>
       <li>두 쿼터 연속 휴식 방지 · {twoHalves ? '전반 교체 최소화, 후반 교체 우선' : '1~3쿼터 교체 최소화, 4쿼터 교체 우선'}</li>
@@ -64,14 +64,14 @@ export function AutomaticLineup({ draft, players, matchId, disabled, onBusy, onA
       <li>인접 포지션: LW↔LM · RW↔RM · CM↔CAM · LB↔LWB · LM↔LWB · RB↔RWB · RM↔RWB</li>
     </ul><p className="field-help">출석률 = 해당 경기일 이전 참석·지각 ÷ 참석·지각·불참 기록. 미확인과 현재 경기는 제외합니다. 기록 없음은 우선순위 계산에서 0%와 같으며 동률은 계산마다 추첨합니다.</p></details>
     <button type="button" className="primary-button" disabled={disabled || !selected.length || incompleteTeams} onClick={() => void generate()}>{pending ? `${periodSummary} 편성 계산 중…` : `${internal ? 'A·B팀 ' : ''}${periodSummary} 자동 편성`}</button>
-    <p className="field-help">편성 후 수정할 수 있어요. 확인을 마치면 계획을 저장해 주세요.</p>
-    {confirm && <div className="conflict-notice" role="alert"><p>현재 {periodSummary} 계획을 새 자동 편성으로 교체할까요? 실제 출석·득점·도움은 그대로 유지됩니다.</p><div className="registration-actions">
-      <button type="button" className="primary-button" disabled={disabled} onClick={() => void generate(true)}>계획 교체하고 자동 편성</button>
-      <button type="button" className="secondary-button" disabled={disabled} onClick={() => setConfirm(false)}>기존 계획 유지</button>
+    <p className="field-help">편성 후 수정할 수 있어요. 확인을 마치면 스쿼드를 저장해 주세요.</p>
+    {confirm && <div className="conflict-notice" role="alert"><p>현재 {periodSummary} 스쿼드를 새 자동 편성으로 교체할까요? 골·도움은 같은 구간의 선수를 따라 유지돼요. 기록이 있는 선수를 빼는 변경은 차단해요.</p><div className="registration-actions">
+      <button type="button" className="primary-button" disabled={disabled} onClick={() => void generate(true)}>스쿼드 교체하고 자동 편성</button>
+      <button type="button" className="secondary-button" disabled={disabled} onClick={() => setConfirm(false)}>기존 스쿼드 유지</button>
     </div></div>}
-    {error && <p className="form-error" role="alert">{error} 기존 계획은 유지했습니다.</p>}
+    {error && <p className="form-error" role="alert">{error} 기존 스쿼드는 유지했습니다.</p>}
     {result && <div className="auto-result">
-      <h4 ref={resultHeading} tabIndex={-1}>{periodSummary} 계획을 만들었어요</h4>
+      <h4 ref={resultHeading} tabIndex={-1}>{periodSummary} 스쿼드를 만들었어요</h4>
       <p className="field-help">아래 배치와 출전량을 확인한 뒤 저장해 주세요. 직접 수정하면 출전 배분도 달라질 수 있어요.</p>
       {!!result.warnings.length && <ul className="import-warning">{result.warnings.map(w => <li key={w}>{w}</li>)}</ul>}
       <div className="auto-quarter-summary">{periods.map(q => <span key={q}><strong>{quarterLabel(q, draft.matchFormat)}</strong> 선발 {draft.plannedLineup.filter(e => e.quarterNumber === q && e.entryOrder === 0).length}명 · 교체 {draft.plannedLineup.filter(e => e.quarterNumber === q && e.entryOrder === 1).length}명</span>)}</div>

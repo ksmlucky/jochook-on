@@ -1,3 +1,4 @@
+import { OverviewPositionEditor } from './OverviewPositionEditor'
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
@@ -5,7 +6,7 @@ import type { Player } from '../players/api'
 import { preferredPositionGroup } from '../players/api'
 import { ageBand } from '../players/age'
 import { playerLabel, slotLabels } from './api'
-import type { Appearance, MatchTeam, Participant, PlannedEntry, Slot } from './api'
+import type { Appearance, MatchTeam, Participant, PlannedEntry, Quarter, Slot } from './api'
 import { TeamSelector } from './TeamSelector'
 import { PitchMarkings } from './PitchMarkings'
 import { checkPlan, placeInPlan, plannedShare } from './plan'
@@ -16,13 +17,14 @@ import { unassignedAttendees } from './internalTeams'
 import { matchPeriodSummary, quarterLabel, quarterNumbers } from './matchFormat'
 import type { MatchFormat } from './matchFormat'
 
-export function MatchPlanner({ entries, participants, players, editable, referenceYear, onChange, tools, footer, internal = false, formationA, formationB, matchFormat }: {
+export function MatchPlanner({ entries, participants, players, editable, referenceYear, onChange, tools, footer, internal = false, formationA, formationB, matchFormat, quarters, onRecordEdit, workbook, quarter, team, setQuarter, setTeam }: {
+  quarters: Quarter[]; onRecordEdit: (quarter: number, team: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null) => void; workbook?: ReactNode
+  quarter: number; team: MatchTeam; setQuarter: (value: number) => void; setTeam: (value: MatchTeam) => void
   entries: PlannedEntry[]; participants: Participant[]; players: Player[]; editable: boolean; referenceYear: number
   onChange: (entries: PlannedEntry[]) => void; tools?: ReactNode; footer: ReactNode; internal?: boolean
   formationA?: Formation | null; formationB?: Formation | null; matchFormat?: MatchFormat | null
 }) {
-  const [quarter, setQuarter] = useState(1)
-  const [team, setTeam] = useState<MatchTeam>('A')
+  const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
   const formation = formationFor({ formationA, formationB }, team)
   const [selected, setSelected] = useState<number | null>(null)
   const [message, setMessage] = useState('')
@@ -54,35 +56,31 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     try { checkPlan(next); onChange(next); setSelected(null); setMessage('배치를 해제했습니다.') } catch (e) { setMessage((e as Error).message) }
   }
   function editOverview(targetQuarter: number, targetTeam: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null) {
-    if (!canEdit) throw new Error('01에서 참석 예정 선수의 A·B팀을 먼저 확인해 주세요.')
+    if (!editable) throw new Error('지금은 수정할 수 없어요.')
+    if ((!patch || Object.hasOwn(patch, 'playerId')) && !canEdit) throw new Error('01에서 참석 선수의 A·B팀을 먼저 확인해 주세요.')
     if (!quarterNumbers(matchFormat).includes(targetQuarter)) throw new Error('현재 경기 형식의 쿼터를 선택해 주세요.')
-    if (patch && !participants.some(player => player.playerId === patch.playerId && player.vote === 'ATTENDING' && (!internal || player.plannedTeam === targetTeam))) throw new Error('01에서 이 팀으로 배정한 참석 예정 선수를 선택해 주세요.')
-    const next = patch
-      ? placeInPlan(entries, targetQuarter, slot, order, patch.playerId!, targetTeam, teamParticipants)
-      : entries.filter(entry => entry.quarterNumber !== targetQuarter || entry.team !== targetTeam || entry.slot !== slot || entry.entryOrder !== order)
-    checkPlan(next, teamParticipants)
-    onChange(next); setSelected(null); setMessage('')
+    onRecordEdit(targetQuarter, targetTeam, slot, order, patch); setSelected(null); setMessage('')
   }
   function copyPrevious(confirmed = false) {
     if (!canEdit) return
     if (allQuarter.length && !confirmed) { setConfirmCopy(true); return }
     const next = [...entries.filter(a => a.quarterNumber !== quarter), ...entries.filter(a => a.quarterNumber === quarter - 1).map(a => ({ ...a, quarterNumber: quarter }))]
-    try { checkPlan(next, teamParticipants); onChange(next); setSelected(null); setConfirmCopy(false); setMessage('이전 쿼터의 계획을 복사했습니다.') }
+    try { checkPlan(next, teamParticipants); onChange(next); setSelected(null); setConfirmCopy(false); setMessage('이전 쿼터의 스쿼드를 복사했습니다.') }
     catch (cause) { setConfirmCopy(false); setMessage((cause as Error).message) }
   }
   return <section className="match-block" aria-labelledby="plan-title">
-    <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 경기 전 스쿼드 계획</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석 예정자 직접 배치</span></div>
-    <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={canEdit} onEdit={canEdit ? editOverview : undefined} />
-    {assignmentPending && <p className="import-warning" role="status">참석 예정 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
+    <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 스쿼드·개인 기록</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석자 직접 배치</span></div>
+    <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} recordQuarters={quarters} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={editable} onEdit={editable ? editOverview : undefined} />
+    {assignmentPending && <p className="import-warning" role="status">참석 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
     <p className="field-help">명단이나 작전판의 선수를 누른 뒤 다른 자리를 눌러 주세요. 선수가 있으면 서로 자리를 바꿔요. 같은 선수를 다시 누르면 선택을 취소해요.</p>
     {selected !== null && <p role="status" className="planner-message">{participants.find(p => p.playerId === selected)?.name} 선택 중 · 이동할 자리를 눌러 주세요.<button type="button" className="secondary-button" onClick={() => setSelected(null)}>선택 취소</button></p>}
     {tools}
-    <div className="quarter-tabs" role="group" aria-label="계획 쿼터 선택">{quarterNumbers(matchFormat).map(n => <button type="button" key={n} aria-pressed={quarter === n} onClick={() => { setQuarter(n); setSelected(null); setMessage(''); setConfirmCopy(false) }}>{quarterLabel(n, matchFormat)} <small>{internal ? `${team}팀 ` : ''}선발 {entries.filter(a => a.quarterNumber === n && a.team === team && a.entryOrder === 0).length}/11</small></button>)}</div>
-    {internal && <><TeamSelector team={team} disabled={false} label="계획 편성 팀" counts={{ A: allQuarter.filter(a => a.team === 'A').length, B: allQuarter.filter(a => a.team === 'B').length }} onChange={value => { setTeam(value); setSelected(null); setMessage(''); setConfirmCopy(false) }} />
+    <div className="quarter-tabs" role="group" aria-label="스쿼드 쿼터 선택">{quarterNumbers(matchFormat).map(n => <button type="button" key={n} aria-pressed={quarter === n} onClick={() => { setQuarter(n); setSelected(null); setMessage(''); setConfirmCopy(false) }}>{quarterLabel(n, matchFormat)} <small>{internal ? `${team}팀 ` : ''}선발 {entries.filter(a => a.quarterNumber === n && a.team === team && a.entryOrder === 0).length}/11</small></button>)}</div>
+    {internal && <><TeamSelector team={team} disabled={false} label="스쿼드 편성 팀" counts={{ A: allQuarter.filter(a => a.team === 'A').length, B: allQuarter.filter(a => a.team === 'B').length }} onChange={value => { setTeam(value); setSelected(null); setMessage(''); setConfirmCopy(false) }} />
       <p className="field-help">01에서 나눈 팀 안에서만 배치할 수 있어요. 팀을 바꾸려면 01의 팀 배정을 수정해 주세요.</p></>}
-    <div className="planner-layout"><aside className="planner-bench" aria-label="계획 배치 선수">
-      <h5>{internal ? `${team}팀 선수` : '참석 예정 선수'} · {candidates.length}명</h5><p className="field-help">각 선수 아래는 {matchPeriodSummary(matchFormat)} 합계 계획입니다.</p>
-      {!candidates.length && <p>위에서 참석 예정 선수를 먼저 선택해 주세요.</p>}
+    <div className="planner-layout"><aside className="planner-bench" aria-label="스쿼드 배치 선수">
+      <h5>{internal ? `${team}팀 선수` : '참석 선수'} · {candidates.length}명</h5><p className="field-help">각 선수 아래는 {matchPeriodSummary(matchFormat)} 출전 합계예요.</p>
+      {!candidates.length && <p>위에서 참석 선수를 먼저 선택해 주세요.</p>}
       {candidates.map(p => { const profile = players.find(player => player.id === p.playerId); const share = entries.filter(a => a.playerId === p.playerId).reduce((sum, a) => sum + plannedShare(entries, a), 0)
         const assigned = allQuarter.find(a => a.playerId === p.playerId)
         const preferences = [profile?.firstChoice, profile?.secondChoice, profile?.thirdChoice].filter(Boolean)
@@ -112,7 +110,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
           <small>총 {share}쿼터</small>
         </button>
       })}
-    </aside><div><div className={`lineup-pitch plan-pitch tactics-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} data-formation={formation} aria-label={`${quarterLabel(quarter, matchFormat)} ${internal ? `${team}팀 ` : ''}계획 ${formationLabel(formation)}`}><PitchMarkings /><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>
+    </aside><div><div className={`lineup-pitch plan-pitch tactics-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} data-formation={formation} aria-label={`${quarterLabel(quarter, matchFormat)} ${internal ? `${team}팀 ` : ''}스쿼드 ${formationLabel(formation)}`}><PitchMarkings /><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>
       {pitchRowsFor(formation).map((row, i) => <div className="lineup-row" key={i}>{row.map(slot => {
         const group = slotGroup(slot)
         return <div className={`plan-position position-${group}`} data-position={slot} key={slot}><span className="position-badge">{slotLabels[slot]}</span>{([0, 1] as const).map(order => {
@@ -123,23 +121,27 @@ export function MatchPlanner({ entries, participants, players, editable, referen
           return <div className={`plan-place${order === 1 ? ' is-substitute' : ''}${emptySubstitute ? ' is-empty-substitute' : ''}`} key={order}><button type="button" className={`${entry ? 'plan-filled ' : ''}${selected !== null && validTarget ? 'plan-drop-ready ' : ''}${hoveredPlace === `${slot}:${order}` ? 'plan-drop-hover' : ''}`} disabled={!canEdit || !validTarget}
             data-plan-slot={slot} data-plan-order={order}
             aria-pressed={!!entry && selected === entry.playerId}
-            aria-label={`${quarterLabel(quarter, matchFormat)} 계획 ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 자리`}
+            aria-label={`${quarterLabel(quarter, matchFormat)} 스쿼드 ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 자리`}
             title={emptySubstitute ? '후보 선수를 선택한 뒤 누르거나 이곳으로 끌어 놓으세요.' : undefined}
             onClick={() => {
               if (entry && selected === entry.playerId) { setSelected(null); setMessage('선택을 취소했어요.'); return }
               if (entry && selected === null) { setSelected(entry.playerId); setMessage('바꿀 선수 또는 빈 자리를 눌러 주세요.'); return }
-              if (emptySubstitute && selected === null) { setMessage('참석 예정 선수에서 교체할 선수를 먼저 선택한 뒤, 이 자리의 + 교체를 눌러 주세요.'); return }
+              if (emptySubstitute && selected === null) { setMessage('참석 선수에서 교체할 선수를 먼저 선택한 뒤, 이 자리의 + 교체를 눌러 주세요.'); return }
               place(slot, order, selected)
             }}>
             {emptySubstitute ? <span>+ 교체</span> : <><small>{entry ? '✓ ' : ''}{order === 0 ? '선발' : '교체'}{entry ? ` · ${plannedShare(entries, entry)}Q` : ''}</small><strong>{person ? playerLabel(person) : '+ 배치'}</strong></>}
           </button>{entry && editable && <button type="button" className="plan-remove" aria-label={`${quarterLabel(quarter, matchFormat)} ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 배치 해제`} onClick={() => remove(entry)}>×</button>}</div>
-        })}</div>
+        })}<button type="button" className="squad-record-button" aria-label={`${slotLabels[slot]} 배치·기록 수정`} onClick={() => setEditingSlot(slot)}>배치·기록</button></div>
       })}</div>)}
-    </div><div className="import-tools">{editable && quarter > 1 && <button type="button" className="secondary-button" disabled={!canEdit} onClick={() => copyPrevious()}>{internal ? '이전 쿼터 양 팀 계획 복사' : '이전 쿼터 계획 복사'}</button>}
+    </div><div className="import-tools">{editable && quarter > 1 && <button type="button" className="secondary-button" disabled={!canEdit} onClick={() => copyPrevious()}>{internal ? '이전 쿼터 양 팀 스쿼드 복사' : '이전 쿼터 스쿼드 복사'}</button>}
       </div>
-    <p className="field-help">계획은 실제 기록과 별도예요. 계획을 저장한 뒤 03에서 실제 출전을 확인해 주세요.</p></div></div>
-    {confirmCopy && <div className="conflict-notice" role="alert"><p>현재 {quarterLabel(quarter, matchFormat)} {internal ? '양 팀 ' : ''}계획을 이전 쿼터 계획으로 교체할까요?</p><button type="button" className="secondary-button" onClick={() => copyPrevious(true)}>현재 계획 교체</button> <button type="button" className="secondary-button" onClick={() => setConfirmCopy(false)}>복사 취소</button></div>}
+    <p className="field-help">배치·기록을 누르면 선수·교체·골·도움을 수정해요. 교체한 두 선수는 각각 0.5쿼터예요.</p></div></div>
+    {confirmCopy && <div className="conflict-notice" role="alert"><p>현재 {quarterLabel(quarter, matchFormat)} {internal ? '양 팀 ' : ''}스쿼드를 이전 쿼터 스쿼드로 교체할까요?</p><button type="button" className="secondary-button" onClick={() => copyPrevious(true)}>현재 스쿼드 교체</button> <button type="button" className="secondary-button" onClick={() => setConfirmCopy(false)}>복사 취소</button></div>}
     {message && <p role="status" className="planner-message">{message}</p>}
+    {workbook}
+    {editingSlot && <OverviewPositionEditor matchFormat={matchFormat} mode="plan" recordStats slot={editingSlot} quarter={quarter} team={team} internal={internal}
+      participants={participants} entries={quarters.find(q => q.number === quarter)?.lineup ?? []} editable={editable}
+      onEdit={(order, patch) => editOverview(quarter, team, editingSlot, order, patch)} onClose={() => setEditingSlot(null)} />}
     {footer}
     {dragPreview && draggedPlayer && createPortal(<div className={`planner-drag-card position-${preferredPositionGroup(draggedProfile?.firstChoice ?? null)}`} style={{ left: dragPreview.x, top: dragPreview.y }} aria-hidden="true">
       <strong>{playerLabel(draggedPlayer)}</strong><small>{draggedProfile?.firstChoice ?? '미확인'} · {quarterLabel(quarter, matchFormat)} 배치</small><span>{hoveredPlace ? '여기에 놓기' : '강조된 자리에 놓으세요'}</span>

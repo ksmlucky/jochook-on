@@ -28,6 +28,6 @@ test('history includes completion and reopening without inventing changes in old
   const base = { kind: 'EXTERNAL', scoreFor: 0, scoreAgainst: 0, participants: [], quarters: [], plannedLineup: [] }
   assert.deepEqual(matchHistoryChanges(base, { ...base, recordingStage: null }), [])
   assert.deepEqual(matchHistoryChanges({ ...base, recordingStage: 'COMPLETED' }, { ...base, recordingStage: 'ACTUAL' }), [
-    { label: '작성 상태', before: '기록 완료', after: '03 실제 출전 작성 중' },
+    { label: '작성 상태', before: '기록 완료', after: '02 스쿼드·기록 작성 중' },
   ])
 })
