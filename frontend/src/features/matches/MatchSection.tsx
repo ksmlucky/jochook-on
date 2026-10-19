@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { FadeToast } from '../../app/FadeToast'
+import { MatchQuarterDetails } from './MatchQuarterDetails'
 import { SessionExpiredError } from '../auth/api'
 import type { Player } from '../players/api'
 import { deleteMatch, fetchMatch, fetchMatches, fetchMatchPlayers, fetchMatchYears, MatchRequestError, playerLabel } from './api'
@@ -201,6 +202,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
           </span>
           <span className="match-open">{isAdmin && m.recordingStage && m.recordingStage !== 'COMPLETED' ? '이어서 작성 ↗' : '기록 보기 ↗'}</span>
         </button>
+        <MatchQuarterDetails key={`${m.id}-${m.version}`} id={m.id} disabled={locked} onSessionExpired={onSessionExpired} />
         {isAdmin && <div className="match-card-actions"><button type="button" className="danger-button" disabled={locked}
           aria-label={`${m.playedOn} ${m.kind === 'INTERNAL' ? '자체전' : m.opponent || '상대 팀 미입력'} 경기 기록 삭제`}
           onClick={() => { setDeleteError(''); setDeleteTarget(m) }}>삭제</button></div>}

@@ -1,5 +1,7 @@
 # 조축ON
 
+개발·배포 준비: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).
+
 운영 반영: [작전판 드래그와 쿼터별 실점](docs/pitch-drag-quarter-scores-2026-10-19.md).
 
 **운영 반영 · 웹3513218 / 가이드1.11:** [02 배치 전용·03 골별 기록과 구간별 저장](docs/match-entry-simplified-2026-10-19.md). 고정 버튼은 목록/다음/완료로 축소.

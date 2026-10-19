@@ -1,4 +1,6 @@
 import { usePitchDrag, PitchDragPreview } from './usePitchDrag'
+import { FadeToast } from '../../app/FadeToast'
+import { useTimedNotice } from '../../app/useTimedNotice'
 import { OverviewPositionEditor } from './OverviewPositionEditor'
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -30,6 +32,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
   const formation = formationFor({ formationA, formationB }, team)
   const [selected, setSelected] = useState<number | null>(null)
   const [message, setMessage] = useState('')
+  const { notice, notify } = useTimedNotice()
   const [confirmCopy, setConfirmCopy] = useState(false)
   const [dragPreview, setDragPreview] = useState<{ playerId: number; x: number; y: number } | null>(null)
   const [hoveredPlace, setHoveredPlace] = useState<string | null>(null)
@@ -56,7 +59,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
   function remove(entry: PlannedEntry) {
     if (!editable) return
     const next = removeFromPlan(entries, entry)
-    try { checkPlan(next); onChange(next); setSelected(null); setMessage(entry.entryOrder === 0 && q.some(a => a.slot === entry.slot && a.entryOrder === 1) ? '선발을 해제하고 교체 선수를 선발로 올렸어요.' : '배치를 해제했습니다.') } catch (e) { setMessage((e as Error).message) }
+    try { checkPlan(next); onChange(next); setSelected(null); setMessage(entry.entryOrder === 0 && q.some(a => a.slot === entry.slot && a.entryOrder === 1) ? '선발을 해제하고 교체 선수를 선발로 올렸어요.' : '배치를 해제했습니다.') } catch (e) { notify((e as Error).message) }
   }
   function editOverview(targetQuarter: number, targetTeam: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null) {
     if (!editable) throw new Error('지금은 수정할 수 없어요.')
@@ -72,6 +75,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     catch (cause) { setConfirmCopy(false); setMessage((cause as Error).message) }
   }
   return <section className="match-block" aria-labelledby="plan-title">
+    <FadeToast message={notice?.message ?? ''} identity={notice?.id} tone="info" />
     <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 스쿼드 배치</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석자 직접 배치</span></div>
     <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} recordQuarters={quarters} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={editable} onEdit={editable ? editOverview : undefined} />
     {assignmentPending && <p className="import-warning" role="status">참석 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}

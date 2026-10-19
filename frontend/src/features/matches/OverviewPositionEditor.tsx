@@ -1,4 +1,6 @@
 import { useId, useRef, useState } from 'react'
+import { FadeToast } from '../../app/FadeToast'
+import { useTimedNotice } from '../../app/useTimedNotice'
 import { createPortal } from 'react-dom'
 import { canPlay, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, PlannedEntry, Slot } from './api'
@@ -18,7 +20,7 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
   const dialog = useRef<HTMLDialogElement>(null)
   const titleId = useId()
   const fieldsId = useId()
-  const [error, setError] = useState('')
+  const { notice, notify } = useTimedNotice()
   const [search, setSearch] = useState('')
   const atSlot = entries.filter(entry => entry.team === team && entry.slot === slot)
   const starter = atSlot.find(entry => entry.entryOrder === 0)
@@ -35,10 +37,10 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
       if (mode === 'plan' && internal && patch?.playerId !== undefined && !participants.some(player => player.playerId === patch.playerId && player.plannedTeam === team)) {
         throw new Error(`${team}팀에 지정한 선수만 배치할 수 있어요. 01에서 팀을 먼저 확인해 주세요.`)
       }
-      onEdit(order, patch); setError('')
+      onEdit(order, patch)
       return true
     }
-    catch (cause) { setError(cause instanceof Error ? cause.message : '입력 내용을 확인해 주세요.'); return false }
+    catch (cause) { notify(cause instanceof Error ? cause.message : '입력 내용을 확인해 주세요.'); return false }
   }
 
   return createPortal(<dialog ref={dialog} className="overview-position-editor" aria-labelledby={titleId}
@@ -73,6 +75,6 @@ export function OverviewPositionEditor({ mode, slot, quarter, team, internal, pa
         </div>
       })}
     </fieldset>
-    {error && <p className="overview-editor-error" role="alert">{error}</p>}
+    <FadeToast message={notice?.message ?? ''} identity={notice?.id} tone="info" container={dialog.current} />
   </dialog>, document.body)
 }

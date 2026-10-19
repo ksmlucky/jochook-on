@@ -55,12 +55,12 @@ export function GoalEventsEditor({ quarter, participants, team, internal, editab
         </div> : <p><strong>{label(event.scorerId)} 골</strong> · {event.assistId == null ? '도움 없음 / 미확인' : `${label(event.assistId)} 도움`}</p>}
       </li>)}</ol>
       {editable && conversion !== null ? <div className="goal-event-convert"><p className="field-help">{mismatch ?? '기존 골·도움 합계와 일치해요. 골별 기록으로 전환할 수 있어요.'}</p><button type="button" className="secondary-button" onClick={() => setConversion(null)}>전환 취소</button><button type="button" className="primary-button" disabled={!!mismatch} onClick={() => { save(conversion); setConversion(null) }}>연결 완료 · 골별 기록 사용</button></div>
-        : editable && <fieldset className="goal-event-add"><legend>{internal ? `${team}팀 ` : ''}골 추가</legend>
+        : editable && <details className="goal-add-disclosure" key={team}><summary>{internal ? `${team}팀 ` : ''}골 추가</summary><fieldset className="goal-event-add"><legend className="sr-only">{internal ? `${team}팀 ` : ''}골 추가</legend>
           <div className="goal-event-fields"><label>득점자<select value={scorer} onChange={e => { setScorer(e.target.value); if (e.target.value === assist) setAssist('') }}><option value="">선수 선택</option>{candidates(team).map(a => <option key={a.playerId} value={a.playerId}>{label(a.playerId)}</option>)}</select></label>
             <label>도움<select value={assist} disabled={type !== 'NORMAL'} onChange={e => setAssist(e.target.value)}><option value="">없음 / 미확인</option>{candidates(team).filter(a => a.playerId !== Number(scorer)).map(a => <option key={a.playerId} value={a.playerId}>{label(a.playerId)}</option>)}</select></label>
             <label>골 유형<select value={type} onChange={e => { setType(e.target.value as GoalEvent['type']); if (e.target.value !== 'NORMAL') setAssist('') }}>{Object.entries(goalTypeLabels).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</select></label></div>
           <button type="button" className="primary-button" disabled={!candidates(team).length} onClick={add}>골 추가</button>
-        </fieldset>}
+        </fieldset></details>}
     </>}
     <p className="field-help">직접 프리킥·페널티킥 골에는 도움을 입력하지 않아요. 상대 자책골은 선수 득점에 넣지 않고 최종 스코어에 반영해 주세요.</p>
     {error && <p className="form-error" role="alert">{error}</p>}

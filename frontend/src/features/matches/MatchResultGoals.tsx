@@ -26,8 +26,14 @@ export function MatchResultGoals({ draft, quarter, team, editable, isAdmin, setQ
       <div className="quarter-score-entry">
         <strong>{quarterLabel(q.number, draft.matchFormat)} {internal ? `${team}팀` : '우리 팀'} 득점 · {quarterGoals(q, internal ? team : 'A')}골</strong>
         {internal ? <p>{team}팀 실점 · {quarterGoals(q, team === 'A' ? 'B' : 'A')}골 <small>상대 팀 득점에서 자동 반영</small></p>
-          : <label>{quarterLabel(q.number, draft.matchFormat)} 실점<input type="number" inputMode="numeric" min={0} max={99} step={1} disabled={!editable} value={q.goalsAgainst ?? ''} placeholder="미입력"
-            onChange={event => onChange(updateQuarterResult(draft, { ...q, goalsAgainst: event.target.value === '' ? null : event.target.valueAsNumber, goalsAgainstSpecified: true }))} /></label>}
+          : <div className="quarter-conceded-control"><label htmlFor={`conceded-${q.number}`}>{quarterLabel(q.number, draft.matchFormat)} 실점</label><div className="quarter-conceded-stepper">
+            <button type="button" className="secondary-button" aria-label={`${quarterLabel(q.number, draft.matchFormat)} 실점 줄이기`} disabled={!editable || !(q.goalsAgainst != null && q.goalsAgainst > 0)}
+              onClick={() => onChange(updateQuarterResult(draft, { ...q, goalsAgainst: Math.max(0, (q.goalsAgainst ?? 0) - 1), goalsAgainstSpecified: true }))}>−</button>
+            <input id={`conceded-${q.number}`} type="number" inputMode="numeric" min={0} max={99} step={1} disabled={!editable} value={q.goalsAgainst ?? ''} placeholder="미입력"
+              onChange={event => onChange(updateQuarterResult(draft, { ...q, goalsAgainst: event.target.value === '' ? null : event.target.valueAsNumber, goalsAgainstSpecified: true }))} />
+            <button type="button" className="secondary-button" aria-label={`${quarterLabel(q.number, draft.matchFormat)} 실점 늘리기`} disabled={!editable || (q.goalsAgainst != null && (!Number.isFinite(q.goalsAgainst) || q.goalsAgainst >= 99))}
+              onClick={() => onChange(updateQuarterResult(draft, { ...q, goalsAgainst: Math.min(99, Math.max(0, Math.floor(q.goalsAgainst ?? 0)) + 1), goalsAgainstSpecified: true }))}>+</button>
+          </div></div>}
       </div>
       {isAdmin && !Array.isArray(q.goalEvents) && q.lineup.some(a => a.goals || a.assists) && <details className="legacy-goal-edit"><summary>기존 선수별 골·도움 수정</summary>
         <p className="field-help">예전 합계 기록을 정정할 때 사용해요. 골별 기록으로 연결한 뒤에는 위에서 수정해 주세요.</p>
