@@ -58,6 +58,6 @@
 <text x="738" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Oracle 도쿄: 서버 확보·이전 검증 전의 후보</text>
 <text x="738" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Cloudflare: 계정 가입 완료, 운영 연결 전</text>
 <text x="738" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Capacitor: 앱 준비 단계 · 스토어/TestFlight 미배포</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 알림·쿼터 상세 · 웹43e8fd6 / API1519c9d · 운영 확인 · DB V32</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 최근 경기·선수 기록 간결하게 · 웹a3bfd95 / API1519c9d · 운영 확인 · DB V32</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

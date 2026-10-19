@@ -1,6 +1,6 @@
 # 조축ON
 
-로컬 구현·미배포: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
+운영 반영 · 웹a3bfd95 / API1519c9d / 가이드1.14: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
 
 운영 반영 · 웹43e8fd6 / API1519c9d / 가이드1.13: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).
 
@@ -14,7 +14,7 @@
 
 최신 운영 반영: [골별 기록·모바일 입력](docs/goal-events-mobile-2026-10-19.md). 2026-10-19 17:51 KST · 웹·API `dd29444` / DB V31 / 가이드 1.9.
 
-**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 가이드 1.13을 따릅니다.
+**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 가이드 1.14을 따릅니다.
 
 이전 웹 운영 반영: [경기 중 대회 등록·형식 선택·작전판 자리 교환](docs/match-entry-and-tap-swap-2026-10-19.md). 2026-10-19 09:26 KST · 웹 `46ab4ce` / API `d8b2763` / DB V30 / 가이드1.7.
 

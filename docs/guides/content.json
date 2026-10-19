@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.14",
   "publishedOn": "2026.10.19",
-  "appCommit": "pending",
-  "scope": "pending_deployment",
+  "appCommit": "a3bfd9542e4cfcacade2aa2243646bba68941369",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -726,5 +726,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 최근 경기·선수 기록 간결하게",
-  "lastVerifiedProductionCommit": "43e8fd67451b6b6fc93932d562316ba8d4c9a64d"
+  "lastVerifiedProductionCommit": "a3bfd9542e4cfcacade2aa2243646bba68941369"
 }

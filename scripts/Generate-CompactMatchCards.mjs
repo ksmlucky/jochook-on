@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="540" viewBox="0 0 1000 540">
 <rect width="1000" height="540" fill="#f7f8f4"/><g font-family="Malgun Gothic,sans-serif" fill="#243c34">
 <text x="40" y="52" font-size="28" font-weight="700">조축ON · 홈과 경기 목록에서 바로 펼쳐 보기</text>
-<text x="40" y="87" font-size="17">2026-10-19 · 로컬 구현 / 미배포 · 가상 예시</text>
+<text x="40" y="87" font-size="17">2026-10-19 · 운영 확인 / 웹a3bfd95 / 가이드1.14 · 가상 예시</text>
 <rect x="40" y="120" width="560" height="338" rx="20" fill="white" stroke="#cbd8ce"/>
 <text x="62" y="158" font-size="17">2026-10-18 · 리그</text>
 <text x="62" y="202" font-size="23" font-weight="700">예시 FC vs 상대 FC</text>

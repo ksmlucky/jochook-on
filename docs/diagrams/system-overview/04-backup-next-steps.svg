@@ -44,7 +44,7 @@
 <rect x="384" y="741" width="5" height="111" rx="2" fill="#246b51"/>
 <text x="408" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 입력 안정성</text>
 <text x="408" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">초안 복원 · 저장 영수증</text>
-<text x="408" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">모바일 편집 · 가이드 1.13</text>
+<text x="408" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">모바일 편집 · 가이드 1.14</text>
 <path d="M 685 797 L 711 797" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="714" y="721" width="300" height="151" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="741" width="5" height="111" rx="2" fill="#246b51"/>
@@ -57,6 +57,6 @@
 <text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 계정 보호</text>
 <text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">본인 비밀번호 변경</text>
 <text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">관리자 확인 · 일회용 복구</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 알림·쿼터 상세 · 웹43e8fd6 / API1519c9d · 운영 확인 · DB V32</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 최근 경기·선수 기록 간결하게 · 웹a3bfd95 / API1519c9d · 운영 확인 · DB V32</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>
