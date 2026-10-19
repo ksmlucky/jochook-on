@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 const out = fileURLToPath(new URL('../docs/diagrams/system-overview/', import.meta.url));
 await fs.mkdir(out, {recursive:true});
 // Confirm these release fields only after live API/web and data preservation checks.
-const releaseLabel = '2026.10.16 홈·계정 보호 개선판';
-const releaseStatus = '운영 배포 확인';
+const releaseLabel = '2026.10.19 경기 입력 3단계';
+const releaseStatus = '배포 상태는 기능 문서 참조';
 const schemaLabel = 'V30';
-const guideLabel = '1.3';
+const guideLabel = '1.8';
 const C={ink:'#203a33',muted:'#566d65',line:'#8b9e96',green:'#246b51',mint:'#e7f3eb',blue:'#285d86',sky:'#edf4fa',amber:'#8b5b18',cream:'#fff4df',paper:'#ffffff',bg:'#f7f8f4',border:'#d8e3dc'};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
 let a=[];
@@ -26,7 +26,7 @@ function arrow(x1,y1,x2,y2,label='',{color=C.line,dash=false,labelY=-14}={}){
   if(label)text((x1+x2)/2,(y1+y2)/2+labelY,label,{size:18,anchor:'middle',color:C.muted});
 }
 function tag(x,y,label,{fill=C.mint,color=C.green,w=154}={}){rect(x,y,w,34,{fill,stroke:fill,r:17});text(x+w/2,y+23,label,{size:17,weight:600,color,anchor:'middle'})}
-function begin(n,title,subtitle){a=[`<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">${esc(title)}</title><desc id="desc">${esc(subtitle)}</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="${C.line}" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="${C.bg}"/>`];text(54,43,'JOCHOOK ON  /  조축ON',{size:19,weight:600,color:C.green});text(1346,43,`${n} / 4   ·   2026.10.16`,{size:17,anchor:'end',color:C.muted});text(54,97,title,{size:36,weight:700});text(54,130,subtitle,{size:20,color:C.muted});}
+function begin(n,title,subtitle){a=[`<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">${esc(title)}</title><desc id="desc">${esc(subtitle)}</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="${C.line}" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="${C.bg}"/>`];text(54,43,'JOCHOOK ON  /  조축ON',{size:19,weight:600,color:C.green});text(1346,43,`${n} / 4   ·   2026.10.19`,{size:17,anchor:'end',color:C.muted});text(54,97,title,{size:36,weight:700});text(54,130,subtitle,{size:20,color:C.muted});}
 async function end(name){text(54,918,`${releaseLabel} · ${releaseStatus} · DB ${schemaLabel}`,{size:16,color:C.muted});text(1346,918,'실제 회원 정보·접속 비밀값 제외',{size:16,anchor:'end',color:C.muted});a.push('</g></svg>');await fs.writeFile(path.join(out,name+'.svg'),a.join('\n'));}
 
 begin('01','시스템 아키텍처 · 어디에서 실행될까?','휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.');
@@ -50,12 +50,11 @@ box(948,166,397,143,'회원',['팀 코드 + 팀 비밀번호로 조회','선수 
 arrow(452,240,498,240);arrow(899,240,945,240);
 text(54,342,'팀 접속 → 우리 팀 홈 → 최근 경기·선수 기록 / 운영진은 새 기록·이어서 작성',{size:21,color:C.green,weight:600});
 const stages=[
- ['01 · 투표·출석',['날짜·시각 · 리그/대회 선택','대회 2구간 / 기본 4쿼터','자체전 A·B팀 먼저 체크','참석 예정과 실제 출석 구분']],
- ['02 · 스쿼드 계획',['참석 예정자 + 용병','선호 1·2·3지망으로 편성','6종 선택 · 팀별 계획 유지','자동 편성 / 작전판 편집']],
- ['03 · 실제 출전',['계획을 실제 기록으로 복사','실제 선발·교체 수정','골·도움 · 골 안의 FK/PK','교체 1쌍은 각 0.5쿼터']],
- ['04 · 결과·코멘트',['스코어 · 간단 코멘트','자체전은 A팀/B팀 기록','입력한 실제 기록 집계','기록 완료 버튼으로 확정']]
+ ['01 · 참석 명단',['날짜·시각 · 리그/대회 선택','전·후반 또는 4쿼터 선택','선택하면 참석도 함께 반영','자체전 A·B팀 먼저 체크']],
+ ['02 · 스쿼드·기록',['자동 편성 / 직접 배치','같은 작전판에서 골·도움','이동하면 선수 기록도 이동','교체 1쌍은 각 0.5쿼터']],
+ ['03 · 결과·코멘트',['스코어 · 간단 코멘트','입력한 선수별 기록 확인','기록 완료 버튼으로 확정','완료된 경기만 기본 통계']]
 ];
-stages.forEach(([title,lines],i)=>{box(54+i*330,367,300,240,title,lines,{size:20});if(i<3)arrow(355+i*330,485,381+i*330,485);arrow(204+i*330,608,204+i*330,646)});
+stages.forEach(([title,lines],i)=>{box(54+i*444,367,402,240,title,lines,{size:20});if(i<2)arrow(457+i*444,485,495+i*444,485);arrow(255+i*444,608,255+i*444,646)});
 rect(54,649,1291,73,{fill:C.mint,stroke:'#c9dfd0'});text(699,681,'단계별 저장 → 경기 DB + 변경 이력 + 저장 영수증 → 목록에 작성 상태 표시',{size:24,weight:600,anchor:'middle'});text(699,707,'올해 기본 · 전체 기간 / 연월 범위 · 리그+대회 합산 · 자체전 포함 · 완료 후에도 수정 가능',{size:18,color:C.muted,anchor:'middle'});
 box(54,756,625,116,'입력 보호 · 저장 영수증',['같은 탭 24시간 초안 · 동일 요청 중복 저장 방지','서버 저장은 단계별 버튼 · 충돌 시 덮어쓰기 차단'],{fill:C.sky,accent:C.blue,size:20});
 box(714,756,631,116,'조회 메뉴 · 역할별 가이드',['홈 / 선수단 / 경기 / 선수 기록 / 대회 / 가이드',`운영진·회원별 앱 가이드 / 공유 PDF ${guideLabel}`],{size:20});

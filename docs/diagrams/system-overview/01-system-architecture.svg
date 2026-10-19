@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">시스템 아키텍처 · 어디에서 실행될까?</title><desc id="desc">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
 <text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
-<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">01 / 4   ·   2026.10.16</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">01 / 4   ·   2026.10.19</text>
 <text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">시스템 아키텍처 · 어디에서 실행될까?</text>
 <text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">휴대전화는 화면을 보여주고, 실제 선수·경기 자료는 클라우드 DB에 저장됩니다.</text>
 <rect x="365" y="164" width="980" height="478" rx="24" fill="#f0f5f0" stroke="#b8cec0" stroke-width="1.5"/>
@@ -58,6 +58,6 @@
 <text x="738" y="760" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Oracle 도쿄: 서버 확보·이전 검증 전의 후보</text>
 <text x="738" y="791" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Cloudflare: 계정 가입 완료, 운영 연결 전</text>
 <text x="738" y="822" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Capacitor: 앱 준비 단계 · 스토어/TestFlight 미배포</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.16 홈·계정 보호 개선판 · 운영 배포 확인 · DB V30</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 입력 3단계 · 배포 상태는 기능 문서 참조 · DB V30</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

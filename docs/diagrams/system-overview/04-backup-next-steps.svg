@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1400" height="940" viewBox="0 0 1400 940" role="img" aria-labelledby="title desc"><title id="title">백업 · 복구 흐름도와 다음 과제</title><desc id="desc">배포 전 백업·격리 복원과 V30 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9" fill="none" stroke="#8b9e96" stroke-width="1.6"/></marker></defs><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif"><rect width="1400" height="940" fill="#f7f8f4"/>
 <text x="54" y="43" font-size="19" fill="#246b51" font-weight="600" text-anchor="start">JOCHOOK ON  /  조축ON</text>
-<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">04 / 4   ·   2026.10.16</text>
+<text x="1346" y="43" font-size="17" fill="#566d65" font-weight="400" text-anchor="end">04 / 4   ·   2026.10.19</text>
 <text x="54" y="97" font-size="36" fill="#203a33" font-weight="700" text-anchor="start">백업 · 복구 흐름도와 다음 과제</text>
 <text x="54" y="130" font-size="20" fill="#566d65" font-weight="400" text-anchor="start">배포 전 백업·격리 복원과 V30 전후 자료 보존을 확인했습니다. 자동 예약은 별도 과제입니다.</text>
 <rect x="54" y="173" width="350" height="239" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
@@ -57,6 +57,6 @@
 <text x="1068" y="760" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">출시 · 계정 보호</text>
 <text x="1068" y="800" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">본인 비밀번호 변경</text>
 <text x="1068" y="831" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">관리자 확인 · 일회용 복구</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.16 홈·계정 보호 개선판 · 운영 배포 확인 · DB V30</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 입력 3단계 · 배포 상태는 기능 문서 참조 · DB V30</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>
