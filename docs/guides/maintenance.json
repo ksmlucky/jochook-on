@@ -39,7 +39,7 @@
     {
       "date": "2026-10-19",
       "feature": "squad-image-sharing",
-      "status": "local_not_deployed",
+      "status": "pending_deployment",
       "spec": "../squad-image-sharing.md",
       "staff": "배포 시 스쿼드 이미지 → 구간/팀 → 미리보기 → 공유/PNG 다운로드 및 저장 전 표시 안내 추가. 공통 원고·HTML·PDF 함께 검증 예정.",
       "member": "직접 생성 버튼 없음. 조회·사용 절차 변경이 없어 기존1.14 유지."
