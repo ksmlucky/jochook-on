@@ -1,6 +1,7 @@
 # 조축ON
 
-개발 미리보기 · 미배포: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · [포메이션별 공유 이미지](docs/diagrams/squad-sharing/index.html).
+운영 반영 2026-10-20 00:06:07 KST: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · 웹 8c62747 · 가이드 1.15. API1519c9d·DB V32 유지.
+
 
 운영 후속 2026-10-19 21:24:17 KST · 웹e640b4c: [선수 기록 이름 열 너비 축소](docs/compact-match-cards-2026-10-19.md). API1519c9d·DB V32·가이드1.14 유지.
 

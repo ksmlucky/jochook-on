@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.15",
   "publishedOn": "2026.10.19",
-  "appCommit": "4e0f9d0",
-  "scope": "pending_deployment",
+  "appCommit": "8c62747e4cf478d2e1e5ac40d82fb31d82620590",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -757,5 +757,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 스쿼드 이미지 공유",
-  "lastVerifiedProductionCommit": "a3bfd9542e4cfcacade2aa2243646bba68941369"
+  "lastVerifiedProductionCommit": "8c62747e4cf478d2e1e5ac40d82fb31d82620590"
 }
