@@ -31,3 +31,10 @@ test('history includes completion and reopening without inventing changes in old
     { label: '작성 상태', before: '기록 완료', after: '02 스쿼드·기록 작성 중' },
   ])
 })
+
+test('quarter checkpoints remain in results without completing the match', () => {
+  for (let quarter = 1; quarter <= 4; quarter++) {
+    assert.equal(stageOnSave(3, `quarter-${quarter}`), 'RESULT')
+    assert.equal(resumeStep(stageOnSave(3, `quarter-${quarter}`)), 3)
+  }
+})

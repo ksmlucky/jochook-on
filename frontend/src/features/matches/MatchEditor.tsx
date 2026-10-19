@@ -4,22 +4,19 @@ import type { FormEvent } from 'react'
 import { SessionExpiredError } from '../auth/api'
 import type { Player } from '../players/api'
 import { attendanceLabels, canPlay, emptyMatch, fetchMatch, fetchSaveReceipt, MatchRequestError, playerLabel, quarterShare, saveMatch, shirtLabel, voteLabels } from './api'
-import type { Appearance, Attendance, MatchDraft, MatchImportPreview, MatchKind, MatchRecord, MatchTeam, Participant, Slot, Vote } from './api'
-import { MatchWorkbookImport } from './MatchWorkbookImport'
+import type { Appearance, Attendance, MatchDraft, MatchKind, MatchRecord, MatchTeam, Participant, Slot, Vote } from './api'
 import { ageBand, ageDescription } from '../players/age'
 import { AttendeePicker } from './AttendeePicker'
 import { MatchPlanner } from './MatchPlanner'
-import { GoalEventsEditor } from './GoalEventsEditor'
+import { MatchResultGoals } from './MatchResultGoals'
 import { AutomaticLineup } from './AutomaticLineup'
 import { GuestPicker } from './GuestPicker'
 import { kickoffHours, kickoffMinutes, matchTimeRange, validKickoff } from './time'
 import { useEditGuard } from '../../app/LeaveGuard'
 import { RecordingStatus } from './RecordingStatus'
 import { recordingStageLabel, resumeStep, stageOnSave } from './recordingProgress'
-import { formationFor } from './formations'
 import { FormationSelector } from './FormationSelector'
 import { goalBreakdownError, goalBreakdownText, sumGoalBreakdown } from './goalBreakdown'
-import { workbookQuarters } from './workbookApply'
 import { clearMatchRecovery, saveMatchRecovery } from './draftRecovery'
 import type { DraftOwner, PendingMatchSave, RecoverySnapshot } from './draftRecovery'
 import { pendingSaveFailureDisposition, resolvePendingSave, SaveResultChangedError } from './saveRecoveryFlow'
@@ -99,7 +96,6 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   } : null)
   const errorMessage = useRef<HTMLParagraphElement>(null)
   const internal = draft.kind === 'INTERNAL'
-  const formation = formationFor(draft, team)
   const planning = squadPlanningView(draft)
   const kindLocked = !!record || !!draft.plannedLineup.length || draft.quarters.some(q => q.lineup.length > 0) || draft.scoreFor !== null || draft.scoreAgainst !== null
   const referenceYear = Number(draft.playedOn.slice(0, 4))
@@ -190,25 +186,6 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     if (!editable) throw new Error('지금은 수정할 수 없습니다.')
     change(editSquad(draft, targetQuarter, targetTeam, slot, order, patch))
   }
-  function applyWorkbook(preview: MatchImportPreview) {
-    if (!preview.valid) return false
-    let quarters
-    try { quarters = workbookQuarters(draft.quarters, preview.quarters, team, draft.matchFormat) }
-    catch (cause) { setError(cause instanceof Error ? cause.message : '엑셀의 세부 득점을 확인해 주세요.'); return false }
-    if (quarters.some(q => new Set(q.lineup.map(a => a.playerId)).size !== q.lineup.length)) {
-      setError('엑셀에 같은 쿼터의 다른 팀에 배치된 선수가 있습니다. 해당 팀 배치를 먼저 확인해 주세요.'); return false
-    }
-    const imported = new Set(preview.rows.map(row => row.playerId))
-    const participants = draft.participants.map(p => imported.has(p.playerId) ? { ...p, vote: 'ATTENDING' as const, attendance: p.attendance === 'LATE' ? 'LATE' as const : 'PRESENT' as const, plannedTeam: internal ? team : p.plannedTeam } : p)
-    for (const row of preview.rows) if (row.playerId !== null && !participants.some(p => p.playerId === row.playerId)) {
-      participants.push({ playerId: row.playerId, name: row.name!, shirtNumber: row.shirtNumber, birthYear: row.birthYear, playerType: row.playerType ?? 'MEMBER', vote: 'ATTENDING', attendance: 'PRESENT', plannedTeam: internal ? team : null })
-    }
-    if (participants.length > 200) { setError('경기 참가 명단은 최대 200명입니다. 엑셀의 선수를 확인해 주세요.'); return false }
-    const next = { ...draft, participants, quarters }
-    try { if (internal) checkInternalPlanTeams(squadPlanningView(next).plannedLineup, participants) }
-    catch (cause) { setError((cause as Error).message); return false }
-    change(next); setError(''); setQuarter(1); return true
-  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const destination = ((event.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null)?.value || 'save'
@@ -228,11 +205,11 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     }
     for (const item of next.quarters) {
       if (item.lineup.some(a => [a.goals, a.assists].some(n => !Number.isInteger(n) || n < 0 || n > 99))) {
-        setQuarter(item.number); goToStep('plan-title'); setError(`${quarterLabel(item.number, next.matchFormat)}의 득점·도움은 0~99 정수로 입력해 주세요.`); return
+        setQuarter(item.number); goToStep('match-totals'); setError(`${quarterLabel(item.number, next.matchFormat)}의 득점·도움은 0~99 정수로 입력해 주세요.`); return
       }
       const invalidBreakdown = item.lineup.find(a => goalBreakdownError(a))
       if (invalidBreakdown) {
-        setQuarter(item.number); setTeam(invalidBreakdown.team); goToStep('plan-title')
+        setQuarter(item.number); setTeam(invalidBreakdown.team); goToStep('match-totals')
         setError(`${quarterLabel(item.number, next.matchFormat)}: ${goalBreakdownError(invalidBreakdown)}`); return
       }
       if (item.lineup.some(a => !next.participants.some(p => p.playerId === a.playerId && canPlay(p)))) {
@@ -241,7 +218,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       for (const value of ['A', 'B'] as const) {
         const lineup = item.lineup.filter(a => a.team === value)
         if (lineup.reduce((sum, a) => sum + a.assists, 0) > lineup.reduce((sum, a) => sum + a.goals, 0)) {
-          setQuarter(item.number); setTeam(value); goToStep('plan-title'); setError(`${quarterLabel(item.number, next.matchFormat)} ${internal ? `${value}팀의 ` : ''}도움 합계가 득점 합계보다 많습니다. 득점도 함께 입력해 주세요.`); return
+          setQuarter(item.number); setTeam(value); goToStep('match-totals'); setError(`${quarterLabel(item.number, next.matchFormat)} ${internal ? `${value}팀의 ` : ''}도움 합계가 득점 합계보다 많습니다. 득점도 함께 입력해 주세요.`); return
         }
       }
     }
@@ -267,6 +244,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     if (recoveryOwner) clearMatchRecovery(recoveryOwner)
     if (snapshot.current) snapshot.current = { ...snapshot.current, record: saved, draft: unifiedDraft(saved), pending: null, step: visibleStep(resumeStep(saved.recordingStage)) }
     setPending(null); setBlocked(false); setRecord(saved); setDraft(unifiedDraft(saved)); setDirty(false); setConfirmClose(false); setStorageWarning(''); setError('')
+    if (/^quarter-[1-4]$/.test(destination)) { setStep(3); onStepSaved(`${quarterLabel(Number(destination.slice(-1)), saved.matchFormat)} 기록을 저장했어요.`); return }
     if (destination === 'save' || destination === 'complete') onSaved(saved)
     else {
       onStepSaved(destination === 'plan' ? '참석 명단을 저장했어요. 스쿼드를 배치해 주세요.' : destination === 'lineup' ? '스쿼드를 저장했어요. 같은 화면에서 기록을 수정할 수 있어요.' : destination === 'actual-from-plan' ? '계획대로 참석·출전 기록을 저장했습니다.' : '스쿼드·기록을 저장했어요. 경기 결과를 확인해 주세요.')
@@ -425,12 +403,12 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       onApply={plannedLineup => { change(applySquad(draft, plannedLineup)); setPlanRevision(v => v + 1); setError('') }} />}
     <MatchPlanner key={`${draft.kind}-${draft.matchFormat}-${planRevision}`} matchFormat={draft.matchFormat} internal={internal} formationA={draft.formationA} formationB={draft.formationB} entries={planning.plannedLineup} participants={planning.participants} players={players} editable={editable} referenceYear={referenceYear}
       onChange={plannedLineup => { change(applySquad(draft, plannedLineup)); setError('') }} footer={stepActions('totals')} quarter={quarter} team={team} setQuarter={setQuarter} setTeam={setTeam} quarters={draft.quarters} onRecordEdit={appearanceAt}
-      workbook={<><GoalEventsEditor key={`${draft.kind}-${draft.matchFormat}-${quarter}`} quarter={draft.quarters.find(q => q.number === quarter)!} participants={draft.participants} team={team} internal={internal} editable={editable} matchFormat={draft.matchFormat} onChange={next => change({ ...draft, quarters: draft.quarters.map(q => q.number === next.number ? next : q) })} />
-        {isAdmin && <MatchWorkbookImport key={`${draft.kind}-${draft.matchFormat}-${team}-${formation}`} matchFormat={draft.matchFormat} formation={formation} teamLabel={internal ? `${team}팀` : undefined} disabled={!editable || draft.quarters.some(q => Array.isArray(q.goalEvents))} onBusy={setBusy} onApply={applyWorkbook} onSessionExpired={onSessionExpired} />}</>}
       tools={isAdmin && !internal && <GuestPicker players={players} selectedIds={draft.participants.filter(p => p.vote === 'ATTENDING').map(p => p.playerId)} disabled={!editable || draft.participants.length >= 200} onBusy={setBusy} onAdd={addGuest} onSessionExpired={onSessionExpired} />} />
     </div>
     <div role="tabpanel" id="match-panel-3" aria-labelledby="match-tab-3" hidden={step !== 3}>
     <section className="match-block" aria-labelledby="match-totals"><div className="match-block-title"><h4 id="match-totals" tabIndex={-1}>03 · 경기 결과와 코멘트</h4><span>{matchPeriodSummary(draft.matchFormat)} 합계</span></div>
+      <MatchResultGoals draft={draft} quarter={quarter} team={team} editable={editable} isAdmin={isAdmin} setQuarter={setQuarter} setTeam={setTeam}
+        onChange={change} onSave={() => void persist(draft, `quarter-${quarter}`)} />
       {isAdmin && <CompletionReview draft={draft} disabled={!editable} onNavigate={reviewNavigate} />}
       <fieldset className="match-score-fields" disabled={!editable}><legend>최종 스코어 <span>{matchPeriodSummary(draft.matchFormat)} 합계 · 선택 · 경기 전에는 비워 두세요</span></legend>
         <label>{internal ? 'A팀 득점' : '우리 팀 득점'}<input id="match-score-for" type="number" min={0} max={99} step={1} value={draft.scoreFor ?? ''} placeholder="미입력" onChange={e => change({ ...draft, scoreFor: e.target.value === '' ? null : Number(e.target.value) })} /></label><span aria-hidden="true">:</span>
@@ -457,9 +435,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     {isAdmin && <div className="match-save-bar match-save-dock" aria-label="경기 저장">
       <span>{pending ? '저장 여부를 먼저 확인해 주세요.' : blocked ? '최신 기록 확인이 필요해요.' : record?.recordingStage === 'COMPLETED' ? '중간 저장 시 작성 중으로 변경' : `${dirty ? '미저장 · ' : ''}0${visibleSteps.indexOf(step) + 1} ${editorSteps[step]}`}</span>
       <div className="match-save-dock-actions">
-        <button type="submit" value="save" className="secondary-button" disabled={!editable} aria-label="중간 저장 후 경기 목록으로">{busy ? '처리 중…' : '저장·목록'}</button>
+        <button type="submit" value="save" className="secondary-button" disabled={!editable} aria-label="중간 저장 후 경기 목록으로">{busy ? '처리 중…' : '목록'}</button>
         <button type="submit" value={step === 0 ? 'plan' : step === 1 ? 'totals' : 'complete'} className="primary-button" disabled={!editable}
-          aria-label={step === 0 ? '참석 명단 저장 후 스쿼드로' : step === 1 ? '스쿼드·기록 저장 후 결과로' : '기록 완료 후 경기 목록으로'}>{busy ? '처리 중…' : step === 0 || step === 1 ? '저장·다음' : '기록 완료'}</button>
+          aria-label={step === 0 ? '참석 명단 저장 후 스쿼드로' : step === 1 ? '스쿼드·기록 저장 후 결과로' : '기록 완료 후 경기 목록으로'}>{busy ? '처리 중…' : step === 0 || step === 1 ? '다음' : '완료'}</button>
       </div>
     </div>}
   </form>

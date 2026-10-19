@@ -10,3 +10,8 @@
 .goal-event-add { border:1px solid var(--line); border-radius:10px; padding:12px; margin-top:12px; }.goal-event-add>button { margin-top:12px; }
 .goal-event-convert>button { margin:4px; }.goal-event-legacy { font-size:13px; }
 @media(max-width:600px) { .goal-events { padding:12px; }.goal-event-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }.goal-event-fields>label:last-child:nth-child(3) { grid-column:1/-1; } }
+
+.legacy-goal-edit { margin: 12px 0; font-size: 13px; }
+.legacy-goal-edit fieldset { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin: 10px 0; min-width: 0; }
+.legacy-goal-edit input { min-width: 0; width: 100%; box-sizing: border-box; min-height: 44px; }
+.quarter-record-save { margin-bottom: 22px; }

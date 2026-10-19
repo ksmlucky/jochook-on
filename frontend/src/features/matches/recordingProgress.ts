@@ -12,6 +12,7 @@ export function stageOnSave(step: number, destination: string): RecordingStage {
   if (destination === 'complete') return 'COMPLETED'
   if (destination === 'plan') return 'PLAN'
   if (destination === 'lineup' || destination === 'actual-from-plan') return 'ACTUAL'
+  if (/^quarter-[1-4]$/.test(destination)) return 'RESULT'
   if (destination === 'totals') return 'RESULT'
   return recordingStages[step] ?? 'ATTENDANCE'
 }

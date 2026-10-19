@@ -99,3 +99,6 @@ body:has(.squad-overview-dialog[open]) { overflow: hidden; }
   .squad-overview-trigger { width: 100%; justify-content: center; min-height: 44px; }
   .squad-overview-dialog { border-radius: 0; }
 }
+
+.squad-overview-slot { position: relative; z-index: 1; align-self: start; justify-self: center; min-width: 0; width: 100%; max-width: 112px; }
+.squad-overview-sub { display: block; width: 100%; min-height: 28px; margin-top: 2px; padding: 3px; border: 1px solid var(--position-border); border-radius: 7px; background: var(--position-tint); color: var(--position-ink); font: inherit; font-size: 10px; overflow-wrap: anywhere; }

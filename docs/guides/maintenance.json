@@ -35,7 +35,9 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [],
+  "pendingChanges": [
+    "미배포: 02 배치 전용 선택창·독립 교체, 03 구간별 골 기록/저장, 경기 엑셀 제거, 목록/다음/완료 축소. 운영진·회원 변경 원고 계획은 docs/match-entry-simplified-2026-10-19.md 참조. 운영 가이드1.10 유지."
+  ],
   "history": [
     {
       "guideVersion": "1.10",

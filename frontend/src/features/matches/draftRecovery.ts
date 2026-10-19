@@ -73,7 +73,7 @@ function validSnapshot(value: unknown, owner: DraftOwner, now: number): value is
   if (value.pending === null) return true
   const p = value.pending
   return object(p) && typeof p.key === 'string' && /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(p.key)
-    && validDraft(p.draft) && validRecord(p.record) && oneOf(p.destination, ['save', 'complete', 'plan', 'lineup', 'totals', 'actual-from-plan'])
+    && validDraft(p.draft) && validRecord(p.record) && oneOf(p.destination, ['save', 'complete', 'plan', 'lineup', 'totals', 'actual-from-plan', 'quarter-1', 'quarter-2', 'quarter-3', 'quarter-4'])
     && (p.record?.id ?? null) === (value.record?.id ?? null) && (p.record?.version ?? null) === (value.record?.version ?? null)
 }
 

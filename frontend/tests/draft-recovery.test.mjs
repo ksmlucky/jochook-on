@@ -179,3 +179,16 @@ test('only allowed match fields are serialized; unrelated tokens cannot leak int
   const s=store(),value=snapshot();value.token='never-copy';value.owner.password='never-copy';value.draft.teamCode='never-copy';value.draft.participants[0].secret='never-copy'
   assert.equal(saveMatchRecovery(value,s,now),true);assert.equal(s.getItem(s.key(0)).includes('never-copy'),false)
 })
+
+test('quarter checkpoint response loss preserves the exact retry and target quarter', () => {
+  for (let quarter = 1; quarter <= 4; quarter++) {
+    const s = store(), value = snapshot()
+    value.step = 3; value.quarter = quarter
+    value.pending = {key:'00000000-0000-4000-8000-000000000001',draft:structuredClone(value.draft),record:null,destination:`quarter-${quarter}`}
+    assert.equal(saveMatchRecovery(value,s,now),true)
+    const restored = loadMatchRecovery(owner,s,now)
+    assert.equal(restored.quarter,quarter)
+    assert.equal(restored.pending.destination,`quarter-${quarter}`)
+    assert.deepEqual(toMatchPayload(restored.pending.draft,null),toMatchPayload(value.pending.draft,null))
+  }
+})
