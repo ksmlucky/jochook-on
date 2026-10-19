@@ -3,15 +3,15 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.11",
+    "guideVersion": "1.12",
     "date": "2026-10-19",
-    "appCommit": "351321852808c058932b07e4086effd2e1ad54b3",
-    "deployment": "Northflank production web verified 2026-10-19 19:08:07 KST",
+    "appCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92",
+    "deployment": "Northflank API/web verified 2026-10-19 20:04:51 KST",
     "status": "deployed",
-    "lastVerifiedProductionCommit": "351321852808c058932b07e4086effd2e1ad54b3",
-    "releaseLabel": "2026.10.19 스쿼드 배치·결과 입력 간소화",
-    "previousProductionCommit": "be49b2ffd2d29d0e30e54256c7e7ce8721098e18",
-    "lastVerifiedApiCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed"
+    "lastVerifiedProductionCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92",
+    "releaseLabel": "2026.10.19 작전판 드래그·쿼터 실점",
+    "previousProductionCommit": "351321852808c058932b07e4086effd2e1ad54b3",
+    "lastVerifiedApiCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -35,19 +35,16 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "작전판 길게 눌러 이동/교환·선발 해제 승격·구간 실점/스코어 합산",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "pending_deployment",
-      "reference": "../pitch-drag-quarter-scores-2026-10-19.md",
-      "guideVersion": "1.12"
-    }
-  ],
+  "pendingChanges": [],
   "history": [
+    {
+      "guideVersion": "1.12",
+      "date": "2026-10-19",
+      "appCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92",
+      "status": "deployed",
+      "changes": "모드 선택 제거·길게 눌러 이동/교환, 선발 해제 시 교체 승격, 구간 실점과 최종 스코어 합산. 회원 구간 실점 설명도 반영.",
+      "validation": "프론트285·Java488 로컬 통과, GitHub CI MySQL 통합·빌드 성공, 가상390px 배치/교체/스코어/저장, PDF25쪽 렌더, 운영 공개 HTTPS·자산 해시·감독 조회, 백업19개 테이블 복원·기존18개 업무 테이블 원래 컬럼 보존. 실제 iPhone 터치 미검증."
+    },
     {
       "guideVersion": "1.11",
       "date": "2026-10-19",
@@ -319,16 +316,16 @@
     }
   ],
   "validation": {
-    "guideVersion": "1.11",
+    "guideVersion": "1.12",
     "date": "2026-10-19",
     "memberPages": 7,
     "staffPages": 18,
     "pdfVisualReview": "전체25쪽 렌더 확인",
-    "appRoleScreenReview": "가상 운영진·회원 가이드 목차와 PDF 연결",
+    "appRoleScreenReview": "가상 역할별 목차/PDF 연결 확인",
     "productionStatus": "deployed",
-    "verifiedAtKst": "2026-10-19 19:08:07 KST",
-    "productionAssets": "웹3513218·API dd29444 유지, JS/CSS/PDF SHA256 일치",
-    "metadataNote": "배포 후 scope/appCommit만 확정. 번들 내 비표시 메타데이터와 저장소 이력은 다를 수 있으나 가이드 본문·HTML·PDF는 동일."
+    "verifiedAtKst": "2026-10-19 20:04:51 KST",
+    "productionAssets": "1519c9dbe84d735943ccae7ba73188268ec6ba92 API/web 및 JS/CSS/PDF 해시 일치",
+    "metadataNote": "배포 후 비표시 scope/appCommit만 확정. 가이드 본문·HTML·PDF는 배포와 동일."
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",

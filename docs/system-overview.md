@@ -1,9 +1,11 @@
 # 조축ON 시스템 구성도와 업무 흐름도
 
+운영 반영 2026-10-19 20:04:51 KST: API·웹 `1519c9d`, DB V32, 가이드1.12. [작전판 드래그·쿼터 실점](pitch-drag-quarter-scores-2026-10-19.md). 기존 무료 사양 유지.
+
 운영 반영 2026-10-19 19:08:07 KST: 웹 `3513218` / API `dd29444`·DB V31 유지 / 가이드1.11. [배치·결과 입력 간소화](match-entry-simplified-2026-10-19.md).
 
 
-**최신 운영 반영(2026-10-19 17:51 KST):** [골별 기록·모바일 입력](goal-events-mobile-2026-10-19.md), 웹·API `dd29444`, DB V31, 가이드 1.9. 현재 입력은 01 참석 → 02 스쿼드·골별 기록 → 03 결과입니다. [시스템 구성도 4장](diagrams/system-overview/index.html)과 [V31 ERD](database-diagram.md)를 함께 갱신했습니다. 아래 이전 날짜의 설명은 당시 이력입니다.
+**이전 운영 반영(2026-10-19 17:51 KST):** [골별 기록·모바일 입력](goal-events-mobile-2026-10-19.md), 웹·API `dd29444`, DB V31, 가이드 1.9. 당시 입력은 01 참석 → 02 스쿼드·골별 기록 → 03 결과였습니다. [시스템 구성도 4장](diagrams/system-overview/index.html)과 [현재 ERD](database-diagram.md)를 함께 갱신했습니다. 아래 이전 날짜의 설명은 당시 이력입니다.
 
 2026-10-17 22:35 KST 운영 반영: 웹 `072ac46`, API `d8b2763` 유지 / DB V30 변경 없음 / 가이드1.4. [배포 결과](release-roster-pagination-2026-10-17.md).
 

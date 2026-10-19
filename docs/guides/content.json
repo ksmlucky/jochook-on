@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.12",
   "publishedOn": "2026.10.19",
-  "appCommit": "pending",
-  "scope": "pending_deployment",
+  "appCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -724,5 +724,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 작전판 드래그·쿼터 실점",
-  "lastVerifiedProductionCommit": "351321852808c058932b07e4086effd2e1ad54b3"
+  "lastVerifiedProductionCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92"
 }

@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1860" viewBox="0 0 1800 1860" role="img" aria-labelledby="title desc"><title id="title">02 · 참석, 배치, 출전</title><desc id="desc">현재 UI는 02에서 배치·기록을 함께 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.. V32 로컬 개발 · 운영 V31 유지 · 2026.10.19. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1860" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1860" viewBox="0 0 1800 1860" role="img" aria-labelledby="title desc"><title id="title">02 · 참석, 배치, 출전</title><desc id="desc">현재 UI는 02에서 배치·교체, 03에서 골·도움·실점을 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.. V32 운영 반영 · 2026.10.19. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1860" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V32 로컬 개발 · 운영 V31 유지 · 2026.10.19</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V32 운영 반영 · 2026.10.19</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">02 · 참석, 배치, 출전</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">현재 UI는 02에서 배치·기록을 함께 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">현재 UI는 02에서 배치·교체, 03에서 골·도움·실점을 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.</text>
 <rect x="60" y="190" width="760" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_records</text>
 <text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 한 건의 기본 정보 · 참조 노드</text>
@@ -50,7 +50,7 @@
 <text x="1074" y="689" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">goal_events_linked</text>
 <text x="1074" y="713" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BOOLEAN · 기본 FALSE · 연결 기록 사용</text>
 <text x="1074" y="743" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">goals_against</text>
-<text x="1074" y="767" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">INT NULL · 외부 경기 구간 실점 · V32 개발</text>
+<text x="1074" y="767" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">INT NULL · 외부 경기 구간 실점 · V32</text>
 <text x="1002" y="789" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number)</text>
 <text x="1002" y="817" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">NULL 미입력 / 0 무실점 · 구간 길이 컬럼 없음</text>
 <text x="1002" y="845" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">자체전 실점은 반대 팀 득점으로 계산</text>
@@ -77,7 +77,7 @@
 <text x="82" y="1481" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">계획은 득점·출전 통계에 합산하지 않음</text>
 <rect x="980" y="1080" width="760" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="1002" y="1113" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_appearances</text>
-<text x="1002" y="1145" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 · 출전과 스탯 집계값</text>
+<text x="1002" y="1145" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 배치 · 03 스탯 집계값</text>
 <path d="M 980 1162 H 1740" stroke="#cfddd4"/>
 <text x="1000" y="1191" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
 <text x="1074" y="1191" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
