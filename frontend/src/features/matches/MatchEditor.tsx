@@ -8,6 +8,7 @@ import type { Appearance, Attendance, MatchDraft, MatchKind, MatchRecord, MatchT
 import { ageBand, ageDescription } from '../players/age'
 import { AttendeePicker } from './AttendeePicker'
 import { MatchPlanner } from './MatchPlanner'
+import { SquadImageShare } from './SquadImageShare'
 import { MatchResultGoals } from './MatchResultGoals'
 import { AutomaticLineup } from './AutomaticLineup'
 import { GuestPicker } from './GuestPicker'
@@ -44,9 +45,9 @@ const visibleSteps = [0, 1, 3]
 const visibleStep = (value: number) => value === 2 ? 1 : value
 const stepHeadings = ['attendance-title', 'plan-title', 'plan-title', 'match-totals']
 
-export function MatchEditor({ record: initialRecord, players: initialPlayers, isAdmin, recoveryOwner, recovered, recoveryConflict = '', closeLabel = '목록으로', initialTournamentId = null, onSaved, onStepSaved, onClose, onSessionExpired }: {
+export function MatchEditor({ record: initialRecord, players: initialPlayers, isAdmin, teamName, recoveryOwner, recovered, recoveryConflict = '', closeLabel = '목록으로', initialTournamentId = null, onSaved, onStepSaved, onClose, onSessionExpired }: {
   record: MatchRecord | null; players: Player[]; isAdmin: boolean; onSaved: (record: MatchRecord) => void; onStepSaved: (message: string) => void; onClose: () => void; onSessionExpired: () => void
-  recoveryOwner: DraftOwner | null; recovered?: RecoverySnapshot; recoveryConflict?: string; closeLabel?: string; initialTournamentId?: number | null
+  recoveryOwner: DraftOwner | null; recovered?: RecoverySnapshot; recoveryConflict?: string; closeLabel?: string; initialTournamentId?: number | null; teamName?: string
 }) {
   // 단계 저장 이후에도 편집을 유지하며 다음 저장은 새 ID/version으로 갱신한다.
   const [record, setRecord] = useState(recovered?.record ?? initialRecord)
@@ -405,6 +406,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
     {isAdmin && <AutomaticLineup draft={planning} players={players} matchId={record?.id ?? null} disabled={!editable} onBusy={setBusy} onSessionExpired={onSessionExpired}
       onApply={plannedLineup => { change(applySquad(draft, plannedLineup)); setPlanRevision(v => v + 1); setError('') }} />}
     <MatchPlanner key={`${draft.kind}-${draft.matchFormat}-${planRevision}`} matchFormat={draft.matchFormat} internal={internal} formationA={draft.formationA} formationB={draft.formationB} entries={planning.plannedLineup} participants={planning.participants} players={players} editable={editable} referenceYear={referenceYear}
+      shareControl={isAdmin && teamName && <SquadImageShare teamName={teamName} playedOn={draft.playedOn} kickoff={draft.kickoff} opponent={draft.opponent} unsaved={dirty || !record} internal={internal} matchFormat={draft.matchFormat} formationA={draft.formationA} formationB={draft.formationB} quarter={quarter} team={team} entries={planning.plannedLineup} participants={planning.participants} />}
       onChange={plannedLineup => { change(applySquad(draft, plannedLineup)); setError('') }} footer={stepActions('totals')} quarter={quarter} team={team} setQuarter={setQuarter} setTeam={setTeam} quarters={draft.quarters} onRecordEdit={appearanceAt}
       tools={isAdmin && !internal && <GuestPicker players={players} selectedIds={draft.participants.filter(p => p.vote === 'ATTENDING').map(p => p.playerId)} disabled={!editable || draft.participants.length >= 200} onBusy={setBusy} onAdd={addGuest} onSessionExpired={onSessionExpired} />} />
     </div>

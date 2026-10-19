@@ -186,7 +186,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     {deleting && <p className="save-notice" role="status">경기 기록을 삭제하고 있습니다.</p>}
     {busy && <p className="save-notice" role="status">경기 입력 화면을 준비하고 있습니다.</p>}
     {history && isAdmin ? <MatchHistory onClose={() => { setHistory(false); setRevision(value => value + 1) }} onSessionExpired={onSessionExpired} /> : editor ? <MatchEditor key={editor.record?.id ?? 'new'} record={editor.record} players={editor.players} isAdmin={isAdmin} recoveryOwner={recoveryOwner} recovered={editor.recovered} recoveryConflict={editor.recoveryConflict}
-      initialTournamentId={tournamentId} onSessionExpired={onSessionExpired} onClose={closeEditor} onStepSaved={notifySaved}
+      teamName={team.name} initialTournamentId={tournamentId} onSessionExpired={onSessionExpired} onClose={closeEditor} onStepSaved={notifySaved}
       onSaved={saved => { closeEditor(); setPage(0); notifySaved(`${saved.playedOn} · ${recordingStageLabel(saved.recordingStage)} 상태로 저장했습니다.`) }} /> : <>
       {!data && !error && <p className="save-notice" role="status">경기 목록을 불러오고 있습니다.</p>}
       {data?.items.length === 0 && <div className="empty-state"><span className="empty-number" aria-hidden="true">4Q</span><h3>{period.startMonth !== null ? '선택한 기간과 조건의 경기가 없어요' : tournamentId ? '이 대회에 연결된 경기가 없어요' : competitionScope === 'LEAGUE' ? '리그 경기 기록이 없어요' : competitionScope === 'TOURNAMENT' ? '대회에 연결된 경기 기록이 없어요' : '첫 경기의 기록을 남겨 보세요'}</h3><p>{period.startMonth !== null ? '기간 또는 경기 구분을 바꿔 다른 기록을 확인해 보세요.' : tournamentId || competitionScope === 'TOURNAMENT' ? '경기 기록에서 등록한 대회를 선택하면 이곳에 모여요.' : '투표 결과만 먼저 저장하고, 경기 후 출석과 기록을 이어서 입력할 수 있습니다.'}</p></div>}

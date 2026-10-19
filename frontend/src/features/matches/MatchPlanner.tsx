@@ -20,11 +20,11 @@ import { unassignedAttendees } from './internalTeams'
 import { matchPeriodSummary, quarterLabel, quarterNumbers } from './matchFormat'
 import type { MatchFormat } from './matchFormat'
 
-export function MatchPlanner({ entries, participants, players, editable, referenceYear, onChange, tools, footer, internal = false, formationA, formationB, matchFormat, quarters, onRecordEdit, quarter, team, setQuarter, setTeam }: {
+export function MatchPlanner({ entries, participants, players, editable, referenceYear, onChange, tools, footer, shareControl, internal = false, formationA, formationB, matchFormat, quarters, onRecordEdit, quarter, team, setQuarter, setTeam }: {
   quarters: Quarter[]; onRecordEdit: (quarter: number, team: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null) => void
   quarter: number; team: MatchTeam; setQuarter: (value: number) => void; setTeam: (value: MatchTeam) => void
   entries: PlannedEntry[]; participants: Participant[]; players: Player[]; editable: boolean; referenceYear: number
-  onChange: (entries: PlannedEntry[]) => void; tools?: ReactNode; footer: ReactNode; internal?: boolean
+  onChange: (entries: PlannedEntry[]) => void; tools?: ReactNode; footer: ReactNode; shareControl?: ReactNode; internal?: boolean
   formationA?: Formation | null; formationB?: Formation | null; matchFormat?: MatchFormat | null
 }) {
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
@@ -78,6 +78,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     <FadeToast message={notice?.message ?? ''} identity={notice?.id} tone="info" />
     <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 스쿼드 배치</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석자 직접 배치</span></div>
     <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} recordQuarters={quarters} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={editable} onEdit={editable ? editOverview : undefined} />
+    {shareControl}
     {assignmentPending && <p className="import-warning" role="status">참석 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
     <p className="field-help">작전판의 자리를 누르면 배치할 선수와 교체를 바로 선택할 수 있어요.</p>
     <p className="field-help">배치한 선수를 길게 누른 뒤 다른 자리로 옮기면 이동하거나 서로 바꿔요. 짧게 누르면 선수 목록이 열려요.</p>

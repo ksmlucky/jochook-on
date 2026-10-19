@@ -1,0 +1,15 @@
+.squad-image-trigger { margin: 10px 0 14px 8px; }
+.squad-image-dialog { width: min(540px, calc(100% - 16px)); max-height: calc(100dvh - 16px); padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface, white); color: var(--ink); overflow: auto; overscroll-behavior: contain; box-sizing: border-box; }
+.squad-image-dialog::backdrop { background: #182b2488; }
+.squad-image-dialog header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.squad-image-dialog h3 { margin: 0; font-size: 20px; }
+.squad-image-dialog header p { margin: 5px 0; font-size: 13px; color: var(--muted); }
+.squad-image-selectors { display: flex; gap: 10px; margin-top: 12px; }
+.squad-image-selectors label { flex: 1; display: grid; gap: 4px; font-size: 13px; }
+.squad-image-selectors select { min-height: 44px; min-width: 0; width: 100%; padding: 8px; border: 1px solid var(--line); border-radius: 9px; background: white; color: var(--ink); font-size: 16px; }
+.squad-image-preview { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 12px; }
+.squad-image-actions { position: sticky; bottom: -16px; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 12px 0; background: var(--surface, white); }
+.squad-image-actions a { display: inline-flex; align-items: center; justify-content: center; text-decoration: none; }
+.squad-image-actions :is(button, a) { margin: 0; padding: 10px 14px; }
+.squad-image-dialog :is(button, a) { min-height: 44px; }
+.squad-image-notice { font-size: 13px; color: var(--muted); }

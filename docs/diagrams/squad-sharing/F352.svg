@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1480" viewBox="0 0 1080 1480" role="img" aria-label="1쿼터 · 3-5-2">
+    <rect width="1080" height="1480" fill="#f7f8f4"/><g font-family="Arial, Malgun Gothic, Apple SD Gothic Neo, sans-serif">
+    <text x="540" y="50" text-anchor="middle" font-size="24" fill="#2d6a53" font-weight="700">조축ON  /  MATCH SQUAD</text>
+    <text x="540" y="103" text-anchor="middle" font-size="42" fill="#243c34" font-weight="700">예시 FC</text><text x="540" y="144" text-anchor="middle" font-size="27" fill="#62786d" font-weight="500">vs 상대 FC</text>
+    <text x="540" y="184" text-anchor="middle" font-size="26" fill="#243c34" font-weight="600">2026-10-25 · 09:00  |  1쿼터 · 3-5-2</text>
+    <rect x="26" y="216" width="1028" height="1100" rx="26" fill="#e7f0e0"/>
+    <rect x="28" y="236" width="1024" height="132" fill="#edf4e7"/><rect x="28" y="500" width="1024" height="132" fill="#edf4e7"/><rect x="28" y="764" width="1024" height="132" fill="#edf4e7"/><rect x="28" y="1028" width="1024" height="132" fill="#edf4e7"/>
+    <g fill="none" stroke="#9fba9e" stroke-width="3"><rect x="46" y="236" width="988" height="1060"/><path d="M46 766h988"/><circle cx="540" cy="766" r="160"/><path d="M290 236v130h500V236 M410 236v48h260v-48 M290 1296v-130h500v130 M410 1296v-48h260v48"/></g>
+    <text x="540" y="268" text-anchor="middle" font-size="20" fill="#658265" font-weight="500">공격 방향 ↑</text><g><rect x="264" y="283" width="202" height="148" rx="18" fill="white" stroke="#b63d51" stroke-width="2"/>
+      <rect x="265" y="284" width="200" height="36" rx="16" fill="#fff0f1"/>
+      <text x="365" y="309" text-anchor="middle" font-size="22" fill="#b63d51" font-weight="700">ST (좌)</text>
+      <text x="365" y="344" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#1</text>
+      <text x="365" y="378" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시01</text>
+      <path d="M 277 393h176" stroke="#dbe5dc"/><text x="365" y="419" text-anchor="middle" font-size="21" fill="#b63d51" font-weight="600">↳ #12 예시12</text></g><g><rect x="614" y="283" width="202" height="110" rx="18" fill="white" stroke="#b63d51" stroke-width="2"/>
+      <rect x="615" y="284" width="200" height="36" rx="16" fill="#fff0f1"/>
+      <text x="715" y="309" text-anchor="middle" font-size="22" fill="#b63d51" font-weight="700">ST (우)</text>
+      <text x="715" y="344" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#2</text>
+      <text x="715" y="378" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시02</text>
+      </g><g><rect x="439" y="443" width="202" height="110" rx="18" fill="white" stroke="#27734a" stroke-width="2"/>
+      <rect x="440" y="444" width="200" height="36" rx="16" fill="#e8f5eb"/>
+      <text x="540" y="469" text-anchor="middle" font-size="22" fill="#27734a" font-weight="700">CAM</text>
+      <text x="540" y="504" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#3</text>
+      <text x="540" y="538" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시03</text>
+      </g><g><rect x="49" y="613" width="202" height="110" rx="18" fill="white" stroke="#3566a6" stroke-width="2"/>
+      <rect x="50" y="614" width="200" height="36" rx="16" fill="#eaf1ff"/>
+      <text x="150" y="639" text-anchor="middle" font-size="22" fill="#3566a6" font-weight="700">LWB</text>
+      <text x="150" y="674" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#4</text>
+      <text x="150" y="708" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시04</text>
+      </g><g><rect x="309" y="773" width="202" height="110" rx="18" fill="white" stroke="#27734a" stroke-width="2"/>
+      <rect x="310" y="774" width="200" height="36" rx="16" fill="#e8f5eb"/>
+      <text x="410" y="799" text-anchor="middle" font-size="22" fill="#27734a" font-weight="700">CM (좌)</text>
+      <text x="410" y="834" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#5</text>
+      <text x="410" y="868" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시05</text>
+      </g><g><rect x="569" y="773" width="202" height="148" rx="18" fill="white" stroke="#27734a" stroke-width="2"/>
+      <rect x="570" y="774" width="200" height="36" rx="16" fill="#e8f5eb"/>
+      <text x="670" y="799" text-anchor="middle" font-size="22" fill="#27734a" font-weight="700">CM (우)</text>
+      <text x="670" y="834" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#6</text>
+      <text x="670" y="868" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시06</text>
+      <path d="M 582 883h176" stroke="#dbe5dc"/><text x="670" y="909" text-anchor="middle" font-size="21" fill="#27734a" font-weight="600">↳ #13 예시13</text></g><g><rect x="829" y="613" width="202" height="110" rx="18" fill="white" stroke="#3566a6" stroke-width="2"/>
+      <rect x="830" y="614" width="200" height="36" rx="16" fill="#eaf1ff"/>
+      <text x="930" y="639" text-anchor="middle" font-size="22" fill="#3566a6" font-weight="700">RWB</text>
+      <text x="930" y="674" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#7</text>
+      <text x="930" y="708" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시07</text>
+      </g><g><rect x="49" y="943" width="202" height="110" rx="18" fill="white" stroke="#3566a6" stroke-width="2"/>
+      <rect x="50" y="944" width="200" height="36" rx="16" fill="#eaf1ff"/>
+      <text x="150" y="969" text-anchor="middle" font-size="22" fill="#3566a6" font-weight="700">LCB</text>
+      <text x="150" y="1004" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#8</text>
+      <text x="150" y="1038" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시08</text>
+      </g><g><rect x="439" y="943" width="202" height="110" rx="18" fill="white" stroke="#3566a6" stroke-width="2"/>
+      <rect x="440" y="944" width="200" height="36" rx="16" fill="#eaf1ff"/>
+      <text x="540" y="969" text-anchor="middle" font-size="22" fill="#3566a6" font-weight="700">CB</text>
+      <text x="540" y="1004" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#9</text>
+      <text x="540" y="1038" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시09</text>
+      </g><g><rect x="829" y="943" width="202" height="110" rx="18" fill="white" stroke="#3566a6" stroke-width="2"/>
+      <rect x="830" y="944" width="200" height="36" rx="16" fill="#eaf1ff"/>
+      <text x="930" y="969" text-anchor="middle" font-size="22" fill="#3566a6" font-weight="700">RCB</text>
+      <text x="930" y="1004" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#10</text>
+      <text x="930" y="1038" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시10</text>
+      </g><g><rect x="439" y="1123" width="202" height="110" rx="18" fill="white" stroke="#956400" stroke-width="2"/>
+      <rect x="440" y="1124" width="200" height="36" rx="16" fill="#fff4cf"/>
+      <text x="540" y="1149" text-anchor="middle" font-size="22" fill="#956400" font-weight="700">GK</text>
+      <text x="540" y="1184" text-anchor="middle" font-size="20" fill="#62786d" font-weight="500">#11</text>
+      <text x="540" y="1218" text-anchor="middle" font-size="30" fill="#243c34" font-weight="700">예시11</text>
+      </g>
+    <text x="540" y="1360" text-anchor="middle" font-size="25" fill="#526f60" font-weight="500">선발 11/11 · 교체 2명  |  ↳ 교체 선수</text>
+    <text x="540" y="1405" text-anchor="middle" font-size="25" fill="#9a631b" font-weight="700">저장 전 · 현재 입력한 스쿼드</text>
+    <text x="540" y="1445" text-anchor="middle" font-size="21" fill="#7b8b81" font-weight="500">우리의 축구가 모이는 곳 · 조축ON</text></g></svg>

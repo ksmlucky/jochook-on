@@ -35,7 +35,16 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [],
+  "pendingChanges": [
+    {
+      "date": "2026-10-19",
+      "feature": "squad-image-sharing",
+      "status": "local_not_deployed",
+      "spec": "../squad-image-sharing.md",
+      "staff": "배포 시 스쿼드 이미지 → 구간/팀 → 미리보기 → 공유/PNG 다운로드 및 저장 전 표시 안내 추가. 공통 원고·HTML·PDF 함께 검증 예정.",
+      "member": "직접 생성 버튼 없음. 조회·사용 절차 변경이 없어 기존1.14 유지."
+    }
+  ],
   "history": [
     {
       "guideVersion": "1.14",
