@@ -1,6 +1,8 @@
 # 조축ON
 
-최신 웹 운영 반영: [컴팩트한 선수단 표·선택형 일괄 입력](docs/compact-roster-table-2026-10-17.md) · [모바일 표](docs/diagrams/roster-table-mobile-20261017.jpg) · [선택형 입력](docs/diagrams/bulk-select-mobile-20261017.jpg). 2026-10-17 23:06 KST · 웹 `bdb4f04` / API `d8b2763` / DB V30 / 가이드1.6.
+최신 웹 운영 반영: [경기 중 대회 등록·형식 선택·작전판 자리 교환](docs/match-entry-and-tap-swap-2026-10-19.md). 2026-10-19 09:26 KST · 웹 `46ab4ce` / API `d8b2763` / DB V30 / 가이드1.7.
+
+이전 웹 운영 반영: [컴팩트한 선수단 표·선택형 일괄 입력](docs/compact-roster-table-2026-10-17.md) · [모바일 표](docs/diagrams/roster-table-mobile-20261017.jpg) · [선택형 입력](docs/diagrams/bulk-select-mobile-20261017.jpg). 2026-10-17 23:06 KST · 웹 `bdb4f04` / API `d8b2763` / DB V30 / 가이드1.6.
 
 이전 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
 
@@ -279,4 +281,4 @@ PK는 고정된 선수 ID를 유지합니다. 같은 팀의 활동 선수끼리 
 
 ## 2026-10-19 경기 입력·작전판 개선
 
-[변경·검증·배포 기록](docs/match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 배포 검증 중. API/DB 변경 없음.
+[변경·검증·배포 기록](docs/match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 반영 확인: 2026-10-19 09:26 KST, 웹 `46ab4ce`, Northflank `fuzzy-finger-6520`. 공개 HTTPS9개·JS/CSS/PDF일치. API d8b2763·DB V30 유지.

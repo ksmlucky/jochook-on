@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.7",
   "publishedOn": "2026.10.19",
-  "appCommit": "pending deployment",
-  "scope": "pending_deployment",
+  "appCommit": "46ab4ce90810e1ce14f4f065342926d70086faba",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -695,5 +695,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 경기 입력·작전판 개선판",
-  "lastVerifiedProductionCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b"
+  "lastVerifiedProductionCommit": "46ab4ce90810e1ce14f4f065342926d70086faba"
 }
