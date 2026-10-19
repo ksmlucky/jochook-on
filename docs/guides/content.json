@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.13",
   "publishedOn": "2026.10.19",
-  "appCommit": "pending",
-  "scope": "pending_deployment",
+  "appCommit": "43e8fd67451b6b6fc93932d562316ba8d4c9a64d",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -726,5 +726,5 @@
     }
   ],
   "releaseLabel": "2026.10.19 경기 알림·쿼터 상세",
-  "lastVerifiedProductionCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92"
+  "lastVerifiedProductionCommit": "43e8fd67451b6b6fc93932d562316ba8d4c9a64d"
 }

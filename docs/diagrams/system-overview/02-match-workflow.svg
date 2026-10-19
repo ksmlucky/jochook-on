@@ -42,10 +42,10 @@
 <rect x="942" y="367" width="402" height="240" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="942" y="387" width="5" height="200" rx="2" fill="#246b51"/>
 <text x="966" y="406" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">03 · 결과·코멘트</text>
-<text x="966" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">쿼터별 골·도움 입력·저장</text>
-<text x="966" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">쿼터 실점 / 스코어 자동 합산</text>
+<text x="966" y="446" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">골 추가 펼치기 / 구간별 저장</text>
+<text x="966" y="477" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">실점 −/+ · 스코어 자동 합산</text>
 <text x="966" y="508" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">완료 버튼으로 확정</text>
-<text x="966" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">완료된 경기만 기본 통계</text>
+<text x="966" y="539" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">목록에서 구간 상세 펼치기</text>
 <path d="M 1143 608 L 1143 646" fill="none" stroke="#8b9e96" stroke-width="2.2" marker-end="url(#arrow)"/>
 <rect x="54" y="649" width="1291" height="73" rx="18" fill="#e7f3eb" stroke="#c9dfd0" stroke-width="1.5"/>
 <text x="699" y="681" font-size="24" fill="#203a33" font-weight="600" text-anchor="middle">단계별 저장 → 경기 DB + 변경 이력 + 저장 영수증 → 목록에 작성 상태 표시</text>
@@ -59,7 +59,7 @@
 <rect x="714" y="776" width="5" height="76" rx="2" fill="#246b51"/>
 <text x="738" y="795" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">조회 메뉴 · 역할별 가이드</text>
 <text x="738" y="835" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">홈 / 선수단 / 경기 / 선수 기록 / 대회 / 가이드</text>
-<text x="738" y="866" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">운영진·회원별 앱 가이드 / 공유 PDF 1.12</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 작전판 드래그·쿼터 실점 · 웹/API 1519c9d · 배포 확인은 문서 참조 · DB V32</text>
+<text x="738" y="866" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">운영진·회원별 앱 가이드 / 공유 PDF 1.13</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 알림·쿼터 상세 · 웹43e8fd6 / API1519c9d · 운영 확인 · DB V32</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

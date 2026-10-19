@@ -59,15 +59,15 @@
 <rect x="54" y="686" width="625" height="183" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="706" width="5" height="143" rx="2" fill="#246b51"/>
 <text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 배포 확인</text>
-<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">암호화 백업·격리 복원 검증</text>
-<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">API·웹 1519c9d / DB V32 자료 보존</text>
+<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">이전 백업·격리 복원 검증 유지</text>
+<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">웹43e8fd6 / API1519c9d·DB V32</text>
 <text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">공개 HTTPS·권한·자산 확인</text>
 <rect x="714" y="686" width="631" height="183" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="706" width="5" height="143" rx="2" fill="#246b51"/>
 <text x="738" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이번 출시 범위</text>
-<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">길게 눌러 이동·교환 / 교체 승격</text>
-<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">쿼터 실점 · 최종 스코어 자동 합산</text>
-<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.12 · 앱과 공유 PDF 반영 확인</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 작전판 드래그·쿼터 실점 · 웹/API 1519c9d · 배포 확인은 문서 참조 · DB V32</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">해제 거절 알림 / 실점 증감</text>
+<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">골 추가 접기 / 목록 구간 상세</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.13 · 앱과 공유 PDF 반영 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 알림·쿼터 상세 · 웹43e8fd6 / API1519c9d · 운영 확인 · DB V32</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>
