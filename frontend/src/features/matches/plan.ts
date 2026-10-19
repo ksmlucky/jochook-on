@@ -40,8 +40,16 @@ export function placeInPlan(entries: PlannedEntry[], quarterNumber: number, slot
   const next = entries.filter(a => a !== source && a !== target)
   next.push({ team, quarterNumber, slot, entryOrder, playerId })
   if (source && target && source !== target) next.push({ ...source, playerId: target.playerId })
-  checkPlan(next, internalParticipants)
-  return next
+  // An empty destination vacates the source; promote its substitute.
+  const result = source && !target && source.entryOrder === 0
+    ? next.map(a => a.quarterNumber === source.quarterNumber && a.team === source.team && a.slot === source.slot && a.entryOrder === 1 ? { ...a, entryOrder: 0 as const } : a) : next
+  checkPlan(result, internalParticipants)
+  return result
+}
+
+/** Removing/moving a starter promotes the remaining substitute; never leaves an orphan. */
+export function removeFromPlan(entries: PlannedEntry[], entry: PlannedEntry): PlannedEntry[] {
+  return entries.filter(a => a !== entry).map(a => entry.entryOrder === 0 && a.quarterNumber === entry.quarterNumber && a.team === entry.team && a.slot === entry.slot && a.entryOrder === 1 ? { ...a, entryOrder: 0 as const } : a)
 }
 
 export function plannedShare(entries: PlannedEntry[], entry: PlannedEntry): number {

@@ -1,5 +1,5 @@
 {
-  "basis": "V31 운영 반영 · 2026.10.19",
+  "basis": "V32 로컬 개발 · 운영 V31 유지 · 2026.10.19",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {
@@ -249,12 +249,17 @@
           "",
           "goal_events_linked",
           "BOOLEAN · 기본 FALSE · 연결 기록 사용"
+        ],
+        [
+          "",
+          "goals_against",
+          "INT NULL · 외부 경기 구간 실점 · V32 개발"
         ]
       ],
       "notes": [
         "PK (match_id, quarter_number)",
-        "구간 길이 컬럼은 없음",
-        "구간 수 2/4 일치는 서비스가 검증"
+        "NULL 미입력 / 0 무실점 · 구간 길이 컬럼 없음",
+        "자체전 실점은 반대 팀 득점으로 계산"
       ]
     },
     {

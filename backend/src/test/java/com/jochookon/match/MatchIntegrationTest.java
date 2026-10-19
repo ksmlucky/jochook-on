@@ -46,6 +46,23 @@ class MatchIntegrationTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
     }
+    @Test void quarterConcededRoundTripLegacyPreservationClearAndAudit() throws Exception {
+        var base = request(null, List.of(), List.of());
+        var quarters = new ArrayList<>(base.quarters());
+        quarters.set(0, new MatchRequest.Quarter(1, List.of(), List.of(), 2, true));
+        long id = create(formatted(base, MatchFormat.FOUR_QUARTERS, quarters, List.of(), null, null));
+        call(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.quarters[0].goalsAgainst").value(2));
+        assertThat(jdbc.queryForObject("SELECT goals_against FROM match_quarters WHERE match_id=? AND quarter_number=1", Integer.class, id)).isEqualTo(2);
+        var legacy = formatted(base, MatchFormat.FOUR_QUARTERS, base.quarters(), List.of(), 0L, null);
+        call(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(legacy)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.quarters[0].goalsAgainst").value(2));
+        quarters.set(0, new MatchRequest.Quarter(1, List.of(), List.of(), null, true));
+        var cleared = formatted(base, MatchFormat.FOUR_QUARTERS, quarters, List.of(), 1L, null);
+        call(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(cleared)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.quarters[0].goalsAgainst").isEmpty());
+        var snapshot = jdbc.queryForObject("SELECT before_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
+        assertThat(json.readTree(snapshot).get("quarters").get(0).get("goalsAgainst").asInt()).isEqualTo(2);
+    }
     private List<MatchRequest.Participant> plannedPeople(List<MatchRequest.Participant> people, List<MatchRequest.PlannedEntry> plan) {
         return people.stream().map(p -> new MatchRequest.Participant(p.playerId(), p.vote(), p.attendance(),
                 plan.stream().filter(e -> e.playerId().equals(p.playerId())).map(MatchRequest.PlannedEntry::team).findFirst().orElse(null), true)).toList();

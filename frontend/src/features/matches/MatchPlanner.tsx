@@ -1,3 +1,4 @@
+import { usePitchDrag, PitchDragPreview } from './usePitchDrag'
 import { OverviewPositionEditor } from './OverviewPositionEditor'
 import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
@@ -9,7 +10,7 @@ import { playerLabel, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, PlannedEntry, Quarter, Slot } from './api'
 import { TeamSelector } from './TeamSelector'
 import { PitchMarkings } from './PitchMarkings'
-import { checkPlan, placeInPlan, plannedShare } from './plan'
+import { checkPlan, placeInPlan, plannedShare, removeFromPlan } from './plan'
 import { formationFor, formationLabel, pitchRowsFor, slotGroup } from './formations'
 import type { Formation } from './formations'
 import { SquadOverview } from './SquadOverview'
@@ -26,7 +27,6 @@ export function MatchPlanner({ entries, participants, players, editable, referen
 }) {
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
   const [editingOrder, setEditingOrder] = useState<0 | 1>(0)
-  const [swapMode, setSwapMode] = useState(false)
   const formation = formationFor({ formationA, formationB }, team)
   const [selected, setSelected] = useState<number | null>(null)
   const [message, setMessage] = useState('')
@@ -52,10 +52,11 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     try { onChange(placeInPlan(entries, quarter, slot, order, id, team, teamParticipants)); setSelected(null); setMessage(`${quarterLabel(quarter, matchFormat)} ${internal ? `${team}팀 ` : ''}${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 배치를 변경했습니다.`) }
     catch (e) { setMessage((e as Error).message) }
   }
+  const pitchDrag = usePitchDrag(canEdit, (id, target) => place(target.slot, target.order, id))
   function remove(entry: PlannedEntry) {
     if (!editable) return
-    const next = entries.filter(a => a !== entry)
-    try { checkPlan(next); onChange(next); setSelected(null); setMessage('배치를 해제했습니다.') } catch (e) { setMessage((e as Error).message) }
+    const next = removeFromPlan(entries, entry)
+    try { checkPlan(next); onChange(next); setSelected(null); setMessage(entry.entryOrder === 0 && q.some(a => a.slot === entry.slot && a.entryOrder === 1) ? '선발을 해제하고 교체 선수를 선발로 올렸어요.' : '배치를 해제했습니다.') } catch (e) { setMessage((e as Error).message) }
   }
   function editOverview(targetQuarter: number, targetTeam: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null) {
     if (!editable) throw new Error('지금은 수정할 수 없어요.')
@@ -75,11 +76,8 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} recordQuarters={quarters} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={editable} onEdit={editable ? editOverview : undefined} />
     {assignmentPending && <p className="import-warning" role="status">참석 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
     <p className="field-help">작전판의 자리를 누르면 배치할 선수와 교체를 바로 선택할 수 있어요.</p>
-    <div className="squad-overview-controls"><div role="group" aria-label="스쿼드 편집 방식">
-      <button type="button" aria-pressed={!swapMode} onClick={() => { setSwapMode(false); setSelected(null); setMessage('') }}>배치 수정</button>
-      <button type="button" aria-pressed={swapMode} onClick={() => { setSwapMode(true); setSelected(null); setMessage('') }}>자리 바꾸기</button>
-    </div></div>
-    <div className="planner-selection-status" role="status"><span>{selected !== null ? `${participants.find(p => p.playerId === selected)?.name ?? '선수'} 선택 중 · 이동할 자리를 눌러 주세요.` : swapMode ? '선수를 누른 뒤 바꿀 자리를 눌러 주세요.' : '자리에서 선발·교체 선수를 선택해요.'}</span><button type="button" className="secondary-button" disabled={selected === null} onClick={() => setSelected(null)}>선택 취소</button></div>
+    <p className="field-help">배치한 선수를 길게 누른 뒤 다른 자리로 옮기면 이동하거나 서로 바꿔요. 짧게 누르면 선수 목록이 열려요.</p>
+    {selected !== null && <div className="planner-selection-status" role="status"><span>{participants.find(p => p.playerId === selected)?.name} 선택 중 · 배치할 자리를 눌러 주세요.</span><button type="button" className="secondary-button" onClick={() => setSelected(null)}>선택 취소</button></div>}
     {tools}
     <div className="quarter-tabs" role="group" aria-label="스쿼드 쿼터 선택">{quarterNumbers(matchFormat).map(n => <button type="button" key={n} aria-pressed={quarter === n} onClick={() => { setQuarter(n); setSelected(null); setMessage(''); setConfirmCopy(false) }}>{quarterLabel(n, matchFormat)} <small>{internal ? `${team}팀 ` : ''}선발 {entries.filter(a => a.quarterNumber === n && a.team === team && a.entryOrder === 0).length}/11</small></button>)}</div>
     {internal && <><TeamSelector team={team} disabled={false} label="스쿼드 편성 팀" counts={{ A: allQuarter.filter(a => a.team === 'A').length, B: allQuarter.filter(a => a.team === 'B').length }} onChange={value => { setTeam(value); setSelected(null); setMessage(''); setConfirmCopy(false) }} />
@@ -116,22 +114,23 @@ export function MatchPlanner({ entries, participants, players, editable, referen
           <small>총 {share}쿼터</small>
         </button>
       })}
-    </aside><div><div className={`lineup-pitch plan-pitch tactics-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} data-formation={formation} aria-label={`${quarterLabel(quarter, matchFormat)} ${internal ? `${team}팀 ` : ''}스쿼드 ${formationLabel(formation)}`}><PitchMarkings /><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>
+    </aside><div><div className={`lineup-pitch plan-pitch tactics-pitch${internal ? ` team-pitch-${team.toLowerCase()}` : ''}`} data-pitch-drag-scope data-formation={formation} aria-label={`${quarterLabel(quarter, matchFormat)} ${internal ? `${team}팀 ` : ''}스쿼드 ${formationLabel(formation)}`}><PitchMarkings /><p className="attack-direction">{internal && `${team}팀 · `}공격 방향 ↑</p>
       {pitchRowsFor(formation).map((row, i) => <div className="lineup-row" key={i}>{row.map(slot => {
         const group = slotGroup(slot)
         return <div className={`plan-position position-${group}`} data-position={slot} key={slot}><span className="position-badge">{slotLabels[slot]}</span>{([0, 1] as const).map(order => {
           const entry = q.find(a => a.slot === slot && a.entryOrder === order); const person = participants.find(p => p.playerId === entry?.playerId)
           const emptySubstitute = order === 1 && !entry
           if (emptySubstitute && (!editable || !q.some(a => a.slot === slot && a.entryOrder === 0))) return null
-          const validTarget = selected === null && !swapMode ? true : canPlace(slot, order)
-          return <div className={`plan-place${order === 1 ? ' is-substitute' : ''}${emptySubstitute ? ' is-empty-substitute' : ''}`} key={order}><button type="button" className={`${entry ? 'plan-filled ' : ''}${selected !== null && validTarget ? 'plan-drop-ready ' : ''}${hoveredPlace === `${slot}:${order}` ? 'plan-drop-hover' : ''}`} disabled={!canEdit || !validTarget}
-            data-plan-slot={slot} data-plan-order={order}
+          const validTarget = selected === null ? true : canPlace(slot, order)
+          return <div className={`plan-place${order === 1 ? ' is-substitute' : ''}${emptySubstitute ? ' is-empty-substitute' : ''}`} key={order}><button type="button" className={`${entry ? 'plan-filled ' : ''}${selected !== null && validTarget ? 'plan-drop-ready ' : ''}${hoveredPlace === `${slot}:${order}` || pitchDrag.preview?.target === `${slot}:${order}` ? 'plan-drop-hover' : ''}`} disabled={!canEdit || !validTarget}
+            data-plan-slot={slot} data-plan-order={order} data-pitch-slot={slot} data-pitch-order={order} {...pitchDrag.bind(entry?.playerId)}
             aria-pressed={!!entry && selected === entry.playerId}
             aria-label={`${quarterLabel(quarter, matchFormat)} 스쿼드 ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 자리`}
-            aria-haspopup={!swapMode && selected === null ? 'dialog' : undefined}
+            aria-haspopup={selected === null ? 'dialog' : undefined}
             title={emptySubstitute ? '교체 선수를 선택하세요.' : undefined}
             onClick={() => {
-              if (!swapMode && selected === null) { setEditingOrder(order); setEditingSlot(slot); return }
+              if (pitchDrag.consumeClick()) return
+              if (selected === null) { setEditingOrder(order); setEditingSlot(slot); return }
               if (entry && selected === entry.playerId) { setSelected(null); setMessage('선택을 취소했어요.'); return }
               if (entry && selected === null) { setSelected(entry.playerId); setMessage('바꿀 선수 또는 빈 자리를 눌러 주세요.'); return }
               if (emptySubstitute && selected === null) { setMessage('참석 선수에서 교체할 선수를 먼저 선택한 뒤, 이 자리의 + 교체를 눌러 주세요.'); return }
@@ -150,6 +149,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
       participants={participants} entries={quarters.find(q => q.number === quarter)?.lineup ?? []} editable={editable}
       onEdit={(order, patch) => editOverview(quarter, team, editingSlot, order, patch)} onClose={() => setEditingSlot(null)} />}
     {footer}
+    <PitchDragPreview preview={pitchDrag.preview} name={participants.find(p => p.playerId === pitchDrag.preview?.id)?.name ?? '선수'} />
     {dragPreview && draggedPlayer && createPortal(<div className={`planner-drag-card position-${preferredPositionGroup(draggedProfile?.firstChoice ?? null)}`} style={{ left: dragPreview.x, top: dragPreview.y }} aria-hidden="true">
       <strong>{playerLabel(draggedPlayer)}</strong><small>{draggedProfile?.firstChoice ?? '미확인'} · {quarterLabel(quarter, matchFormat)} 배치</small><span>{hoveredPlace ? '여기에 놓기' : '강조된 자리에 놓으세요'}</span>
     </div>, document.body)}

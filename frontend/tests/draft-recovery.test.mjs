@@ -192,3 +192,15 @@ test('quarter checkpoint response loss preserves the exact retry and target quar
     assert.deepEqual(toMatchPayload(restored.pending.draft,null),toMatchPayload(value.pending.draft,null))
   }
 })
+
+test('quarter conceded survives recovery and frozen retries, omission remains absent', () => {
+  for (const fields of [{}, {goalsAgainst:0,goalsAgainstSpecified:true}, {goalsAgainst:2}, {goalsAgainst:null,goalsAgainstSpecified:true}]) {
+    const s=store(), value=snapshot();Object.assign(value.draft.quarters[0],fields)
+    value.pending={key:'00000000-0000-4000-8000-000000000001',draft:structuredClone(value.draft),record:null,destination:'quarter-1'}
+    const body=JSON.stringify(toMatchPayload(value.pending.draft,null))
+    assert.equal(saveMatchRecovery(value,s,now),true)
+    const restored=loadMatchRecovery(owner,s,now)
+    assert.deepEqual(restored.draft.quarters,value.draft.quarters)
+    assert.deepEqual(JSON.parse(JSON.stringify(toMatchPayload(restored.pending.draft,null))),JSON.parse(body))
+  }
+})

@@ -32,7 +32,7 @@ test('substitutions credit each player one half and cannot be left without a sta
   assert.equal(plannedShare(plan, plan[0]), 0.5)
   assert.equal(plannedShare(plan, plan[1]), 0.5)
   assert.equal(plannedShare([entry(1)], entry(1)), 1)
-  assert.throws(() => placeInPlan(plan, 1, 'GK', 0, 1), /선발/)
+  assert.equal(placeInPlan(plan, 1, 'GK', 0, 1).find(a => a.playerId === 2).entryOrder, 0)
   assert.throws(() => placeInPlan([], 1, 'GK', 1, 1), /선발/)
   assert.doesNotThrow(() => placeInPlan(plan, 1, 'ST', 1, 1))
 })

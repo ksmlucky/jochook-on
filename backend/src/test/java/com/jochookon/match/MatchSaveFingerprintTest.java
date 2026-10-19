@@ -15,7 +15,10 @@ class MatchSaveFingerprintTest {
         var oldTree = (tools.jackson.databind.node.ObjectNode) json.valueToTree(base);
         oldTree.remove("tournamentId"); oldTree.remove("tournamentStage"); oldTree.remove("tournamentSelectionSpecified");
         oldTree.remove("matchFormat");
-        for (var quarter : oldTree.get("quarters")) ((tools.jackson.databind.node.ObjectNode) quarter).remove("goalEvents");
+        for (var quarter : oldTree.get("quarters")) {
+            var q = (tools.jackson.databind.node.ObjectNode) quarter;
+            q.remove("goalEvents"); q.remove("goalsAgainst"); q.remove("goalsAgainstSpecified");
+        }
         for (var p : oldTree.get("participants")) {
             ((tools.jackson.databind.node.ObjectNode) p).remove("plannedTeam");
             ((tools.jackson.databind.node.ObjectNode) p).remove("plannedTeamSpecified");

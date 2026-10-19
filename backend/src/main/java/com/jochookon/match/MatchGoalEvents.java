@@ -52,7 +52,7 @@ final class MatchGoalEvents {
                     throw new IllegalArgumentException("연결된 득점·도움 기록이 있습니다. 최신 화면에서 득점 기록을 수정해 주세요.");
                 return new MatchRequest.Appearance(a.slot(), a.playerId(), total[0], total[1], a.entryOrder(), a.team(), total[2], total[3]);
             }).toList();
-            return new MatchRequest.Quarter(q.number(), lineup, List.copyOf(events));
+            return new MatchRequest.Quarter(q.number(), lineup, List.copyOf(events), q.goalsAgainst(), q.goalsAgainstSpecified());
         }).toList();
     }
 }

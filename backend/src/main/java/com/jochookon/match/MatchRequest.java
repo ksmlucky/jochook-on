@@ -76,7 +76,7 @@ public record MatchRequest(
             var old = previous.get(q.number() + ":" + a.playerId());
             return a.withGoalTypes(a.freeKickGoals() == null ? old == null ? 0 : old.getFreeKickGoals() : a.freeKickGoals(),
                     a.penaltyGoals() == null ? old == null ? 0 : old.getPenaltyGoals() : a.penaltyGoals());
-        }).toList(), q.goalEvents())).toList();
+        }).toList(), q.goalEvents(), q.goalsAgainst(), q.goalsAgainstSpecified())).toList();
         return new MatchRequest(playedOn, kickoff, venue, opponent, notes, version, participants, resolved, plannedLineup,
                 scoreFor, scoreAgainst, kind, recordingStage, formationA, formationB, tournamentId, tournamentStage, tournamentSelectionSpecified, matchFormat);
     }
@@ -114,10 +114,24 @@ public record MatchRequest(
                 scoreFor, scoreAgainst, kind, recordingStage, formationA, formationB, tournamentId, tournamentStage,
                 tournamentSelectionSpecified, matchFormat);
     }
+    MatchRequest resolveQuarterConceded(List<MatchQuarter> saved) {
+        var resolved = quarters.stream().map(q -> {
+            Integer value = q.goalsAgainst();
+            if (value == null && !Boolean.TRUE.equals(q.goalsAgainstSpecified()))
+                value = saved.stream().filter(old -> old.getNumber() == q.number()).map(MatchQuarter::getGoalsAgainst)
+                        .filter(java.util.Objects::nonNull).findFirst().orElse(null);
+            return new Quarter(q.number(), q.lineup(), q.goalEvents(), value, q.goalsAgainstSpecified());
+        }).toList();
+        return new MatchRequest(playedOn, kickoff, venue, opponent, notes, version, participants, resolved, plannedLineup,
+                scoreFor, scoreAgainst, kind, recordingStage, formationA, formationB, tournamentId, tournamentStage,
+                tournamentSelectionSpecified, matchFormat);
+    }
     public record Quarter(@Min(1) @Max(4) int number,
                           @NotNull @Size(max = 44) List<@NotNull @Valid Appearance> lineup,
-                          @Size(max = 1000) List<@NotNull @Valid GoalEvent> goalEvents) {
-        public Quarter(int number, List<Appearance> lineup) { this(number, lineup, null); }
+                          @Size(max = 1000) List<@NotNull @Valid GoalEvent> goalEvents,
+                          @Min(0) @Max(99) Integer goalsAgainst, Boolean goalsAgainstSpecified) {
+        public Quarter(int number, List<Appearance> lineup) { this(number, lineup, null, null, null); }
+        public Quarter(int number, List<Appearance> lineup, List<GoalEvent> events) { this(number, lineup, events, null, null); }
     }
     public record GoalEvent(@NotNull @Positive Long scorerId, @Positive Long assistId,
                             @NotNull GoalType type, MatchTeam team) {

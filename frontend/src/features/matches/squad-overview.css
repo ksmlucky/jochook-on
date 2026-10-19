@@ -102,3 +102,8 @@ body:has(.squad-overview-dialog[open]) { overflow: hidden; }
 
 .squad-overview-slot { position: relative; z-index: 1; align-self: start; justify-self: center; min-width: 0; width: 100%; max-width: 112px; }
 .squad-overview-sub { display: block; width: 100%; min-height: 28px; margin-top: 2px; padding: 3px; border: 1px solid var(--position-border); border-radius: 7px; background: var(--position-tint); color: var(--position-ink); font: inherit; font-size: 10px; overflow-wrap: anywhere; }
+
+/* Hold-to-drag keeps ordinary touch scrolling until the hold activates. */
+[data-pitch-slot] { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+.pitch-drop-hover { outline: 3px solid #25816b; outline-offset: 2px; }
+.pitch-drag-preview { position: fixed; z-index: 10000; pointer-events: none; width: 104px; padding: 12px 6px; border-radius: 12px; text-align: center; background: #fff; color: #194d40; border: 2px solid #25816b; box-shadow: 0 8px 24px #173d4433; font-weight: 700; }

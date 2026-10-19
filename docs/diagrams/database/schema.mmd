@@ -1,6 +1,6 @@
-%% 조축ON · V31 운영 반영 · 2026.10.19
+%% 조축ON · V32 로컬 개발 · 운영 V31 유지 · 2026.10.19
 %% Solid lines: physical FK. Dotted REF lines: application-only logical references.
-%% Important columns only; exact SQL types/checks are in Flyway V1..V31.
+%% Important columns only; exact SQL types/checks are in Flyway V1..V32.
 erDiagram
   teams {
     BIGINT id PK "BIGINT"
@@ -68,6 +68,7 @@ erDiagram
     BIGINT match_id PK, FK "match_records.id"
     INT quarter_number PK "1~4 · 전·후반은 1/2"
     BIT goal_events_linked "BOOLEAN · 기본 FALSE · 연결 기록 사용"
+    INT goals_against "INT NULL · 외부 경기 구간 실점 · V32 개발"
   }
   match_planned_lineups {
     BIGINT match_id PK, FK "match_records.id"

@@ -1,5 +1,5 @@
 import type { Appearance, MatchDraft, MatchTeam, Participant, PlannedEntry, Slot } from './api'
-import { checkPlan, placeInPlan } from './plan.ts'
+import { checkPlan, placeInPlan, removeFromPlan } from './plan.ts'
 import { editActualAppearance } from './appearanceEdit.ts'
 import { validateMatchPeriods } from './matchFormat.ts'
 import { withGoalEvents } from './goalEvents.ts'
@@ -54,8 +54,9 @@ export function editSquad(draft: MatchDraft, quarter: number, team: MatchTeam, s
     throw new Error('이 구간의 골·도움은 골별 기록에서 수정해 주세요.')
   if (patch && !Object.hasOwn(patch, 'playerId')) return { ...draft, quarters: editActualAppearance(draft.quarters, draft.participants, quarter, team, slot, order, patch) }
   const view = squadPlanningView(draft)
+  const removed = view.plannedLineup.find(e => e.quarterNumber === quarter && e.team === team && e.slot === slot && e.entryOrder === order)
   const entries = patch ? placeInPlan(view.plannedLineup, quarter, slot, order, patch.playerId!, team, draft.kind === 'INTERNAL' ? view.participants : undefined)
-    : view.plannedLineup.filter(e => e.quarterNumber !== quarter || e.team !== team || e.slot !== slot || e.entryOrder !== order)
+    : removed ? removeFromPlan(view.plannedLineup, removed) : view.plannedLineup
   return applySquad(draft, entries)
 }
 

@@ -66,5 +66,7 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
   }
   for (const number of new Set([...(before?.quarters ?? []), ...(after?.quarters ?? [])].map(q => q.number)))
     add(`${quarterLabel(number, after?.matchFormat ?? before?.matchFormat)} · 득점·도움 연결`, goals(before, number), goals(after, number))
+  for (const number of new Set([...(before?.quarters ?? []), ...(after?.quarters ?? [])].map(q => q.number)))
+    add(`${quarterLabel(number, after?.matchFormat ?? before?.matchFormat)} · 실점`, before?.quarters.find(q => q.number === number)?.goalsAgainst, after?.quarters.find(q => q.number === number)?.goalsAgainst)
   return changes
 }

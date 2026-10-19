@@ -74,7 +74,7 @@ public class MatchService {
         if (request.version() == null) throw new IllegalArgumentException("수정 버전이 필요합니다.");
         if (!Objects.equals(match.getVersion(), request.version())) throw new ObjectOptimisticLockingFailureException(MatchRecord.class, id);
         request = request.resolveMatchFormat(match.getMatchFormat()).resolveFormations(match.getFormationA(), match.getFormationB()).resolvePlannedTeams(match.getParticipants())
-                .resolveGoalTypes(match.getAppearances()).resolveGoalEvents(match.getQuarters(), match.getGoalEvents());
+                .resolveQuarterConceded(match.getQuarters()).resolveGoalTypes(match.getAppearances()).resolveGoalEvents(match.getQuarters(), match.getGoalEvents());
         validatePlayers(request);
         var before = response(match);
         match.replace(request);

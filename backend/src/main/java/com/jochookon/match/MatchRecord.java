@@ -50,12 +50,13 @@ public class MatchRecord {
         match.replace(request); return match;
     }
     void replace(MatchRequest request) {
-        request = request.resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants)
+        request = request.resolveQuarterConceded(quarters).resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants)
                 .resolveGoalEvents(quarters, goalEvents);
         validateRules(request);
         if (getMatchFormat() == MatchFormat.FOUR_QUARTERS && request.matchFormat() == MatchFormat.TWO_HALVES_30
                 && (appearances.stream().anyMatch(a -> a.getQuarterNumber() > 2)
-                    || plannedLineup.stream().anyMatch(a -> a.response().quarterNumber() > 2)))
+                    || plannedLineup.stream().anyMatch(a -> a.response().quarterNumber() > 2)
+                    || quarters.stream().anyMatch(q -> q.getNumber() > 2 && q.getGoalsAgainst() != null)))
             throw new IllegalArgumentException("저장된 3·4쿼터 계획 또는 실제 기록이 있습니다. 기존 기록을 확인하고 별도로 정리·저장한 뒤 경기 형식을 바꿔 주세요.");
         if (id != null && kind != request.kind()) throw new IllegalArgumentException("저장한 경기의 유형은 변경할 수 없습니다. 별도 경기로 등록해 주세요.");
         kind = request.kind();
@@ -105,6 +106,10 @@ public class MatchRecord {
         }
         Set<Integer> quarters = new HashSet<>();
         for (var q : request.quarters()) {
+            if (q.goalsAgainst() != null && (q.goalsAgainst() < 0 || q.goalsAgainst() > 99))
+                throw new IllegalArgumentException("쿼터 실점은 0~99 사이로 입력해 주세요.");
+            if (request.kind() == MatchKind.INTERNAL && q.goalsAgainst() != null)
+                throw new IllegalArgumentException("자체전 실점은 상대 팀 득점에서 계산합니다.");
             if (!quarters.add(q.number())) throw new IllegalArgumentException("쿼터 번호가 중복됩니다.");
             Map<String, Set<Integer>> slots = new HashMap<>(); Set<Long> players = new HashSet<>();
             for (var a : q.lineup()) {

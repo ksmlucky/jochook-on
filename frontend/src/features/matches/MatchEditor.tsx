@@ -97,7 +97,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
   const errorMessage = useRef<HTMLParagraphElement>(null)
   const internal = draft.kind === 'INTERNAL'
   const planning = squadPlanningView(draft)
-  const kindLocked = !!record || !!draft.plannedLineup.length || draft.quarters.some(q => q.lineup.length > 0) || draft.scoreFor !== null || draft.scoreAgainst !== null
+  const kindLocked = !!record || !!draft.plannedLineup.length || draft.quarters.some(q => q.lineup.length > 0 || q.goalsAgainst != null) || draft.scoreFor !== null || draft.scoreAgainst !== null
   const referenceYear = Number(draft.playedOn.slice(0, 4))
   const eligible = draft.participants.filter(canPlay)
   const editable = isAdmin && !busy && !blocked && !pending
@@ -204,6 +204,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       goToStep('match-totals'); setError('스코어는 양쪽 모두 0~99로 입력하거나 모두 비워 주세요.'); return
     }
     for (const item of next.quarters) {
+      if (item.goalsAgainst != null && (!Number.isInteger(item.goalsAgainst) || item.goalsAgainst < 0 || item.goalsAgainst > 99)) {
+        setQuarter(item.number); goToStep('match-totals'); setError('쿼터 실점은 0~99 정수로 입력해 주세요.'); return
+      }
       if (item.lineup.some(a => [a.goals, a.assists].some(n => !Number.isInteger(n) || n < 0 || n > 99))) {
         setQuarter(item.number); goToStep('match-totals'); setError(`${quarterLabel(item.number, next.matchFormat)}의 득점·도움은 0~99 정수로 입력해 주세요.`); return
       }
@@ -410,7 +413,7 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       <MatchResultGoals draft={draft} quarter={quarter} team={team} editable={editable} isAdmin={isAdmin} setQuarter={setQuarter} setTeam={setTeam}
         onChange={change} onSave={() => void persist(draft, `quarter-${quarter}`)} />
       {isAdmin && <CompletionReview draft={draft} disabled={!editable} onNavigate={reviewNavigate} />}
-      <fieldset className="match-score-fields" disabled={!editable}><legend>최종 스코어 <span>{matchPeriodSummary(draft.matchFormat)} 합계 · 선택 · 경기 전에는 비워 두세요</span></legend>
+      <fieldset className="match-score-fields" disabled={!editable}><legend>최종 스코어 <span>{matchPeriodSummary(draft.matchFormat)} 합계 · 득점자 미상·자책골은 직접 정정 가능</span></legend>
         <label>{internal ? 'A팀 득점' : '우리 팀 득점'}<input id="match-score-for" type="number" min={0} max={99} step={1} value={draft.scoreFor ?? ''} placeholder="미입력" onChange={e => change({ ...draft, scoreFor: e.target.value === '' ? null : Number(e.target.value) })} /></label><span aria-hidden="true">:</span>
         <label>{internal ? 'B팀 득점' : '상대 팀 득점'}<input type="number" min={0} max={99} step={1} value={draft.scoreAgainst ?? ''} placeholder="미입력" onChange={e => change({ ...draft, scoreAgainst: e.target.value === '' ? null : Number(e.target.value) })} /></label>
       </fieldset>

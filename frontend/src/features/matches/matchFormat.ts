@@ -7,7 +7,7 @@ export const quarterNumbers = (format?: MatchFormat | null): number[] => normali
 export const quarterLabel = (number: number, format?: MatchFormat | null): string => normalizeMatchFormat(format) === 'TWO_HALVES_30' && number <= 2 ? `${number === 1 ? '전반' : '후반'}(${number}쿼터)` : `${number}쿼터`
 export const matchFormatLabel = (format?: MatchFormat | null): string => normalizeMatchFormat(format) === 'TWO_HALVES_30' ? '전·후반 각 30분' : '4쿼터'
 export const matchPeriodSummary = (format?: MatchFormat | null): string => normalizeMatchFormat(format) === 'TWO_HALVES_30' ? '전·후반' : '1~4쿼터'
-export const hasLaterQuarterRecords = (draft: MatchDraft): boolean => draft.plannedLineup.some(entry => entry.quarterNumber > 2) || draft.quarters.some(quarter => quarter.number > 2 && quarter.lineup.length > 0)
+export const hasLaterQuarterRecords = (draft: MatchDraft): boolean => draft.plannedLineup.some(entry => entry.quarterNumber > 2) || draft.quarters.some(quarter => quarter.number > 2 && (quarter.lineup.length > 0 || quarter.goalsAgainst != null))
 
 /** Never turn changing the format into deleting planned lineups or actual goals. */
 export function changeMatchFormat(draft: MatchDraft, matchFormat: MatchFormat, savedRecord?: MatchDraft | null): MatchDraft {
