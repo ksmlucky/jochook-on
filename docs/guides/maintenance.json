@@ -45,6 +45,16 @@
       "status": "local_not_deployed",
       "spec": "../compact-match-cards-2026-10-19.md",
       "note": "현재 운영 원고/HTML/PDF 1.13 유지. 배포 준비 시 역할별 홈 버튼명과 안내를 함께 갱신."
+    },
+    {
+      "feature": "선수 기록 간단 보기·표 보기 높이 축소",
+      "guides": [
+        "member",
+        "staff"
+      ],
+      "status": "local_not_deployed",
+      "spec": "../compact-match-cards-2026-10-19.md",
+      "note": "양쪽 역할 검토 완료: 버튼·조회 순서·표시 항목·권한 변경 없음. 사용자 가이드 사용법 문구와 PDF 수정 불필요."
     }
   ],
   "history": [
