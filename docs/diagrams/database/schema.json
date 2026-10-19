@@ -1,5 +1,5 @@
 {
-  "basis": "V30 운영 스키마 · 2026.10.16 · d8b2763",
+  "basis": "V31 로컬·미배포 · 2026.10.19 / 운영 V30",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {
@@ -244,6 +244,11 @@
           "PK",
           "quarter_number",
           "1~4 · 전·후반은 1/2"
+        ],
+        [
+          "",
+          "goal_events_linked",
+          "BOOLEAN · 기본 FALSE · 연결 기록 사용"
         ]
       ],
       "notes": [
@@ -290,7 +295,7 @@
     },
     {
       "name": "match_appearances",
-      "title": "03 · 실제 출전과 스탯",
+      "title": "02 · 출전과 스탯 집계값",
       "domain": "lineups",
       "fields": [
         [
@@ -332,6 +337,48 @@
       "notes": [
         "PK (match_id, quarter_number, team, slot, entry_order)",
         "FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터"
+      ]
+    },
+    {
+      "name": "match_goal_events",
+      "title": "02 · 골 한 건과 도움 연결",
+      "domain": "lineups",
+      "fields": [
+        [
+          "PK·FK",
+          "match_id",
+          "match_records.id · 경기 삭제 시 CASCADE"
+        ],
+        [
+          "PK",
+          "event_order",
+          "경기 전체 이벤트 목록 순서 · 0부터"
+        ],
+        [
+          "",
+          "quarter_number / team",
+          "구간 번호 / 득점 팀 A·B"
+        ],
+        [
+          "FK",
+          "scorer_id",
+          "players.id · 득점 선수"
+        ],
+        [
+          "FK",
+          "assist_id",
+          "players.id · 도움 선수 · NULL 가능"
+        ],
+        [
+          "",
+          "goal_type",
+          "NORMAL / FREE_KICK / PENALTY"
+        ]
+      ],
+      "notes": [
+        "PK (match_id, event_order) · 분/초를 기록하지 않음",
+        "자기 도움 금지 · 직접 FK/PK는 도움 없음",
+        "같은 구간·같은 팀 출전은 서비스에서 검증"
       ]
     },
     {
@@ -757,6 +804,30 @@
   ],
   "foreignKeys": [
     {
+      "name": "fk_goal_event_match",
+      "parent": "match_records",
+      "child": "match_goal_events",
+      "column": "match_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_goal_event_scorer",
+      "parent": "players",
+      "child": "match_goal_events",
+      "column": "scorer_id",
+      "parentOptional": false,
+      "childUnique": false
+    },
+    {
+      "name": "fk_goal_event_assist",
+      "parent": "players",
+      "child": "match_goal_events",
+      "column": "assist_id",
+      "parentOptional": true,
+      "childUnique": false
+    },
+    {
       "name": "fk_password_reset_account",
       "parent": "accounts",
       "child": "account_password_resets",
@@ -959,6 +1030,16 @@
   ],
   "logicalReferences": [
     {
+      "parent": "match_quarters",
+      "child": "match_goal_events",
+      "column": "match_id + quarter_number · DB 복합 FK 없음"
+    },
+    {
+      "parent": "match_appearances",
+      "child": "match_goal_events",
+      "column": "구간·팀·득점자·도움 선수 출전 검증 · DB FK 없음"
+    },
+    {
       "parent": "match_records",
       "child": "match_record_events",
       "column": "match_id"
@@ -1029,6 +1110,7 @@
     "V27__add_internal_match_planned_teams.sql",
     "V28__add_match_format.sql",
     "V29__account_credential_version.sql",
-    "V30__account_password_resets.sql"
+    "V30__account_password_resets.sql",
+    "V31__linked_goal_assist_events.sql"
   ]
 }

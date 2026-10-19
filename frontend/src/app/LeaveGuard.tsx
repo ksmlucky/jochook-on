@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { FadeToast } from './FadeToast'
 
 type EditState = { dirty: boolean; busy: boolean; recoverable?: boolean }
 type LeaveGuard = { update: (id: string, state: EditState | null) => void; confirmLeave: (mode?: 'navigate' | 'logout') => Promise<boolean> }
@@ -49,7 +50,7 @@ export function LeaveGuardProvider({ children }: { children: ReactNode }) {
   useEffect(() => { if (!notice) return; const timer = setTimeout(() => setNotice(''), 4500); return () => clearTimeout(timer) }, [notice])
   const value = useMemo(() => ({ update, confirmLeave }), [update, confirmLeave])
   return <GuardContext.Provider value={value}>{children}
-    {notice && createPortal(<div className="match-save-toast" role="status">{notice}</div>, document.body)}
+    <FadeToast message={notice} />
     {open && createPortal(<div className="dialog-backdrop"><div className="leave-dialog" role="alertdialog" aria-modal="true" aria-labelledby="global-leave-title"
       aria-describedby="global-leave-description" onKeyDown={event => {
         if (event.key === 'Escape') { event.preventDefault(); finish(false) }

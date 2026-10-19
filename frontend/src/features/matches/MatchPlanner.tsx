@@ -25,6 +25,8 @@ export function MatchPlanner({ entries, participants, players, editable, referen
   formationA?: Formation | null; formationB?: Formation | null; matchFormat?: MatchFormat | null
 }) {
   const [editingSlot, setEditingSlot] = useState<Slot | null>(null)
+  const [editingOrder, setEditingOrder] = useState<0 | 1>(0)
+  const [swapMode, setSwapMode] = useState(false)
   const formation = formationFor({ formationA, formationB }, team)
   const [selected, setSelected] = useState<number | null>(null)
   const [message, setMessage] = useState('')
@@ -72,8 +74,12 @@ export function MatchPlanner({ entries, participants, players, editable, referen
     <div className="match-block-title"><h4 id="plan-title" tabIndex={-1}>02 · 스쿼드·개인 기록</h4><span>{internal ? `${team}팀 · ` : ''}{formationLabel(formation)} · 참석자 직접 배치</span></div>
     <SquadOverview matchFormat={matchFormat} mode="plan" entries={entries} recordQuarters={quarters} participants={participants} formationA={formationA} formationB={formationB} internal={internal} quarter={quarter} team={team} editable={editable} onEdit={editable ? editOverview : undefined} />
     {assignmentPending && <p className="import-warning" role="status">참석 선수 중 미배정 {unassignedAttendees(participants).length}명이 있어요. 01에서 A·B팀을 모두 정한 뒤 배치해 주세요.</p>}
-    <p className="field-help">명단이나 작전판의 선수를 누른 뒤 다른 자리를 눌러 주세요. 선수가 있으면 서로 자리를 바꿔요. 같은 선수를 다시 누르면 선택을 취소해요.</p>
-    {selected !== null && <p role="status" className="planner-message">{participants.find(p => p.playerId === selected)?.name} 선택 중 · 이동할 자리를 눌러 주세요.<button type="button" className="secondary-button" onClick={() => setSelected(null)}>선택 취소</button></p>}
+    <p className="field-help">작전판의 자리를 누르면 배치할 선수와 교체를 바로 선택할 수 있어요.</p>
+    <div className="squad-overview-controls"><div role="group" aria-label="스쿼드 편집 방식">
+      <button type="button" aria-pressed={!swapMode} onClick={() => { setSwapMode(false); setSelected(null); setMessage('') }}>배치·기록 수정</button>
+      <button type="button" aria-pressed={swapMode} onClick={() => { setSwapMode(true); setSelected(null); setMessage('') }}>자리 바꾸기</button>
+    </div></div>
+    <div className="planner-selection-status" role="status"><span>{selected !== null ? `${participants.find(p => p.playerId === selected)?.name ?? '선수'} 선택 중 · 이동할 자리를 눌러 주세요.` : swapMode ? '선수를 누른 뒤 바꿀 자리를 눌러 주세요.' : '자리에서 선수·교체·골·도움을 수정해요.'}</span><button type="button" className="secondary-button" disabled={selected === null} onClick={() => setSelected(null)}>선택 취소</button></div>
     {tools}
     <div className="quarter-tabs" role="group" aria-label="스쿼드 쿼터 선택">{quarterNumbers(matchFormat).map(n => <button type="button" key={n} aria-pressed={quarter === n} onClick={() => { setQuarter(n); setSelected(null); setMessage(''); setConfirmCopy(false) }}>{quarterLabel(n, matchFormat)} <small>{internal ? `${team}팀 ` : ''}선발 {entries.filter(a => a.quarterNumber === n && a.team === team && a.entryOrder === 0).length}/11</small></button>)}</div>
     {internal && <><TeamSelector team={team} disabled={false} label="스쿼드 편성 팀" counts={{ A: allQuarter.filter(a => a.team === 'A').length, B: allQuarter.filter(a => a.team === 'B').length }} onChange={value => { setTeam(value); setSelected(null); setMessage(''); setConfirmCopy(false) }} />
@@ -86,7 +92,7 @@ export function MatchPlanner({ entries, participants, players, editable, referen
         const preferences = [profile?.firstChoice, profile?.secondChoice, profile?.thirdChoice].filter(Boolean)
         return <button key={p.playerId} type="button" className={`planner-candidate position-${preferredPositionGroup(profile?.firstChoice ?? null)}${assigned ? ' is-assigned' : ''}${dragPreview?.playerId === p.playerId ? ' is-dragging' : ''}`} disabled={!canEdit || (!!assigned && assigned.team !== team)} aria-pressed={selected === p.playerId}
           onClick={() => { if (skipClick.current) { skipClick.current = false; return } setSelected(selected === p.playerId ? null : p.playerId); setMessage('배치할 자리를 선택하세요.') }}
-          onPointerDown={e => { if (!canEdit || e.button !== 0) return; skipClick.current = false; drag.current = { playerId: p.playerId, x: e.clientX, y: e.clientY, moved: false }; e.currentTarget.setPointerCapture(e.pointerId) }}
+          onPointerDown={e => { if (!canEdit || e.button !== 0 || e.pointerType === 'touch') return; skipClick.current = false; drag.current = { playerId: p.playerId, x: e.clientX, y: e.clientY, moved: false }; e.currentTarget.setPointerCapture(e.pointerId) }}
           onPointerMove={e => {
             const current = drag.current; if (!current) return
             if (!current.moved && Math.hypot(e.clientX - current.x, e.clientY - current.y) <= 6) return
@@ -117,13 +123,15 @@ export function MatchPlanner({ entries, participants, players, editable, referen
           const entry = q.find(a => a.slot === slot && a.entryOrder === order); const person = participants.find(p => p.playerId === entry?.playerId)
           const emptySubstitute = order === 1 && !entry
           if (emptySubstitute && (!editable || !q.some(a => a.slot === slot && a.entryOrder === 0))) return null
-          const validTarget = canPlace(slot, order)
+          const validTarget = selected === null && !swapMode ? true : canPlace(slot, order)
           return <div className={`plan-place${order === 1 ? ' is-substitute' : ''}${emptySubstitute ? ' is-empty-substitute' : ''}`} key={order}><button type="button" className={`${entry ? 'plan-filled ' : ''}${selected !== null && validTarget ? 'plan-drop-ready ' : ''}${hoveredPlace === `${slot}:${order}` ? 'plan-drop-hover' : ''}`} disabled={!canEdit || !validTarget}
             data-plan-slot={slot} data-plan-order={order}
             aria-pressed={!!entry && selected === entry.playerId}
             aria-label={`${quarterLabel(quarter, matchFormat)} 스쿼드 ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 자리`}
-            title={emptySubstitute ? '후보 선수를 선택한 뒤 누르거나 이곳으로 끌어 놓으세요.' : undefined}
+            aria-haspopup={!swapMode && selected === null ? 'dialog' : undefined}
+            title={emptySubstitute ? '교체 선수를 선택하세요.' : undefined}
             onClick={() => {
+              if (!swapMode && selected === null) { setEditingOrder(order); setEditingSlot(slot); return }
               if (entry && selected === entry.playerId) { setSelected(null); setMessage('선택을 취소했어요.'); return }
               if (entry && selected === null) { setSelected(entry.playerId); setMessage('바꿀 선수 또는 빈 자리를 눌러 주세요.'); return }
               if (emptySubstitute && selected === null) { setMessage('참석 선수에서 교체할 선수를 먼저 선택한 뒤, 이 자리의 + 교체를 눌러 주세요.'); return }
@@ -131,15 +139,15 @@ export function MatchPlanner({ entries, participants, players, editable, referen
             }}>
             {emptySubstitute ? <span>+ 교체</span> : <><small>{entry ? '✓ ' : ''}{order === 0 ? '선발' : '교체'}{entry ? ` · ${plannedShare(entries, entry)}Q` : ''}</small><strong>{person ? playerLabel(person) : '+ 배치'}</strong></>}
           </button>{entry && editable && <button type="button" className="plan-remove" aria-label={`${quarterLabel(quarter, matchFormat)} ${slotLabels[slot]} ${order === 0 ? '선발' : '교체'} 배치 해제`} onClick={() => remove(entry)}>×</button>}</div>
-        })}<button type="button" className="squad-record-button" aria-label={`${slotLabels[slot]} 배치·기록 수정`} onClick={() => setEditingSlot(slot)}>배치·기록</button></div>
+        })}<button type="button" className="squad-record-button" aria-label={`${slotLabels[slot]} 배치·기록 수정`} onClick={() => { setEditingOrder(0); setEditingSlot(slot) }}>배치·기록</button></div>
       })}</div>)}
     </div><div className="import-tools">{editable && quarter > 1 && <button type="button" className="secondary-button" disabled={!canEdit} onClick={() => copyPrevious()}>{internal ? '이전 쿼터 양 팀 스쿼드 복사' : '이전 쿼터 스쿼드 복사'}</button>}
       </div>
-    <p className="field-help">배치·기록을 누르면 선수·교체·골·도움을 수정해요. 교체한 두 선수는 각각 0.5쿼터예요.</p></div></div>
+    <p className="field-help">{Array.isArray(quarters.find(q => q.number === quarter)?.goalEvents) ? '선수·교체는 작전판에서, 골·도움은 아래 골별 기록에서 수정해요.' : '선수·교체는 작전판에서 수정해요. 아래 골별 기록을 사용하면 득점과 도움을 연결할 수 있어요.'} 교체한 두 선수는 각각 0.5쿼터예요.</p></div></div>
     {confirmCopy && <div className="conflict-notice" role="alert"><p>현재 {quarterLabel(quarter, matchFormat)} {internal ? '양 팀 ' : ''}스쿼드를 이전 쿼터 스쿼드로 교체할까요?</p><button type="button" className="secondary-button" onClick={() => copyPrevious(true)}>현재 스쿼드 교체</button> <button type="button" className="secondary-button" onClick={() => setConfirmCopy(false)}>복사 취소</button></div>}
-    {message && <p role="status" className="planner-message">{message}</p>}
+    <p role="status" className="planner-result-status">{message || '배치한 내용은 저장 버튼을 눌러 저장해 주세요.'}</p>
     {workbook}
-    {editingSlot && <OverviewPositionEditor matchFormat={matchFormat} mode="plan" recordStats slot={editingSlot} quarter={quarter} team={team} internal={internal}
+    {editingSlot && <OverviewPositionEditor matchFormat={matchFormat} mode="plan" recordStats initialOrder={editingOrder} linkedGoals={Array.isArray(quarters.find(q => q.number === quarter)?.goalEvents)} slot={editingSlot} quarter={quarter} team={team} internal={internal}
       participants={participants} entries={quarters.find(q => q.number === quarter)?.lineup ?? []} editable={editable}
       onEdit={(order, patch) => editOverview(quarter, team, editingSlot, order, patch)} onClose={() => setEditingSlot(null)} />}
     {footer}

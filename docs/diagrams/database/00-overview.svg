@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1310" viewBox="0 0 1800 1310" role="img" aria-labelledby="title desc"><title id="title">데이터베이스 구조 · 무엇이 어디에 저장될까?</title><desc id="desc">17개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.. V30 운영 스키마 · 2026.10.16 · d8b2763. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1310" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1310" viewBox="0 0 1800 1310" role="img" aria-labelledby="title desc"><title id="title">데이터베이스 구조 · 무엇이 어디에 저장될까?</title><desc id="desc">18개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.. V31 로컬·미배포 · 2026.10.19 / 운영 V30. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1310" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V30 운영 스키마 · 2026.10.16 · d8b2763</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V31 로컬·미배포 · 2026.10.19 / 운영 V30</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">데이터베이스 구조 · 무엇이 어디에 저장될까?</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">17개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">18개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.</text>
 <rect x="60" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="83" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">팀과 선수</text>
 <text x="83" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">teams · 축구팀</text>
@@ -19,8 +19,9 @@
 <text x="1273" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">기록이 쌓이는 단계</text>
 <text x="1273" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_participants · 01 투표·출석</text>
 <text x="1273" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_quarters · 구간 1/2 또는 1~4</text>
-<text x="1273" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_planned_lineups · 02 계획</text>
-<text x="1273" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_appearances · 03 실제·스탯</text>
+<text x="1273" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_planned_lineups · 02 배치 호환</text>
+<text x="1273" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_appearances · 02 출전·스탯</text>
+<text x="1273" y="402" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">match_goal_events · 골·도움 연결</text>
 <path d="M 550 298 L 655 298" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
 <text x="602" y="278" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">팀 FK</text>
 <path d="M 1145 298 L 1250 298" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
@@ -51,7 +52,7 @@
 <rect x="60" y="960" width="800" height="245" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="83" y="999" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">집계 테이블은 따로 만들지 않았어요</text>
 <text x="83" y="1044" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">선수 스탯 = 실제 출전 + 실제 출석을 조회해서 계산</text>
-<text x="83" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">계획 스쿼드는 통계에 포함하지 않음</text>
+<text x="83" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">연결한 골 → 출전별 스탯 → 완료 경기 집계</text>
 <text x="83" y="1108" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">교체 각각 0.5쿼터 · 새 대회 풀타임 2쿼터</text>
 <text x="83" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">리그·대회 합산은 시간 환산 없이 구간 수를 합산</text>
 <rect x="965" y="960" width="775" height="245" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
@@ -59,7 +60,7 @@
 <text x="988" y="1044" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">flyway_schema_history · 스키마 변경 이력</text>
 <text x="988" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">DB 세션 테이블 없음 · 현재 서버 HttpSession 사용</text>
 <text x="988" y="1108" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실선 = DB FK / 점선 = FK 없는 논리 참조</text>
-<text x="988" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">확대 상세 4장과 전체 Mermaid 관계도를 함께 제공</text>
+<text x="988" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">확대 상세 5장과 전체 Mermaid 관계도를 함께 제공</text>
 <text x="52" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
 <text x="1748" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
 </g></svg>

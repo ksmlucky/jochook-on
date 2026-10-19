@@ -60,6 +60,7 @@ public class MatchService {
     @Transactional
     public MatchResponse create(MatchRequest request) {
         if (request.version() != null) throw new IllegalArgumentException("새 경기에는 수정 버전을 지정하지 않습니다.");
+        request = request.resolveGoalEvents(List.of(), List.of());
         validatePlayers(request);
         var match = MatchRecord.create(request).assignToTeam(TeamContext.requireTeamId());
         applyTournament(match, request);
@@ -72,7 +73,8 @@ public class MatchService {
         var match = matches.findByIdAndTeamId(id, TeamContext.requireTeamId()).orElseThrow(MatchNotFoundException::new);
         if (request.version() == null) throw new IllegalArgumentException("수정 버전이 필요합니다.");
         if (!Objects.equals(match.getVersion(), request.version())) throw new ObjectOptimisticLockingFailureException(MatchRecord.class, id);
-        request = request.resolveMatchFormat(match.getMatchFormat()).resolveFormations(match.getFormationA(), match.getFormationB()).resolvePlannedTeams(match.getParticipants());
+        request = request.resolveMatchFormat(match.getMatchFormat()).resolveFormations(match.getFormationA(), match.getFormationB()).resolvePlannedTeams(match.getParticipants())
+                .resolveGoalTypes(match.getAppearances()).resolveGoalEvents(match.getQuarters(), match.getGoalEvents());
         validatePlayers(request);
         var before = response(match);
         match.replace(request);

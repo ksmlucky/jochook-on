@@ -1,6 +1,6 @@
-%% 조축ON · V30 운영 스키마 · 2026.10.16 · d8b2763
+%% 조축ON · V31 로컬·미배포 · 2026.10.19 / 운영 V30
 %% Solid lines: physical FK. Dotted REF lines: application-only logical references.
-%% Important columns only; exact SQL types/checks are in Flyway V1..V30.
+%% Important columns only; exact SQL types/checks are in Flyway V1..V31.
 erDiagram
   teams {
     BIGINT id PK "BIGINT"
@@ -67,6 +67,7 @@ erDiagram
   match_quarters {
     BIGINT match_id PK, FK "match_records.id"
     INT quarter_number PK "1~4 · 전·후반은 1/2"
+    BIT goal_events_linked "BOOLEAN · 기본 FALSE · 연결 기록 사용"
   }
   match_planned_lineups {
     BIGINT match_id PK, FK "match_records.id"
@@ -87,6 +88,15 @@ erDiagram
     INT assists "골 / 도움"
     INT free_kick_goals "총 골 안의 직접 FK / PK"
     INT penalty_goals "총 골 안의 직접 FK / PK"
+  }
+  match_goal_events {
+    BIGINT match_id PK, FK "match_records.id · 경기 삭제 시 CASCADE"
+    INT event_order PK "경기 전체 이벤트 목록 순서 · 0부터"
+    INT quarter_number "구간 번호 / 득점 팀 A·B"
+    VARCHAR team "구간 번호 / 득점 팀 A·B"
+    BIGINT scorer_id FK "players.id · 득점 선수"
+    BIGINT assist_id FK "players.id · 도움 선수 · NULL 가능"
+    VARCHAR goal_type "NORMAL / FREE_KICK / PENALTY"
   }
   accounts {
     BIGINT id PK "BIGINT"
@@ -194,6 +204,9 @@ erDiagram
     VARCHAR installed_by "적용 주체 / 시각"
     TIMESTAMP installed_on "적용 주체 / 시각"
   }
+  match_records ||--o{ match_goal_events : "FK match_id"
+  players ||--o{ match_goal_events : "FK scorer_id"
+  players |o--o{ match_goal_events : "FK assist_id"
   accounts ||--o{ account_password_resets : "FK account_id"
   accounts ||--o{ account_password_resets : "FK issued_by"
   teams ||--o{ players : "FK team_id"
@@ -219,6 +232,8 @@ erDiagram
   teams ||--o{ team_code_events : "FK team_id"
   accounts ||--o{ team_code_events : "FK actor_account_id"
   teams ||--o{ match_record_events : "FK team_id"
+  match_quarters |o..o{ match_goal_events : "REF NO FK match_id + quarter_number · DB 복합 FK 없음"
+  match_appearances |o..o{ match_goal_events : "REF NO FK 구간·팀·득점자·도움 선수 출전 검증 · DB FK 없음"
   match_records |o..o{ match_record_events : "REF NO FK match_id"
   accounts |o..o{ match_record_events : "REF NO FK actor_account_id"
   teams |o..o{ match_save_requests : "REF NO FK team_id"

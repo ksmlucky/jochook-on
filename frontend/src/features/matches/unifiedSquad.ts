@@ -2,6 +2,7 @@ import type { Appearance, MatchDraft, MatchTeam, Participant, PlannedEntry, Slot
 import { checkPlan, placeInPlan } from './plan.ts'
 import { editActualAppearance } from './appearanceEdit.ts'
 import { validateMatchPeriods } from './matchFormat.ts'
+import { withGoalEvents } from './goalEvents.ts'
 
 const canPlay = (p: Participant) => p.attendance === 'PRESENT' || p.attendance === 'LATE'
 const hasStats = (a: Appearance) => !!(a.goals || a.assists || a.freeKickGoals || a.penaltyGoals)
@@ -43,11 +44,14 @@ export function applySquad(draft: MatchDraft, entries: PlannedEntry[]): MatchDra
     }) }
   })
   const result = { ...draft, plannedLineup: [], quarters }
+  result.quarters = result.quarters.map(q => Array.isArray(q.goalEvents) ? withGoalEvents(q, q.goalEvents) : q)
   validateMatchPeriods(result)
   return result
 }
 
 export function editSquad(draft: MatchDraft, quarter: number, team: MatchTeam, slot: Slot, order: 0 | 1, patch: Partial<Appearance> | null): MatchDraft {
+  if (patch && !Object.hasOwn(patch, 'playerId') && Array.isArray(draft.quarters.find(q => q.number === quarter)?.goalEvents))
+    throw new Error('이 구간의 골·도움은 골별 기록에서 수정해 주세요.')
   if (patch && !Object.hasOwn(patch, 'playerId')) return { ...draft, quarters: editActualAppearance(draft.quarters, draft.participants, quarter, team, slot, order, patch) }
   const view = squadPlanningView(draft)
   const entries = patch ? placeInPlan(view.plannedLineup, quarter, slot, order, patch.playerId!, team, draft.kind === 'INTERNAL' ? view.participants : undefined)

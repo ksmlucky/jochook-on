@@ -4,6 +4,7 @@ import { formationLabel } from './formations.ts'
 import { tournamentStageLabels } from './tournamentFields.ts'
 import { goalBreakdownText } from './goalBreakdown.ts'
 import { matchFormatLabel, quarterLabel } from './matchFormat.ts'
+import { goalTypeLabels } from './goalEvents.ts'
 
 export interface HistoryChange { label: string; before: string; after: string }
 const votes: Record<string, string> = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' }
@@ -58,5 +59,12 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
       if (oldValue?.identity !== newValue?.identity) add(`${planned ? '계획' : '실제 출전'} · ${key}`, oldValue?.value, newValue?.value)
     }
   }
+  function goals(match: MatchRecord | null, number: number) {
+    const events = match?.quarters.find(q => q.number === number)?.goalEvents
+    if (events == null) return '골·도움 합계만 기록'
+    return events.length ? events.map((e, i) => `${i + 1}. ${e.team}팀 ${playerName(match?.participants.find(p => p.playerId === e.scorerId))} 골 ← ${e.assistId == null ? '도움 없음 / 미확인' : playerName(match?.participants.find(p => p.playerId === e.assistId)) + ' 도움'} (${goalTypeLabels[e.type]})`).join('\n') : '골별 기록 · 0골'
+  }
+  for (const number of new Set([...(before?.quarters ?? []), ...(after?.quarters ?? [])].map(q => q.number)))
+    add(`${quarterLabel(number, after?.matchFormat ?? before?.matchFormat)} · 득점·도움 연결`, goals(before, number), goals(after, number))
   return changes
 }

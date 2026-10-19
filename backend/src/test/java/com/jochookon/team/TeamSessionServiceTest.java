@@ -20,6 +20,22 @@ class TeamSessionServiceTest {
     private final TeamDtos.Team team = new TeamDtos.Team(1, "Test club", "", "ACTIVE");
     @AfterEach void cleanup() { SecurityContextHolder.clearContext(); TeamContext.clear(); }
 
+    @Test void personalSessionUsesSevenDayIdleTimeoutWithoutAnAbsoluteAgeLimit() {
+        when(store.account("test-admin")).thenReturn(Optional.of(new TeamStore.AccountInfo(4, "test-admin", "hash", true, false, 2)));
+        when(store.memberships(4)).thenReturn(List.of(new TeamDtos.MyTeam(1, team.name(), "", "ACTIVE", "DIRECTOR")));
+        var request = new MockHttpServletRequest();
+        sessions.beginAccount("test-admin", null, 2, request, new MockHttpServletResponse());
+        assertThat(request.getSession().getMaxInactiveInterval()).isEqualTo(604_800);
+
+        // An active account may remain signed in beyond seven days; the servlet container measures inactivity.
+        request.getSession().setAttribute(TeamSessionService.SESSION_KEY,
+                new TeamSessionService.SessionState("ACCOUNT", 4L, 1L, 0, Instant.now().minus(Duration.ofDays(8)), 2L));
+        request.getSession().setMaxInactiveInterval(30 * 60);
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        assertThat(sessions.inspect(authentication, request).user().role()).isEqualTo("DIRECTOR");
+        assertThat(request.getSession().getMaxInactiveInterval()).isEqualTo(604_800);
+    }
+
     @Test void featureFixtureKeepsExplicitRequestPrincipalAndUsesPersistedVersion() {
         var jdbc = mock(org.springframework.jdbc.core.JdbcTemplate.class);
         when(jdbc.queryForMap("SELECT id, credential_version FROM accounts WHERE username=?", "test-member"))
@@ -109,6 +125,7 @@ class TeamSessionServiceTest {
         sessions.beginCode(code, team, request, new MockHttpServletResponse());
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         assertThat(sessions.inspect(authentication, request).user().authType()).isEqualTo("TEAM_CODE");
+        assertThat(request.getSession().getMaxInactiveInterval()).isEqualTo(86_400);
         when(store.code(1)).thenReturn(Optional.of(new TeamStore.CodeInfo(1, "other", "new-password-hash", 4, now, now.plus(Duration.ofDays(90)), null)));
         assertThatThrownBy(() -> sessions.inspect(authentication, request)).isInstanceOf(TeamAccessException.class)
                 .extracting(e -> ((TeamAccessException) e).code()).isEqualTo("CODE_SESSION_EXPIRED");

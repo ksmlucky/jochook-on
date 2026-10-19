@@ -1,0 +1,12 @@
+.goal-events { border:1px solid var(--line); border-radius:14px; padding:18px; margin:20px 0; background:var(--soft); }
+.goal-events h4 { margin:0 0 10px; }
+.goal-event-list { list-style:none; padding:0; display:grid; gap:10px; }
+.goal-event-list>li { background:#fff; border:1px solid var(--line); border-radius:10px; padding:12px; }
+.goal-event-heading { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px; font-size:13px; }
+.goal-event-heading>span { color:var(--muted); }.goal-event-heading>button { margin-left:auto; }
+.goal-event-fields { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:10px; }
+.goal-event-fields label { display:grid; min-width:0; gap:5px; font-size:12px; }
+.goal-event-fields select { width:100%; min-width:0; padding:8px; min-height:44px; font:inherit; font-size:16px; border:1px solid var(--line); border-radius:8px; background:white; }
+.goal-event-add { border:1px solid var(--line); border-radius:10px; padding:12px; margin-top:12px; }.goal-event-add>button { margin-top:12px; }
+.goal-event-convert>button { margin:4px; }.goal-event-legacy { font-size:13px; }
+@media(max-width:600px) { .goal-events { padding:12px; }.goal-event-fields { grid-template-columns:repeat(2,minmax(0,1fr)); }.goal-event-fields>label:last-child:nth-child(3) { grid-column:1/-1; } }

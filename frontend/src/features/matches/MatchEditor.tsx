@@ -9,6 +9,7 @@ import { MatchWorkbookImport } from './MatchWorkbookImport'
 import { ageBand, ageDescription } from '../players/age'
 import { AttendeePicker } from './AttendeePicker'
 import { MatchPlanner } from './MatchPlanner'
+import { GoalEventsEditor } from './GoalEventsEditor'
 import { AutomaticLineup } from './AutomaticLineup'
 import { GuestPicker } from './GuestPicker'
 import { kickoffHours, kickoffMinutes, matchTimeRange, validKickoff } from './time'
@@ -326,16 +327,14 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       freeKickGoals: appearances.reduce((s, a) => s + (a.freeKickGoals ?? 0), 0), penaltyGoals: appearances.reduce((s, a) => s + (a.penaltyGoals ?? 0), 0) }
   }).filter(player => player.appearances.length > 0)
   function stepActions(destination: 'plan' | 'totals') {
-    const label = destination === 'plan' ? '참석 명단 저장 · 스쿼드로' : '스쿼드·기록 저장 · 결과로'
     return <div className="match-step-actions">
-      <p className="field-help">{isAdmin ? '현재 입력한 경기 내용 전체를 저장하고 다음 단계로 이동합니다.' : '다음 단계의 기록을 확인하세요.'}</p>
-      {isAdmin ? <button type="submit" value={destination} className="primary-button" disabled={!editable}>{busy ? '처리 중…' : label}</button>
-        : <button type="button" className="secondary-button" onClick={() => goToStep(destination === 'plan' ? 'plan-title' : 'match-totals')}>{destination === 'plan' ? '스쿼드·기록 보기' : '집계 보기'}</button>}
+      <p className="field-help">{isAdmin ? '오른쪽 아래 저장 버튼으로 다음 단계로 이동해요.' : '다음 단계의 기록을 확인하세요.'}</p>
+      {!isAdmin && <button type="button" className="secondary-button" onClick={() => goToStep(destination === 'plan' ? 'plan-title' : 'match-totals')}>{destination === 'plan' ? '스쿼드·기록 보기' : '집계 보기'}</button>}
     </div>
   }
   const enteredGoals = (value: MatchTeam) => draft.quarters.flatMap(q => q.lineup).filter(a => a.team === value).reduce((sum, a) => sum + a.goals, 0)
   const errorNotice = error && <p ref={errorMessage} tabIndex={-1} className="form-error match-error" role="alert">{error}</p>
-  return <form className="match-editor" noValidate onSubmit={submit} aria-busy={busy}>
+  return <form className={`match-editor${isAdmin ? ' has-save-dock' : ''}`} noValidate onSubmit={submit} aria-busy={busy}>
     <div className="match-editor-heading"><div><p className="eyebrow muted">{record ? 'MATCH RECORD' : 'NEW MATCH'}</p><h3 id="match-editor-title">{record ? `${record.playedOn} 경기 기록` : '새 경기 기록'}</h3></div>
       <button type="button" className="secondary-button" disabled={busy} onClick={() => dirty ? setConfirmClose(true) : onClose()}>{closeLabel}</button></div>
     <div className="match-category-context" data-category={competitionCategory(draft).key}><MatchCategoryBadge match={draft} /><span>{internal ? '우리끼리 나누는 A·B팀 경기' : draft.tournamentId != null ? <>{selectedTournament?.name ?? draft.tournamentName ?? '연결된 대회'}{draft.tournamentStage && ` · ${tournamentStageLabels[draft.tournamentStage]}`}</> : '매주 함께하는 정기 경기'}</span></div>
@@ -426,7 +425,8 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       onApply={plannedLineup => { change(applySquad(draft, plannedLineup)); setPlanRevision(v => v + 1); setError('') }} />}
     <MatchPlanner key={`${draft.kind}-${draft.matchFormat}-${planRevision}`} matchFormat={draft.matchFormat} internal={internal} formationA={draft.formationA} formationB={draft.formationB} entries={planning.plannedLineup} participants={planning.participants} players={players} editable={editable} referenceYear={referenceYear}
       onChange={plannedLineup => { change(applySquad(draft, plannedLineup)); setError('') }} footer={stepActions('totals')} quarter={quarter} team={team} setQuarter={setQuarter} setTeam={setTeam} quarters={draft.quarters} onRecordEdit={appearanceAt}
-      workbook={isAdmin && <MatchWorkbookImport key={`${draft.kind}-${draft.matchFormat}-${team}-${formation}`} matchFormat={draft.matchFormat} formation={formation} teamLabel={internal ? `${team}팀` : undefined} disabled={!editable} onBusy={setBusy} onApply={applyWorkbook} onSessionExpired={onSessionExpired} />}
+      workbook={<><GoalEventsEditor key={`${draft.kind}-${draft.matchFormat}-${quarter}`} quarter={draft.quarters.find(q => q.number === quarter)!} participants={draft.participants} team={team} internal={internal} editable={editable} matchFormat={draft.matchFormat} onChange={next => change({ ...draft, quarters: draft.quarters.map(q => q.number === next.number ? next : q) })} />
+        {isAdmin && <MatchWorkbookImport key={`${draft.kind}-${draft.matchFormat}-${team}-${formation}`} matchFormat={draft.matchFormat} formation={formation} teamLabel={internal ? `${team}팀` : undefined} disabled={!editable || draft.quarters.some(q => Array.isArray(q.goalEvents))} onBusy={setBusy} onApply={applyWorkbook} onSessionExpired={onSessionExpired} />}</>}
       tools={isAdmin && !internal && <GuestPicker players={players} selectedIds={draft.participants.filter(p => p.vote === 'ATTENDING').map(p => p.playerId)} disabled={!editable || draft.participants.length >= 200} onBusy={setBusy} onAdd={addGuest} onSessionExpired={onSessionExpired} />} />
     </div>
     <div role="tabpanel" id="match-panel-3" aria-labelledby="match-tab-3" hidden={step !== 3}>
@@ -451,10 +451,9 @@ export function MatchEditor({ record: initialRecord, players: initialPlayers, is
       {isAdmin && <div className="match-step-actions match-complete-action">
         <p className="field-help">기록을 확인했다면 완료로 표시해 주세요. 빈 항목이 있어도 완료할 수 있어요.</p>
         <p className="field-help">완료 후에도 수정할 수 있어요. 중간 저장하면 다시 작성 중으로 바뀌어요.</p>
-        <button type="submit" value="complete" className="primary-button" disabled={!editable}>{busy ? '처리 중…' : '기록 완료 · 목록으로'}</button>
       </div>}
     </section>
     </div>
-    {isAdmin && <div className="match-save-bar"><span>{pending ? '저장 여부를 먼저 확인해 주세요.' : blocked ? '최신 기록 확인이 필요해요.' : <>{dirty ? '아직 저장하지 않은 변경이 있어요. ' : ''}{record?.recordingStage === 'COMPLETED' ? '중간 저장하면 작성 중으로 바뀌어요.' : `저장할 단계: 0${visibleSteps.indexOf(step) + 1} ${editorSteps[step]}`}</>}</span><button type="submit" value="save" className="primary-button" disabled={!editable}>{busy ? '처리 중…' : '중간 저장 · 목록으로'}</button></div>}
+    {isAdmin && <div className="match-save-bar match-save-dock" aria-label="경기 저장"><span>{pending ? '저장 여부를 먼저 확인해 주세요.' : blocked ? '최신 기록 확인이 필요해요.' : <>{dirty ? '아직 저장하지 않은 변경이 있어요. ' : ''}{record?.recordingStage === 'COMPLETED' ? '중간 저장하면 작성 중으로 바뀌어요.' : `저장할 단계: 0${visibleSteps.indexOf(step) + 1} ${editorSteps[step]}`}</>}</span><div className="match-save-dock-actions"><button type="submit" value="save" className="secondary-button" disabled={!editable}>{busy ? '처리 중…' : '중간 저장 · 목록으로'}</button><button type="submit" value={step === 0 ? 'plan' : step === 1 ? 'totals' : 'complete'} className="primary-button" disabled={!editable}>{busy ? '처리 중…' : step === 0 ? '참석 명단 저장 · 스쿼드로' : step === 1 ? '스쿼드·기록 저장 · 결과로' : '기록 완료 · 목록으로'}</button></div></div>}
   </form>
 }

@@ -3,16 +3,15 @@
   "generator": "../../scripts/Generate-UserGuides.py",
   "appReader": "../../frontend/src/features/guide/UserGuide.tsx",
   "release": {
-    "guideVersion": "1.8",
+    "guideVersion": "1.9",
     "date": "2026-10-19",
-    "appCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
-    "deployment": "Northflank production",
-    "status": "deployed",
+    "appCommit": "pending",
+    "deployment": "Northflank production (pending new release verification)",
+    "status": "pending_deployment",
     "lastVerifiedProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
-    "releaseLabel": "2026.10.19 경기 입력 3단계",
-    "previousProductionCommit": "46ab4ce90810e1ce14f4f065342926d70086faba",
-    "verifiedAtKst": "2026-10-19 10:54 KST",
-    "apiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
+    "releaseLabel": "2026.10.19 골별 기록·모바일 입력",
+    "previousProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
+    "lastVerifiedApiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -36,7 +35,17 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [],
+  "pendingChanges": [
+    {
+      "date": "2026-10-19",
+      "status": "pending_deployment",
+      "spec": "../goal-events-mobile-2026-10-19.md",
+      "staff": "02 자리 선택창·명시적 자리 교환·하단 고정 저장·300ms 알림 페이드, 골별 득점자/도움/종류 연결과 기존 합계 보존·전환, 개인 계정 7일 미사용 만료 안내 예정.",
+      "member": "골·도움 연결이 선수 기록에 반영되는 의미를 검토. 회원 코드 세션은 24시간 미사용/최대7일로 변경 없음.",
+      "releasePolicy": "사용자 배포 요청에 따라 원고·HTML·PDF 1.9 준비. 실제 배포 검증 전 운영 완료로 표시하지 않음.",
+      "database": "V31 로컬·미배포 / 운영 V30"
+    }
+  ],
   "history": [
     {
       "guideVersion": "1.8",
@@ -124,6 +133,14 @@
       "appCommit": "bdb4f045fbff876ab402b0acc188415bbeda085b",
       "verifiedAtKst": "2026-10-17 23:06 KST",
       "change": "선수단 표 열 통합·여백 축소, 여러 명 입력의 등번호·생년 선택 전용 반영. 역할별 앱 목차/PDF 링크 확인, PDF 24쪽 렌더 검토, 운영 JS/CSS/PDF SHA256 일치."
+    },
+    {
+      "date": "2026-10-19",
+      "guideVersion": "1.9",
+      "status": "pending_deployment",
+      "appCommit": "pending",
+      "change": "회원 골 연결 조회·운영진 골별 입력/이전 합계 전환, 자리 선택·고정 저장·알림 페이드, 개인 세션7일 안내. 배포 전 검증 중.",
+      "validation": "회원7쪽·운영진19쪽 총26쪽 PNG 렌더 및 전체 페이지 육안 확인, 주요 새 절차의 소스 버튼명 대조·글꼴/넘침 검증. 앱 역할별 브라우저 재검증·실제 배포는 총괄 검증 대기."
     }
   ],
   "releasedChanges": [

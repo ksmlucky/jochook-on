@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { FadeToast } from '../../app/FadeToast'
 import { SessionExpiredError } from '../auth/api'
 import type { Player } from '../players/api'
 import { deleteMatch, fetchMatch, fetchMatches, fetchMatchPlayers, fetchMatchYears, MatchRequestError, playerLabel } from './api'
@@ -179,9 +179,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
       <div className="registration-actions"><button type="button" className="primary-button" disabled={busy || deleting} onClick={() => void restore()}>{recovery.pending ? '초안 열기' : '이어서 작성'}</button>{!recovery.pending && <button type="button" className="secondary-button" disabled={busy || deleting} onClick={() => setDiscardingRecovery(true)}>초안 버리기</button>}</div>
       <DraftRetentionHelp inList />
     </div>}
-    {notice && createPortal(<div key={notice.id} className="match-save-toast" role="status" aria-live="polite" aria-atomic="true">
-      <span className="match-save-toast-icon" aria-hidden="true">✓</span><span>{notice.message}</span>
-    </div>, document.body)}
+    <FadeToast message={notice?.message ?? ''} identity={notice?.id} />
     {error && <div className="save-notice" role="alert"><p>{error}</p><button className="secondary-button" onClick={() => setRevision(r => r + 1)}>목록 다시 불러오기</button></div>}
     {deleteError && <p className="form-error" role="alert">{deleteError}</p>}
     {deleting && <p className="save-notice" role="status">경기 기록을 삭제하고 있습니다.</p>}

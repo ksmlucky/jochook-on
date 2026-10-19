@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { FadeToast } from '../../app/FadeToast'
 import { AccessRequestError } from '../auth/api'
 import './team-code-password.css'
 
@@ -22,7 +22,7 @@ export function AccessToast({ message, clear }: { message: string; clear: () => 
   const clearRef = useRef(clear)
   clearRef.current = clear
   useEffect(() => { if (!message) return; const timer = setTimeout(() => clearRef.current(), 4500); return () => clearTimeout(timer) }, [message])
-  return message ? createPortal(<div className="match-save-toast" role="status" aria-live="polite"><span className="match-save-toast-icon" aria-hidden="true">✓</span>{message}</div>, document.body) : null
+  return <FadeToast message={message} />
 }
 export function ConfirmAction({ title, description, confirmLabel, onConfirm, onCancel, danger = false }: {
   title: string; description: string; confirmLabel: string; onConfirm: () => void; onCancel: () => void; danger?: boolean

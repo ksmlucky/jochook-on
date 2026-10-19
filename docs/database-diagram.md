@@ -1,8 +1,8 @@
 # 조축ON 데이터베이스 관계도
 
-기준: **V30 운영 스키마 · 2026-10-16 · 운영 `d8b2763`**. Flyway V1~V30과 현재 코드의 구조를 설명합니다. V29는 `accounts.credential_version`을 추가해 비밀번호 변경 전의 로그인을 무효화하고, V30은 일회용 비밀번호 재설정 요청을 보관합니다. 총괄이 2026-10-16 16:31 KST에 운영 V30 적용과 기존 자료 보존을 확인했습니다. [배포 검증](release-home-account-2026-10-16.md)에서 실제 확인 범위를 구분합니다. [홈·계정 후속 변경](home-account-followup-2026-10-16.md)을 함께 참고하세요.
+기준: **V31 로컬 스키마 · 2026-10-19 · 미배포 / 운영 DB V30 유지**. Flyway V1~V31과 로컬 코드의 구조를 설명합니다. V31은 골 한 건의 득점자·도움 선수를 연결하는 `match_goal_events`와 구간별 기록 방식 `match_quarters.goal_events_linked`를 추가합니다. 그림 갱신은 실제 DB 마이그레이션 적용을 뜻하지 않습니다. 운영 V30 확인 범위는 [배포 검증](release-home-account-2026-10-16.md), 새 로컬 기능은 [골 연결과 모바일 입력 명세](goal-events-mobile-2026-10-19.md)를 참고하세요.
 
-이 그림은 **ERD(Entity Relationship Diagram, 개체 관계도)**입니다. 어떤 테이블에 무엇을 저장하고, 다른 테이블과 어떤 키로 연결되는지 보여 줍니다. 업무 테이블 17개와 Flyway 관리 테이블 1개를 담았습니다. 실제 회원·경기·계정 행이나 비밀값은 사용하지 않았습니다.
+이 그림은 **ERD(Entity Relationship Diagram, 개체 관계도)**입니다. 어떤 테이블에 무엇을 저장하고, 다른 테이블과 어떤 키로 연결되는지 보여 줍니다. 업무 테이블 18개와 Flyway 관리 테이블 1개를 담았습니다. 실제 회원·경기·계정 행이나 비밀값은 사용하지 않았습니다.
 
 ## 그림 보기
 
@@ -14,7 +14,8 @@
 | --- | --- | --- |
 | 전체 구조 | 명단·경기·권한·이력이 어떻게 나뉘는지 | [SVG](diagrams/database/00-overview.svg) · [PNG](diagrams/database/00-overview.png) |
 | 팀·선수·대회·경기 | 팀별 자료 분리와 대회 연결 | [SVG](diagrams/database/01-team-match.svg) · [PNG](diagrams/database/01-team-match.png) |
-| 투표·계획·실제 출전 | 01~03 단계, 교체와 득점 기록 | [SVG](diagrams/database/02-lineups.svg) · [PNG](diagrams/database/02-lineups.png) |
+| 투표·계획·실제 출전 | 참석·통합 02 배치·교체와 득점 기록 | [SVG](diagrams/database/02-lineups.svg) · [PNG](diagrams/database/02-lineups.png) |
+| 골·도움 연결 | 골 한 건의 득점자와 선택적 도움 선수, 구간별 집계 방식 | [SVG](diagrams/database/05-goals.svg) · [PNG](diagrams/database/05-goals.png) |
 | 인증·권한·복구 | 개인 로그인, 감독·코치 권한, 팀 코드, 비밀번호 재설정 | [SVG](diagrams/database/03-access.svg) · [PNG](diagrams/database/03-access.png) |
 | 변경 이력·저장 영수증 | 수정 이력과 중복 저장 방지 | [SVG](diagrams/database/04-audit.svg) · [PNG](diagrams/database/04-audit.png) |
 
@@ -26,7 +27,7 @@
 - **REF(논리 참조)**: 관련 ID가 있지만 DB 외래키는 없습니다. 점선으로 구분합니다. 원본이 삭제된 후에도 이력이 남아야 하는 경우 등에 사용합니다.
 - **1 / 0..1 / 0..N**: 각각 한 행, 없거나 한 행, 없거나 여러 행입니다. 경기 한 건에 참가자 여러 명이 연결되면 `경기 1 : 참가자 0..N`입니다.
 
-복합 PK의 각 컬럼은 함께 한 행을 구분합니다. 상세 그림은 선이 겹치지 않도록 일부 관계를 FK 필드와 관계 설명으로 표시했습니다. **물리 FK 25개 각각의 전체 연결은 [Mermaid 원본](diagrams/database/schema.mmd)과 [구조 JSON](diagrams/database/schema.json)에 있습니다.** Mermaid 점선의 기본 의미는 비식별 관계이므로, 이 파일에서는 외래키가 없다는 뜻을 `REF NO FK`로 함께 명시했습니다.
+복합 PK의 각 컬럼은 함께 한 행을 구분합니다. 상세 그림은 선이 겹치지 않도록 일부 관계를 FK 필드와 관계 설명으로 표시했습니다. **물리 FK 28개 각각의 전체 연결은 [Mermaid 원본](diagrams/database/schema.mmd)과 [구조 JSON](diagrams/database/schema.json)에 있습니다.** Mermaid 점선의 기본 의미는 비식별 관계이므로, 이 파일에서는 외래키가 없다는 뜻을 `REF NO FK`로 함께 명시했습니다.
 
 ## 전체 테이블 목록
 
@@ -37,9 +38,10 @@
 | 기본 | `tournaments` | 대회명, 기간, 참가 부문, 장소, 메모 |
 | 기본 | `match_records` | 경기 날짜·유형·형식, 스코어, 포메이션, 입력 단계 |
 | 경기 | `match_participants` | 참석 투표, 실제 출석, 자체전 사전 A/B 배정 |
-| 경기 | `match_quarters` | 경기의 구간 번호 |
+| 경기 | `match_quarters` | 경기의 구간 번호와 연결 골 기록 사용 여부 |
 | 경기 | `match_planned_lineups` | 경기 전 선발·교체 계획 |
 | 경기 | `match_appearances` | 실제 선발·교체, 골·도움·프리킥 골·페널티킥 골 |
+| 경기 | `match_goal_events` | 구간·팀·득점 선수·도움 선수·득점 종류를 연결한 골 한 건 |
 | 접근 | `accounts` | 개인 로그인 계정, 비밀번호 해시, 인증 버전, 서비스 관리자 여부 |
 | 접근 | `account_password_resets` | 재설정 대상·발급자, 일회용 토큰 해시, 인증 버전, 유효기간·사용·폐기 시각 |
 | 접근 | `team_memberships` | 계정과 팀의 연결, 팀별 감독·코치·회원 권한 |
@@ -53,9 +55,13 @@
 
 ## 현재 구조에서 알아둘 점
 
-### 계획과 실제 기록은 분리합니다
+### 화면은 통합하고 저장 구조는 호환을 유지합니다
 
-02단계 스쿼드는 `match_planned_lineups`, 03단계 실제 출전은 `match_appearances`에 저장합니다. 선수 스탯은 실제 출전과 실제 출석을 조회해 계산하며, 별도의 스탯 집계 테이블은 없습니다. 계획을 바꿨다고 실제 득점이 변하지 않습니다.
+현재 화면의 02 스쿼드·기록에서 배치·출전·득점을 함께 입력합니다. `match_planned_lineups`는 기존 계획 자료와 API 호환을 위해 유지하며 `match_appearances`가 출전·스탯 집계의 기준입니다. 선수 스탯 별도 테이블은 없습니다. 03은 결과·코멘트 단계이며 이전 UI의 실제 출전 단계와 구분합니다.
+
+V31의 `match_goal_events`는 `(match_id, event_order)` 복합 PK이며, `match_id`는 경기, `scorer_id`와 선택적 `assist_id`는 각각 선수를 참조하는 FK입니다. 자기 도움과 직접 FK·PK의 도움을 DB CHECK로 금지합니다. 같은 구간·같은 팀에 실제 출전했는지는 서비스에서 검증합니다. 구간·출전 테이블로의 복합 FK는 없습니다.
+
+`goal_events_linked=FALSE`인 기존 구간의 합계는 보존합니다. TRUE이면 골 목록을 원본으로 출전별 골·도움·FK·PK를 계산합니다. 연결을 추측하거나 기존 합계와 이중 합산하지 않습니다. UI에서 기존 기록을 전환할 때는 입력한 골 내역의 선수별 합계가 기존 합계와 일치해야 합니다.
 
 `match_participants.planned_team`은 자체전의 사전 팀 배정입니다. 계획·실제 출전에는 각각 `team`이 있습니다. 경기·선수 FK와 같은 구간의 선수 중복 방지 UK는 DB에 있지만, 계획·출전에서 참가자 또는 구간으로 향하는 복합 FK는 없습니다. 구간 수, 참가·출석, 포메이션 자리, 사전 팀 일치는 서비스가 검증합니다.
 
@@ -87,7 +93,7 @@
 
 ## 편집과 재생성
 
-편집 원본은 [Generate-DatabaseDiagram.mjs](../scripts/Generate-DatabaseDiagram.mjs)입니다. 여기서 테이블·관계·배치를 수정하면 JSON, Mermaid, SVG, HTML을 함께 생성합니다. 생성 시 V1~V30의 `CREATE TABLE`과 FK 이름·참조 테이블·자식 테이블·컬럼을 대조하며, 불일치하면 중단합니다. 미래 마이그레이션을 반영할 때는 버전 상한과 문서 기준도 같이 올립니다.
+편집 원본은 [Generate-DatabaseDiagram.mjs](../scripts/Generate-DatabaseDiagram.mjs)입니다. 여기서 테이블·관계·배치를 수정하면 JSON, Mermaid, SVG, HTML을 함께 생성합니다. 생성 시 V1~V31의 `CREATE TABLE`과 FK 이름·참조 테이블·자식 테이블·컬럼을 대조하며, 불일치하면 중단합니다. 미래 마이그레이션을 반영할 때는 버전 상한과 문서 기준도 같이 올립니다.
 
 ```powershell
 . .\scripts\Use-DevTools.ps1
@@ -101,13 +107,13 @@ $env:JOCHOOK_DIAGRAM_SHARP = "$env:USERPROFILE/.cache/codex-runtimes/codex-prima
 node scripts/Generate-DatabaseDiagram.mjs --png
 ```
 
-이 생성기는 DB에 접속하거나 데이터를 변경하지 않습니다. 이번 운영 V30 갱신에서는 테이블·FK 목록 대조, 생성 SVG의 XML 파싱, HTML의 로컬 링크 확인, 5장의 PNG 렌더와 육안 검수를 수행했습니다. 기존 V28 열람 화면에서 확인한 5개 탭 전환·390px 가로 스크롤 동작은 유지했고, 이번에는 브라우저 동작을 재검증하지 않았습니다. Mermaid 원본은 관계 목록을 제공하며 별도 Mermaid 엔진으로 렌더링하지는 않았습니다. 실제 운영 스키마 검증이나 앱 기능 테스트를 이 그림 검증으로 대신하지 않습니다.
+이 생성기는 DB에 접속하거나 데이터를 변경하지 않습니다. V31 문서 검증은 테이블 18개·물리 FK 28개를 SQL과 대조하고, SVG XML·로컬 링크와 PNG 6장 렌더를 확인했습니다. 브라우저 탭 동작 및 별도 Mermaid 엔진 렌더는 이번 문서 작업에서 재검증하지 않았습니다. 실제 MySQL 마이그레이션·운영 스키마·앱 기능 테스트를 그림 검증으로 대신하지 않습니다.
 
 ## 변경할 때 함께 갱신할 그림
 
 | 변경 내용 | 함께 확인할 그림 |
 | --- | --- |
-| 테이블·컬럼·PK·FK·유일키 | 이 ERD 5장, JSON·Mermaid와 생성 원본 |
+| 테이블·컬럼·PK·FK·유일키 | 이 ERD 6장, JSON·Mermaid와 생성 원본 |
 | 로그인·초대·권한 | 인증·권한 상세 ERD와 접속 업무 흐름 |
 | 경기 단계·교체·포메이션 | 경기 업무 흐름, 팀별 편성·포메이션·전후반 그림 |
 | 선수 집계·필터 | 선수 기록 상세·스탯 계산 흐름 |

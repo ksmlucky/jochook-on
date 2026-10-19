@@ -1,6 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2840" viewBox="0 0 1800 2840" role="img" aria-labelledby="title desc"><title id="title">03 · 로그인, 팀 권한, 초대와 복구</title><desc id="desc">FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.. V30 운영 스키마 · 2026.10.16 · d8b2763. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="2840" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2840" viewBox="0 0 1800 2840" role="img" aria-labelledby="title desc"><title id="title">03 · 로그인, 팀 권한, 초대와 복구</title><desc id="desc">FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.. V31 로컬·미배포 · 2026.10.19 / 운영 V30. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="2840" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V30 운영 스키마 · 2026.10.16 · d8b2763</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V31 로컬·미배포 · 2026.10.19 / 운영 V30</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">03 · 로그인, 팀 권한, 초대와 복구</text>
 <text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">FK 행마다 참조 대상이 명시되어 있습니다. 계정 복구 토큰은 해시로만 보관하고 30분 안에 한 번 사용합니다.</text>
 <rect x="60" y="190" width="510" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
@@ -150,14 +150,16 @@
 <text x="898" y="1620" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts 1 : memberships / invites / events 0..N</text>
 <text x="898" y="1652" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts 0..1 : team_codes 0..N (issued_by 선택)</text>
 <text x="898" y="1684" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">accounts 1 : team_creation_requests 0..N</text>
-<rect x="875" y="1845" width="865" height="310" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<rect x="875" y="1845" width="865" height="350" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="898" y="1884" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">팀 생성과 로그인은 이렇게 이어져요</text>
 <text x="898" y="1929" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_creation_requests.team_id → teams.id (선택)</text>
 <text x="898" y="1961" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_creation_requests.invite_id → team_invites.id (선택)</text>
 <text x="898" y="1993" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">한 결과 팀·초대에 요청 여러 개를 연결할 수 있는 DB 구조</text>
-<text x="898" y="2025" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">회원은 코드+팀 비밀번호로 조회 · 개인 계정은 필수 아님</text>
+<text x="898" y="2025" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">회원 코드 세션: 24시간 미사용 / 최대 7일</text>
 <text x="898" y="2057" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영진은 개인 계정 + 활성 팀 소속 권한으로 입력·수정</text>
 <text x="898" y="2089" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">service_admin은 팀 감독 권한과 별개의 서비스 관리 권한</text>
+<text x="898" y="2121" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">로컬 개인 계정: 7일 미사용 만료</text>
+<text x="898" y="2153" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">메모리 세션 · 서버 재시작 시 재로그인</text>
 <rect x="60" y="2220" width="860" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="2253" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">account_password_resets</text>
 <text x="82" y="2285" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">일회용 계정 비밀번호 재설정</text>

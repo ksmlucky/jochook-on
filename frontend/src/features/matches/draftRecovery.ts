@@ -55,6 +55,8 @@ function validDraft(value: unknown): value is MatchDraft {
   const periodCount = quarterNumbers(value.matchFormat as MatchFormat | null | undefined).length
   if (!Array.isArray(value.quarters) || value.quarters.length !== periodCount || !value.quarters.every(q => object(q)
     && integer(q.number, 1, periodCount) && Array.isArray(q.lineup) && q.lineup.length <= 44
+    && (q.goalEvents == null || Array.isArray(q.goalEvents) && q.goalEvents.length <= 1000 && q.goalEvents.every(e => object(e)
+      && integer(e.scorerId, 1) && (e.assistId === null || integer(e.assistId, 1)) && oneOf(e.team, ['A', 'B']) && oneOf(e.type, ['NORMAL', 'FREE_KICK', 'PENALTY'])))
     && q.lineup.every(a => validEntry(a) && object(a) && integer(a.goals, 0, 99) && integer(a.assists, 0, 99)
       && [a.freeKickGoals, a.penaltyGoals].every(n => n == null || integer(n, 0, 99))))) return false
   if (new Set(value.quarters.map(q => q.number)).size !== periodCount) return false
@@ -89,7 +91,9 @@ function cleanDraft(draft: MatchDraft): MatchDraft {
     participants: draft.participants.map(p => ({ playerId: p.playerId, name: p.name, shirtNumber: p.shirtNumber,
       birthYear: p.birthYear, playerType: p.playerType, vote: p.vote, attendance: p.attendance,
       ...(p.plannedTeam === undefined ? {} : { plannedTeam: p.plannedTeam }) })),
-    quarters: draft.quarters.map(q => ({ number: q.number, lineup: q.lineup.map(a => ({ team: a.team, slot: a.slot,
+    quarters: draft.quarters.map(q => ({ number: q.number,
+      ...(q.goalEvents === undefined ? {} : { goalEvents: q.goalEvents?.map(e => ({ scorerId: e.scorerId, assistId: e.assistId, type: e.type, team: e.team })) ?? null }),
+      lineup: q.lineup.map(a => ({ team: a.team, slot: a.slot,
       playerId: a.playerId, entryOrder: a.entryOrder, goals: a.goals, assists: a.assists,
       ...(a.freeKickGoals === undefined ? {} : { freeKickGoals: a.freeKickGoals }),
       ...(a.penaltyGoals === undefined ? {} : { penaltyGoals: a.penaltyGoals }),

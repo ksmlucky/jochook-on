@@ -76,7 +76,7 @@ public record MatchRequest(
             var old = previous.get(q.number() + ":" + a.playerId());
             return a.withGoalTypes(a.freeKickGoals() == null ? old == null ? 0 : old.getFreeKickGoals() : a.freeKickGoals(),
                     a.penaltyGoals() == null ? old == null ? 0 : old.getPenaltyGoals() : a.penaltyGoals());
-        }).toList())).toList();
+        }).toList(), q.goalEvents())).toList();
         return new MatchRequest(playedOn, kickoff, venue, opponent, notes, version, participants, resolved, plannedLineup,
                 scoreFor, scoreAgainst, kind, recordingStage, formationA, formationB, tournamentId, tournamentStage, tournamentSelectionSpecified, matchFormat);
     }
@@ -108,8 +108,21 @@ public record MatchRequest(
         public Participant(Long playerId, Vote vote, Attendance attendance) { this(playerId, vote, attendance, null, null); }
         public boolean changesPlannedTeam() { return Boolean.TRUE.equals(plannedTeamSpecified) || plannedTeam != null; }
     }
+    MatchRequest resolveGoalEvents(List<MatchQuarter> savedQuarters, List<MatchGoalEvent> savedEvents) {
+        var resolved = MatchGoalEvents.resolve(quarters, kind, savedQuarters, savedEvents);
+        return new MatchRequest(playedOn, kickoff, venue, opponent, notes, version, participants, resolved, plannedLineup,
+                scoreFor, scoreAgainst, kind, recordingStage, formationA, formationB, tournamentId, tournamentStage,
+                tournamentSelectionSpecified, matchFormat);
+    }
     public record Quarter(@Min(1) @Max(4) int number,
-                          @NotNull @Size(max = 44) List<@NotNull @Valid Appearance> lineup) { }
+                          @NotNull @Size(max = 44) List<@NotNull @Valid Appearance> lineup,
+                          @Size(max = 1000) List<@NotNull @Valid GoalEvent> goalEvents) {
+        public Quarter(int number, List<Appearance> lineup) { this(number, lineup, null); }
+    }
+    public record GoalEvent(@NotNull @Positive Long scorerId, @Positive Long assistId,
+                            @NotNull GoalType type, MatchTeam team) {
+        public GoalEvent { team = team == null ? MatchTeam.A : team; }
+    }
     public record Appearance(@NotNull LineupSlot slot, @NotNull @Positive Long playerId,
                              @Min(0) @Max(99) int goals, @Min(0) @Max(99) int assists,
                              @Min(0) @Max(1) int entryOrder, MatchTeam team,

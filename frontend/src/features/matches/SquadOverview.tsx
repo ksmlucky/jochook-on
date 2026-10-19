@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { playerLabel, quarterShare, slotLabels } from './api'
 import type { Appearance, MatchTeam, Participant, PlannedEntry, Quarter, Slot } from './api'
@@ -9,6 +9,7 @@ import { PitchMarkings } from './PitchMarkings'
 import { OverviewPositionEditor } from './OverviewPositionEditor'
 import { goalBreakdownText } from './goalBreakdown'
 import './squad-overview.css'
+import { usePitchDialog } from './usePitchDialog'
 import { quarterLabel, quarterNumbers } from './matchFormat'
 import type { MatchFormat } from './matchFormat'
 
@@ -36,7 +37,7 @@ function OverviewDialog(props: Props & { onClose: () => void }) {
   const [team, setTeam] = useState(props.team)
   const [selected, setSelected] = useState<Slot | null>(null)
   const [editing, setEditing] = useState(false)
-  const [swapMode, setSwapMode] = useState(props.mode === 'plan')
+  const [swapMode, setSwapMode] = useState(false)
   const [swapPlayer, setSwapPlayer] = useState<number | null>(null)
   const [swapMessage, setSwapMessage] = useState('')
   const canEdit = !!props.editable && !!props.onEdit
@@ -62,12 +63,8 @@ function OverviewDialog(props: Props & { onClose: () => void }) {
       ? props.entries.some(entry => entry.quarterNumber === quarter && entry.playerId === player.playerId)
       : actualQuarter?.lineup.some(entry => entry.playerId === player.playerId)))
 
-  useEffect(() => {
-    const element = dialog.current!
-    element.showModal()
-    return () => element.close()
-  }, [])
-  const close = () => { dialog.current?.close(); props.onClose() }
+  usePitchDialog(dialog)
+  const close = () => props.onClose()
   function chooseSlot(slot: Slot) {
     setSelected(slot)
     if (!canEdit) return
@@ -98,7 +95,7 @@ function OverviewDialog(props: Props & { onClose: () => void }) {
         <button type="button" aria-pressed={swapMode} onClick={() => { setSwapMode(true); setSwapPlayer(null); setSwapMessage('') }}>자리 바꾸기</button>
         <button type="button" aria-pressed={!swapMode} onClick={() => { setSwapMode(false); setSwapPlayer(null); setSwapMessage('') }}>배치·기록 수정</button>
       </div></div>}
-      {props.mode === 'plan' && canEdit && swapMode && <p className="field-help" role="status">{swapPlayer !== null ? `${person(swapPlayer)?.name ?? '선수'} 선택 중 · ` : ''}{swapMessage || '선발 두 명을 차례로 누르면 자리를 바꿔요. 교체 선수는 기존 자리에 남아요.'}{swapPlayer !== null && <button type="button" className="secondary-button" onClick={() => { setSwapPlayer(null); setSwapMessage('선택을 취소했어요.') }}>선택 취소</button>}</p>}
+      {props.mode === 'plan' && canEdit && swapMode && <div className="planner-selection-status" role="status"><span>{swapPlayer !== null ? `${person(swapPlayer)?.name ?? '선수'} 선택 중 · ` : ''}{swapMessage || '선발 두 명을 차례로 누르면 자리를 바꿔요. 교체 선수는 기존 자리에 남아요.'}</span><button type="button" className="secondary-button" disabled={swapPlayer === null} onClick={() => { setSwapPlayer(null); setSwapMessage('선택을 취소했어요.') }}>선택 취소</button></div>}
       <p className="squad-overview-counts">{props.internal ? `${team}팀 · ` : ''}선발 {entries.filter(entry => entry.entryOrder === 0).length}/11 · 교체 {entries.filter(entry => entry.entryOrder === 1).length}명<span>공격 방향 ↑</span></p>
       <div className="tactics-pitch squad-overview-pitch" data-formation={formation} aria-label={`${quarterLabel(quarter, props.matchFormat)} ${props.internal ? `${team}팀 ` : ''}${formationLabel(formation)} 전체 스쿼드`}>
         <PitchMarkings />
@@ -130,7 +127,7 @@ function OverviewDialog(props: Props & { onClose: () => void }) {
       <details className="squad-overview-waiting"><summary>이번 쿼터 미배치 {waiting.length}명</summary><p>{waiting.map(playerLabel).join(', ') || '모두 배치되어 있어요.'}</p></details>
       <p className="squad-overview-note">{props.onEdit ? '변경은 초안에 반영돼요. 전체보기를 닫고 단계별 저장을 눌러 주세요.' : '현재 입력 내용을 확인하는 화면이에요.'}</p>
     </div>
-    {editing && selected && props.onEdit && <OverviewPositionEditor key={`${quarter}-${team}-${selected}`} matchFormat={props.matchFormat} mode={props.mode} recordStats={!!props.recordQuarters} slot={selected} quarter={quarter} team={team} internal={props.internal}
+    {editing && selected && props.onEdit && <OverviewPositionEditor key={`${quarter}-${team}-${selected}`} matchFormat={props.matchFormat} mode={props.mode} recordStats={!!props.recordQuarters} linkedGoals={Array.isArray(actualQuarter?.goalEvents)} slot={selected} quarter={quarter} team={team} internal={props.internal}
       participants={props.participants} entries={props.mode === 'plan' && !props.recordQuarters ? props.entries.filter(entry => entry.quarterNumber === quarter) : actualQuarter?.lineup ?? []}
       editable={canEdit} onEdit={(order, patch) => props.onEdit!(quarter, team, selected, order, patch)} onClose={() => setEditing(false)} />}
   </dialog>, document.body)

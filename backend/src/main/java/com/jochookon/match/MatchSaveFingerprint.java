@@ -23,7 +23,7 @@ final class MatchSaveFingerprint {
                 request.opponent().strip(), request.notes().strip(), request.version(),
                 request.participants().stream().sorted(Comparator.comparing(MatchRequest.Participant::playerId)
                         .thenComparing(MatchRequest.Participant::vote).thenComparing(MatchRequest.Participant::attendance)).toList(),
-                request.quarters().stream().map(q -> new MatchRequest.Quarter(q.number(), q.lineup().stream().sorted(appearances).toList()))
+                request.quarters().stream().map(q -> new MatchRequest.Quarter(q.number(), q.lineup().stream().sorted(appearances).toList(), q.goalEvents()))
                         .sorted(Comparator.comparingInt(MatchRequest.Quarter::number)).toList(),
                 request.plannedLineup().stream().sorted(plans).toList(), request.scoreFor(), request.scoreAgainst(),
                 request.kind(), request.recordingStage(), request.formationA(), request.formationB());
@@ -35,6 +35,10 @@ final class MatchSaveFingerprint {
             entry.remove("plannedTeamSpecified");
             if (!specified) entry.remove("plannedTeam");
             else entry.put("plannedTeamSpecified", true);
+        }
+        for (var quarter : body.get("quarters")) {
+            var entry = (tools.jackson.databind.node.ObjectNode) quarter;
+            if (entry.get("goalEvents").isNull()) entry.remove("goalEvents");
         }
         for (var quarter : body.get("quarters")) for (var appearance : quarter.get("lineup")) {
             var entry = (tools.jackson.databind.node.ObjectNode) appearance;

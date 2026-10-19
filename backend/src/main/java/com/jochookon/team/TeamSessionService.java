@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TeamSessionService {
+    private static final int ACCOUNT_IDLE_SECONDS = Math.toIntExact(Duration.ofDays(7).toSeconds());
     static final String SESSION_KEY = TeamSessionService.class.getName() + ".session";
     public static final String REQUEST_KEY = TeamSessionService.class.getName() + ".access";
     private final TeamStore store;
@@ -47,7 +48,7 @@ public class TeamSessionService {
         TeamDtos.MyTeam selected = selected(teams, state.teamId());
         if (state.teamId() != null && selected == null) state = new SessionState("ACCOUNT", account.id(), null, 0, state.createdAt(), state.credentialVersion());
         session = request.getSession(true);
-        session.setMaxInactiveInterval(30 * 60);
+        session.setMaxInactiveInterval(ACCOUNT_IDLE_SECONDS);
         session.setAttribute(SESSION_KEY, state);
         return new Access(new TeamDtos.CurrentUser(account.username(), selected == null ? "MEMBER" : selected.role(), "ACCOUNT", account.serviceAdmin(),
                 selected == null ? null : selected.team(), teams), account.id());
@@ -112,7 +113,7 @@ public class TeamSessionService {
         var user = new TeamDtos.CurrentUser(account.username(), selected == null ? "MEMBER" : selected.role(), "ACCOUNT", account.serviceAdmin(),
                 selected == null ? null : selected.team(), teams);
         replace(new SessionState("ACCOUNT", account.id(), selected == null ? null : selected.id(), 0, Instant.now(), account.credentialVersion()),
-                new Access(user, account.id()), username, request, response, 30 * 60);
+                new Access(user, account.id()), username, request, response, ACCOUNT_IDLE_SECONDS);
         return user;
     }
     public long credentialVersion(HttpServletRequest request) {

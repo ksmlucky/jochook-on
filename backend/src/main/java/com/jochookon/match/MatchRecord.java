@@ -41,13 +41,17 @@ public class MatchRecord {
     private List<MatchAppearance> appearances = new ArrayList<>();
     @ElementCollection @CollectionTable(name = "match_planned_lineups", joinColumns = @JoinColumn(name = "match_id"))
     private List<PlannedLineup> plannedLineup = new ArrayList<>();
+    @ElementCollection @CollectionTable(name = "match_goal_events", joinColumns = @JoinColumn(name = "match_id"))
+    @OrderColumn(name = "event_order")
+    private List<MatchGoalEvent> goalEvents = new ArrayList<>();
     protected MatchRecord() { }
     static MatchRecord create(MatchRequest request) {
         var match = new MatchRecord(); match.recordingStage = RecordingStage.ATTENDANCE;
         match.replace(request); return match;
     }
     void replace(MatchRequest request) {
-        request = request.resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants);
+        request = request.resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants)
+                .resolveGoalEvents(quarters, goalEvents);
         validateRules(request);
         if (getMatchFormat() == MatchFormat.FOUR_QUARTERS && request.matchFormat() == MatchFormat.TWO_HALVES_30
                 && (appearances.stream().anyMatch(a -> a.getQuarterNumber() > 2)
@@ -62,15 +66,17 @@ public class MatchRecord {
         playedOn = request.playedOn(); kickoff = request.kickoff();
         scoreFor = request.scoreFor(); scoreAgainst = request.scoreAgainst();
         venue = request.venue().strip(); opponent = request.opponent().strip(); notes = request.notes().strip();
-        participants.clear(); quarters.clear(); appearances.clear(); plannedLineup.clear();
+        participants.clear(); quarters.clear(); appearances.clear(); plannedLineup.clear(); goalEvents.clear();
         request.plannedLineup().forEach(entry -> plannedLineup.add(new PlannedLineup(entry)));
         request.participants().forEach(p -> participants.add(new MatchParticipant(p)));
         request.quarters().forEach(q -> {
             quarters.add(new MatchQuarter(q));
             q.lineup().forEach(a -> appearances.add(new MatchAppearance(q.number(), a)));
+            if (q.goalEvents() != null) q.goalEvents().forEach(event -> goalEvents.add(new MatchGoalEvent(q.number(), event)));
         });
     }
     static void validateRules(MatchRequest request) {
+        request = request.resolveGoalEvents(List.of(), List.of());
         var format = MatchFormat.orDefault(request.matchFormat());
         if (request.kind() == MatchKind.INTERNAL && format != MatchFormat.FOUR_QUARTERS)
             throw new IllegalArgumentException("자체전은 4쿼터 형식으로 기록합니다.");
@@ -180,6 +186,7 @@ public class MatchRecord {
     public List<MatchParticipant> getParticipants() { return Collections.unmodifiableList(participants); }
     public List<MatchQuarter> getQuarters() { return Collections.unmodifiableList(quarters); }
     public List<MatchAppearance> getAppearances() { return Collections.unmodifiableList(appearances); }
+    public List<MatchGoalEvent> getGoalEvents() { return Collections.unmodifiableList(goalEvents); }
     public List<MatchRequest.PlannedEntry> getPlannedLineup() { return plannedLineup.stream().map(PlannedLineup::response)
             .sorted(Comparator.comparingInt(MatchRequest.PlannedEntry::quarterNumber).thenComparing(MatchRequest.PlannedEntry::team).thenComparing(MatchRequest.PlannedEntry::slot).thenComparingInt(MatchRequest.PlannedEntry::entryOrder)).toList(); }
     public double creditedQuarters(long playerId) {
