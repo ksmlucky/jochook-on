@@ -34,7 +34,7 @@
 <text x="78" y="459" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">하나의 Git 저장소</text>
 <text x="78" y="490" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">frontend/  React · TypeScript</text>
 <text x="78" y="521" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">backend/  기능별 Spring Boot</text>
-<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: V29·V30 계정 보호</text>
+<text x="78" y="552" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">Flyway: V31 골별 기록</text>
 <text x="78" y="583" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">JUnit / 프론트 테스트</text>
 <rect x="525" y="380" width="350" height="252" rx="18" fill="#edf4fa" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="525" y="400" width="5" height="212" rx="2" fill="#285d86"/>
@@ -47,7 +47,7 @@
 <rect x="995" y="380" width="350" height="252" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="995" y="400" width="5" height="212" rx="2" fill="#246b51"/>
 <text x="1019" y="419" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">③ Northflank 배포</text>
-<text x="1019" y="459" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">선택한 커밋을 수동 빌드·배포</text>
+<text x="1019" y="459" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">검증 커밋을 빌드·자동 적용</text>
 <text x="1019" y="490" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">Dockerfile의 2개 target</text>
 <text x="1019" y="521" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">api → Java 실행 이미지</text>
 <text x="1019" y="552" font-size="20" fill="#203a33" font-weight="400" text-anchor="start">web-northflank → Caddy + 웹</text>
@@ -59,15 +59,15 @@
 <rect x="54" y="686" width="625" height="183" rx="18" fill="#ffffff" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="54" y="706" width="5" height="143" rx="2" fill="#246b51"/>
 <text x="78" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">운영 배포 확인</text>
-<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">백업·격리 복원 → 구 API 쓰기 종료</text>
-<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">새 API·V30 검증 → 새 웹 → 권한·화면 확인</text>
-<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">V26 이후 구 API 이미지 단독 롤백 금지</text>
+<text x="78" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">암호화 백업·격리 복원 검증</text>
+<text x="78" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">API·웹 dd29444 / DB V31 자료 보존</text>
+<text x="78" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">공개 HTTPS·권한·자산 확인</text>
 <rect x="714" y="686" width="631" height="183" rx="18" fill="#e7f3eb" stroke="#d8e3dc" stroke-width="1.5"/>
 <rect x="714" y="706" width="5" height="143" rx="2" fill="#246b51"/>
 <text x="738" y="725" font-size="25" fill="#246b51" font-weight="600" text-anchor="start">이번 출시 범위</text>
-<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">우리 팀 홈 · 모바일 기록·필터 개선</text>
-<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">개인 비밀번호 변경 · 운영진 일회용 복구</text>
-<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.8 · 앱과 공유 PDF 반영 확인</text>
-<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 경기 입력 3단계 · 배포 상태는 기능 문서 참조 · DB V30</text>
+<text x="738" y="765" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">골마다 득점자·도움 선수 연결</text>
+<text x="738" y="796" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">자리 눌러 배치 · 고정 저장 · 7일 세션</text>
+<text x="738" y="827" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">사용 가이드 1.9 · 앱과 공유 PDF 반영 확인</text>
+<text x="54" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="start">2026.10.19 골별 기록·모바일 입력 · 운영 dd29444 · DB V31</text>
 <text x="1346" y="918" font-size="16" fill="#566d65" font-weight="400" text-anchor="end">실제 회원 정보·접속 비밀값 제외</text>
 </g></svg>

@@ -5,13 +5,13 @@
   "release": {
     "guideVersion": "1.9",
     "date": "2026-10-19",
-    "appCommit": "pending",
-    "deployment": "Northflank production (pending new release verification)",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
+    "appCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
+    "deployment": "Northflank production (API and web verified 2026-10-19 17:51 KST)",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
     "releaseLabel": "2026.10.19 골별 기록·모바일 입력",
     "previousProductionCommit": "a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603",
-    "lastVerifiedApiCommit": "d8b27631a9204489ab1b5e16993a4e639041222f"
+    "lastVerifiedApiCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -35,17 +35,7 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "date": "2026-10-19",
-      "status": "pending_deployment",
-      "spec": "../goal-events-mobile-2026-10-19.md",
-      "staff": "02 자리 선택창·명시적 자리 교환·하단 고정 저장·300ms 알림 페이드, 골별 득점자/도움/종류 연결과 기존 합계 보존·전환, 개인 계정 7일 미사용 만료 안내 예정.",
-      "member": "골·도움 연결이 선수 기록에 반영되는 의미를 검토. 회원 코드 세션은 24시간 미사용/최대7일로 변경 없음.",
-      "releasePolicy": "사용자 배포 요청에 따라 원고·HTML·PDF 1.9 준비. 실제 배포 검증 전 운영 완료로 표시하지 않음.",
-      "database": "V31 로컬·미배포 / 운영 V30"
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.8",
@@ -137,13 +127,23 @@
     {
       "date": "2026-10-19",
       "guideVersion": "1.9",
-      "status": "pending_deployment",
-      "appCommit": "pending",
-      "change": "회원 골 연결 조회·운영진 골별 입력/이전 합계 전환, 자리 선택·고정 저장·알림 페이드, 개인 세션7일 안내. 배포 전 검증 중.",
-      "validation": "회원7쪽·운영진19쪽 총26쪽 PNG 렌더 및 전체 페이지 육안 확인, 주요 새 절차의 소스 버튼명 대조·글꼴/넘침 검증. 앱 역할별 브라우저 재검증·실제 배포는 총괄 검증 대기."
+      "status": "deployed",
+      "appCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
+      "verifiedAtKst": "2026-10-19 17:51 KST",
+      "change": "회원 골 연결 조회·운영진 골별 입력/이전 합계 전환, 자리 선택·고정 저장·알림 페이드, 개인 세션7일 안내.",
+      "validation": "회원7쪽·운영진19쪽 총26쪽 PNG 렌더 확인, GitHub CI 백엔드·MySQL·프론트 성공, 운영 HTTPS9개·JS/CSS/PDF 바이트 일치, 운영진 읽기·권한 확인. 실제 iPhone·운영 쓰기 시험은 미실행."
     }
   ],
   "releasedChanges": [
+    {
+      "feature": "골별 득점·도움 연결과 모바일 작전판 입력",
+      "guides": ["member", "staff"],
+      "status": "deployed",
+      "reference": "../goal-events-mobile-2026-10-19.md",
+      "review": "2026-10-19 17:51 KST API·웹 V31, 기존 자료 지문 일치, 운영 HTTPS·자산·권한 확인. 실제 iPhone은 사용자 확인 대상.",
+      "guideVersion": "1.9",
+      "appCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed"
+    },
     {
       "feature": "홈·조회 화면 간소화·개인 비밀번호 변경·운영진 복구",
       "guides": [
@@ -289,15 +289,15 @@
     }
   ],
   "validation": {
-    "guideVersion": "1.6",
-    "date": "2026-10-17",
+    "guideVersion": "1.9",
+    "date": "2026-10-19",
     "memberPages": 7,
-    "staffPages": 17,
-    "pdfVisualReview": "회원7·운영진17 전24쪽 렌더 확인",
-    "appRoleScreenReview": "역할별1.6·목차7/17·선수단 안내·PDF 링크 확인",
+    "staffPages": 19,
+    "pdfVisualReview": "회원7·운영진19 전26쪽 렌더 확인",
+    "appRoleScreenReview": "가상 역할 화면과 목차·PDF 링크 확인, 실제 iPhone 미확인",
     "productionStatus": "deployed",
-    "verifiedAtKst": "2026-10-17 23:06 KST",
-    "productionAssets": "웹 bdb4f04 JS/CSS/PDF SHA256 일치; API d8b2763 유지",
+    "verifiedAtKst": "2026-10-19 17:51 KST",
+    "productionAssets": "웹·API dd29444, V31, JS/CSS/PDF SHA256 일치",
     "metadataNote": "배포 후 scope/appCommit 메타데이터 확정. 운영 번들 원고는 배포전 pending 메타데이터를 포함하지만 이를 표시하지 않으며 본문/HTML/PDF는 동일"
   },
   "pendingRosterPagination": {

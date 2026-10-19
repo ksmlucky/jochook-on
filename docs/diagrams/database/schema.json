@@ -1,5 +1,5 @@
 {
-  "basis": "V31 로컬·미배포 · 2026.10.19 / 운영 V30",
+  "basis": "V31 운영 반영 · 2026.10.19",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {

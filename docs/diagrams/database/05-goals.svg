@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1840" viewBox="0 0 1800 1840" role="img" aria-labelledby="title desc"><title id="title">05 · 골 한 건, 득점 선수, 도움 선수</title><desc id="desc">V31 로컬 구현 · 미배포. 구간별 연결 기록에서 출전별 골·도움을 계산하고 기존 시즌 조회에 전달합니다.. V31 로컬·미배포 · 2026.10.19 / 운영 V30. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1840" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1840" viewBox="0 0 1800 1840" role="img" aria-labelledby="title desc"><title id="title">05 · 골 한 건, 득점 선수, 도움 선수</title><desc id="desc">V31 운영 반영. 구간별 연결 기록에서 출전별 골·도움을 계산하고 기존 시즌 조회에 전달합니다.. V31 운영 반영 · 2026.10.19. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1840" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V31 로컬·미배포 · 2026.10.19 / 운영 V30</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V31 운영 반영 · 2026.10.19</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">05 · 골 한 건, 득점 선수, 도움 선수</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">V31 로컬 구현 · 미배포. 구간별 연결 기록에서 출전별 골·도움을 계산하고 기존 시즌 조회에 전달합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">V31 운영 반영. 구간별 연결 기록에서 출전별 골·도움을 계산하고 기존 시즌 조회에 전달합니다.</text>
 <rect x="60" y="190" width="700" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_records</text>
 <text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 한 건의 기본 정보 · 참조 노드</text>
@@ -66,7 +66,7 @@
 <text x="83" y="1564" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">연결 기록 → match_appearances 골·도움·직접 FK·PK 합계 → 기존 선수 시즌 조회</text>
 <text x="83" y="1596" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기록 완료 여부와 기간·리그·대회 필터는 기존 집계 규칙을 유지합니다.</text>
 <text x="83" y="1628" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">기존 골·도움을 임의의 선수 조합으로 연결하지 않습니다. 이전 입력 방식의 구간을 그대로 조회할 수 있습니다.</text>
-<text x="83" y="1660" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 DB는 V30 · 이 그림과 로컬 V31 파일만으로 실제 DB 자료가 바뀌지 않습니다.</text>
+<text x="83" y="1660" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">운영 DB V31 적용과 기존 자료 지문 일치를 확인했습니다. 이 그림에는 실제 자료를 넣지 않았습니다.</text>
 <text x="52" y="1811" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
 <text x="1748" y="1811" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
 </g></svg>

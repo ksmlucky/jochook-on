@@ -192,3 +192,9 @@ Oracle 확보 시 바로 접속 주소를 바꾸지 않는다. ARM64 이미지·
 ## 2026-10-19 경기 입력 통합 배포
 
 2026-10-19 10:54 KST · 웹 `a229bbbb6ff99b5c9273f7fb00d7e8dfd0b00603` · Northflank `windy-sunlight-8772` 완료. [기능·검증·가이드 상세](unified-match-entry-2026-10-19.md). 270개 프론트 테스트·타입·빌드·GitHub CI, PDF24쪽·역할별 가이드, 공개HTTPS9개·JS/CSS/PDF4개 일치. API d8b2763·DB V30 유지. 실제 iPhone·운영 쓰기·로컬 MySQL 미실행.
+
+## 2026-10-19 골별 기록·모바일 입력 배포
+
+2026-10-19 17:51 KST · API·웹 `dd29444bf2cea3c4d46126cf4b95976722ec57ed`, DB V31, 가이드 1.9 운영 반영. [기능·검증 결과](goal-events-mobile-2026-10-19.md). GitHub CI 백엔드·MySQL 통합/프론트 통과, 암호화 백업 격리 복원, 기존 17개 업무 테이블 지문 보존, HTTPS 9개·운영진 읽기/권한·JS/CSS/PDF 바이트 일치를 확인했다. 실제 iPhone·운영 자료 쓰기 시험은 하지 않았다.
+
+이번 설정에서는 `disabledCI=true`여도 수동 빌드가 성공하자 Northflank가 새 이미지를 자동 적용했다. 다음 릴리스에서 빌드와 배포를 분리하려면 `disabledCD`와 실제 서비스 동작을 먼저 점검해야 한다. V31 적용 후 새 골별 기록을 이전 API로 처리하면 연결 정보가 손실될 수 있으므로 API 단독 다운그레이드는 하지 않는다. 배포 직전 암호화 백업은 Git 제외 `backups/northflank/20261019-before-goal-events/`에 보관하고 별도 MySQL 복원·행 지문 확인을 마쳤다. 이 백업은 Windows DPAPI 사용자에 묶여 있어 독립 PC 복구 수단은 아직 아니다.

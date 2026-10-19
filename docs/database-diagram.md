@@ -1,6 +1,6 @@
 # 조축ON 데이터베이스 관계도
 
-기준: **V31 로컬 스키마 · 2026-10-19 · 미배포 / 운영 DB V30 유지**. Flyway V1~V31과 로컬 코드의 구조를 설명합니다. V31은 골 한 건의 득점자·도움 선수를 연결하는 `match_goal_events`와 구간별 기록 방식 `match_quarters.goal_events_linked`를 추가합니다. 그림 갱신은 실제 DB 마이그레이션 적용을 뜻하지 않습니다. 운영 V30 확인 범위는 [배포 검증](release-home-account-2026-10-16.md), 새 로컬 기능은 [골 연결과 모바일 입력 명세](goal-events-mobile-2026-10-19.md)를 참고하세요.
+기준: **운영 DB V31 · 2026-10-19 배포 확인**. Flyway V1~V31과 실제 적용된 운영 구조를 설명합니다. V31은 골 한 건의 득점자·도움 선수를 연결하는 `match_goal_events`와 구간별 기록 방식 `match_quarters.goal_events_linked`를 추가합니다. 운영 DB 마이그레이션과 기존 17개 업무 테이블의 행 지문 일치를 확인했습니다. 이 그림에는 실제 행이 없으며, [배포·기능 검증](goal-events-mobile-2026-10-19.md)과 함께 읽습니다.
 
 이 그림은 **ERD(Entity Relationship Diagram, 개체 관계도)**입니다. 어떤 테이블에 무엇을 저장하고, 다른 테이블과 어떤 키로 연결되는지 보여 줍니다. 업무 테이블 18개와 Flyway 관리 테이블 1개를 담았습니다. 실제 회원·경기·계정 행이나 비밀값은 사용하지 않았습니다.
 
@@ -107,7 +107,7 @@ $env:JOCHOOK_DIAGRAM_SHARP = "$env:USERPROFILE/.cache/codex-runtimes/codex-prima
 node scripts/Generate-DatabaseDiagram.mjs --png
 ```
 
-이 생성기는 DB에 접속하거나 데이터를 변경하지 않습니다. V31 문서 검증은 테이블 18개·물리 FK 28개를 SQL과 대조하고, SVG XML·로컬 링크와 PNG 6장 렌더를 확인했습니다. 브라우저 탭 동작 및 별도 Mermaid 엔진 렌더는 이번 문서 작업에서 재검증하지 않았습니다. 실제 MySQL 마이그레이션·운영 스키마·앱 기능 테스트를 그림 검증으로 대신하지 않습니다.
+이 생성기는 DB에 접속하거나 데이터를 변경하지 않습니다. V31 문서 검증은 업무 테이블 18개·물리 FK 28개를 SQL과 대조하고, SVG XML·로컬 링크와 PNG 6장을 다시 생성해 골 연결 그림을 육안 확인했습니다. 브라우저 탭 동작 및 별도 Mermaid 엔진 렌더는 이번 문서 작업에서 재검증하지 않았습니다. 실제 운영 V31 확인은 별도의 읽기 전용 DB 지문 대조와 HTTPS 검사로 수행했습니다.
 
 ## 변경할 때 함께 갱신할 그림
 

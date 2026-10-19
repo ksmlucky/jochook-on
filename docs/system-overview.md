@@ -1,6 +1,6 @@
 # 조축ON 시스템 구성도와 업무 흐름도
 
-**운영 반영(2026-10-19):** [경기 입력 3단계 통합](unified-match-entry-2026-10-19.md) · [새 흐름도](diagrams/unified-match/index.html). 웹 `a229bbb` · 가이드 1.8. 현재 입력은 01 참석 → 02 스쿼드·기록 → 03 결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 통합 문서와 가이드를 따릅니다.
+**최신 운영 반영(2026-10-19 17:51 KST):** [골별 기록·모바일 입력](goal-events-mobile-2026-10-19.md), 웹·API `dd29444`, DB V31, 가이드 1.9. 현재 입력은 01 참석 → 02 스쿼드·골별 기록 → 03 결과입니다. [시스템 구성도 4장](diagrams/system-overview/index.html)과 [V31 ERD](database-diagram.md)를 함께 갱신했습니다. 아래 이전 날짜의 설명은 당시 이력입니다.
 
 2026-10-17 22:35 KST 운영 반영: 웹 `072ac46`, API `d8b2763` 유지 / DB V30 변경 없음 / 가이드1.4. [배포 결과](release-roster-pagination-2026-10-17.md).
 
@@ -33,7 +33,7 @@ node scripts/Generate-MobileWorkflowGuide.mjs
 
 ## 그림 미리보기
 
-아래 구성도는 운영 `d8b2763` / V30 기준이다. DB 테이블의 PK/FK와 관계는 [DB 관계도](database-diagram.md)에서 별도로 확대해 볼 수 있다. 기존 모바일 PNG는 가상 자료로 촬영한 당시 화면으로 보존하고, SVG 흐름도는 생성 원본과 함께 관리한다. 그림·문서 후속 갱신은 앱을 다시 배포하는 작업과 별개다.
+아래 구성도는 운영 `dd29444` / V31 기준이다. DB 테이블의 PK/FK와 관계는 [DB 관계도](database-diagram.md)에서 별도로 확대해 볼 수 있다. 기존 모바일 PNG는 가상 자료로 촬영한 당시 화면으로 보존하고, SVG 흐름도는 생성 원본과 함께 관리한다. 그림·문서 후속 갱신은 앱을 다시 배포하는 작업과 별개다.
 
 ![시스템 아키텍처와 서버 위치](diagrams/system-overview/01-system-architecture.svg)
 

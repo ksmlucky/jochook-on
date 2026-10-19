@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.9",
   "publishedOn": "2026.10.19",
-  "appCommit": "pending",
-  "scope": "pending_deployment",
+  "appCommit": "dd29444bf2cea3c4d46126cf4b95976722ec57ed",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
