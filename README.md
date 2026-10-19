@@ -1,5 +1,7 @@
 # 조축ON
 
+운영 후속 2026-10-19 21:24:17 KST · 웹e640b4c: [선수 기록 이름 열 너비 축소](docs/compact-match-cards-2026-10-19.md). API1519c9d·DB V32·가이드1.14 유지.
+
 운영 반영 · 웹a3bfd95 / API1519c9d / 가이드1.14: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
 
 운영 반영 · 웹43e8fd6 / API1519c9d / 가이드1.13: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).

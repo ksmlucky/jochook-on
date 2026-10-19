@@ -40,6 +40,14 @@
     {
       "guideVersion": "1.14",
       "date": "2026-10-19",
+      "appCommit": "e640b4cf6e834e650b2fbfc71c3499c639422e29",
+      "status": "compatibility-verified",
+      "changes": "선수 기록 이름 열 PC100px/모바일88px. 회원·운영진 모두 버튼·조회 순서·권한·집계 안내 동일하므로 가이드 원고/HTML/PDF 수정 불필요.",
+      "validation": "모바일/PC 화면·정렬, CI, 운영 JS/CSS/PDF 일치 확인. 기존 가이드1.14와 호환."
+    },
+    {
+      "guideVersion": "1.14",
+      "date": "2026-10-19",
       "appCommit": "a3bfd9542e4cfcacade2aa2243646bba68941369",
       "status": "deployed",
       "changes": "최근 경기 구간 상세·상태/동작 한 줄 정렬·실점 컨트롤 정렬·선수 기록 간단 보기/표 높이 축소. 회원/운영진 가이드 함께 반영.",
@@ -350,5 +358,15 @@
     "member": "선수 카드 상세 펼침, 선수 기록 10/20/30명 페이지와 상세 복귀",
     "staff": "회원 변경 + 수동 입력/엑셀 진입 분리 + 코드 1회 표시·재발급 안내",
     "releasePolicy": "가이드1.4 공통 원고/HTML/PDF·앱 반영 완료"
+  },
+  "lastCompatibilityCheck": {
+    "at": "2026-10-19 21:24:17 KST",
+    "appCommit": "e640b4cf6e834e650b2fbfc71c3499c639422e29",
+    "guideVersion": "1.14",
+    "roles": [
+      "member",
+      "staff"
+    ],
+    "contentChanged": false
   }
 }
