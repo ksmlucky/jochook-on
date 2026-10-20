@@ -158,10 +158,10 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
   }
   const locked = busy || deleting || !!deleteTarget || !!recovery && !editor
   return <section className="directory-section" id="matches" aria-labelledby="matches-title">
-    <div className="section-heading"><div><p className="eyebrow muted">MATCH DAY</p><h2 id="matches-title">경기 기록</h2></div>
+    {viewing !== null ? <h2 id="matches-title" className="sr-only">경기 기록</h2> : <><div className="section-heading"><div><p className="eyebrow muted">MATCH DAY</p><h2 id="matches-title">경기 기록</h2></div>
       {!editor && !history && viewing === null && isAdmin && <div className="registration-actions"><button className="secondary-button" disabled={locked} onClick={() => setHistory(true)}>변경 이력</button><button className="primary-button" disabled={locked} onClick={() => void open()}>경기 기록 등록</button></div>}
     </div>
-    <p className="section-description">참석 명단부터 스쿼드, 스코어까지. 한 경기씩 쌓아가요.</p>
+    <p className="section-description">참석 명단부터 스쿼드, 스코어까지. 한 경기씩 쌓아가요.</p></>}
     {!editor && !history && viewing === null && <div className="list-period-filter">
       <MonthRangeFilter value={period} years={availableYears.years} disabled={busy || deleting}
         onChange={value => { setPeriod(value); setPage(0) }} />

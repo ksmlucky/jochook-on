@@ -86,6 +86,29 @@
 .stats-card-values dt { color: var(--muted); font-size: 12px; line-height: 1.3; }
 .stats-card-values dd { margin: 2px 0 0; font-size: 18px; line-height: 1.3; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .stats-card-note { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.season-stats > .stats-summary { margin: 14px 0 4px; }
+.season-stats > .stats-summary > div { padding: 12px 16px; }
+.season-stats > .stats-summary dd { margin-top: 4px; font-size: 28px; }
+.season-stats > .stats-summary .stats-summary-note { margin-top: 3px; }
+.stats-summary-details, .stats-view-settings { min-width: 0; margin: 4px 0; }
+.stats-summary-details > summary, .stats-view-settings > summary { min-height: 44px; padding: 9px 0; align-content: center; font-size: 13px; font-weight: 700; cursor: pointer; overflow-wrap: anywhere; }
+.stats-summary-details > summary span, .stats-view-settings > summary span { margin-left: 8px; font-weight: 400; color: var(--muted); }
+.stats-summary-details > summary:focus-visible, .stats-view-settings > summary:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.stats-summary-details .field-help { margin: 0 0 8px; }
+.stats-warning { margin: 8px 0; font-size: 13px; line-height: 1.6; color: var(--ink); border-left: 3px solid #b66a17; padding-left: 9px; }
+.stats-view-settings { border: 1px solid var(--line); border-radius: 12px; background: var(--soft); padding: 0 12px; }
+.stats-view-settings > .field-help { margin: 8px 0 12px; }
+.stats-settings-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 12px; padding: 4px 0; }
+.stats-settings-fields label { display: grid; gap: 6px; min-width: 0; font-size: 13px; font-weight: 700; }
+.stats-settings-fields select, .stats-player-search input { width: 100%; min-width: 0; min-height: 44px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--ink); font: inherit; font-size: 16px; }
+.stats-settings-fields .stats-card-sorting { grid-column: 1 / -1; }
+.stats-settings-fields .stats-card-sorting label { max-width: 280px; }
+.stats-results-toolbar { display: flex; align-items: center; gap: 8px 12px; flex-wrap: wrap; margin-top: 12px; }
+.stats-player-search { flex: 1 1 150px; min-width: 0; max-width: 320px; }
+.stats-results-toolbar .stats-view-switch { margin: 0; flex-shrink: 0; }
+.stats-results-toolbar .stats-view-switch button { padding: 7px 10px; }
+.season-stats > .stats-table-hint { margin: 8px 0; }
+.season-stats .stats-extra-filters { margin-top: 8px; padding-top: 2px; }
 @media (max-width: 680px) {
   .stats-filter-controls { padding: 14px; }
   .stats-primary-filters { grid-template-columns: minmax(0, 1fr); gap: 14px; }
@@ -102,4 +125,9 @@
   .stats-table .stats-number-cell { padding-left: 6px; padding-right: 6px; }
   .stats-table .stats-player-cell { width: 88px; min-width: 88px; max-width: 88px; }
   .stats-table-tools { gap: 10px; }
+  .season-stats > .stats-summary > div { padding: 10px 8px; }
+  .season-stats > .stats-summary dd { font-size: 24px; }
+  .season-stats > .stats-summary dd small { display: inline; margin-left: 3px; }
+  .season-stats > .stats-summary .stats-summary-note { font-size: 11px; line-height: 1.4; }
+  .stats-results-toolbar .stats-view-switch button { font-size: 13px; }
 }

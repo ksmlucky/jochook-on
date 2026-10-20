@@ -12,7 +12,7 @@
 .compact-match-result { white-space:nowrap; font-size:18px; border-radius:7px; background:var(--accent); color:white; padding:6px 9px; }
 .compact-match-list { list-style:none; padding:0; display:grid; gap:8px; }
 .compact-match-admin { display:flex; justify-content:flex-end; gap:4px; }
-.compact-match-admin button { min-height:36px; padding:4px 10px; font-size:12px; }
+.compact-match-admin button { min-height:44px; padding:4px 10px; font-size:12px; }
 .report-toolbar { display:flex; justify-content:space-between; gap:8px; margin-bottom:12px; }
 .report-toolbar button { min-height:44px; }
 .match-report { max-width:760px; margin:auto; }
@@ -32,8 +32,11 @@
 .report-events small { display:block; color:var(--muted); margin-top:3px; }
 .report-legacy-goal { font-size:13px; margin:6px 0; }
 .report-period { border:1px solid var(--line); border-radius:12px; margin:8px 0; overflow:hidden; background:var(--surface); }
-.report-period > summary { min-height:48px; padding:12px; cursor:pointer; font-size:14px; font-weight:700; }
-.report-period > summary span { float:right; font-size:11px; color:var(--muted); font-weight:400; }
+.report-period > summary { display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; min-height:48px; padding:12px; cursor:pointer; font-size:14px; font-weight:700; list-style:none; }
+.report-period > summary::-webkit-details-marker { display:none; }
+.report-period > summary::before { content:'▸'; flex-shrink:0; }
+.report-period[open] > summary::before { content:'▾'; }
+.report-period > summary span { margin-left:auto; min-width:0; overflow-wrap:anywhere; font-size:11px; color:var(--muted); font-weight:400; }
 .report-team-squad { padding:0 10px 12px; }
 .report-team-squad h4 { font-size:13px; margin:6px 0 10px; }
 .match-report .report-pitch { position:relative; isolation:isolate; display:grid; grid-template-columns:repeat(12,minmax(0,1fr)); grid-template-rows:repeat(21,minmax(0,1fr)); height:510px; min-height:0; gap:3px; padding:12px 5px 28px; border:1px solid #b7cbb6; border-radius:12px; background:repeating-linear-gradient(180deg,#eef5e8 0%,#eef5e8 12.5%,#e5efdf 12.5%,#e5efdf 25%); }

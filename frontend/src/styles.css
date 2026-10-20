@@ -1,6 +1,6 @@
 :root {
   --ink: #243b32;
-  --muted: #66756d;
+  --muted: #5d6c64;
   --accent: #28624c;
   --accent-hover: #1e4d3b;
   --canvas: #f6f7f2;
@@ -46,7 +46,7 @@ button:disabled {
   opacity: .45;
 }
 
-button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible {
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 3px;
 }

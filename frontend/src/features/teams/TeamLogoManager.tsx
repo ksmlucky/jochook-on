@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useEditGuard } from '../../app/LeaveGuard'
 import { SessionExpiredError } from '../auth/api'
 import { ACCESS_CHANGED_EVENT, captureTeamScope } from '../auth/teamRequest'
 import { getTeamLogo, TEAM_LOGO_CHANGED, updateTeamLogo, validateLogoFile } from './teamLogo'
@@ -39,6 +40,7 @@ export function TeamLogoManager({ teamId, teamName }: { teamId: number; teamName
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  useEditGuard(file !== null, busy)
   const input = useRef<HTMLInputElement>(null)
   const generation = useRef(0)
   let accessSignal: AbortSignal | undefined

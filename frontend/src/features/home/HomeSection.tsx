@@ -48,19 +48,20 @@ export function HomeSection({ teamId, teamName, isAdmin, onOpenMatch, onCreateMa
     {error ? <div className="team-home-message" role="alert"><p>{error}</p><button type="button" className="secondary-button" onClick={() => setRevision(value => value + 1)}>다시 시도</button></div>
       : data === null ? <p className="team-home-message" role="status">최근 경기를 불러오는 중이에요.</p>
         : <>
-          {isAdmin && <section className="team-home-resume" aria-labelledby="home-resume-heading">
+          {isAdmin && unfinished.length > 0 && <section className="team-home-resume" aria-labelledby="home-resume-heading">
             <div className="team-home-section-heading"><h3 id="home-resume-heading">이어서 작성</h3><span>저장된 기록</span></div>
             <p className="team-home-caption">최근 10경기에서 작성 중인 기록을 최대 2개 보여줘요. 저장 전 초안은 경기 기록 화면에서 복원하세요.</p>
-            {unfinished.length ? <ul className="team-home-resume-list">{unfinished.map(match => <li key={match.id}>
+            <ul className="team-home-resume-list">{unfinished.map(match => <li key={match.id}>
               <div><time dateTime={match.playedOn}>{match.playedOn}</time><strong>{match.kind === 'INTERNAL' ? 'A팀 · B팀 자체전' : match.opponent || '상대 팀 미입력'}</strong><RecordingStatus stage={match.recordingStage} /></div>
               <button type="button" className="secondary-button" onClick={() => onOpenMatch(match.id, true)} aria-label={`${match.playedOn} ${match.kind === 'INTERNAL' ? '자체전' : match.opponent || '경기'} 이어서 작성`}>이어서 작성</button>
-            </li>)}</ul> : <p className="team-home-empty">최근 10경기에 작성 중인 기록이 없어요.</p>}
+            </li>)}</ul>
           </section>}
           <section aria-labelledby="home-recent-heading">
             <div className="team-home-section-heading"><h3 id="home-recent-heading">최근 경기</h3><button type="button" className="secondary-button" onClick={() => setRevision(value => value + 1)}>새로고침</button></div>
             {recent.length ? <><p className="team-home-caption">경기 날짜가 최근인 순서로 최대 3개를 보여줘요.</p><ul className="team-home-match-list">{recent.map(match => <li key={`${match.id}-${match.version}`}><CompactMatchRow teamId={teamId} teamName={teamName} match={match} onOpen={() => onOpenMatch(match.id)} /></li>)}</ul></>
               : <p className="team-home-empty">{isAdmin ? '아직 등록한 경기가 없어요. 새 경기 기록으로 시작해 보세요.' : '아직 등록된 경기가 없어요. 운영진이 기록을 등록하면 여기에 보여요.'}</p>}
           </section>
+          {isAdmin && unfinished.length === 0 && <p className="team-home-draft-hint">최근 10경기에 작성 중인 기록이 없어요. 저장 전 초안은 경기 기록 화면에서 복원하세요.</p>}
         </>}
   </section>
 }

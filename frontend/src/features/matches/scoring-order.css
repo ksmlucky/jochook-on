@@ -1,5 +1,5 @@
 .scoring-order-editor { margin-block: 12px; padding: 12px; border: 1px solid var(--border, #dce4d9); border-radius: 12px; }
-.scoring-order-editor summary { cursor: pointer; font-weight: 700; min-height: 32px; }
+.scoring-order-editor summary { cursor: pointer; font-weight: 700; min-height: 44px; align-content: center; }
 .scoring-order-editor summary span { font-size: .78rem; font-weight: 400; margin-left: 8px; }
 .scoring-order-list { list-style: none; padding: 0; margin: 8px 0; }
 .scoring-order-list li { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border, #dce4d9); padding: 6px 0; }
