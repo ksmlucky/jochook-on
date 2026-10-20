@@ -1,6 +1,6 @@
 # 조축ON
 
-스쿼드 카드·핵심 가이드 배포 후보: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.
+스쿼드 카드·핵심 가이드 운영 반영 2026-10-20 14:32:06 KST · 웹 6e72b9b: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.
 
 운영 반영 2026-10-20 11:45 KST: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 웹·API b6f722a, 가이드 1.16, DB V34.
 
@@ -48,7 +48,7 @@
 - [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
 - [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
 
-[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 3쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 6쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.18을 배포 준비했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 3쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 6쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.18을 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
 
 [시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
 

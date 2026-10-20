@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.18",
   "publishedOn": "2026.10.20",
-  "appCommit": "squad-card-guide-2026-10-20",
-  "scope": "pending_deployment",
+  "appCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -284,5 +284,5 @@
     }
   ],
   "releaseLabel": "2026.10.20 핵심 사용 가이드",
-  "lastVerifiedProductionCommit": "f0f95524b29492bcedb497cf73f1f8962da10517"
+  "lastVerifiedProductionCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792"
 }

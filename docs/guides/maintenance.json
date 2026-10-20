@@ -5,10 +5,10 @@
   "release": {
     "guideVersion": "1.18",
     "date": "2026-10-20",
-    "appCommit": "squad-card-guide-2026-10-20",
-    "deployment": "배포 후보 · 운영 확인 전",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
+    "appCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
+    "deployment": "Northflank web aromatic-desk-822; 2026-10-20 14:32:06 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
     "releaseLabel": "2026.10.20 핵심 사용 가이드",
     "previousProductionCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
     "lastVerifiedApiCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
@@ -35,26 +35,17 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "핵심 사용 가이드 축약과 경기 상세 스쿼드 카드 정리",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "guideVersion": "1.18",
-      "status": "pending_deployment",
-      "review": "회원7→3쪽·운영진21→6쪽으로 축약. 실제 메뉴·저장/완료·초안/실패·계정 보호는 유지, 세부 산식은 앱의 집계 기준 안내로 위임."
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.18",
       "date": "2026-10-20",
-      "appCommit": "squad-card-guide-2026-10-20",
-      "status": "pending_deployment",
+      "appCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
+      "status": "deployed",
       "changes": "회원3쪽·운영진6쪽 핵심 안내. 접속·조회·3단계 입력·골/도움/실점·완료·초안·팀 관리 중심으로 재구성.",
-      "validation": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더하고 모든 페이지를 개별 확인. 한글·제목·여백·페이지 번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 검사 통과. outputs PDF 사본 SHA256 일치. 실제 메뉴명과 MatchEditor/MatchPlanner/GoalEventsEditor/ScoringOrderEditor/SquadImageShare/가이드 컴포넌트를 대조. 앱 역할별 렌더와 운영 배포는 총괄 검증 대상."
+      "validation": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더하고 모든 페이지를 개별 확인. 한글·제목·여백·페이지 번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 검사 통과. outputs PDF 사본 SHA256 일치. 실제 메뉴명과 MatchEditor/MatchPlanner/GoalEventsEditor/ScoringOrderEditor/SquadImageShare/가이드 컴포넌트를 대조. 앱 역할별 렌더와 운영 배포는 총괄 검증 대상.",
+      "verifiedAtKst": "2026-10-20 14:32:06 KST",
+      "ci": "https://github.com/ksmlucky/jochook-on/actions/runs/39374377618"
     },
     {
       "guideVersion": "1.17",
@@ -392,8 +383,8 @@
     "memberPages": 3,
     "staffPages": 6,
     "pdfVisualReview": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더하고 모든 페이지를 개별 확인. 한글·제목·여백·페이지 번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 검사 통과. outputs PDF 사본 SHA256 일치.",
-    "appRoleScreenReview": "역할별 원고 메뉴 대조 완료. 앱 렌더·목차·PDF 연결 통합 검증 예정.",
-    "productionStatus": "pending_deployment",
+    "appRoleScreenReview": "가상 회원/운영진 역할별 목차·가이드1.18·마지막 항목·각 PDF 연결 확인.",
+    "productionStatus": "deployed",
     "diagramImpact": "정책/입력 동선은 유지. 안내서의 분량과 목차만 축약.",
     "contentChecks": [
       "로그인/팀 코드와 운영진 권한 구분",
@@ -402,7 +393,9 @@
       "조회와 수정 분리, 작성 중/미입력 안내",
       "저장 결과 확인·초안·충돌·로그아웃 보호",
       "코드 재발급 영향·로고 저장·계정 복구 핵심"
-    ]
+    ],
+    "productionAssets": "JS/CSS/PDF 4개 로컬 빌드와 SHA256 일치. 공개 HTTPS9개·인증 읽기14개 통과.",
+    "verifiedAtKst": "2026-10-20 14:32:06 KST"
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",
