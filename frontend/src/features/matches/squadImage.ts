@@ -80,12 +80,13 @@ export function buildSquadImage(input: SquadImageInput): { svg: string; filename
   return { svg, filename: `jochook-on-${date}-${input.quarter}Q${input.internal ? `-${team}` : ''}.png`, label }
 }
 
-export async function squadImagePng(svg: string): Promise<Blob> {
+export async function squadImagePng(svg: string, size = squadImageSize): Promise<Blob> {
+  if (!Number.isInteger(size.width) || !Number.isInteger(size.height) || size.width < 1 || size.height < 1 || size.width * size.height > 5_000_000) throw new Error('이미지 크기를 확인해 주세요.')
   const url = URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml;charset=utf-8' }))
   try {
     const image = new Image()
     await new Promise<void>((resolve, reject) => { image.onload = () => resolve(); image.onerror = () => reject(new Error('이미지를 만들지 못했어요. 다시 시도해 주세요.')); image.src = url })
-    const canvas = document.createElement('canvas'); canvas.width = squadImageSize.width; canvas.height = squadImageSize.height
+    const canvas = document.createElement('canvas'); canvas.width = size.width; canvas.height = size.height
     const context = canvas.getContext('2d')
     if (!context) throw new Error('이 브라우저에서 이미지를 만들 수 없어요.')
     context.drawImage(image, 0, 0)

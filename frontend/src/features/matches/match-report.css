@@ -54,3 +54,5 @@
 .report-substitutions li { display:flex; justify-content:space-between; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:12px; }
 .report-comments p { white-space:pre-wrap; overflow-wrap:anywhere; }
 @media(max-width:380px) { .compact-match-row { padding:8px; } .compact-match-versus { gap:6px; } .compact-match-team { font-size:12px; gap:4px; } .compact-match-result { font-size:16px; padding:6px; } .report-header { padding:12px; } .report-final-score { font-size:28px; } }
+.report-image-action { display: flex; justify-content: flex-end; margin-top: 12px; }
+.report-image-action button { min-height: 44px; }

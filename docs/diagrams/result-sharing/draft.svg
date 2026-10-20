@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="846" viewBox="0 0 1080 846" role="img" aria-label="2026-10-25 예시 FC — : — 상대 FC 경기 결과">
+    <rect width="1080" height="846" fill="#f4f7ef"/><g font-family="Arial, Malgun Gothic, Apple SD Gothic Neo, sans-serif">
+      <rect x="20" y="20" width="1040" height="540" rx="32" fill="#28624c"/>
+      <text x="62" y="75" text-anchor="start" font-size="25" fill="#e5efcf" font-weight="700">조축ON  /  MATCH RESULT</text>
+      <text x="62" y="128" text-anchor="start" font-size="38" fill="#ffffff" font-weight="800">경기 결과</text>
+      <text x="62" y="175" text-anchor="start" font-size="27" fill="#ffffff" font-weight="600">2026-10-25 · 09:00</text>
+      <text x="62" y="215" text-anchor="start" font-size="26" fill="#e5efcf" font-weight="600">리그</text>
+      <text x="235" y="345" text-anchor="middle" font-size="29" fill="#ffffff" font-weight="700">예시 FC</text><text x="845" y="345" text-anchor="middle" font-size="29" fill="#ffffff" font-weight="700">상대 FC</text>
+      <text x="540" y="353" text-anchor="middle" font-size="76" fill="#ffffff" font-weight="800">— : —</text>
+      <path d="M62 420H1018" stroke="#ffffff" stroke-opacity=".22"/>
+      <text x="540" y="472" text-anchor="middle" font-size="27" fill="#ffffff" font-weight="700">작성 중 · 기록이 바뀔 수 있어요</text>
+      <text x="540" y="518" text-anchor="middle" font-size="22" fill="#e5efcf" font-weight="500">— 스코어 미입력</text>
+      <rect x="40" y="590" width="1000" height="168" rx="24" fill="#ffffff" stroke="#dce5da"/><text x="68" y="626" text-anchor="start" font-size="25" fill="#28624c" font-weight="700">우리 팀 선수 기록</text><text x="68" y="668" text-anchor="start" font-size="22" fill="#526b5e" font-weight="700">득점</text><text x="572" y="668" text-anchor="start" font-size="22" fill="#526b5e" font-weight="700">도움</text><text x="68" y="718" text-anchor="start" font-size="24" fill="#526b5e" font-weight="500">득점 기록 없음</text><text x="572" y="718" text-anchor="start" font-size="24" fill="#526b5e" font-weight="500">도움 기록 없음</text><text x="540" y="806" text-anchor="middle" font-size="23" fill="#526b5e" font-weight="600">저장된 경기 기록 기준 · 조축ON</text>
+    </g></svg>

@@ -11,6 +11,7 @@ import { legacyQuarterTotals, reportScoreDifference, reportTimeline } from './re
 import { RecordingStatus } from './RecordingStatus'
 import { MatchCategoryBadge } from './MatchCategoryBadge'
 import { matchTimeRange } from './time'
+import { MatchResultImageShare } from './MatchResultImageShare'
 import './squad-overview.css'
 import './match-report.css'
 
@@ -43,6 +44,7 @@ export function MatchReport({ id, team, onClose, onEdit, onSessionExpired }: {
           <strong className="report-final-score">{record.scoreFor ?? '—'} : {record.scoreAgainst ?? '—'}</strong>
           <div><span className="report-opponent-badge" aria-hidden="true">{record.kind === 'INTERNAL' ? 'B' : (record.opponent || '?').slice(0, 1)}</span><strong>{record.kind === 'INTERNAL' ? 'B팀' : record.opponent || '상대 팀 미입력'}</strong></div></div>
         <p className="field-help">{matchTimeRange(record.kickoff, record.matchFormat)}{record.venue && ` · ${record.venue}`}{record.tournamentName && ` · ${record.tournamentName}`}</p>
+        <div className="report-image-action"><MatchResultImageShare record={record} teamName={team.name} /></div>
       </header>
       <section aria-labelledby="report-timeline-heading"><h3 id="report-timeline-heading">득실점 타임라인</h3>
         {reportScoreDifference(record) && <p className="save-notice">최종 스코어와 구간별 득실점 합계가 달라요. 일부 골의 순서가 빠져 있을 수 있어 중간 스코어는 표시하지 않아요.</p>}
