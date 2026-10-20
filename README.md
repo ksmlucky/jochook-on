@@ -1,5 +1,7 @@
 # 조축ON
 
+스쿼드 카드·핵심 가이드 배포 후보: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.
+
 운영 반영 2026-10-20 11:45 KST: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 웹·API b6f722a, 가이드 1.16, DB V34.
 
 운영 반영 2026-10-20 00:06:07 KST: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · 웹 8c62747 · 가이드 1.15. API1519c9d·DB V32 유지.
@@ -21,7 +23,7 @@
 
 최신 운영 반영: [골별 기록·모바일 입력](docs/goal-events-mobile-2026-10-19.md). 2026-10-19 17:51 KST · 웹·API `dd29444` / DB V31 / 가이드 1.9.
 
-**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 가이드 1.14을 따릅니다.
+**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 [최신 사용 가이드](docs/guides/index.html)를 따릅니다.
 
 이전 웹 운영 반영: [경기 중 대회 등록·형식 선택·작전판 자리 교환](docs/match-entry-and-tap-swap-2026-10-19.md). 2026-10-19 09:26 KST · 웹 `46ab4ce` / API `d8b2763` / DB V30 / 가이드1.7.
 
@@ -46,7 +48,7 @@
 - [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
 - [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
 
-[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 7쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 17쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.6을 기능과 함께 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 3쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 6쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.18을 배포 준비했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
 
 [시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
 

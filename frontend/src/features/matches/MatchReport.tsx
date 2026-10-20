@@ -83,6 +83,13 @@ function ReportPitch({ record, quarter, side, name, teamName }: { record: MatchR
       </div>
       <ul className="report-substitutions">{entries.filter(a => a.entryOrder === 1).map(sub => { const starter = entries.find(a => a.slot === sub.slot && a.entryOrder === 0); return <li key={sub.playerId}><span>{slotLabels[sub.slot]}</span><span>{starter ? name(starter.playerId) : '선발 미등록'} <span aria-label="교체 투입">→</span> <strong>{name(sub.playerId)}</strong></span></li> })}</ul>
       {!entries.some(a => a.entryOrder === 1) && <p className="field-help">교체 기록 없음</p>}
+      <details className="report-roster"><summary>선수 명단 · 전체 이름 보기</summary><ul>
+        {pitchRowsFor(formation).flat().map(slot => {
+          const starter = entries.find(a => a.slot === slot && a.entryOrder === 0)
+          const sub = entries.find(a => a.slot === slot && a.entryOrder === 1)
+          return <li key={slot}><strong>{slotLabels[slot]}</strong><span>{starter ? name(starter.playerId) : '미배치'}{sub && <small>교체 · {name(sub.playerId)}</small>}</span></li>
+        })}
+      </ul></details>
     </>}
   </div>
 }
