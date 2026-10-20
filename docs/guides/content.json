@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.16",
   "publishedOn": "2026.10.20",
-  "appCommit": "match-report-2026-10-20",
-  "scope": "pending_deployment",
+  "appCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -822,5 +822,5 @@
     }
   ],
   "releaseLabel": "2026.10.20 경기 조회·로고·득실점 순서",
-  "lastVerifiedProductionCommit": "8c62747e4cf478d2e1e5ac40d82fb31d82620590"
+  "lastVerifiedProductionCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
 }

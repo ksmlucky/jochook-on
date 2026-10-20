@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200" role="img" aria-labelledby="title desc"><title id="title">06 · 팀 로고와 현재 팀 접근</title><desc id="desc">V34 배포 준비. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.. V34 배포 준비 · 2026.10.20. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1200" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200" role="img" aria-labelledby="title desc"><title id="title">06 · 팀 로고와 현재 팀 접근</title><desc id="desc">V34 운영 반영. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.. V34 운영 반영 · 2026.10.20. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1200" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V34 배포 준비 · 2026.10.20</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V34 운영 반영 · 2026.10.20</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">06 · 팀 로고와 현재 팀 접근</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">V34 배포 준비. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">V34 운영 반영. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.</text>
 <rect x="60" y="230" width="660" height="350" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="263" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">teams</text>
 <text x="82" y="295" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">서비스 안의 축구팀</text>

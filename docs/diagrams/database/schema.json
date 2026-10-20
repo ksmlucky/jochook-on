@@ -1,5 +1,5 @@
 {
-  "basis": "V34 배포 준비 · 2026.10.20",
+  "basis": "V34 운영 반영 · 2026.10.20",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {

@@ -15,7 +15,7 @@ function panel(x, title, label) {
 }
 let body = box(0, 0, 1390, 1160, '#f4f7f1', 0, '#f4f7f1')
 body += text(44, 50, '조축ON · 경기 조회 흐름', 30, '#233d34', 800)
-body += text(44, 81, '2026-10-20 · 로컬 미배포 · 가상 화면 설계 예시', 16, '#567061')
+body += text(44, 81, '2026-10-20 · 운영 반영 b6f722a · 가상 화면 설계 예시', 16, '#567061')
 body += text(44, 111, '짧게 찾고 → 점수 흐름 확인 → 필요한 쿼터만 펼치기', 17, '#285b48', 600)
 body += panel(44, '경기 기록', '01 / COMPACT LIST')
 body += box(64, 248, 350, 42, '#f4f7f1') + text(80, 275, '전체 기간    ·    리그 + 대회', 14)
@@ -75,7 +75,7 @@ body += text(67, 1021, '목록: 날짜·팀·점수 중심  /  상세: 확인된
 body += text(67, 1052, '320/390px 모바일 · 키보드 펼치기 · 44px 터치 영역 · 긴 이름 · 미입력 · 로딩/실패 상태 검증', 16, '#567061')
 body += text(67, 1082, '팀 로고는 직접 등록한 이미지 또는 기본 배지 · 이 그림은 설계용이며 운영 앱 캡처가 아님', 15, '#567061')
 
-const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1390" height="1160" viewBox="0 0 1390 1160" role="img" aria-labelledby="title desc"><title id="title">조축ON 경기 목록에서 결과와 쿼터별 스쿼드로 이어지는 흐름</title><desc id="desc">가상 팀을 이용한 개발 중 화면 설계. 목록, 득실점 흐름, 첫 쿼터만 펼친 작전판. 실제 운영 데이터가 아니다.</desc><g font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif">${body}</g></svg>`
+const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1390" height="1160" viewBox="0 0 1390 1160" role="img" aria-labelledby="title desc"><title id="title">조축ON 경기 목록에서 결과와 쿼터별 스쿼드로 이어지는 흐름</title><desc id="desc">가상 팀을 이용한 기능 흐름 예시. 목록, 득실점 흐름, 첫 쿼터만 펼친 작전판. 실제 운영 데이터가 아니다.</desc><g font-family="Malgun Gothic,Apple SD Gothic Neo,sans-serif">${body}</g></svg>`
 await fs.mkdir(out, { recursive: true })
 await fs.writeFile(`${out}/flow.svg`, svg)
 // Set JOCHOOK_SHARP_MODULE to the bundled Sharp directory when it is not installed locally.
@@ -86,5 +86,5 @@ try {
   if (error.code !== 'MODULE_NOT_FOUND') throw error
   console.log('PNG renderer unavailable; set JOCHOOK_SHARP_MODULE and rerun to refresh flow.png.')
 }
-await fs.writeFile(`${out}/index.html`, `<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON 경기 조회 흐름</title><style>body{margin:24px;background:#f4f7f1;color:#233d34;font-family:system-ui,sans-serif;line-height:1.65}main{max-width:1390px;margin:auto}img{width:100%;height:auto}p{max-width:900px}.state{background:#e9f1e6;padding:12px 18px;border-radius:12px}a{color:#28634e}</style><main><h1>경기 목록 → 결과 → 쿼터별 스쿼드</h1><p class="state">2026-10-20 · 로컬 미배포 · 모두 가상 팀과 선수. 개발 중인 화면 설계 예시이며 운영 화면 캡처가 아닙니다.</p><p>목록에서는 날짜와 점수를 빠르게 확인합니다. 상세에서 확인된 득실점 순서를 보고, 첫 구간이 열린 스쿼드에서 필요한 쿼터만 추가로 펼칩니다. 기존 합계 기록의 득실점 순서는 추측하지 않습니다.</p><a href="flow.svg">원본 SVG 크게 보기</a><figure style="margin:20px 0"><img src="flow.svg" alt="컴팩트 경기 목록, 득실점 타임라인, 1쿼터만 열린 스쿼드의 세 단계 가상 화면"><figcaption>팀 로고는 등록 이미지 또는 기본 배지를 사용합니다. 다른 서비스의 로고와 선수 사진을 사용하지 않았습니다.</figcaption></figure><p><a href="../../match-report-ux-2026-10-20.md">기능 명세·검증 기준</a> · <a href="../../agents/ux-expert.md">UX 전문가 역할 정의</a></p></main></html>`)
+await fs.writeFile(`${out}/index.html`, `<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>조축ON 경기 조회 흐름</title><style>body{margin:24px;background:#f4f7f1;color:#233d34;font-family:system-ui,sans-serif;line-height:1.65}main{max-width:1390px;margin:auto}img{width:100%;height:auto}p{max-width:900px}.state{background:#e9f1e6;padding:12px 18px;border-radius:12px}a{color:#28634e}</style><main><h1>경기 목록 → 결과 → 쿼터별 스쿼드</h1><p class="state">2026-10-20 · 운영 반영 b6f722a · 모두 가상 팀과 선수. 운영 기능의 화면 흐름 예시이며 실제 운영 화면 캡처가 아닙니다.</p><p>목록에서는 날짜와 점수를 빠르게 확인합니다. 상세에서 확인된 득실점 순서를 보고, 첫 구간이 열린 스쿼드에서 필요한 쿼터만 추가로 펼칩니다. 기존 합계 기록의 득실점 순서는 추측하지 않습니다.</p><a href="flow.svg">원본 SVG 크게 보기</a><figure style="margin:20px 0"><img src="flow.svg" alt="컴팩트 경기 목록, 득실점 타임라인, 1쿼터만 열린 스쿼드의 세 단계 가상 화면"><figcaption>팀 로고는 등록 이미지 또는 기본 배지를 사용합니다. 다른 서비스의 로고와 선수 사진을 사용하지 않았습니다.</figcaption></figure><p><a href="../../match-report-ux-2026-10-20.md">기능 명세·검증 기준</a> · <a href="../../agents/ux-expert.md">UX 전문가 역할 정의</a></p></main></html>`)
 console.log('Generated fictional match-report storyboard: SVG and HTML.')

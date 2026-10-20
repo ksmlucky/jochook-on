@@ -1,6 +1,6 @@
 # 조축ON
 
-배포 준비: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 가이드 1.16 후보, DB V33·V34.
+운영 반영 2026-10-20 11:45 KST: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 웹·API b6f722a, 가이드 1.16, DB V34.
 
 운영 반영 2026-10-20 00:06:07 KST: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · 웹 8c62747 · 가이드 1.15. API1519c9d·DB V32 유지.
 

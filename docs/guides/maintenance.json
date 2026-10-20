@@ -5,13 +5,13 @@
   "release": {
     "guideVersion": "1.16",
     "date": "2026-10-20",
-    "appCommit": "match-report-2026-10-20",
-    "deployment": "pending deployment",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "8c62747e4cf478d2e1e5ac40d82fb31d82620590",
+    "appCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
+    "deployment": "Northflank API regal-mailbox-3572, web innate-yam-3737; verified 2026-10-20 11:45 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
     "releaseLabel": "2026.10.20 경기 조회·로고·득실점 순서",
     "previousProductionCommit": "8c62747e4cf478d2e1e5ac40d82fb31d82620590",
-    "lastVerifiedApiCommit": "1519c9dbe84d735943ccae7ba73188268ec6ba92"
+    "lastVerifiedApiCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
   },
   "artifacts": [
     "jochook-on-member-guide.html",
@@ -35,25 +35,18 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "match-report-ux",
-      "status": "release_candidate",
-      "guideVersion": "1.16",
-      "reference": "../match-report-ux-2026-10-20.md",
-      "member": "컴팩트 목록·읽기 전용 결과·타임라인·첫 구간만 펼친 스쿼드",
-      "staff": "회원 조회 변경 + 득실점 순서 확인·재정렬 + 감독 팀 로고 관리",
-      "validation": "회원7쪽·운영진21쪽 전체 PDF PNG 렌더·5개 연락판 및 새12/18쪽 확대 검토. 생성 overflow/글꼴검사 통과, outputs 사본 해시 일치. 원고의 조회·로고·순서 버튼명을 현재 React 소스와 대조. 실제 모바일 앱/운영 검증은 총괄 진행 중."
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.16",
       "date": "2026-10-20",
-      "appCommit": "match-report-2026-10-20",
-      "status": "release_candidate",
+      "appCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
+      "status": "deployed",
       "changes": "회원/운영진 경기 목록·결과·타임라인·쿼터 스쿼드 안내, 운영진 득실점 순서 확인과 감독 팀 로고 관리 추가.",
-      "validation": "회원7쪽·운영진21쪽 전체 PDF PNG 렌더·5개 연락판 및 새12/18쪽 확대 검토. 생성 overflow/글꼴검사 통과, outputs 사본 해시 일치. 원고의 조회·로고·순서 버튼명을 현재 React 소스와 대조. 실제 모바일 앱/운영 검증은 총괄 진행 중."
+      "validation": "회원7쪽·운영진21쪽 전체 PDF PNG 렌더·5개 연락판 및 새12/18쪽 확대 검토. 생성 overflow/글꼴검사 통과, outputs 사본 해시 일치. 원고의 조회·로고·순서 버튼명을 현재 React 소스와 대조. 운영 확인: CI 백엔드 단위/API 513개·MySQL 통합 165개·프론트 312개 통과. 공개 HTTPS 9개·운영 점검 14개 통과, JS/CSS/역할별 PDF 2개 바이트 일치. DB V34 적용 및 기존 업무 테이블 18개의 데이터 보존 확인.",
+      "verifiedAtKst": "2026-10-20 11:45 KST",
+      "ci": "https://github.com/ksmlucky/jochook-on/actions/runs/39359188327",
+      "releaseNote": "첫 CI에서 발견한 Hibernate 컬렉션 영속화 오류는 JSON 문자열 저장 경계로 수정한 뒤 재검증 통과. DB/API 계약 변경 없음."
     },
     {
       "guideVersion": "1.15",
@@ -371,10 +364,11 @@
     "memberPages": 7,
     "staffPages": 21,
     "pdfVisualReview": "28쪽 전체 PNG 렌더 및 연락판 확인, 신규 순서/로고 페이지 확대 확인. 잘림/겹침 없음.",
-    "appRoleScreenReview": "실제 UI 코드 버튼명 대조. 브라우저 역할별 화면 검증은 총괄 진행 중.",
-    "productionStatus": "pending_deployment",
-    "productionAssets": "미검증",
-    "metadataNote": "배포 후보 식별자 match-report-2026-10-20. 실제 배포 후 운영 커밋/상태 확정 필요."
+    "appRoleScreenReview": "가상320/390px 회원·운영진 가이드 목차/PDF 확인; UI 버튼명 대조 완료.",
+    "productionStatus": "deployed",
+    "productionAssets": "CI 백엔드 단위/API 513개·MySQL 통합 165개·프론트 312개 통과. 공개 HTTPS 9개·운영 점검 14개 통과, JS/CSS/역할별 PDF 2개 바이트 일치. DB V34 적용 및 기존 업무 테이블 18개의 데이터 보존 확인.",
+    "metadataNote": "운영 확인 후 비표시 scope/appCommit만 확정. 가이드 본문·HTML·PDF는 배포 빌드와 동일.",
+    "verifiedAtKst": "2026-10-20 11:45 KST"
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",
