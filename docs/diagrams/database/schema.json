@@ -1,5 +1,5 @@
 {
-  "basis": "V32 운영 반영 · 2026.10.19",
+  "basis": "V34 배포 준비 · 2026.10.20",
   "scope": "Important columns, physical FK constraints and selected logical references; not row data.",
   "tables": [
     {
@@ -30,6 +30,32 @@
       ],
       "notes": [
         "모든 팀별 업무 자료의 기준점"
+      ]
+    },
+    {
+      "name": "team_logos",
+      "title": "현재 팀의 로고 이미지",
+      "domain": "core",
+      "fields": [
+        [
+          "PK·FK",
+          "team_id",
+          "teams.id · 팀당 최대 한 행"
+        ],
+        [
+          "",
+          "png_data",
+          "MEDIUMBLOB · 256×256 PNG"
+        ],
+        [
+          "",
+          "updated_at",
+          "TIMESTAMP(6) · 마지막 저장 시각"
+        ]
+      ],
+      "notes": [
+        "팀 삭제 시 CASCADE · 원본 파일은 저장하지 않음",
+        "인증된 현재 팀만 조회 · 감독만 변경"
       ]
     },
     {
@@ -254,12 +280,18 @@
           "",
           "goals_against",
           "INT NULL · 외부 경기 구간 실점 · V32"
+        ],
+        [
+          "",
+          "scoring_order",
+          "TEXT NULL · JSON 배열 CHECK · V33"
         ]
       ],
       "notes": [
         "PK (match_id, quarter_number)",
         "NULL 미입력 / 0 무실점 · 구간 길이 컬럼 없음",
-        "자체전 실점은 반대 팀 득점으로 계산"
+        "자체전 실점은 반대 팀 득점으로 계산",
+        "순서 NULL=미기록 · 0 이상=골 인덱스 · -1=실점"
       ]
     },
     {
@@ -809,6 +841,14 @@
   ],
   "foreignKeys": [
     {
+      "name": "fk_team_logos_team",
+      "parent": "teams",
+      "child": "team_logos",
+      "column": "team_id",
+      "parentOptional": false,
+      "childUnique": true
+    },
+    {
       "name": "fk_goal_event_match",
       "parent": "match_records",
       "child": "match_goal_events",
@@ -1116,6 +1156,9 @@
     "V28__add_match_format.sql",
     "V29__account_credential_version.sql",
     "V30__account_password_resets.sql",
-    "V31__linked_goal_assist_events.sql"
+    "V31__linked_goal_assist_events.sql",
+    "V32__quarter_goals_against.sql",
+    "V33__match_scoring_order.sql",
+    "V34__team_logos.sql"
   ]
 }

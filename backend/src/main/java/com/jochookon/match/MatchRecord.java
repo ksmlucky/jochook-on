@@ -51,7 +51,7 @@ public class MatchRecord {
     }
     void replace(MatchRequest request) {
         request = request.resolveQuarterConceded(quarters).resolveMatchFormat(matchFormat).resolveFormations(formationA, formationB).resolveGoalTypes(appearances).resolvePlannedTeams(participants)
-                .resolveGoalEvents(quarters, goalEvents);
+                .resolveGoalEvents(quarters, goalEvents).resolveScoringOrder(quarters, goalEvents);
         validateRules(request);
         if (getMatchFormat() == MatchFormat.FOUR_QUARTERS && request.matchFormat() == MatchFormat.TWO_HALVES_30
                 && (appearances.stream().anyMatch(a -> a.getQuarterNumber() > 2)
@@ -106,6 +106,7 @@ public class MatchRecord {
         }
         Set<Integer> quarters = new HashSet<>();
         for (var q : request.quarters()) {
+            MatchScoringOrder.validate(q, request.kind());
             if (q.goalsAgainst() != null && (q.goalsAgainst() < 0 || q.goalsAgainst() > 99))
                 throw new IllegalArgumentException("쿼터 실점은 0~99 사이로 입력해 주세요.");
             if (request.kind() == MatchKind.INTERNAL && q.goalsAgainst() != null)

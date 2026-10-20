@@ -1,35 +1,31 @@
 import { useEffect, useRef, useState } from 'react'
 import { FadeToast } from '../../app/FadeToast'
-import { MatchQuarterDetails } from './MatchQuarterDetails'
+import { CompactMatchRow } from './CompactMatchRow'
+import { MatchReport } from './MatchReport'
 import { SessionExpiredError } from '../auth/api'
 import type { Player } from '../players/api'
-import { deleteMatch, fetchMatch, fetchMatches, fetchMatchPlayers, fetchMatchYears, MatchRequestError, playerLabel } from './api'
+import { deleteMatch, fetchMatch, fetchMatches, fetchMatchPlayers, fetchMatchYears, MatchRequestError } from './api'
 import { matchTimeRange } from './time'
-import { matchFormatLabel, matchPeriodSummary } from './matchFormat'
+import { matchPeriodSummary } from './matchFormat'
 import type { MatchPage, MatchRecord, MatchSummary } from './api'
 import { MatchEditor } from './MatchEditor'
 import { MatchHistory } from './MatchHistory'
-import { RecordingStatus } from './RecordingStatus'
 import { recordingStageLabel } from './recordingProgress'
 import { ConfirmAction } from '../teams/AccessUi'
 import { useEditGuard } from '../../app/LeaveGuard'
 import type { TeamDisplay } from '../../app/team'
-import { formationLabel } from './formations'
 import { clearMatchRecovery, loadMatchRecovery } from './draftRecovery'
 import type { DraftOwner, RecoverySnapshot } from './draftRecovery'
 import { DraftRetentionHelp } from './DraftRetentionHelp'
 import './match-recovery.css'
 import { CompetitionFilter } from '../tournaments/CompetitionFilter'
 import type { CompetitionSelection } from '../tournaments/competitionScope'
-import { tournamentStageLabels } from './tournamentFields'
-import { MatchCategoryBadge } from './MatchCategoryBadge'
-import { competitionCategory } from './competitionCategory'
 import { MonthRangeFilter } from '../../app/MonthRangeFilter'
 import { YearOptionsStatus } from '../../app/YearOptionsStatus'
 import { useAvailableYears } from '../../app/useAvailableYears'
 import type { MonthRangeSelection } from '../../app/yearMonth'
 
-export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, initialTournamentId = null, initialOpen }: { team: TeamDisplay; isAdmin: boolean; recoveryOwner: DraftOwner | null; onSessionExpired: () => void; initialTournamentId?: number | null; initialOpen?: number | 'new' }) {
+export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, initialTournamentId = null, initialOpen, initialEdit = false }: { team: TeamDisplay; isAdmin: boolean; recoveryOwner: DraftOwner | null; onSessionExpired: () => void; initialTournamentId?: number | null; initialOpen?: number | 'new'; initialEdit?: boolean }) {
   const [competition, setCompetition] = useState<CompetitionSelection>(() => ({ competitionScope: initialTournamentId == null ? 'ALL' : 'TOURNAMENT', tournamentId: initialTournamentId }))
   const { tournamentId, competitionScope } = competition
   const [page, setPage] = useState(0)
@@ -42,6 +38,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
   const [deleting, setDeleting] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<MatchSummary | null>(null)
   const [deleteError, setDeleteError] = useState('')
+  const [viewing, setViewing] = useState<number | null>(null)
   const [history, setHistory] = useState(false)
   const [notice, setNotice] = useState<{ id: number; message: string } | null>(null)
   const noticeId = useRef(0)
@@ -61,10 +58,12 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     // Deferred to the committed mount, so StrictMode's cancelled mount cannot open twice.
     const timer = window.setTimeout(() => {
       if (recovery) setError('보관 중인 초안이 있어요. 먼저 아래에서 이어서 작성하거나 초안을 버린 뒤 경기를 열어 주세요.')
-      else void open(initialOpen === 'new' ? undefined : initialOpen)
+      else if (initialOpen === 'new') void open()
+      else if (initialEdit && isAdmin) void open(initialOpen)
+      else setViewing(initialOpen)
     }, 0)
     return () => window.clearTimeout(timer)
-  }, [initialOpen])
+  }, [initialOpen, initialEdit])
   useEffect(() => { if (!isAdmin) { setDeleteTarget(null); setHistory(false) } }, [isAdmin])
   useEffect(() => {
     setRecovery(isAdmin && recoveryOwner ? loadMatchRecovery(recoveryOwner) : null)
@@ -100,7 +99,7 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     try {
       const [record, players] = await Promise.all([id ? fetchMatch(id, signal) : Promise.resolve(null), isAdmin ? fetchMatchPlayers(signal) : Promise.resolve([])])
       if (signal.aborted) return
-      setEditor({ record, players })
+      setViewing(null); setEditor({ record, players })
     } catch (cause) {
       if (signal.aborted) return
       if (cause instanceof SessionExpiredError) onSessionExpired()
@@ -160,18 +159,18 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
   const locked = busy || deleting || !!deleteTarget || !!recovery && !editor
   return <section className="directory-section" id="matches" aria-labelledby="matches-title">
     <div className="section-heading"><div><p className="eyebrow muted">MATCH DAY</p><h2 id="matches-title">경기 기록</h2></div>
-      {!editor && !history && isAdmin && <div className="registration-actions"><button className="secondary-button" disabled={locked} onClick={() => setHistory(true)}>변경 이력</button><button className="primary-button" disabled={locked} onClick={() => void open()}>경기 기록 등록</button></div>}
+      {!editor && !history && viewing === null && isAdmin && <div className="registration-actions"><button className="secondary-button" disabled={locked} onClick={() => setHistory(true)}>변경 이력</button><button className="primary-button" disabled={locked} onClick={() => void open()}>경기 기록 등록</button></div>}
     </div>
     <p className="section-description">참석 명단부터 스쿼드, 스코어까지. 한 경기씩 쌓아가요.</p>
-    {!editor && !history && <div className="list-period-filter">
+    {!editor && !history && viewing === null && <div className="list-period-filter">
       <MonthRangeFilter value={period} years={availableYears.years} disabled={busy || deleting}
         onChange={value => { setPeriod(value); setPage(0) }} />
       <YearOptionsStatus loading={availableYears.loading} error={availableYears.error} onRetry={availableYears.retry} />
     </div>}
-    {!editor && !history && <div className="match-competition-filter"><CompetitionFilter scope={competitionScope} tournamentId={tournamentId} tournamentName={competition.tournamentName}
+    {!editor && !history && viewing === null && <div className="match-competition-filter"><CompetitionFilter scope={competitionScope} tournamentId={tournamentId} tournamentName={competition.tournamentName}
       onChange={value => { setCompetition(value); setPage(0) }} disabled={busy || deleting} onSessionExpired={onSessionExpired} />
       {isAdmin && <a className="secondary-button competition-manage-link" href="#tournaments">대회 등록·관리</a>}</div>}
-    {!editor && !history && isAdmin && recovery && <div className="match-recovery-notice" role="region" aria-labelledby="match-recovery-title">
+    {!editor && !history && viewing === null && isAdmin && recovery && <div className="match-recovery-notice" role="region" aria-labelledby="match-recovery-title">
       <div className="match-recovery-heading"><h3 id="match-recovery-title">작성 중인 경기</h3><span className="match-recovery-badge">{recovery.pending ? '저장 확인 필요' : '미저장 초안'}</span></div>
       <p className="match-recovery-match">{recovery.draft.kind === 'INTERNAL' ? '자체전 · A팀 vs B팀' : recovery.draft.opponent || '상대 팀 미입력'}</p>
       <p className="match-recovery-meta"><span>{recovery.draft.playedOn || '날짜 미입력'}</span><span>{['01 참석 명단', '02 스쿼드·기록', '02 스쿼드·기록', '03 결과·코멘트'][recovery.step]}</span></p>
@@ -187,25 +186,12 @@ export function MatchSection({ team, isAdmin, recoveryOwner, onSessionExpired, i
     {busy && <p className="save-notice" role="status">경기 입력 화면을 준비하고 있습니다.</p>}
     {history && isAdmin ? <MatchHistory onClose={() => { setHistory(false); setRevision(value => value + 1) }} onSessionExpired={onSessionExpired} /> : editor ? <MatchEditor key={editor.record?.id ?? 'new'} record={editor.record} players={editor.players} isAdmin={isAdmin} recoveryOwner={recoveryOwner} recovered={editor.recovered} recoveryConflict={editor.recoveryConflict}
       teamName={team.name} initialTournamentId={tournamentId} onSessionExpired={onSessionExpired} onClose={closeEditor} onStepSaved={notifySaved}
-      onSaved={saved => { closeEditor(); setPage(0); notifySaved(`${saved.playedOn} · ${recordingStageLabel(saved.recordingStage)} 상태로 저장했습니다.`) }} /> : <>
+      onSaved={saved => { closeEditor(); setPage(0); notifySaved(`${saved.playedOn} · ${recordingStageLabel(saved.recordingStage)} 상태로 저장했습니다.`) }} /> : viewing !== null ? <MatchReport key={viewing} id={viewing} team={team} onClose={() => setViewing(null)} onEdit={isAdmin && !locked ? () => void open(viewing) : undefined} onSessionExpired={onSessionExpired} /> : <>
       {!data && !error && <p className="save-notice" role="status">경기 목록을 불러오고 있습니다.</p>}
       {data?.items.length === 0 && <div className="empty-state"><span className="empty-number" aria-hidden="true">4Q</span><h3>{period.startMonth !== null ? '선택한 기간과 조건의 경기가 없어요' : tournamentId ? '이 대회에 연결된 경기가 없어요' : competitionScope === 'LEAGUE' ? '리그 경기 기록이 없어요' : competitionScope === 'TOURNAMENT' ? '대회에 연결된 경기 기록이 없어요' : '첫 경기의 기록을 남겨 보세요'}</h3><p>{period.startMonth !== null ? '기간 또는 경기 구분을 바꿔 다른 기록을 확인해 보세요.' : tournamentId || competitionScope === 'TOURNAMENT' ? '경기 기록에서 등록한 대회를 선택하면 이곳에 모여요.' : '투표 결과만 먼저 저장하고, 경기 후 출석과 기록을 이어서 입력할 수 있습니다.'}</p></div>}
-      {!!data?.items.length && <ul className="match-list">{data.items.map(m => <li key={m.id} className={isAdmin ? 'match-list-item managed' : 'match-list-item'} data-category={competitionCategory(m).key}>
-        <button className="match-card" disabled={locked} onClick={() => void open(m.id)}>
-          <span className="match-date"><MatchCategoryBadge match={m} /><span>{m.playedOn}</span><small>{matchTimeRange(m.kickoff, m.matchFormat)}</small></span>
-          <span className="match-title-row"><strong>{m.kind === 'INTERNAL' ? <>자체전 · A팀 <span className="muted-vs">vs</span> B팀</> : <>{team.name} <span className="muted-vs">vs</span> {m.opponent || '상대 팀 미입력'}</>}</strong><RecordingStatus stage={m.recordingStage} compact /></span><span className="match-card-details"><small>{m.venue || '장소 미입력'} · {m.kind === 'INTERNAL' ? `A ${formationLabel(m.formationA)} / B ${formationLabel(m.formationB)}` : formationLabel(m.formationA)} · {matchFormatLabel(m.matchFormat)}</small>
-            {m.tournamentId != null && <span className="match-tournament-title">{m.tournamentName || '연결된 대회'}{m.tournamentStage && ` · ${tournamentStageLabels[m.tournamentStage]}`}</span>}
-            <span className="match-scorers">{m.scorers.length ? <>득점 · {m.scorers.map(p => `${playerLabel(p)} ${m.kind === 'INTERNAL' ? [p.goalsA > 0 ? `A팀 ${p.goalsA}골` : '', p.goalsB > 0 ? `B팀 ${p.goalsB}골` : ''].filter(Boolean).join(' / ') : `${p.goals}골`}`).join(' · ')}{m.scorerCount > 3 && ` · 외 ${m.scorerCount - 3}명`}</> : '등록된 득점자 없음'}</span>
-          </span>
-          <span className={`match-score${m.scoreFor === null ? ' unrecorded' : ''}`} aria-label={m.scoreFor === null ? '스코어 미입력' : `${m.kind === 'INTERNAL' ? 'A팀' : '우리 팀'} ${m.scoreFor} 대 ${m.kind === 'INTERNAL' ? 'B팀' : '상대 팀'} ${m.scoreAgainst}`}>
-            {m.scoreFor === null ? '스코어 미입력' : `${m.scoreFor} : ${m.scoreAgainst}`}<small>{m.kind === 'INTERNAL' ? 'A팀 : B팀' : '우리 팀 : 상대 팀'}</small>
-          </span>
-        </button>
-        <MatchQuarterDetails key={`${m.id}-${m.version}`} id={m.id} disabled={locked} onSessionExpired={onSessionExpired}
-          actions={<button type="button" disabled={locked} onClick={() => void open(m.id)}>{isAdmin && m.recordingStage && m.recordingStage !== 'COMPLETED' ? '이어서 작성 ↗' : '기록 보기 ↗'}</button>} />
-        {isAdmin && <div className="match-card-actions"><button type="button" className="danger-button" disabled={locked}
-          aria-label={`${m.playedOn} ${m.kind === 'INTERNAL' ? '자체전' : m.opponent || '상대 팀 미입력'} 경기 기록 삭제`}
-          onClick={() => { setDeleteError(''); setDeleteTarget(m) }}>삭제</button></div>}
+      {!!data?.items.length && <ul className="compact-match-list">{data.items.map(m => <li key={m.id}>
+        <CompactMatchRow match={m} teamId={team.id} teamName={team.name} disabled={busy || deleting} onOpen={() => setViewing(m.id)} />
+        {isAdmin && <div className="compact-match-admin"><button type="button" className="access-text-button" disabled={locked} onClick={() => void open(m.id)}>수정</button><button type="button" className="access-text-button" disabled={locked} aria-label={m.playedOn + ' 경기 기록 삭제'} onClick={() => { setDeleteError(''); setDeleteTarget(m) }}>삭제</button></div>}
       </li>)}</ul>}
       {data && data.totalPages > 1 && <div className="pagination"><button className="secondary-button" disabled={page === 0 || locked} onClick={() => setPage(p => p - 1)}>이전 경기 목록</button>
         <span>{page + 1} / {data.totalPages} · 총 {data.totalElements}경기 · 10개씩</span><button className="secondary-button" disabled={page + 1 >= data.totalPages || locked} onClick={() => setPage(p => p + 1)}>다음 경기 목록</button></div>}

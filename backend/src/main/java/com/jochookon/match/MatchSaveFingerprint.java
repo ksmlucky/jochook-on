@@ -23,7 +23,7 @@ final class MatchSaveFingerprint {
                 request.opponent().strip(), request.notes().strip(), request.version(),
                 request.participants().stream().sorted(Comparator.comparing(MatchRequest.Participant::playerId)
                         .thenComparing(MatchRequest.Participant::vote).thenComparing(MatchRequest.Participant::attendance)).toList(),
-                request.quarters().stream().map(q -> new MatchRequest.Quarter(q.number(), q.lineup().stream().sorted(appearances).toList(), q.goalEvents(), q.goalsAgainst(), q.goalsAgainstSpecified()))
+                request.quarters().stream().map(q -> new MatchRequest.Quarter(q.number(), q.lineup().stream().sorted(appearances).toList(), q.goalEvents(), q.goalsAgainst(), q.goalsAgainstSpecified(), q.scoringOrder(), q.scoringOrderSpecified()))
                         .sorted(Comparator.comparingInt(MatchRequest.Quarter::number)).toList(),
                 request.plannedLineup().stream().sorted(plans).toList(), request.scoreFor(), request.scoreAgainst(),
                 request.kind(), request.recordingStage(), request.formationA(), request.formationB());
@@ -38,6 +38,10 @@ final class MatchSaveFingerprint {
         }
         for (var quarter : body.get("quarters")) {
             var entry = (tools.jackson.databind.node.ObjectNode) quarter;
+            boolean orderSpecified = entry.get("scoringOrderSpecified").asBoolean(false) || !entry.get("scoringOrder").isNull();
+            entry.remove("scoringOrderSpecified");
+            if (!orderSpecified) entry.remove("scoringOrder");
+            else entry.put("scoringOrderSpecified", true);
             if (entry.get("goalEvents").isNull()) entry.remove("goalEvents");
             if (entry.get("goalsAgainst").isNull()) entry.remove("goalsAgainst");
             if (entry.get("goalsAgainstSpecified").isNull()) entry.remove("goalsAgainstSpecified");

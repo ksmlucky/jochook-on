@@ -1,3 +1,4 @@
+import { TeamLogoManager } from './features/teams/TeamLogoManager'
 import { useEffect, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { SquadSection } from './features/players/SquadSection'
@@ -58,7 +59,7 @@ export function App() {
   const [page, setPage] = useState<Page>(() => ['#players', '#matches', '#stats', '#tournaments', '#guide'].includes(window.location.hash) ? 'workspace' : 'home')
   const [section, setSection] = useState<WorkspaceSection>(window.location.hash === '#tournaments' ? 'tournaments' : window.location.hash === '#guide' ? 'guide' : window.location.hash === '#stats' ? 'stats' : window.location.hash === '#matches' ? 'matches' : 'players')
   const [tournamentLink, setTournamentLink] = useState<{ identity: string; id: number } | null>(null)
-  const [matchLaunch, setMatchLaunch] = useState<{ identity: string; id: number | 'new'; key: number } | null>(null)
+  const [matchLaunch, setMatchLaunch] = useState<{ identity: string; id: number | 'new'; edit?: boolean; key: number } | null>(null)
   const launchSequence = useRef(0)
   const managementMenu = useRef<HTMLDetailsElement>(null)
   const [inviteToken, setInviteToken] = useState(invitationAtLoad)
@@ -71,6 +72,7 @@ export function App() {
   const homePage = user ? user.team ? 'dashboard' : user.serviceAdmin ? 'service' : 'teams' : 'code'
   const requestedPage = page === 'home' || (page === 'workspace' && !user?.team) ? homePage : page
   const isAdmin = canEditTeam(user)
+  const [showLogo, setShowLogo] = useState(false)
   const isDirector = canManageCoaches(user)
   const activePage = requestedPage === 'coach-management' && !isDirector || requestedPage === 'code-management' && !isAdmin
     || ['service', 'account-recovery'].includes(requestedPage) && !user?.serviceAdmin || requestedPage === 'password' && user?.authType !== 'ACCOUNT' ? homePage : requestedPage
@@ -149,9 +151,9 @@ export function App() {
     if (window.location.hash !== '#matches') window.history.pushState(null, '', '#matches')
     requestAnimationFrame(() => { document.getElementById('app-content')?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }) })
   }
-  async function openHomeMatch(id: number | 'new') {
+  async function openHomeMatch(id: number | 'new', edit = false) {
     if (!team || auth.accessIssue || (id === 'new' && !isAdmin) || !await guard.confirmLeave()) return
-    setTournamentLink(null); setMatchLaunch({ identity, id, key: ++launchSequence.current })
+    setTournamentLink(null); setMatchLaunch({ identity, id, edit, key: ++launchSequence.current })
     setPage('workspace'); setSection('matches'); closeManagement()
     window.history.pushState(null, '', '#matches')
     requestAnimationFrame(() => { document.getElementById('app-content')?.focus({ preventScroll: true }); window.scrollTo({ top: 0, behavior: 'instant' }) })
@@ -196,6 +198,7 @@ export function App() {
               {user.serviceAdmin && <button className={`secondary-button${activePage === 'service' ? ' selected' : ''}`} onClick={() => void navigate('service')}>서비스 팀 관리</button>}
               {user.serviceAdmin && <button className={`secondary-button${activePage === 'account-recovery' ? ' selected' : ''}`} onClick={() => void navigate('account-recovery')}>운영진 계정 복구</button>}
               {team && isAdmin && <button className={`secondary-button${activePage === 'code-management' ? ' selected' : ''}`} onClick={() => void navigate('code-management')}>팀 접속 코드 관리</button>}
+              {team && isDirector && <button className="secondary-button" onClick={() => { closeManagement(); setShowLogo(value => !value) }}>팀 로고</button>}
               {team && isDirector && <button className={`secondary-button${activePage === 'coach-management' ? ' selected' : ''}`} onClick={() => void navigate('coach-management')}>코치 관리</button>}
               <button className="access-text-button" onClick={() => void codeAccess()}>{user.authType === 'ACCOUNT' ? '회원 코드로 접속' : '다른 팀 들어가기'}</button>
             </div></details>}
@@ -204,11 +207,12 @@ export function App() {
             {user && activePage === 'service' && user.serviceAdmin && <ServiceTeams key={`service:${identity}`} onSessionExpired={auth.expired} onMembershipChanged={auth.refresh} />}
             {user?.serviceAdmin && activePage === 'account-recovery' && <AccountRecoveryManager key={`recovery:${identity}`} onSessionExpired={auth.expired} />}
             {user?.authType === 'ACCOUNT' && activePage === 'password' && <PasswordChangeForm onChanged={passwordChanged} onSessionExpired={auth.expired} onCancel={() => void navigate('home')} />}
-            {user && team && activePage === 'dashboard' && <HomeSection key={`home:${identity}`} teamName={team.name} isAdmin={isAdmin} onOpenMatch={id => void openHomeMatch(id)} onCreateMatch={() => void openHomeMatch('new')} onOpenStats={() => void showSection(null, 'stats')} onOpenPlayers={() => void showSection(null, 'players')} onSessionExpired={auth.expired} />}
+            {user && team && isDirector && showLogo && <TeamLogoManager key={`logo:${identity}`} teamId={team.id} teamName={team.name} />}
+            {user && team && activePage === 'dashboard' && <HomeSection key={`home:${identity}`} teamId={team.id} teamName={team.name} isAdmin={isAdmin} onOpenMatch={(id, edit) => void openHomeMatch(id, edit)} onCreateMatch={() => void openHomeMatch('new')} onOpenStats={() => void showSection(null, 'stats')} onOpenPlayers={() => void showSection(null, 'players')} onSessionExpired={auth.expired} />}
             {user?.authType === 'ACCOUNT' && activePage === 'teams' && <MyTeams key={`teams:${identity}`} user={user} onSelected={signedIn} onSessionExpired={auth.expired} onRefresh={() => void auth.refresh()} />}
             {user && team && isAdmin && activePage === 'code-management' && <TeamCodeManager key={`codes:${identity}`} team={team} onSessionExpired={auth.expired} />}
             {user && team && isDirector && activePage === 'coach-management' && <CoachManager key={`coaches:${identity}`} team={team} onSessionExpired={auth.expired} />}
-            {user && team && activePage === 'workspace' && <div key={identity} className="workspace-content">{section === 'players' ? <section className="directory-section" id="players" aria-labelledby="players-title"><SquadSection ref={squad} isAdmin={isAdmin} onSessionExpired={auth.expired} /></section> : section === 'stats' ? <StatsSection onSessionExpired={auth.expired} /> : section === 'tournaments' ? <TournamentSection isAdmin={isAdmin} onSessionExpired={auth.expired} onOpenMatches={id => void openTournamentMatches(id)} /> : section === 'guide' ? <UserGuide audience={isAdmin ? 'staff' : 'member'} /> : <MatchSection key={`matches:${initialTournamentId ?? 'all'}:${launch?.key ?? 0}`} initialOpen={launch?.id} initialTournamentId={initialTournamentId} team={team} isAdmin={isAdmin} recoveryOwner={isAdmin && user.authType === 'ACCOUNT' && user.username ? { username: user.username, teamId: team.id } : null} onSessionExpired={auth.expired} />}</div>}
+            {user && team && activePage === 'workspace' && <div key={identity} className="workspace-content">{section === 'players' ? <section className="directory-section" id="players" aria-labelledby="players-title"><SquadSection ref={squad} isAdmin={isAdmin} onSessionExpired={auth.expired} /></section> : section === 'stats' ? <StatsSection onSessionExpired={auth.expired} /> : section === 'tournaments' ? <TournamentSection isAdmin={isAdmin} onSessionExpired={auth.expired} onOpenMatches={id => void openTournamentMatches(id)} /> : section === 'guide' ? <UserGuide audience={isAdmin ? 'staff' : 'member'} /> : <MatchSection key={`matches:${initialTournamentId ?? 'all'}:${launch?.key ?? 0}`} initialOpen={launch?.id} initialEdit={launch?.edit} initialTournamentId={initialTournamentId} team={team} isAdmin={isAdmin} recoveryOwner={isAdmin && user.authType === 'ACCOUNT' && user.username ? { username: user.username, teamId: team.id } : null} onSessionExpired={auth.expired} />}</div>}
           </>)}
       </div>
       <div className="app-install-area"><InstallApp /></div>

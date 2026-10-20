@@ -1,6 +1,6 @@
-%% 조축ON · V32 운영 반영 · 2026.10.19
+%% 조축ON · V34 배포 준비 · 2026.10.20
 %% Solid lines: physical FK. Dotted REF lines: application-only logical references.
-%% Important columns only; exact SQL types/checks are in Flyway V1..V32.
+%% Important columns only; exact SQL types/checks are in Flyway V1..V34.
 erDiagram
   teams {
     BIGINT id PK "BIGINT"
@@ -9,6 +9,11 @@ erDiagram
     VARCHAR status "PENDING / ACTIVE / INACTIVE"
     BIGINT version "수정 충돌 확인 / 생성 시각"
     TIMESTAMP created_at "수정 충돌 확인 / 생성 시각"
+  }
+  team_logos {
+    BIGINT team_id PK, FK "teams.id · 팀당 최대 한 행"
+    MEDIUMBLOB png_data "MEDIUMBLOB · 256×256 PNG"
+    TIMESTAMP updated_at "TIMESTAMP(6) · 마지막 저장 시각"
   }
   players {
     BIGINT id PK "BIGINT · 등번호와 별개"
@@ -69,6 +74,7 @@ erDiagram
     INT quarter_number PK "1~4 · 전·후반은 1/2"
     BIT goal_events_linked "BOOLEAN · 기본 FALSE · 연결 기록 사용"
     INT goals_against "INT NULL · 외부 경기 구간 실점 · V32"
+    TEXT scoring_order "TEXT NULL · JSON 배열 CHECK · V33"
   }
   match_planned_lineups {
     BIGINT match_id PK, FK "match_records.id"
@@ -205,6 +211,7 @@ erDiagram
     VARCHAR installed_by "적용 주체 / 시각"
     TIMESTAMP installed_on "적용 주체 / 시각"
   }
+  teams ||--o| team_logos : "FK team_id"
   match_records ||--o{ match_goal_events : "FK match_id"
   players ||--o{ match_goal_events : "FK scorer_id"
   players |o--o{ match_goal_events : "FK assist_id"

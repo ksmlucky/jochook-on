@@ -1,4 +1,5 @@
 import type { GoalEvent, Quarter } from './api'
+import { invalidateChangedScoringOrder } from './scoringOrder.ts'
 
 export const goalTypeLabels = { NORMAL: '일반 득점', FREE_KICK: '직접 프리킥', PENALTY: '페널티킥' } as const
 
@@ -22,7 +23,7 @@ export function withGoalEvents(quarter: Quarter, events: GoalEvent[]): Quarter {
     }
   }
   if (lineup.some(a => a.goals > 99 || a.assists > 99)) throw new Error('선수별 구간 득점·도움은 각각 99까지 입력할 수 있어요.')
-  return { ...quarter, lineup, goalEvents: events.map(e => ({ ...e })) }
+  return invalidateChangedScoringOrder(quarter, { ...quarter, lineup, goalEvents: events.map(e => ({ ...e })) })
 }
 
 /** Only known scorer/type data is seeded. Never guess the identity of an assisting player. */

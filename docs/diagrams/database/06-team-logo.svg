@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1200" viewBox="0 0 1800 1200" role="img" aria-labelledby="title desc"><title id="title">06 · 팀 로고와 현재 팀 접근</title><desc id="desc">V34 배포 준비. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.. V34 배포 준비 · 2026.10.20. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1200" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V34 배포 준비 · 2026.10.20</text>
+<text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">06 · 팀 로고와 현재 팀 접근</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">V34 배포 준비. 이미지 원본 대신 정규화한 PNG 한 장을 현재 팀에 연결합니다.</text>
+<rect x="60" y="230" width="660" height="350" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="263" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">teams</text>
+<text x="82" y="295" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">서비스 안의 축구팀</text>
+<path d="M 60 312 H 720" stroke="#cfddd4"/>
+<text x="80" y="341" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="341" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">id</text>
+<text x="154" y="365" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BIGINT</text>
+<text x="154" y="395" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">name / description</text>
+<text x="154" y="419" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">VARCHAR</text>
+<text x="154" y="449" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">status</text>
+<text x="154" y="473" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PENDING / ACTIVE / INACTIVE</text>
+<text x="154" y="503" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">version / created_at</text>
+<text x="154" y="527" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">수정 충돌 확인 / 생성 시각</text>
+<text x="82" y="549" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">모든 팀별 업무 자료의 기준점</text>
+<rect x="990" y="230" width="750" height="324" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1012" y="263" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">team_logos</text>
+<text x="1012" y="295" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">현재 팀의 로고 이미지</text>
+<path d="M 990 312 H 1740" stroke="#cfddd4"/>
+<text x="1010" y="341" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
+<text x="1084" y="341" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">team_id</text>
+<text x="1084" y="365" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">teams.id · 팀당 최대 한 행</text>
+<text x="1084" y="395" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">png_data</text>
+<text x="1084" y="419" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">MEDIUMBLOB · 256×256 PNG</text>
+<text x="1084" y="449" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">updated_at</text>
+<text x="1084" y="473" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">TIMESTAMP(6) · 마지막 저장 시각</text>
+<text x="1012" y="495" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">팀 삭제 시 CASCADE · 원본 파일은 저장하지 않음</text>
+<text x="1012" y="523" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">인증된 현재 팀만 조회 · 감독만 변경</text>
+<path d="M 720 341 L 850 341 L 850 341 L 990 341" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="850" y="315" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">1 → 0..1</text>
+<rect x="60" y="800" width="800" height="260" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="839" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">업로드와 저장</text>
+<text x="83" y="884" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">감독만 등록·삭제 · PNG/JPG 2MB 이하</text>
+<text x="83" y="916" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">가로·세로 4096px 이하 확인 후 디코딩</text>
+<text x="83" y="948" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">비율을 유지해 256×256 투명 PNG로 변환</text>
+<text x="83" y="980" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">컨테이너 파일·공개 주소 대신 DB 바이너리 저장</text>
+<rect x="940" y="800" width="800" height="260" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="963" y="839" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">조회와 팀 격리</text>
+<text x="963" y="884" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">로그인·팀 코드 접속 후 현재 팀 로고 조회</text>
+<text x="963" y="916" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">X-Team-Id와 세션의 현재 팀이 같아야 함</text>
+<text x="963" y="948" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">private, no-store · 접속 변경 시 브라우저 URL 폐기</text>
+<text x="963" y="980" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">상대 팀은 기본 표시 · 실제 이미지 자료를 넣지 않음</text>
+<text x="52" y="1171" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="1171" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+</g></svg>

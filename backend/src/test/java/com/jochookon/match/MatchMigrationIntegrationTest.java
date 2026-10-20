@@ -98,6 +98,8 @@ class MatchMigrationIntegrationTest {
             after.forEach(row -> {
                 if (table.equals("accounts")) assertThat(((Number) row.remove("credential_version")).longValue()).isZero();
                 if (table.equals("match_quarters")) {
+                    assertThat(row).containsKey("scoring_order");
+                    assertThat(row.remove("scoring_order")).as("V33 must not invent historical chronology").isNull();
                     assertThat(row).containsKey("goals_against");
                     assertThat(row.remove("goals_against")).as("V32 must not invent historical conceded goals").isNull();
                 }
@@ -163,6 +165,8 @@ class MatchMigrationIntegrationTest {
             var after = jdbc.queryForList("SELECT * FROM " + table);
             after.forEach(row -> {
                 if (table.equals("match_quarters")) {
+                    assertThat(row).containsKey("scoring_order");
+                    assertThat(row.remove("scoring_order")).as("V33 must not invent historical chronology").isNull();
                     assertThat(row).containsKey("goals_against");
                     assertThat(row.remove("goals_against")).as("V32 must preserve unknown historical conceded goals").isNull();
                 }

@@ -5,6 +5,7 @@ import { GoalEventsEditor } from './GoalEventsEditor'
 import { GoalBreakdownFields } from './GoalBreakdownFields'
 import { quarterLabel, quarterNumbers } from './matchFormat'
 import { TeamSelector } from './TeamSelector'
+import { ScoringOrderEditor } from './ScoringOrderEditor'
 
 export function MatchResultGoals({ draft, quarter, team, editable, isAdmin, setQuarter, setTeam, onChange, onSave }: {
   draft: MatchDraft; quarter: number; team: MatchTeam; editable: boolean; isAdmin: boolean
@@ -35,6 +36,8 @@ export function MatchResultGoals({ draft, quarter, team, editable, isAdmin, setQ
               onClick={() => onChange(updateQuarterResult(draft, { ...q, goalsAgainst: Math.min(99, Math.max(0, Math.floor(q.goalsAgainst ?? 0)) + 1), goalsAgainstSpecified: true }))}>+</button>
           </div></div>}
       </div>
+      {isAdmin && <ScoringOrderEditor key={JSON.stringify([q.goalEvents, q.goalsAgainst, q.scoringOrder])} quarter={q} participants={draft.participants}
+        internal={internal} editable={editable} onChange={next => onChange(updateQuarterResult(draft, next))} />}
       {isAdmin && !Array.isArray(q.goalEvents) && q.lineup.some(a => a.goals || a.assists) && <details className="legacy-goal-edit"><summary>기존 선수별 골·도움 수정</summary>
         <p className="field-help">예전 합계 기록을 정정할 때 사용해요. 골별 기록으로 연결한 뒤에는 위에서 수정해 주세요.</p>
         {q.lineup.filter(a => a.team === team).map(a => { const player = draft.participants.find(p => p.playerId === a.playerId); const name = player ? playerLabel(player) : '선수 확인 필요'; return <fieldset key={a.playerId} disabled={!editable}><legend>{name}</legend><div className="goal-event-fields">

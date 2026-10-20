@@ -29,6 +29,16 @@ class MatchControllerTest extends com.jochookon.team.TeamMvcTestSupport {
     @MockitoBean MatchService service;
     @MockitoBean MatchSaveService saves;
     @MockitoBean AccountUserDetailsService userDetailsService;
+    @ParameterizedTest @ValueSource(strings = {"[-2]", "[1000]", "[null]", "\"wrong\""})
+    @WithMockUser(roles = "DIRECTOR") void malformedScoringOrderCannotReachSave(String order) throws Exception {
+        String payload = """
+                {"playedOn":"2026-10-20","kickoff":"11:00:00","venue":"","opponent":"","notes":"","participants":[],
+                 "quarters":[{"number":1,"lineup":[],"scoringOrder":%s},{"number":2,"lineup":[]},{"number":3,"lineup":[]},{"number":4,"lineup":[]}]}
+                """.formatted(order);
+        mvc.perform(post("/api/v1/matches").with(csrf()).contentType(MediaType.APPLICATION_JSON).content(payload))
+                .andExpect(status().isBadRequest());
+        verifyNoInteractions(service, saves);
+    }
     @Test void membersReadButCannotCreateOrUpdate() throws Exception {
         given(service.list(0, 10)).willReturn(new MatchResponse.Page(List.of(), 0, 0, 0));
         mvc.perform(get("/api/v1/matches")).andExpect(status().isOk()).andExpect(jsonPath("$.items").isEmpty());

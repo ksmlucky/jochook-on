@@ -16,7 +16,7 @@ public record MatchResponse(Long id, Long version, LocalDate playedOn, LocalTime
         // Old audit snapshots omit goal types. Responses display zero; request omission still means preserve.
         if (quarters != null) quarters = quarters.stream().map(q -> new MatchRequest.Quarter(q.number(), q.lineup().stream()
                 .map(a -> a.withGoalTypes(a.freeKickGoals() == null ? 0 : a.freeKickGoals(),
-                        a.penaltyGoals() == null ? 0 : a.penaltyGoals())).toList(), q.goalEvents(), q.goalsAgainst(), q.goalsAgainstSpecified())).toList();
+                        a.penaltyGoals() == null ? 0 : a.penaltyGoals())).toList(), q.goalEvents(), q.goalsAgainst(), q.goalsAgainstSpecified(), q.scoringOrder(), q.scoringOrderSpecified())).toList();
     }
     public MatchResponse(Long id, Long version, LocalDate playedOn, LocalTime kickoff, String venue,
                          String opponent, String notes, List<Participant> participants, List<MatchRequest.Quarter> quarters,
@@ -52,7 +52,7 @@ public record MatchResponse(Long id, Long version, LocalDate playedOn, LocalTime
                 match.getQuarters().stream().sorted(Comparator.comparingInt(MatchQuarter::getNumber)).map(q -> new MatchRequest.Quarter(q.getNumber(),
                         match.getAppearances().stream().filter(a -> a.getQuarterNumber() == q.getNumber()).sorted(Comparator.comparing(MatchAppearance::getTeam).thenComparing(MatchAppearance::getSlot).thenComparingInt(MatchAppearance::getEntryOrder))
                                 .map(a -> new MatchRequest.Appearance(a.getSlot(), a.getPlayerId(), a.getGoals(), a.getAssists(), a.getEntryOrder(), a.getTeam(), a.getFreeKickGoals(), a.getPenaltyGoals())).toList(),
-                        q.isGoalEventsLinked() ? match.getGoalEvents().stream().filter(e -> e.getQuarterNumber() == q.getNumber()).map(MatchGoalEvent::response).toList() : null, q.getGoalsAgainst(), null)).toList(), match.getPlannedLineup(), match.getScoreFor(), match.getScoreAgainst(), match.getKind(), match.getRecordingStage(), match.getFormationA(), match.getFormationB(), match.getTournamentId(), match.getTournamentName(), match.getTournamentStage(), match.getMatchFormat());
+                        q.isGoalEventsLinked() ? match.getGoalEvents().stream().filter(e -> e.getQuarterNumber() == q.getNumber()).map(MatchGoalEvent::response).toList() : null, q.getGoalsAgainst(), null, q.getScoringOrder(), null)).toList(), match.getPlannedLineup(), match.getScoreFor(), match.getScoreAgainst(), match.getKind(), match.getRecordingStage(), match.getFormationA(), match.getFormationB(), match.getTournamentId(), match.getTournamentName(), match.getTournamentStage(), match.getMatchFormat());
     }
     public record Scorer(Long playerId, String name, Integer shirtNumber, com.jochookon.player.PlayerType playerType,
                          long goals, long goalsA, long goalsB, long freeKickGoals, long penaltyGoals) {

@@ -5,6 +5,7 @@ import { tournamentStageLabels } from './tournamentFields.ts'
 import { goalBreakdownText } from './goalBreakdown.ts'
 import { matchFormatLabel, quarterLabel } from './matchFormat.ts'
 import { goalTypeLabels } from './goalEvents.ts'
+import { validScoringOrder } from './scoringOrder.ts'
 
 export interface HistoryChange { label: string; before: string; after: string }
 const votes: Record<string, string> = { ATTENDING: '참석 예정', ABSENT: '불참 예정', UNDECIDED: '미정', UNANSWERED: '미투표' }
@@ -68,5 +69,17 @@ export function matchHistoryChanges(before: MatchRecord | null, after: MatchReco
     add(`${quarterLabel(number, after?.matchFormat ?? before?.matchFormat)} · 득점·도움 연결`, goals(before, number), goals(after, number))
   for (const number of new Set([...(before?.quarters ?? []), ...(after?.quarters ?? [])].map(q => q.number)))
     add(`${quarterLabel(number, after?.matchFormat ?? before?.matchFormat)} · 실점`, before?.quarters.find(q => q.number === number)?.goalsAgainst, after?.quarters.find(q => q.number === number)?.goalsAgainst)
+  function scoringOrder(match: MatchRecord | null, number: number) {
+    const q = match?.quarters.find(q => q.number === number)
+    if (!q || !validScoringOrder(q, match?.kind === 'INTERNAL')) return '순서 미확인'
+    return q.scoringOrder!.length ? q.scoringOrder!.map((index, i) => {
+      if (index === -1) return String(i + 1) + '. 상대 팀 득점 · 우리 팀 실점'
+      const e = q.goalEvents![index]
+      return String(i + 1) + '. ' + e.team + '팀 ' + playerName(match?.participants.find(p => p.playerId === e.scorerId))
+        + ` 골 (${goalTypeLabels[e.type]}) · ` + (e.assistId == null ? '도움 없음 / 미확인' : playerName(match?.participants.find(p => p.playerId === e.assistId)) + ' 도움')
+    }).join(' → ') : '득점·실점 없음'
+  }
+  for (const number of new Set([...(before?.quarters ?? []), ...(after?.quarters ?? [])].map(q => q.number)))
+    add(quarterLabel(number, after?.matchFormat ?? before?.matchFormat) + ' · 득실점 순서', scoringOrder(before, number), scoringOrder(after, number))
   return changes
 }

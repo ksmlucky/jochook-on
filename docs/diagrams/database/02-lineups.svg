@@ -1,8 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1860" viewBox="0 0 1800 1860" role="img" aria-labelledby="title desc"><title id="title">02 · 참석, 배치, 출전</title><desc id="desc">현재 UI는 02에서 배치·교체, 03에서 골·도움·실점을 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.. V32 운영 반영 · 2026.10.19. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1860" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2080" viewBox="0 0 1800 2080" role="img" aria-labelledby="title desc"><title id="title">02 · 참석, 배치, 출전</title><desc id="desc">02 배치·교체 / 03 골·도움·실점·순서. 기존 계획 테이블은 호환을 유지하고 통계는 실제 출전에서 계산합니다.. V34 배포 준비 · 2026.10.20. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="2080" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V32 운영 반영 · 2026.10.19</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V34 배포 준비 · 2026.10.20</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">02 · 참석, 배치, 출전</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">현재 UI는 02에서 배치·교체, 03에서 골·도움·실점을 저장합니다. 기존 계획 테이블은 호환을 위해 유지하며 통계는 출전 기록을 조회합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">02 배치·교체 / 03 골·도움·실점·순서. 기존 계획 테이블은 호환을 유지하고 통계는 실제 출전에서 계산합니다.</text>
 <rect x="60" y="190" width="760" height="188" rx="18" fill="#edf4fa" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="82" y="223" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_records</text>
 <text x="82" y="255" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기 한 건의 기본 정보 · 참조 노드</text>
@@ -37,7 +37,7 @@
 <text x="154" y="821" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">자체전 사전 A/B 배정 · NULL 가능</text>
 <text x="82" y="843" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, player_id)</text>
 <text x="82" y="871" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">참석 예정과 실제 참석은 별도 기록</text>
-<rect x="980" y="470" width="760" height="406" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<rect x="980" y="470" width="760" height="488" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="1002" y="503" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_quarters</text>
 <text x="1002" y="535" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">경기에 포함된 구간</text>
 <path d="M 980 552 H 1740" stroke="#cfddd4"/>
@@ -51,70 +51,73 @@
 <text x="1074" y="713" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">BOOLEAN · 기본 FALSE · 연결 기록 사용</text>
 <text x="1074" y="743" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">goals_against</text>
 <text x="1074" y="767" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">INT NULL · 외부 경기 구간 실점 · V32</text>
-<text x="1002" y="789" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number)</text>
-<text x="1002" y="817" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">NULL 미입력 / 0 무실점 · 구간 길이 컬럼 없음</text>
-<text x="1002" y="845" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">자체전 실점은 반대 팀 득점으로 계산</text>
-<rect x="60" y="1080" width="760" height="432" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
-<text x="82" y="1113" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_planned_lineups</text>
-<text x="82" y="1145" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 · 경기 전 계획 배치</text>
-<path d="M 60 1162 H 820" stroke="#cfddd4"/>
-<text x="80" y="1191" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
-<text x="154" y="1191" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
-<text x="154" y="1215" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">match_records.id</text>
-<text x="80" y="1245" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
-<text x="154" y="1245" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">quarter_number / team</text>
-<text x="154" y="1269" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">구간 번호 / A·B</text>
-<text x="80" y="1299" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
-<text x="154" y="1299" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">slot / entry_order</text>
-<text x="154" y="1323" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">자리 / 선발 0·교체 1</text>
-<text x="80" y="1353" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
-<text x="154" y="1353" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">player_id</text>
-<text x="154" y="1377" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">players.id</text>
-<text x="80" y="1407" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
-<text x="154" y="1407" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id + quarter_number + player_id</text>
-<text x="154" y="1431" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">같은 구간의 양 팀 중복 배치 금지</text>
-<text x="82" y="1453" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number, team, slot, entry_order)</text>
-<text x="82" y="1481" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">계획은 득점·출전 통계에 합산하지 않음</text>
-<rect x="980" y="1080" width="760" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
-<text x="1002" y="1113" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_appearances</text>
-<text x="1002" y="1145" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 배치 · 03 스탯 집계값</text>
-<path d="M 980 1162 H 1740" stroke="#cfddd4"/>
-<text x="1000" y="1191" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
-<text x="1074" y="1191" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
-<text x="1074" y="1215" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">match_records.id</text>
-<text x="1000" y="1245" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
-<text x="1074" y="1245" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">quarter_number / team</text>
-<text x="1074" y="1269" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">구간 번호 / A·B</text>
-<text x="1000" y="1299" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
-<text x="1074" y="1299" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">slot / entry_order</text>
-<text x="1074" y="1323" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">자리 / 선발 0·교체 1</text>
-<text x="1000" y="1353" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
-<text x="1074" y="1353" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">player_id</text>
-<text x="1074" y="1377" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">players.id</text>
-<text x="1074" y="1407" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">goals / assists</text>
-<text x="1074" y="1431" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">골 / 도움</text>
-<text x="1074" y="1461" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">free_kick_goals / penalty_goals</text>
-<text x="1074" y="1485" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">총 골 안의 직접 FK / PK</text>
-<text x="1000" y="1515" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
-<text x="1074" y="1515" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id + quarter_number + player_id</text>
-<text x="1074" y="1539" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">같은 구간 중복 출전 금지</text>
-<text x="1002" y="1561" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number, team, slot, entry_order)</text>
-<text x="1002" y="1589" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터</text>
+<text x="1074" y="797" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">scoring_order</text>
+<text x="1074" y="821" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">TEXT NULL · JSON 배열 CHECK · V33</text>
+<text x="1002" y="843" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number)</text>
+<text x="1002" y="871" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">NULL 미입력 / 0 무실점 · 구간 길이 컬럼 없음</text>
+<text x="1002" y="899" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">자체전 실점은 반대 팀 득점으로 계산</text>
+<text x="1002" y="927" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">순서 NULL=미기록 · 0 이상=골 인덱스 · -1=실점</text>
+<rect x="60" y="1160" width="760" height="432" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="82" y="1193" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_planned_lineups</text>
+<text x="82" y="1225" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 · 경기 전 계획 배치</text>
+<path d="M 60 1242 H 820" stroke="#cfddd4"/>
+<text x="80" y="1271" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
+<text x="154" y="1271" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
+<text x="154" y="1295" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">match_records.id</text>
+<text x="80" y="1325" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="1325" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">quarter_number / team</text>
+<text x="154" y="1349" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">구간 번호 / A·B</text>
+<text x="80" y="1379" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="154" y="1379" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">slot / entry_order</text>
+<text x="154" y="1403" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">자리 / 선발 0·교체 1</text>
+<text x="80" y="1433" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="154" y="1433" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">player_id</text>
+<text x="154" y="1457" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">players.id</text>
+<text x="80" y="1487" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
+<text x="154" y="1487" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id + quarter_number + player_id</text>
+<text x="154" y="1511" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">같은 구간의 양 팀 중복 배치 금지</text>
+<text x="82" y="1533" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number, team, slot, entry_order)</text>
+<text x="82" y="1561" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">계획은 득점·출전 통계에 합산하지 않음</text>
+<rect x="980" y="1160" width="760" height="540" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="1002" y="1193" font-size="23" fill="#246b51" font-weight="700" text-anchor="start" font-family="Consolas, monospace">match_appearances</text>
+<text x="1002" y="1225" font-size="20" fill="#5d7168" font-weight="400" text-anchor="start">02 배치 · 03 스탯 집계값</text>
+<path d="M 980 1242 H 1740" stroke="#cfddd4"/>
+<text x="1000" y="1271" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">PK·FK</text>
+<text x="1074" y="1271" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id</text>
+<text x="1074" y="1295" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">match_records.id</text>
+<text x="1000" y="1325" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1074" y="1325" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">quarter_number / team</text>
+<text x="1074" y="1349" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">구간 번호 / A·B</text>
+<text x="1000" y="1379" font-size="16" fill="#246b51" font-weight="700" text-anchor="start">PK</text>
+<text x="1074" y="1379" font-size="18" fill="#246b51" font-weight="600" text-anchor="start" font-family="Consolas, monospace">slot / entry_order</text>
+<text x="1074" y="1403" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">자리 / 선발 0·교체 1</text>
+<text x="1000" y="1433" font-size="16" fill="#285d86" font-weight="700" text-anchor="start">FK</text>
+<text x="1074" y="1433" font-size="18" fill="#285d86" font-weight="600" text-anchor="start" font-family="Consolas, monospace">player_id</text>
+<text x="1074" y="1457" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">players.id</text>
+<text x="1074" y="1487" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">goals / assists</text>
+<text x="1074" y="1511" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">골 / 도움</text>
+<text x="1074" y="1541" font-size="18" fill="#203a33" font-weight="400" text-anchor="start" font-family="Consolas, monospace">free_kick_goals / penalty_goals</text>
+<text x="1074" y="1565" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">총 골 안의 직접 FK / PK</text>
+<text x="1000" y="1595" font-size="16" fill="#203a33" font-weight="700" text-anchor="start">UK</text>
+<text x="1074" y="1595" font-size="18" fill="#203a33" font-weight="600" text-anchor="start" font-family="Consolas, monospace">match_id + quarter_number + player_id</text>
+<text x="1074" y="1619" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">같은 구간 중복 출전 금지</text>
+<text x="1002" y="1641" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">PK (match_id, quarter_number, team, slot, entry_order)</text>
+<text x="1002" y="1669" font-size="16" fill="#5d7168" font-weight="400" text-anchor="start">FK골 + PK골 ≤ goals · 교체 2명은 각각 0.5쿼터</text>
 <path d="M 440 378 L 440 470" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
 <text x="580" y="435" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">1 → 0..N 참가자</text>
 <path d="M 820 280 L 900 280 L 900 425 L 1360 425 L 1360 470" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
 <text x="1150" y="453" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">경기 1 → 구간 0..N</text>
 <path d="M 1360 378 L 1360 405 L 760 405 L 760 470" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
 <text x="810" y="392" font-size="18" fill="#246b51" font-weight="600" text-anchor="middle">선수 1 → 참가 0..N</text>
-<path d="M 60 965 L 155 965" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
-<text x="175" y="971" font-size="20" fill="#246b51" font-weight="600" text-anchor="start">match_records / players → 계획·실제 출전</text>
-<text x="175" y="1001" font-size="18" fill="#5d7168" font-weight="400" text-anchor="start">각 행은 경기 1개·선수 1명에 연결 · 경기/선수 1 : 배치 0..N</text>
-<path d="M 980 920 L 1075 920" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
-<text x="1095" y="926" font-size="20" fill="#8b5b18" font-weight="600" text-anchor="start">match_quarters / match_participants → 배치</text>
-<text x="1095" y="956" font-size="18" fill="#5d7168" font-weight="400" text-anchor="start">구간·참가·출석·사전 팀 일치는 서비스가 검증 · 복합 FK 없음</text>
-<rect x="60" y="1660" width="1680" height="125" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
-<text x="83" y="1699" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">구간·교체 규칙</text>
-<text x="83" y="1744" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">구간 수 2/4 · 같은 구간 선수 중복 금지 · 선발 0 / 교체 1 · 한 자리에 두 명이면 각각 0.5쿼터</text>
-<text x="52" y="1831" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
-<text x="1748" y="1831" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
+<path d="M 60 1060 L 155 1060" stroke="#246b51" stroke-width="2.4" fill="none" marker-end="url(#arrow)"/>
+<text x="175" y="1066" font-size="20" fill="#246b51" font-weight="600" text-anchor="start">match_records / players → 계획·실제 출전</text>
+<text x="175" y="1096" font-size="18" fill="#5d7168" font-weight="400" text-anchor="start">각 행은 경기 1개·선수 1명에 연결 · 경기/선수 1 : 배치 0..N</text>
+<path d="M 980 1060 L 1075 1060" stroke="#8b5b18" stroke-width="2.4" fill="none" stroke-dasharray="9 7" marker-end="url(#arrow)"/>
+<text x="1095" y="1066" font-size="20" fill="#8b5b18" font-weight="600" text-anchor="start">match_quarters / match_participants → 배치</text>
+<text x="1095" y="1096" font-size="18" fill="#5d7168" font-weight="400" text-anchor="start">구간·참가·출석·사전 팀 일치는 서비스가 검증 · 복합 FK 없음</text>
+<rect x="60" y="1870" width="1680" height="125" rx="18" fill="#fff" stroke="#cfddd4" stroke-width="1.5"/>
+<text x="83" y="1909" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">구간·교체 규칙</text>
+<text x="83" y="1954" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">구간 수 2/4 · 같은 구간 선수 중복 금지 · 선발 0 / 교체 1 · 한 자리에 두 명이면 각각 0.5쿼터</text>
+<text x="52" y="2051" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
+<text x="1748" y="2051" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
 </g></svg>

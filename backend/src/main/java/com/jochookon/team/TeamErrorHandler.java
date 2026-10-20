@@ -10,7 +10,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice(assignableTypes = {TeamAccessController.class, TeamManagementController.class, TeamCoachController.class, TeamCodeController.class, AuthController.class, AccountRecoveryController.class, PasswordResetController.class})
+@RestControllerAdvice(assignableTypes = {TeamAccessController.class, TeamManagementController.class, TeamCoachController.class, TeamCodeController.class, TeamLogoController.class, AuthController.class, AccountRecoveryController.class, PasswordResetController.class})
 public class TeamErrorHandler {
     @ExceptionHandler(TeamAccessException.class)
     ResponseEntity<?> access(TeamAccessException exception) {

@@ -1,10 +1,12 @@
 import type { MatchDraft, MatchTeam, Quarter } from './api'
+import { invalidateChangedScoringOrder } from './scoringOrder.ts'
 
 export const quarterGoals = (quarter: Quarter, team: MatchTeam) => quarter.lineup.filter(a => a.team === team).reduce((sum, a) => sum + a.goals, 0)
 
 /** Called only on explicit result edits, never when opening a legacy record. */
 export function updateQuarterResult(draft: MatchDraft, quarter: Quarter): MatchDraft {
   const previous = draft.quarters.find(q => q.number === quarter.number)!
+  quarter = invalidateChangedScoringOrder(previous, quarter)
   const quarters = draft.quarters.map(q => q.number === quarter.number ? quarter : q)
   const goalsChanged = (team: MatchTeam) => quarterGoals(previous, team) !== quarterGoals(quarter, team)
   let scoreFor = draft.scoreFor, scoreAgainst = draft.scoreAgainst

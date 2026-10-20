@@ -46,6 +46,31 @@ class MatchIntegrationTest {
                 .andExpect(status().isCreated()).andExpect(jsonPath("$.version").value(0)).andReturn().getResponse();
         return json.readTree(response.getContentAsString()).get("id").asLong();
     }
+    @Test void scoringOrderApiRoundTripAuditValidationAndLegacyEditing() throws Exception {
+        var base = request(null, List.of(participant(first, Attendance.PRESENT)), List.of(appearance(LineupSlot.ST, first, 1, 0)));
+        var quarters = new ArrayList<>(base.quarters());
+        var goals = List.of(new MatchRequest.GoalEvent(first, null, GoalType.NORMAL, MatchTeam.A));
+        quarters.set(0, new MatchRequest.Quarter(1, base.quarters().getFirst().lineup(), goals, 1, true, List.of(-1, 0), true));
+        long id = create(formatted(base, MatchFormat.FOUR_QUARTERS, quarters, List.of(), null, null));
+        call(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.quarters[0].scoringOrder[0]").value(-1))
+                .andExpect(jsonPath("$.quarters[0].scoringOrder[1]").value(0));
+        assertThat(jdbc.queryForObject("SELECT scoring_order FROM match_quarters WHERE match_id=? AND quarter_number=1", String.class, id)).isEqualTo("[-1,0]");
+        var legacy = formatted(base, MatchFormat.FOUR_QUARTERS, base.quarters(), List.of(), 0L, null);
+        call(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(legacy)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.quarters[0].scoringOrder[0]").value(-1));
+        quarters.set(0, new MatchRequest.Quarter(1, base.quarters().getFirst().lineup(), goals, 1, true, List.of(0, 0), true));
+        call(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(formatted(base, MatchFormat.FOUR_QUARTERS, quarters, List.of(), 1L, null))))
+                .andExpect(status().isBadRequest());
+        call(get("/api/v1/matches/" + id)).andExpect(jsonPath("$.version").value(1)).andExpect(jsonPath("$.quarters[0].scoringOrder[0]").value(-1));
+        quarters.set(0, new MatchRequest.Quarter(1, base.quarters().getFirst().lineup(), goals, 1, true, null, true));
+        call(put("/api/v1/matches/" + id).with(csrf()).contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(formatted(base, MatchFormat.FOUR_QUARTERS, quarters, List.of(), 1L, null))))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.quarters[0].scoringOrder").isEmpty())
+                .andExpect(jsonPath("$.quarters[0].lineup[0].goals").value(1));
+        var snapshot = jdbc.queryForObject("SELECT before_snapshot FROM match_record_events WHERE match_id=? ORDER BY id DESC LIMIT 1", String.class, id);
+        assertThat(json.readTree(snapshot).get("quarters").get(0).get("scoringOrder").get(0).asInt()).isEqualTo(-1);
+    }
     @Test void quarterConcededRoundTripLegacyPreservationClearAndAudit() throws Exception {
         var base = request(null, List.of(), List.of());
         var quarters = new ArrayList<>(base.quarters());

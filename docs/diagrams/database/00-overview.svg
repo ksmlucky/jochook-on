@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1310" viewBox="0 0 1800 1310" role="img" aria-labelledby="title desc"><title id="title">데이터베이스 구조 · 무엇이 어디에 저장될까?</title><desc id="desc">18개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.. V32 운영 반영 · 2026.10.19. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1310" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1310" viewBox="0 0 1800 1310" role="img" aria-labelledby="title desc"><title id="title">데이터베이스 구조 · 무엇이 어디에 저장될까?</title><desc id="desc">19개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.. V34 배포 준비 · 2026.10.20. 실선은 DB 외래키, 점선은 DB 외래키가 없는 논리 참조.</desc><defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M1 1 L9 5 L1 9" fill="none" stroke="#9bb0a4" stroke-width="1.6"/></marker></defs><rect width="1800" height="1310" fill="#f7f8f4"/><g font-family="Malgun Gothic, Apple SD Gothic Neo, Noto Sans KR, sans-serif">
 <text x="52" y="43" font-size="20" fill="#246b51" font-weight="700" text-anchor="start">JOCHOOK ON / 조축ON</text>
-<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V32 운영 반영 · 2026.10.19</text>
+<text x="1748" y="43" font-size="19" fill="#5d7168" font-weight="400" text-anchor="end">V34 배포 준비 · 2026.10.20</text>
 <text x="52" y="99" font-size="38" fill="#203a33" font-weight="700" text-anchor="start">데이터베이스 구조 · 무엇이 어디에 저장될까?</text>
-<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">18개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.</text>
+<text x="52" y="140" font-size="22" fill="#5d7168" font-weight="400" text-anchor="start">19개 업무 테이블 + Flyway 관리 테이블 1개. 선수 명단, 실제 기록, 접속 권한을 나눠 저장합니다.</text>
 <rect x="60" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="83" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">팀과 선수</text>
 <text x="83" y="274" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">teams · 축구팀</text>
 <text x="83" y="306" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">players · 회원·용병 프로필</text>
-<text x="83" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">등번호는 선수 PK가 아님</text>
+<text x="83" y="338" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">team_logos · 팀당 로고 최대 한 장</text>
 <text x="83" y="370" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">활동 선수 등번호는 팀 안에서 중복 금지</text>
 <rect x="655" y="190" width="490" height="230" rx="18" fill="#e7f3eb" stroke="#cfddd4" stroke-width="1.5"/>
 <text x="678" y="229" font-size="27" fill="#246b51" font-weight="700" text-anchor="start">대회와 경기</text>
@@ -60,7 +60,7 @@
 <text x="988" y="1044" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">flyway_schema_history · 스키마 변경 이력</text>
 <text x="988" y="1076" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">DB 세션 테이블 없음 · 현재 서버 HttpSession 사용</text>
 <text x="988" y="1108" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">실선 = DB FK / 점선 = FK 없는 논리 참조</text>
-<text x="988" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">확대 상세 5장과 전체 Mermaid 관계도를 함께 제공</text>
+<text x="988" y="1140" font-size="21" fill="#203a33" font-weight="400" text-anchor="start">확대 상세 6장과 전체 Mermaid 관계도를 함께 제공</text>
 <text x="52" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="start">PK 기본키 · FK 실제 외래키 · UK 유일키 · REF 논리 참조 · 핵심 필드만 표시</text>
 <text x="1748" y="1281" font-size="17" fill="#5d7168" font-weight="400" text-anchor="end">실제 회원·경기·계정·비밀값 없음</text>
 </g></svg>

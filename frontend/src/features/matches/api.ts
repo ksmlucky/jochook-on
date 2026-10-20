@@ -26,7 +26,7 @@ export type MatchKind = 'EXTERNAL' | 'INTERNAL'
 export type MatchTeam = 'A' | 'B'
 export interface Appearance { team: MatchTeam; slot: Slot; playerId: number; goals: number; assists: number; entryOrder: 0 | 1; freeKickGoals?: number | null; penaltyGoals?: number | null }
 export interface GoalEvent { scorerId: number; assistId: number | null; type: 'NORMAL' | 'FREE_KICK' | 'PENALTY'; team: MatchTeam }
-export interface Quarter { number: number; lineup: Appearance[]; goalEvents?: GoalEvent[] | null; goalsAgainst?: number | null; goalsAgainstSpecified?: boolean | null }
+export interface Quarter { number: number; lineup: Appearance[]; goalEvents?: GoalEvent[] | null; goalsAgainst?: number | null; goalsAgainstSpecified?: boolean | null; scoringOrder?: number[] | null; scoringOrderSpecified?: boolean | null }
 export interface PlannedEntry { team: MatchTeam; quarterNumber: number; slot: Slot; entryOrder: 0 | 1; playerId: number }
 export interface LineupSuggestion {
   policyVersion: string; seed: number; plannedLineup: PlannedEntry[]; warnings: string[]; optimal: boolean

@@ -74,7 +74,7 @@ public class TeamAccessFilter extends OncePerRequestFilter {
     }
     private static boolean scoped(String path) {
         return path.equals("/api/v1/players") || path.startsWith("/api/v1/players/")
-                || path.startsWith("/api/v1/stats/")
+                || path.startsWith("/api/v1/stats/") || path.equals("/api/v1/teams/current/logo")
                 || path.equals("/api/v1/tournaments") || path.startsWith("/api/v1/tournaments/")
                 || path.equals("/api/v1/matches") || path.startsWith("/api/v1/matches/") || path.startsWith("/api/v1/team/");
     }

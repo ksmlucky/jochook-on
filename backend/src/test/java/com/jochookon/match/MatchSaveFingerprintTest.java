@@ -17,7 +17,7 @@ class MatchSaveFingerprintTest {
         oldTree.remove("matchFormat");
         for (var quarter : oldTree.get("quarters")) {
             var q = (tools.jackson.databind.node.ObjectNode) quarter;
-            q.remove("goalEvents"); q.remove("goalsAgainst"); q.remove("goalsAgainstSpecified");
+            q.remove("scoringOrder"); q.remove("scoringOrderSpecified"); q.remove("goalEvents"); q.remove("goalsAgainst"); q.remove("goalsAgainstSpecified");
         }
         for (var p : oldTree.get("participants")) {
             ((tools.jackson.databind.node.ObjectNode) p).remove("plannedTeam");

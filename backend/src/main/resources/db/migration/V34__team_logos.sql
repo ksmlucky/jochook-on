@@ -1,0 +1,6 @@
+CREATE TABLE team_logos (
+    team_id BIGINT NOT NULL PRIMARY KEY,
+    png_data MEDIUMBLOB NOT NULL,
+    updated_at TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    CONSTRAINT fk_team_logos_team FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE
+);
