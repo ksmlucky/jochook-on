@@ -1,6 +1,6 @@
 # 단계별 로드맵
 
-경기 결과 이미지 배포 후보: [기능·검증](match-result-sharing.md) · [가상 예시](diagrams/result-sharing/index.html). 기존 조회 권한으로 저장된 결과를 PNG로 공유.
+경기 결과 이미지 운영 반영 2026-10-20 15:45:18 KST · 웹 9b443ff: [기능·검증](match-result-sharing.md) · [가상 예시](diagrams/result-sharing/index.html). 기존 조회 권한으로 저장된 결과를 PNG로 공유.
 
 스쿼드 카드·핵심 가이드 운영 반영 2026-10-20 14:32:06 KST · 웹 6e72b9b: [변경·검증 내용](squad-card-guide-2026-10-20.md). 같은 크기의 11개 카드, 회원 3쪽·운영진 6쪽 핵심 가이드.
 

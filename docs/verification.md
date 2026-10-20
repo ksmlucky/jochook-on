@@ -1,5 +1,11 @@
 # 조축ON 검증 기록
 
+## 경기 결과 이미지 공유 운영 반영
+
+2026-10-20 15:45:18 KST · 웹 `9b443ff5087d17a3059598820d06c7c7fec48942` · Northflank `easy-oatmeal-8857` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39381080426) 프론트·백엔드·MySQL 통합·빌드 전체 성공. 공개 HTTPS9개·인증 읽기14개·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료 쓰기와 외부 메시지 전송 없음.
+
+[기능·검증 상세](match-result-sharing.md). 실제 iPhone 공유 시트·카카오톡 전송은 미실행. 웹만 갱신했으며 기존 무료 사양·각 1개 인스턴스·API 유지.
+
 ## 스쿼드 카드·핵심 가이드 운영 반영
 
 2026-10-20 14:32:06 KST · 웹 `6e72b9b3002325ff0e58523a33caefb11d5f6792` · Northflank `aromatic-desk-822` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39374377618) 프론트·백엔드·MySQL 통합·빌드 전체 성공. 공개 HTTPS9개·인증 읽기14개·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료를 시험 수정하지 않았다.

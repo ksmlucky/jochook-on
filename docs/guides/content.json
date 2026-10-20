@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.19",
   "publishedOn": "2026.10.20",
-  "appCommit": "result-image-share-2026-10-20",
-  "scope": "pending_deployment",
+  "appCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -288,5 +288,5 @@
     }
   ],
   "releaseLabel": "2026.10.20 결과 이미지 공유",
-  "lastVerifiedProductionCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792"
+  "lastVerifiedProductionCommit": "9b443ff5087d17a3059598820d06c7c7fec48942"
 }

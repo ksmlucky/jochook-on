@@ -3,7 +3,7 @@ import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import { buildMatchResultImage } from '../frontend/src/features/matches/matchResultImage.ts'
 
-const state = '배포 후보 · 2026-10-20'
+const state = '운영 반영 9b443ff · 2026-10-20'
 const out = new URL('../docs/diagrams/result-sharing/', import.meta.url)
 await fs.mkdir(out, { recursive: true })
 const record = {

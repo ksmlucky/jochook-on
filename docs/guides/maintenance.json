@@ -5,10 +5,10 @@
   "release": {
     "guideVersion": "1.19",
     "date": "2026-10-20",
-    "appCommit": "result-image-share-2026-10-20",
-    "deployment": "배포 후보 · 운영 확인 전",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
+    "appCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
+    "deployment": "Northflank web easy-oatmeal-8857; 2026-10-20 15:45:18 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
     "releaseLabel": "2026.10.20 결과 이미지 공유",
     "previousProductionCommit": "6e72b9b3002325ff0e58523a33caefb11d5f6792",
     "lastVerifiedApiCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
@@ -35,26 +35,17 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "저장된 경기 결과 이미지 공유",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "guideVersion": "1.19",
-      "status": "pending_deployment",
-      "review": "회원3쪽·운영진6쪽 유지. 결과 이미지→미리보기→직접 공유/PNG 다운로드를 추가. 작성 중·미입력 상태와 개인 합계를 보존."
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.19",
       "date": "2026-10-20",
-      "appCommit": "result-image-share-2026-10-20",
-      "status": "pending_deployment",
+      "appCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
+      "status": "deployed",
       "changes": "회원2쪽·운영진5쪽에 저장된 경기 결과 이미지 공유 안내. 총 회원3쪽·운영진6쪽 유지.",
-      "validation": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더해 개별 육안 확인. 한글/여백/쪽번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 및 pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치. MatchReport/MatchResultImageShare 소스로 버튼명과 조회 권한 공통 제공·공유 취소 안내 대조. 역할별 앱/운영 검증은 총괄 수행."
+      "validation": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더해 개별 육안 확인. 한글/여백/쪽번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 및 pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치. MatchReport/MatchResultImageShare 소스로 버튼명과 조회 권한 공통 제공·공유 취소 안내 대조. 역할별 앱/운영 검증은 총괄 수행.",
+      "verifiedAtKst": "2026-10-20 15:45:18 KST",
+      "ci": "https://github.com/ksmlucky/jochook-on/actions/runs/39381080426"
     },
     {
       "guideVersion": "1.18",
@@ -402,9 +393,11 @@
     "memberPages": 3,
     "staffPages": 6,
     "pdfVisualReview": "회원3쪽·운영진6쪽 총9쪽을 Poppler 100dpi PNG로 렌더해 개별 육안 확인. 한글/여백/쪽번호 정상, 겹침/잘림 없음. 생성기 글꼴/overflow 및 pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치.",
-    "appRoleScreenReview": "MatchReport에서 조회 사용자 공통 버튼 렌더, MatchResultImageShare의 결과 이미지/이미지 공유/PNG 다운로드 문구 및 사용자 선택 공유/취소 안내 소스 대조 완료. 역할별 앱 렌더·목차·PDF 연결은 통합 검증 대상.",
-    "productionStatus": "pending_deployment",
-    "diagramImpact": "기존 안내서 분량 유지. 저장된 결과 조회에서 사용자 선택 공유로 연결하며 경기 저장/통계 정책은 불변."
+    "appRoleScreenReview": "가상 회원/운영진 역할별 목차·가이드1.19·공유 안내·각 PDF 연결 확인.",
+    "productionStatus": "deployed",
+    "diagramImpact": "기존 안내서 분량 유지. 저장된 결과 조회에서 사용자 선택 공유로 연결하며 경기 저장/통계 정책은 불변.",
+    "productionAssets": "JS/CSS/PDF 4개 로컬 빌드와 SHA256 일치. 공개 HTTPS9개·인증 읽기14개 통과.",
+    "verifiedAtKst": "2026-10-20 15:45:18 KST"
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",
