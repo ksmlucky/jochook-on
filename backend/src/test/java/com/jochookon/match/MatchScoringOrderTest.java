@@ -79,4 +79,16 @@ class MatchScoringOrderTest {
         assertThat(List.of(known, requestWith(events, 1, List.of(-1, 0, 1), true), requestWith(events, 1, null, null), requestWith(events, 1, null, true))
                 .stream().map(r -> MatchSaveFingerprint.of(r, json))).doesNotHaveDuplicates();
     }
+    @Test void persistenceUsesHashableScalarAndResponseSnapshotsStayImmutable() throws Exception {
+        var field = MatchQuarter.class.getDeclaredField("scoringOrderJson");
+        assertThat(field.getType()).isEqualTo(String.class);
+        assertThat(field.getAnnotation(jakarta.persistence.Column.class).name()).isEqualTo("scoring_order");
+        assertThat(field.getAnnotation(jakarta.persistence.Convert.class)).isNull();
+        var quarter = new MatchQuarter(new MatchRequest.Quarter(1, List.of(), events, 1, true, List.of(0, -1, 1), true));
+        assertThat(org.springframework.test.util.ReflectionTestUtils.getField(quarter, "scoringOrderJson")).isEqualTo("[0,-1,1]");
+        // Simulate loading the scalar field from the database and exposing the API list.
+        org.springframework.test.util.ReflectionTestUtils.setField(quarter, "scoringOrderJson", "[-1,1,0]");
+        assertThat(quarter.getScoringOrder()).containsExactly(-1, 1, 0);
+        assertThatThrownBy(() -> quarter.getScoringOrder().clear()).isInstanceOf(UnsupportedOperationException.class);
+    }
 }
