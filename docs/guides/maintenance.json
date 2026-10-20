@@ -5,10 +5,10 @@
   "release": {
     "guideVersion": "1.17",
     "date": "2026-10-20",
-    "appCommit": "ui-ux-review-2026-10-20",
-    "deployment": "로컬 후보 준비 중; 운영 반영 확인 전",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
+    "appCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
+    "deployment": "Northflank web lyrical-jelly-6490; 2026-10-20 13:43:23 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
     "releaseLabel": "2026.10.20 홈·조회 화면 정리",
     "previousProductionCommit": "b6f722a61359487f817334094c38a8a8f3a6e400",
     "lastVerifiedApiCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
@@ -35,27 +35,16 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "feature": "홈 진입·상단 관리 메뉴·선수 기록 보기 설정 정리",
-      "guides": [
-        "member",
-        "staff"
-      ],
-      "status": "pending_deployment",
-      "reference": "../ui-audit-2026-10-20.md",
-      "guideVersion": "1.17",
-      "appCommit": "ui-ux-review-2026-10-20"
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.17",
       "date": "2026-10-20",
-      "appCommit": "ui-ux-review-2026-10-20",
-      "status": "pending_deployment",
+      "appCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
+      "status": "deployed",
       "changes": "회원/운영진 홈 바로가기·집계 내역·보기 설정 안내, 운영진 초안 확인·독립 팀 로고 화면 안내.",
-      "validation": "회원7쪽·운영진21쪽 총28쪽 Poppler 100dpi PNG 렌더 및 5연락판 전체 확인. 한글·여백·쪽번호·잘림/겹침 없음. 생성기 overflow/글꼴검사 통과. outputs PDF 해시 원본 일치. 운영 미반영."
+      "validation": "회원7쪽·운영진21쪽 총28쪽 Poppler 100dpi PNG 렌더 및 5연락판 전체 확인. 한글·여백·쪽번호·잘림/겹침 없음. 생성기 overflow/글꼴검사 통과. outputs PDF 해시 원본 일치. 운영 미반영.",
+      "verifiedAtKst": "2026-10-20 13:43:23 KST"
     },
     {
       "guideVersion": "1.16",
@@ -384,10 +373,11 @@
     "memberPages": 7,
     "staffPages": 21,
     "pdfVisualReview": "회원7쪽·운영진21쪽 총28쪽 Poppler 100dpi PNG 렌더 및 5연락판 전체 확인. 한글·여백·쪽번호·잘림/겹침 없음. 생성기 overflow/글꼴검사 통과. outputs PDF 해시 원본 일치.",
-    "appRoleScreenReview": "App 상단 홈/팀로고 메뉴, StatsSection 집계 내역·보기 설정·페이지당 인원 소스 대조. 홈 초안 안내는 실제 메뉴 경기 기록 이동으로 수정. 역할별 브라우저 화면은 총괄 검증 대상.",
-    "productionStatus": "pending_deployment",
-    "productionAssets": "배포 검증 전",
-    "diagramImpact": "가이드 PDF는 텍스트 기반. 기존 경기 입력·통계 집계·복구 그림의 정책/동선은 유지. 상단 메뉴·조회 밀도 변화는 이번 UI/UX 보고서에서 설명."
+    "appRoleScreenReview": "가상 회원/운영진 역할별 목차·가이드1.17·각 PDF 연결 확인. 미저장 로고 경고·취소·이동 확인.",
+    "productionStatus": "deployed",
+    "productionAssets": "JS/CSS/PDF 4개 로컬 빌드와 SHA256 일치. 공개 HTTPS9개·인증 읽기 검증 통과.",
+    "diagramImpact": "가이드 PDF는 텍스트 기반. 기존 경기 입력·통계 집계·복구 그림의 정책/동선은 유지. 상단 메뉴·조회 밀도 변화는 이번 UI/UX 보고서에서 설명.",
+    "verifiedAtKst": "2026-10-20 13:43:23 KST"
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",

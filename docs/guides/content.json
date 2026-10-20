@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.17",
   "publishedOn": "2026.10.20",
-  "appCommit": "ui-ux-review-2026-10-20",
-  "scope": "pending_deployment",
+  "appCommit": "f0f95524b29492bcedb497cf73f1f8962da10517",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -824,5 +824,5 @@
     }
   ],
   "releaseLabel": "2026.10.20 홈·조회 화면 정리",
-  "lastVerifiedProductionCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
+  "lastVerifiedProductionCommit": "f0f95524b29492bcedb497cf73f1f8962da10517"
 }

@@ -1,6 +1,6 @@
 # UI·UX 전체 점검과 개선
 
-2026-10-20 · 배포 후보, 운영 확인 후 아래 결과 갱신
+2026-10-20 13:43:23 KST · 운영 반영 f0f9552
 
 ## 판단
 
@@ -38,4 +38,4 @@
 
 ## 배포 결과
 
-아직 운영 반영 미확인. 웹만 배포하며 API b6f722a·DB V34를 유지한다.
+2026-10-20 13:43:23 KST · 웹 `f0f95524b29492bcedb497cf73f1f8962da10517` · Northflank `lyrical-jelly-6490` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39369895121) 전체 성공. 공개 HTTPS9개·인증 읽기 검증·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료를 시험 수정하지 않았다.

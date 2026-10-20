@@ -306,4 +306,4 @@ PK는 고정된 선수 ID를 유지합니다. 같은 팀의 활동 선수끼리 
 
 [변경·검증·배포 기록](docs/match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 반영 확인: 2026-10-19 09:26 KST, 웹 `46ab4ce`, Northflank `fuzzy-finger-6520`. 공개 HTTPS9개·JS/CSS/PDF일치. API d8b2763·DB V30 유지.
 
-UI·UX 개선 후보: [전체 점검·검증](docs/ui-ux-review-2026-10-20.md) · [한눈에 보는 분석](docs/diagrams/ui-ux-review-2026-10-20.html) · [UI 전문가 역할](docs/agents/ui-expert.md).
+UI·UX 운영 반영 2026-10-20 13:43:23 KST · 웹 f0f9552: [전체 점검·검증](docs/ui-ux-review-2026-10-20.md) · [한눈에 보는 분석](docs/diagrams/ui-ux-review-2026-10-20.html) · [UI 전문가 역할](docs/agents/ui-expert.md).

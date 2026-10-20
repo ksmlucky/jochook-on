@@ -224,3 +224,10 @@ Oracle 확보 시 바로 접속 주소를 바꾸지 않는다. ARM64 이미지·
 2026-10-19 17:51 KST · API·웹 `dd29444bf2cea3c4d46126cf4b95976722ec57ed`, DB V31, 가이드 1.9 운영 반영. [기능·검증 결과](goal-events-mobile-2026-10-19.md). GitHub CI 백엔드·MySQL 통합/프론트 통과, 암호화 백업 격리 복원, 기존 17개 업무 테이블 지문 보존, HTTPS 9개·운영진 읽기/권한·JS/CSS/PDF 바이트 일치를 확인했다. 실제 iPhone·운영 자료 쓰기 시험은 하지 않았다.
 
 이번 설정에서는 `disabledCI=true`여도 수동 빌드가 성공하자 Northflank가 새 이미지를 자동 적용했다. 다음 릴리스에서 빌드와 배포를 분리하려면 `disabledCD`와 실제 서비스 동작을 먼저 점검해야 한다. V31 적용 후 새 골별 기록을 이전 API로 처리하면 연결 정보가 손실될 수 있으므로 API 단독 다운그레이드는 하지 않는다. 배포 직전 암호화 백업은 Git 제외 `backups/northflank/20261019-before-goal-events/`에 보관하고 별도 MySQL 복원·행 지문 확인을 마쳤다. 이 백업은 Windows DPAPI 사용자에 묶여 있어 독립 PC 복구 수단은 아직 아니다.
+
+
+## UI·UX 점검·모바일 정보 밀도 개선
+
+2026-10-20 13:43:23 KST · 웹 `f0f95524b29492bcedb497cf73f1f8962da10517` · Northflank `lyrical-jelly-6490` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39369895121) 전체 성공. 공개 HTTPS9개·인증 읽기 검증·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료를 시험 수정하지 않았다.
+
+[분석·검증 상세](ui-ux-review-2026-10-20.md). 웹만 갱신하고 API 인스턴스를 재시작하지 않았다.
