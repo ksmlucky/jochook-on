@@ -5,10 +5,10 @@
   "release": {
     "guideVersion": "1.20",
     "date": "2026-10-21",
-    "appCommit": "pending-match-report-visuals-20261021",
-    "deployment": "배포 확인 대기",
-    "status": "pending_deployment",
-    "lastVerifiedProductionCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
+    "appCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab",
+    "deployment": "Northflank web open-nose-7278; 2026-10-21 21:19:06 KST",
+    "status": "deployed",
+    "lastVerifiedProductionCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab",
     "releaseLabel": "2026.10.21 스쿼드·골별 공유",
     "previousProductionCommit": "9b443ff5087d17a3059598820d06c7c7fec48942",
     "lastVerifiedApiCommit": "b6f722a61359487f817334094c38a8a8f3a6e400"
@@ -35,22 +35,17 @@
     "README 링크·변경 이력을 갱신한다. docs/guides 원본과 열람본은 GitHub에, 전달용 PDF 사본은 outputs에 둔다.",
     "문서 업로드와 운영 앱 배포를 별도 작업으로 관리한다. 사용자 허가 없이 앱을 배포하지 않는다."
   ],
-  "pendingChanges": [
-    {
-      "guideVersion": "1.20",
-      "date": "2026-10-21",
-      "status": "pending_deployment",
-      "changes": "회원2쪽·운영진5쪽: 경기 조회의 원형 등번호·이름·경기 연도 기준 연령대, 전체 명단, 결과 이미지의 골별 득점자←도움 연결 안내. 회원3쪽·운영진6쪽 유지. API·DB·집계·권한 변경 없음."
-    }
-  ],
+  "pendingChanges": [],
   "history": [
     {
       "guideVersion": "1.20",
       "date": "2026-10-21",
-      "appCommit": "pending-match-report-visuals-20261021",
-      "status": "pending_deployment",
+      "appCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab",
+      "status": "deployed",
       "changes": "회원2쪽·운영진5쪽: 경기 조회의 원형 등번호·이름·경기 연도 기준 연령대, 전체 명단, 결과 이미지의 골별 득점자←도움 연결 안내. 회원3쪽·운영진6쪽 유지. API·DB·집계·권한 변경 없음.",
-      "validation": "회원3쪽·운영진6쪽 총9쪽 Poppler100dpi PNG를 전부 개별 육안 확인. 한글·여백·쪽번호 정상, 잘림·겹침 없음. 생성기 글꼴/overflow, pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치. MatchReport·MatchResultImageShare·matchResultImage 소스와 버튼/읽기 표시를 대조. 역할별 앱·운영 배포는 총괄 확인 예정."
+      "validation": "회원3쪽·운영진6쪽 총9쪽 Poppler100dpi PNG를 전부 개별 육안 확인. 한글·여백·쪽번호 정상, 잘림·겹침 없음. 생성기 글꼴/overflow, pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치. MatchReport·MatchResultImageShare·matchResultImage 소스와 버튼/읽기 표시를 대조. 역할별 가상 앱 화면·PDF 연결 확인, 운영 JS/CSS/PDF 바이트 일치와 공개·인증 점검 완료.",
+      "verifiedAtKst": "2026-10-21 21:19:06 KST",
+      "ci": "https://github.com/ksmlucky/jochook-on/actions/runs/39597048437"
     },
     {
       "guideVersion": "1.19",
@@ -408,10 +403,11 @@
     "memberPages": 3,
     "staffPages": 6,
     "pdfVisualReview": "회원3쪽·운영진6쪽 총9쪽 Poppler100dpi PNG를 전부 개별 육안 확인. 한글·여백·쪽번호 정상, 잘림·겹침 없음. 생성기 글꼴/overflow, pypdf 페이지수/텍스트 검사 통과. outputs 사본 SHA256 일치. MatchReport·MatchResultImageShare·matchResultImage 소스와 버튼/읽기 표시를 대조.",
-    "appRoleScreenReview": "총괄이 가상 회원3목차·운영진6목차의 가이드1.20·새 스쿼드/골별 공유 문구·각 역할 PDF 해시 연결 확인. 실제 iPhone과 운영 배포는 별도.",
-    "productionStatus": "pending_deployment",
+    "appRoleScreenReview": "가상 회원3/운영진6개 목차·가이드1.20·스쿼드/골별 공유 안내·각 PDF 연결 확인.",
+    "productionStatus": "deployed",
     "diagramImpact": "경기 조회 흐름도의 선수 표시를 원형 등번호·작은 이름·연령대로 갱신. 결과 공유 골별 연결과 명단 열 맞춤을 안내.",
-    "productionAssets": "배포 후 총괄 확인 예정"
+    "productionAssets": "JS/CSS/PDF 4개 로컬 빌드와 SHA256 일치. 공개 HTTPS9개·인증 읽기14개 통과.",
+    "verifiedAtKst": "2026-10-21 21:19:06 KST"
   },
   "pendingRosterPagination": {
     "date": "2026-10-17",

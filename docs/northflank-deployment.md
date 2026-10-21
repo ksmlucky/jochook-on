@@ -1,5 +1,11 @@
 # Northflank 무료 시범 배포
 
+## 스쿼드 등번호·명단 정렬·골별 도움 공유 운영 반영
+
+2026-10-21 21:19:06 KST · 웹 `a05b872510fdfc68056f6ac3c17449d295e500ab` · Northflank `open-nose-7278` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39597048437) 전체 성공. 프론트321개·공개 HTTPS9개·인증 점검14개·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료 쓰기와 외부 메시지 전송 없음.
+
+[기능·검증 상세](roster-goal-links-2026-10-21.md). 실제 iPhone 공유 시트·카카오톡 전송은 미실행. 웹만 갱신하고 기존 무료 사양·인스턴스 수·API는 유지.
+
 ## 경기 결과 이미지 공유 운영 반영
 
 2026-10-20 15:45:18 KST · 웹 `9b443ff5087d17a3059598820d06c7c7fec48942` · Northflank `easy-oatmeal-8857` 배포 완료. API `b6f722a61359487f817334094c38a8a8f3a6e400`·DB V34 유지. [GitHub CI](https://github.com/ksmlucky/jochook-on/actions/runs/39381080426) 프론트·백엔드·MySQL 통합·빌드 전체 성공. 공개 HTTPS9개·인증 읽기14개·JS/CSS/PDF4개 바이트 일치 확인. 운영 자료 쓰기와 외부 메시지 전송 없음.

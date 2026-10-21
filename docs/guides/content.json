@@ -1,8 +1,8 @@
 {
   "guideVersion": "1.20",
   "publishedOn": "2026.10.21",
-  "appCommit": "pending-match-report-visuals-20261021",
-  "scope": "pending_deployment",
+  "appCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab",
+  "scope": "production",
   "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
   "guides": [
     {
@@ -288,5 +288,5 @@
     }
   ],
   "releaseLabel": "2026.10.21 스쿼드·골별 공유",
-  "lastVerifiedProductionCommit": "9b443ff5087d17a3059598820d06c7c7fec48942"
+  "lastVerifiedProductionCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab"
 }
