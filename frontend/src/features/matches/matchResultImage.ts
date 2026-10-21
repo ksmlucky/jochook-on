@@ -1,4 +1,5 @@
 import type { MatchRecord, MatchTeam } from './api'
+import { quarterLabel } from './matchFormat.ts'
 
 interface PlayerTotal { playerId: number; goals: number; assists: number }
 const ink = '#243c34', muted = '#526b5e', green = '#28624c'
@@ -31,6 +32,10 @@ export function buildMatchResultImage({ record, teamName }: { record: MatchRecor
   }
   const players = new Map(record.participants.map(player => [player.playerId, player]))
   const playerName = (id: number) => clean(players.get(id)?.name ?? '') || '선수 미확인'
+  const playerLabel = (id: number) => {
+    const shirt = players.get(id)?.shirtNumber
+    return `${shirt == null ? '' : `#${shirt} `}${playerName(id)}`
+  }
   const metricRows = (side: MatchTeam, metric: 'goals' | 'assists') => [...totals[side].values()]
     .filter(row => row[metric] > 0)
     .sort((a, b) => b[metric] - a[metric] || playerName(a.playerId).localeCompare(playerName(b.playerId), 'ko') || a.playerId - b.playerId)
@@ -81,6 +86,44 @@ export function buildMatchResultImage({ record, teamName }: { record: MatchRecor
     }
     y += sectionHeight + 22
   }
+  // Keep each assist attached to its own goal. Legacy totals cannot establish that link.
+  let remainingGoals = limit
+  const eventCount = record.quarters.reduce((sum, quarter) => sum + (quarter.goalEvents?.length ?? 0), 0)
+  const legacyLinkNotes = record.quarters.filter(q => !Array.isArray(q.goalEvents) && q.lineup.some(a => count(a.goals) || count(a.assists))).length
+  // Leave room for legacy notices, discrepancy warnings and the footer on mobile canvases.
+  const reservedHeight = legacyLinkNotes * 52 + (warnings.length ? 90 + warnings.length * 29 : 0) + 52 + 38 + 66
+  for (const quarter of [...record.quarters].sort((a, b) => a.number - b.number)) {
+    if (!Array.isArray(quarter.goalEvents)) {
+      if (quarter.lineup.some(a => count(a.goals) || count(a.assists))) {
+        body.push(lineText(68, y + 28, `${quarterLabel(quarter.number, record.matchFormat)} · 골·도움 연결 미기록`, 23, muted))
+        y += 52
+      }
+      continue
+    }
+    const rowBudget = Math.max(0, Math.floor((4096 - y - reservedHeight - 132) / 86))
+    const events = quarter.goalEvents.slice(0, Math.min(remainingGoals, rowBudget))
+    if (!events.length) continue
+    const sectionHeight = 110 + events.length * 86
+    body.push(`<rect x="40" y="${y}" width="1000" height="${sectionHeight}" rx="24" fill="#ffffff" stroke="#dce5da"/>`)
+    body.push(lineText(68, y + 36, `${quarterLabel(quarter.number, record.matchFormat)} · 골별 기록`, 25, green, 700))
+    body.push(lineText(68, y + 78, '득점자', 22, muted, 700), lineText(592, y + 78, '도움 선수', 22, muted, 700))
+    events.forEach((event, index) => {
+      const baseline = y + 118 + index * 86
+      const goalType = event.type === 'FREE_KICK' ? ' · 프리킥' : event.type === 'PENALTY' ? ' · PK' : ''
+      const scorer = `${internal ? `${event.team}팀 · ` : ''}${playerLabel(event.scorerId)}${goalType}`
+      const assist = event.assistId == null ? '도움 없음' : playerLabel(event.assistId)
+      body.push(`<g data-goal-link="true" data-team="${event.team}">`)
+      nameLines(scorer, 16).forEach((line, i) => body.push(lineText(68, baseline + i * 29, line, 25, ink, 650)))
+      body.push(lineText(550, baseline + 6, '←', 26, green, 700, 'middle'))
+      nameLines(assist, 15).forEach((line, i) => body.push(lineText(592, baseline + i * 29, line, 25, event.assistId == null ? muted : ink, 550)))
+      body.push('</g>')
+      if (index < events.length - 1) body.push(`<path d="M68 ${baseline + 53}H1012" stroke="#e4eade"/>`)
+    })
+    remainingGoals -= events.length
+    y += sectionHeight + 22
+  }
+  const omittedGoals = eventCount - (limit - remainingGoals)
+  if (omittedGoals > 0) { body.push(lineText(68, y + 28, `외 ${omittedGoals}골 · 전체 골별 기록은 앱에서 확인`, 23, muted)); y += 52 }
   if (warnings.length) {
     const height = 38 + warnings.length * 29 + 32
     body.push(`<rect x="40" y="${y}" width="1000" height="${height}" rx="18" fill="#fff3df"/>`)

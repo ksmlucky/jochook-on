@@ -1,5 +1,7 @@
 # 조축ON
 
+스쿼드·골별 도움 배포 후보: [등번호 스쿼드](docs/squad-number-preview-2026-10-21.md) · [명단 정렬·결과 공유](docs/roster-goal-links-2026-10-21.md). 회원·운영진 가이드 1.20 준비. API·DB 변경 없음.
+
 경기 결과 이미지 운영 반영 2026-10-20 15:45:18 KST · 웹 9b443ff: [기능·공유 흐름](docs/match-result-sharing.md) · [가상 이미지 예시](docs/diagrams/result-sharing/index.html). 저장된 스코어와 득점·도움을 회원/운영진 모두 PNG로 공유합니다.
 
 스쿼드 카드·핵심 가이드 운영 반영 2026-10-20 14:32:06 KST · 웹 6e72b9b: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.

@@ -19,7 +19,7 @@ test('events override lineup while legacy quarters add to the same player; no pr
   assert.match(result.svg, /3 : 1/)
   assert.match(result.svg, /3골/)
   assert.match(result.svg, /3도움/)
-  assert.equal((result.svg.match(/#1 예시득점/g) ?? []).length, 1)
+  assert.equal((result.svg.match(/#1 예시득점/g) ?? []).length, 3)
   assert.ok(!result.svg.includes('99골'))
   for (const privateText of ['비공개 구장', '비공개 메모', '1996', 'playerId']) assert.ok(!result.svg.includes(privateText))
   assert.ok(!result.svg.includes('합계가 달라요'))
@@ -52,7 +52,7 @@ test('internal teams keep separate totals for the same player across quarters', 
   assert.match(svg, /B팀 기록/)
   assert.match(svg, /data-metric="goals" data-team="A">.*1골/s)
   assert.match(svg, /data-metric="goals" data-team="B">.*2골/s)
-  assert.equal((svg.match(/#1 예시득점/g) ?? []).length, 2)
+  assert.equal((svg.match(/#1 예시득점/g) ?? []).length, 5)
   assert.ok(!svg.includes('상대 FC'))
 })
 
@@ -107,8 +107,36 @@ test('long and numerous scorer lists are explicitly shortened and image height s
   assert.match(svg, /긴 이름은 …로 줄였어요/)
   assert.equal((svg.match(/data-metric=/g) ?? []).length, 64)
   const height = Number(svg.match(/<svg[^>]+height="(\d+)"/)[1])
-  assert.ok(height <= 3300, `height=${height}`)
+  assert.ok(height <= 4096, `height=${height}`)
   assert.equal(resultHeight, height)
   assert.equal(width, 1080)
   assert.match(svg, /width="1080"/)
+  const shownGoals = (svg.match(/data-goal-link=/g) ?? []).length
+  assert.ok(shownGoals > 0 && shownGoals <= 16)
+  assert.ok(svg.includes(`외 ${120 - shownGoals}골`))
+})
+
+test('each goal preserves its own assist and type, with half labels and no inferred legacy links', () => {
+  const input = fixture()
+  input.record.matchFormat = 'TWO_HALVES_30'
+  input.record.quarters[0].goalEvents = [event(1, 2), { ...event(1, 3), type: 'FREE_KICK' }, event(1)]
+  const { svg } = buildMatchResultImage(input)
+  const links = [...svg.matchAll(/<g data-goal-link="true"[^>]*>(.*?)<\/g>/gs)].map(m => m[1])
+  assert.equal(links.length, 3)
+  assert.match(links[0], /#1 예시득점.*#2 예시도움/s)
+  assert.ok(!links[0].includes('#3 예시선수'))
+  assert.match(links[1], /#1 예시득점.*프리킥.*#3 예시선수/s)
+  assert.match(links[2], /#1 예시득점.*도움 없음/s)
+  assert.match(svg, /전반\(1쿼터\) · 골별 기록/)
+  assert.match(svg, /후반\(2쿼터\) · 골·도움 연결 미기록/)
+})
+
+test('empty events create no links; unknown assister stays unknown and quarter sequence is sorted', () => {
+  const input = fixture()
+  input.record.quarters = [{ number: 4, lineup: [], goalEvents: [event(1, 9876)] }, { number: 2, lineup: [], goalEvents: [event(2, 1)] }, { number: 1, goalEvents: [], lineup: [appearance(1, 7, 8)] }]
+  const { svg } = buildMatchResultImage(input)
+  assert.equal((svg.match(/data-goal-link=/g) ?? []).length, 2)
+  assert.ok(svg.indexOf('2쿼터 · 골별 기록') < svg.indexOf('4쿼터 · 골별 기록'))
+  assert.match(svg, /선수 미확인/)
+  assert.ok(!svg.includes('연결 미기록'))
 })

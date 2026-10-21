@@ -48,7 +48,7 @@ function ResultImageDialog({ record, teamName, onClose }: Props & { onClose: () 
   return createPortal(<dialog ref={dialog} className="squad-image-dialog result-image-dialog" aria-labelledby={id} onCancel={event => { event.preventDefault(); if (!sharing) onClose() }}>
     <header><div><h3 id={id}>경기 결과 이미지</h3><p>미리 보고 단톡방에 공유해요.</p></div>
       <button type="button" className="secondary-button" disabled={sharing} onClick={onClose}>닫기</button></header>
-    <p className="field-help">저장된 점수와 선수별 골·도움이에요. 선수 이름과 등번호가 포함돼요.</p>
+    <p className="field-help">저장된 점수와 골별 득점·도움이에요. 선수 이름과 등번호가 포함돼요.</p>
     {error ? <div role="alert"><p>{error}</p><button type="button" className="secondary-button" onClick={() => setRetry(n => n + 1)}>다시 만들기</button></div>
       : prepared ? <img className="squad-image-preview" src={prepared.url} alt={prepared.label} />
         : <p role="status">결과 이미지를 만드는 중이에요.</p>}

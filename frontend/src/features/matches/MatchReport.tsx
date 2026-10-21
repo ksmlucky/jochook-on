@@ -12,6 +12,7 @@ import { RecordingStatus } from './RecordingStatus'
 import { MatchCategoryBadge } from './MatchCategoryBadge'
 import { matchTimeRange } from './time'
 import { MatchResultImageShare } from './MatchResultImageShare'
+import { ageBand } from '../players/age'
 import './squad-overview.css'
 import './match-report.css'
 
@@ -78,18 +79,44 @@ function ReportPitch({ record, quarter, side, name, teamName }: { record: MatchR
   const actual = quarter.lineup.filter(a => a.team === side)
   const planned = record.plannedLineup.filter(a => a.team === side && a.quarterNumber === quarter.number)
   const entries = actual.length ? actual : planned
+  const referenceYear = Number(record.playedOn.slice(0, 4))
+  const rosterPlayer = (id: number | undefined, substitute = false) => {
+    const player = record.participants.find(p => p.playerId === id)
+    return <span className="report-roster-player">
+      <small className="report-roster-entry">{substitute ? '교체' : '선발'}</small>
+      <span className="report-roster-number">{player?.shirtNumber != null ? `#${player.shirtNumber}` : '—'}</span>
+      <span className="report-roster-name">{id == null ? '미배치' : player?.name ?? '선수 확인 필요'}</span>
+    </span>
+  }
   return <div className="report-team-squad"><h4>{record.kind === 'INTERNAL' ? `${side}팀` : teamName} · {formationLabel(formation)}{!actual.length && !!planned.length && ' · 계획'}</h4>
     {!entries.length ? <p className="field-help">등록된 스쿼드가 없어요.</p> : <>
       <div className="tactics-pitch squad-overview-pitch report-pitch" data-formation={formation} aria-label={`${side}팀 포메이션`}><PitchMarkings />
-        {pitchRowsFor(formation).flat().map(slot => { const starter = entries.find(a => a.slot === slot && a.entryOrder === 0); const sub = entries.find(a => a.slot === slot && a.entryOrder === 1); return <div key={slot} data-position={slot} className={`squad-overview-slot position-${slotGroup(slot)}`}><div className="squad-overview-card"><span className="squad-overview-position">{slotLabels[slot]}</span><strong className="squad-overview-name">{starter ? name(starter.playerId) : '미배치'}</strong>{sub && <span className="squad-overview-swap">↳ {name(sub.playerId)}</span>}</div></div> })}
+        {pitchRowsFor(formation).flat().map(slot => {
+          const starter = entries.find(a => a.slot === slot && a.entryOrder === 0)
+          const sub = entries.find(a => a.slot === slot && a.entryOrder === 1)
+          const player = record.participants.find(p => p.playerId === starter?.playerId)
+          const playerName = starter ? player?.name ?? '선수 확인 필요' : '미배치'
+          return <div key={slot} data-position={slot} className={`squad-overview-slot position-${slotGroup(slot)}`}>
+            <div className="squad-overview-card" title={playerName}>
+              <span className="squad-overview-position">{slotLabels[slot]}</span>
+              <span className="report-shirt-number" data-empty={!starter} aria-label={player?.shirtNumber != null ? `등번호 ${player.shirtNumber}` : starter ? '등번호 없음' : '미배치'}>
+                {player?.shirtNumber ?? '—'}
+                {sub && <span className="report-sub-marker" aria-label={`교체 · ${name(sub.playerId)}`}>교체</span>}
+              </span>
+              <strong className="squad-overview-name">{playerName}</strong>
+              <small className="report-player-age">{starter ? ageBand(player?.birthYear ?? null, referenceYear) : ''}</small>
+            </div>
+          </div>
+        })}
       </div>
+      <p className="report-age-note">연령대는 경기 연도 기준이에요.</p>
       <ul className="report-substitutions">{entries.filter(a => a.entryOrder === 1).map(sub => { const starter = entries.find(a => a.slot === sub.slot && a.entryOrder === 0); return <li key={sub.playerId}><span>{slotLabels[sub.slot]}</span><span>{starter ? name(starter.playerId) : '선발 미등록'} <span aria-label="교체 투입">→</span> <strong>{name(sub.playerId)}</strong></span></li> })}</ul>
       {!entries.some(a => a.entryOrder === 1) && <p className="field-help">교체 기록 없음</p>}
       <details className="report-roster"><summary>선수 명단 · 전체 이름 보기</summary><ul>
         {pitchRowsFor(formation).flat().map(slot => {
           const starter = entries.find(a => a.slot === slot && a.entryOrder === 0)
           const sub = entries.find(a => a.slot === slot && a.entryOrder === 1)
-          return <li key={slot}><strong>{slotLabels[slot]}</strong><span>{starter ? name(starter.playerId) : '미배치'}{sub && <small>교체 · {name(sub.playerId)}</small>}</span></li>
+          return <li key={slot}><strong>{slotLabels[slot]}</strong><div className="report-roster-players">{rosterPlayer(starter?.playerId)}{sub && rosterPlayer(sub.playerId, true)}</div></li>
         })}
       </ul></details>
     </>}
