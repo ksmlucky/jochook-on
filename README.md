@@ -1,104 +1,33 @@
 # 조축ON
 
-스쿼드·골별 도움 운영 반영 2026-10-21 21:19:06 KST · 웹 a05b872: [등번호 스쿼드](docs/squad-number-preview-2026-10-21.md) · [명단 정렬·결과 공유](docs/roster-goal-links-2026-10-21.md). 회원·운영진 가이드 1.20 운영 반영. API·DB 변경 없음.
+**참석부터 스쿼드, 경기 결과까지 한 흐름으로 관리합니다.**
 
-경기 결과 이미지 운영 반영 2026-10-20 15:45:18 KST · 웹 9b443ff: [기능·공유 흐름](docs/match-result-sharing.md) · [가상 이미지 예시](docs/diagrams/result-sharing/index.html). 저장된 스코어와 득점·도움을 회원/운영진 모두 PNG로 공유합니다.
+조기축구팀의 선수·참석·스쿼드·경기 기록을 한곳에 모으는 웹 서비스입니다. 운영진은 기록을 관리하고, 회원은 팀의 경기와 개인 기록을 확인합니다.
 
-스쿼드 카드·핵심 가이드 운영 반영 2026-10-20 14:32:06 KST · 웹 6e72b9b: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.
+![조축ON 핵심 흐름: 01 참석 → 02 스쿼드 → 03 경기 결과](docs/diagrams/readme-overview.png)
 
-운영 반영 2026-10-20 11:45 KST: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 웹·API b6f722a, 가이드 1.16, DB V34.
+**개인 프로젝트 · 팀 권한을 구분하는 웹 서비스**
 
-운영 반영 2026-10-20 00:06:07 KST: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · 웹 8c62747 · 가이드 1.15. API1519c9d·DB V32 유지.
+### 핵심 기능
 
+- **팀과 선수 관리** — 팀별 접근 권한, 선수 정보, 참석 명단과 경기 일정을 관리합니다.
+- **스쿼드 편성** — 참석자를 바탕으로 자동 편성하거나 작전판에서 직접 배치합니다.
+- **경기 기록과 공유** — 득점·도움·결과와 선수별 통계를 조회하고 결과 이미지를 공유합니다.
 
-운영 후속 2026-10-19 21:24:17 KST · 웹e640b4c: [선수 기록 이름 열 너비 축소](docs/compact-match-cards-2026-10-19.md). API1519c9d·DB V32·가이드1.14 유지.
+**기술:** React · TypeScript · Spring Boot · MySQL
 
-운영 반영 · 웹a3bfd95 / API1519c9d / 가이드1.14: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
+[사용 가이드](docs/guides/index.html) · [시스템 구성](docs/system-overview.md) · [개발·실행 안내](#개발과-실행)
 
-운영 반영 · 웹43e8fd6 / API1519c9d / 가이드1.13: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).
+---
 
-운영 반영: [작전판 드래그와 쿼터별 실점](docs/pitch-drag-quarter-scores-2026-10-19.md).
+## 개발과 실행
 
-**운영 반영 · 웹3513218 / 가이드1.11:** [02 배치 전용·03 골별 기록과 구간별 저장](docs/match-entry-simplified-2026-10-19.md). 고정 버튼은 목록/다음/완료로 축소.
+역할별 사용법은 [회원·운영진 가이드](docs/guides/index.html), 시스템과 데이터 구조는 [시스템 개요](docs/system-overview.md)와 [데이터베이스 구조](docs/database-diagram.md)에서 확인할 수 있습니다.
 
-**이전 운영 반영(2026-10-19 18:36:21 KST):** [선수 즉시 배치·간결한 저장](docs/squad-picker-2026-10-19.md). 웹 `be49b2f` / API `dd29444`·DB V31 유지 / 가이드 1.10.
+운영진의 입력 흐름은 **참석 → 스쿼드 배치 → 골별 기록·결과**입니다. 아래 과거 배포 기록의 단계 번호와 상태는 당시 기준이며, 사용 절차는 최신 가이드를 따릅니다.
 
-**운영 반영(2026-10-19):** [골·도움 연결 기록과 모바일 작전판](docs/goal-events-mobile-2026-10-19.md). V31 골 이벤트, 자리 선택 편집, 고정 저장, 알림 페이드, 개인 계정 7일 미사용 만료. API·웹 `dd29444` / 운영 DB V31 / 가이드 1.9를 확인했습니다.
-
-최신 운영 반영: [골별 기록·모바일 입력](docs/goal-events-mobile-2026-10-19.md). 2026-10-19 17:51 KST · 웹·API `dd29444` / DB V31 / 가이드 1.9.
-
-**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 [최신 사용 가이드](docs/guides/index.html)를 따릅니다.
-
-이전 웹 운영 반영: [경기 중 대회 등록·형식 선택·작전판 자리 교환](docs/match-entry-and-tap-swap-2026-10-19.md). 2026-10-19 09:26 KST · 웹 `46ab4ce` / API `d8b2763` / DB V30 / 가이드1.7.
-
-이전 웹 운영 반영: [컴팩트한 선수단 표·선택형 일괄 입력](docs/compact-roster-table-2026-10-17.md) · [모바일 표](docs/diagrams/roster-table-mobile-20261017.jpg) · [선택형 입력](docs/diagrams/bulk-select-mobile-20261017.jpg). 2026-10-17 23:06 KST · 웹 `bdb4f04` / API `d8b2763` / DB V30 / 가이드1.6.
-
-이전 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
-
-운영 반영: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 웹 072ac46 / 가이드1.4)
-
-[홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30과 새 홈은 **운영 반영 완료**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
-
-[2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선도 운영 반영했습니다.
-
-**이전 API·웹 동시 배포:** `d8b2763` · Flyway V30 · **홈·계정 보호 개선판 / 가이드 1.3**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-home-account-2026-10-16.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
-
-이번 확장판의 기능과 사용 흐름:
-
-- [대회 전·후반과 자체전 팀별 체크](docs/tournament-halves.md) · [흐름도](docs/diagrams/tournament-halves.svg): 새 대회는 전·후반 각 30분, 자체전은 01에서 A/B팀을 고른 뒤 선수를 체크합니다. 기존 4쿼터 기록은 보존합니다.
-- [자체전 사전 배정과 3백 배치](docs/internal-teams-and-three-back.md) · [설명 그림](docs/diagrams/internal-team-workflow.svg): 02는 정한 팀 안에서 편성하며 3-5-2 CAM·윙백과 3-4-3 LM/RM 배치를 지원합니다.
-- [기간 조회·경기 요약·표 정렬](docs/date-filters-and-table-sorting.md): 시작 연월~종료 연월, 올해/전체 기간, 매칭·자체전 요약과 열 제목 양방향 정렬을 지원합니다.
-- [대회 관리와 완료 전 확인](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg): 연도별 대회 등록·경기 연결, 리그/대회별 조회와 04의 기록 점검 흐름입니다.
-- [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
-- [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
-
-[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 3쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 6쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.19를 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
-
-[시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
-
-[GitHub 저장소](https://github.com/ksmlucky/jochook-on) · [자동 검증](https://github.com/ksmlucky/jochook-on/actions) · [배포 안내](docs/deployment.md) · [백업·복구](docs/backup-recovery.md) · [화면 디자인](docs/design-refresh.md)
-
-조기축구팀의 선수·출석·경기 기록을 모으는 웹 앱입니다. 감독·코치가 입력하고 회원이 조회하는 서비스를 단계적으로 만듭니다. **팀 생성·운영진 초대·회원 코드 접속, 선수 관리와 경기별 투표·출석·쿼터 기록**을 구현하고 Northflank 운영 앱에 적용했습니다. 자동 테스트·브라우저 확인·실제 DB 적용의 최신 결과는 [검증 기록](docs/verification.md)을 따릅니다.
-
-제품명은 **조축ON**, 기존 팀명은 **HANA FC**입니다. 영문 코드명 `jochookOn`, 저장소·패키지 slug `jochook-on`으로 통일합니다. 화면에는 현재 접속한 팀명을 표시하며 선수·경기를 팀별로 분리합니다. 이름 변경의 이력은 [브랜드 변경 명세와 화면 흐름](docs/rebranding.md)에 정리했습니다.
-
-접속 흐름은 **서비스 관리자의 팀 생성·감독 지정 → 감독의 코치 임명 → 감독·코치의 코드와 비밀번호 발급 → 회원 조회**입니다. [요구사항 정의서](docs/team-access-requirements.md), [스토리보드](docs/team-access-storyboard.md), [API 계약](docs/team-access-api.md)에 승인된 정책과 화면·서버 동작을 정리했습니다. 당분간 HANA FC에서 6종 포메이션을 시범 사용하고 안정화한 뒤 다른 팀 도입을 검토합니다. **[조축ON 시범 서비스 열기](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)** — 2026-10-14 Northflank 무료 서비스 배포와 실제 DB 이전·로그인 검증을 완료했습니다. [배포 상태·운영 안내](docs/northflank-deployment.md). Oracle 용량 확인은 병행합니다.
-
-실제 선수·경기 입력은 위 공개 주소에서 진행합니다. 로컬 DB와 클라우드 DB는 자동 동기화되지 않습니다. 아이폰은 Safari로 접속해 **공유 → 홈 화면에 추가**로 설치할 수 있으며, 실제 아이폰 설치·재접속 확인은 다음 사용자 점검 단계입니다.
-
-**이 PC에서는 `Start-JochookON.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.
-
-**직전 운영 배포 이력:** `b9d8738` · Flyway V23. [선수 시즌 기록과 포메이션 6종](docs/player-stats-and-formations.md), 작전판 직접 편집, 24시간 초안 복원, 역할별 가이드 1.1을 반영했습니다. [배포 결과·휴대폰 확인 항목](docs/release-2026-10-15.md).
-
-## 지금 구현한 범위
-
-- Java 21 / Spring Boot 4.1.1 API, React / TypeScript 화면, MySQL 8.4 실행 설정
-- 활동 중인 선수 목록 조회, 페이지 나누기, 입력 범위 검증
-- 실제 존재하는 연령대·직책·1지망 포지션 그룹(공격/미드/수비/키퍼) 조합 필터, 전체 결과를 기준으로 정렬·페이징
-- 감독·코치의 경기 삭제 전 확인, 등록·수정·삭제의 작업자·전후 내용 보관과 변경 이력 조회 ([정책·화면 흐름](docs/player-filters-and-match-history.md))
-- 감독(DIRECTOR)·코치(COACH)·조회 회원(MEMBER) 팀 권한, 세션 로그인·로그아웃과 CSRF 보호
-- 로컬 초기 관리자 생성, BCrypt 비밀번호 해시 저장
-- 서비스 관리자만 팀 생성·최초 감독 지정, 감독은 기존 계정 코치 임명 또는 24시간 일회용 초대·해제
-- 해당 팀 감독·코치만 조회 코드와 숫자 6자리 비밀번호 발급·재발급·폐기, 회원은 90일 유효한 조합으로 계정 없이 조회
-- 팀 소속·세션·요청 팀을 서버에서 검증하고 선수·경기·용병·엑셀·자동 편성의 조회와 저장을 팀별로 제한
-- 감독·코치 전용 선수 등록·수정, 이름·기본 포지션·선택 등번호와 가입일, 동시 수정 충돌 안내
-- 생년·팀 직책 저장, 생년·가용 등번호 직접 입력/목록 선택, 선수단·경기 명단·스쿼드의 연도 기준 나이·연령대 표시
-- 선호 포지션 1·2·3지망 저장 (1지망 필수, 2·3지망 선택, 중복 금지). 포지션 미확인(UN)은 세 지망을 비움
-- 여러 선수 직접 입력 및 .xlsx 양식 다운로드·업로드·행별 검토·일괄 저장
-- 경기 등록·조회·수정, 참불 투표와 실제 출석 구분, 6종 포메이션의 쿼터별 직접 배치·득점·도움·코멘트
-- 참석 명단 기반 4쿼터 또는 대회 전·후반 자동 계획: 출석 우선권·GK 전용 그룹·휴식·교체 정책 적용
-- 02에서 외부 용병 등록·재선택, 정회원과 구분하여 자동 편성·실제 경기 기록에 반영
-- 03 시작에서 계획대로 참석·출전 기록 일괄 저장, 기존 실제 기록 보호
-- 하루 4쿼터 자체전: 01의 A/B팀별 선수 체크, 팀을 섞지 않는 02 계획·자동 편성, 실제 배치와 팀별 득점
-- 대회 이름·기간·장소·부문·메모 등록/수정과 경기 연결, 새 대회 전·후반 각 30분
-- 선수별 상세·원본 경기 연결, 기간·리그/대회 필터, FK/PK·누적/1~4쿼터당 기록과 열 제목 정렬
-- 04 완료 전 출석·배치·스코어 확인, 기존 명시적 완료·초안·변경 이력 유지
-- 선수 테이블을 만드는 Flyway 마이그레이션
-- 화면의 로딩·빈 목록·실패·재시도 상태
-- 선수 도메인 / API 권한 / 페이지 검증 테스트, 실제 MySQL용 통합 테스트
-- GitHub Actions의 테스트·빌드 작업 정의
-
-초기 DB에는 선수나 경기 예시 데이터를 넣지 않습니다. 시즌 기록 조회를 지원하며 출석률·시상 정책과 가상 몸값은 후속 단계입니다. 현재 로컬 API는 내 컴퓨터(127.0.0.1)에 바인딩되며 선수·경기 기록은 팀 코드 접속 또는 소속 계정 로그인 후 조회할 수 있습니다. 운영용 Docker 구성과 GitHub 업로드·무료 호스팅 검토는 [배포 안내](docs/deployment.md)를 참고하세요. 개발 브랜치의 비밀번호 변경/복구는 운영 반영 대기이며, 공개 팀 가입과 자동 백업 운영은 후속 작업입니다.
+<details>
+<summary>로컬 실행 · 검증 · 운영 문서 펼쳐 보기</summary>
 
 ## 폴더 구조
 
@@ -313,3 +242,111 @@ PK는 고정된 선수 ID를 유지합니다. 같은 팀의 활동 선수끼리 
 [변경·검증·배포 기록](docs/match-entry-and-tap-swap-2026-10-19.md). 경기 작성 중 대회 등록, 외부 경기 전·후반 선택, 02 작전판 두 번 눌러 자리 교환을 구현했다. 프론트 264개·타입·빌드·가상 UI·가이드 PDF 24쪽 확인. 운영 반영 확인: 2026-10-19 09:26 KST, 웹 `46ab4ce`, Northflank `fuzzy-finger-6520`. 공개 HTTPS9개·JS/CSS/PDF일치. API d8b2763·DB V30 유지.
 
 UI·UX 운영 반영 2026-10-20 13:43:23 KST · 웹 f0f9552: [전체 점검·검증](docs/ui-ux-review-2026-10-20.md) · [한눈에 보는 분석](docs/diagrams/ui-ux-review-2026-10-20.html) · [UI 전문가 역할](docs/agents/ui-expert.md).
+
+
+</details>
+
+<details>
+<summary>이전 배포 이력과 상세 구현 기록 펼쳐 보기</summary>
+
+스쿼드·골별 도움 운영 반영 2026-10-21 21:19:06 KST · 웹 a05b872: [등번호 스쿼드](docs/squad-number-preview-2026-10-21.md) · [명단 정렬·결과 공유](docs/roster-goal-links-2026-10-21.md). 회원·운영진 가이드 1.20 운영 반영. API·DB 변경 없음.
+
+경기 결과 이미지 운영 반영 2026-10-20 15:45:18 KST · 웹 9b443ff: [기능·공유 흐름](docs/match-result-sharing.md) · [가상 이미지 예시](docs/diagrams/result-sharing/index.html). 저장된 스코어와 득점·도움을 회원/운영진 모두 PNG로 공유합니다.
+
+스쿼드 카드·핵심 가이드 운영 반영 2026-10-20 14:32:06 KST · 웹 6e72b9b: [변경·검증 내용](docs/squad-card-guide-2026-10-20.md). 모든 포지션을 같은 크기로 표시하고 가이드를 회원 3쪽·운영진 6쪽으로 정리했습니다.
+
+운영 반영 2026-10-20 11:45 KST: [경기 목록·타임라인·팀 로고 개편](docs/match-report-ux-2026-10-20.md) · [화면 흐름도](docs/diagrams/match-report/index.html) · [UX 전문가 역할](docs/agents/ux-expert.md). 웹·API b6f722a, 가이드 1.16, DB V34.
+
+운영 반영 2026-10-20 00:06:07 KST: [스쿼드 이미지 공유](docs/squad-image-sharing.md) · 웹 8c62747 · 가이드 1.15. API1519c9d·DB V32 유지.
+
+
+운영 후속 2026-10-19 21:24:17 KST · 웹e640b4c: [선수 기록 이름 열 너비 축소](docs/compact-match-cards-2026-10-19.md). API1519c9d·DB V32·가이드1.14 유지.
+
+운영 반영 · 웹a3bfd95 / API1519c9d / 가이드1.14: [최근 경기 펼치기와 카드 정리](docs/compact-match-cards-2026-10-19.md).
+
+운영 반영 · 웹43e8fd6 / API1519c9d / 가이드1.13: [경기 알림·쿼터 상세](docs/match-result-disclosures-2026-10-19.md).
+
+운영 반영: [작전판 드래그와 쿼터별 실점](docs/pitch-drag-quarter-scores-2026-10-19.md).
+
+**운영 반영 · 웹3513218 / 가이드1.11:** [02 배치 전용·03 골별 기록과 구간별 저장](docs/match-entry-simplified-2026-10-19.md). 고정 버튼은 목록/다음/완료로 축소.
+
+**이전 운영 반영(2026-10-19 18:36:21 KST):** [선수 즉시 배치·간결한 저장](docs/squad-picker-2026-10-19.md). 웹 `be49b2f` / API `dd29444`·DB V31 유지 / 가이드 1.10.
+
+**운영 반영(2026-10-19):** [골·도움 연결 기록과 모바일 작전판](docs/goal-events-mobile-2026-10-19.md). V31 골 이벤트, 자리 선택 편집, 고정 저장, 알림 페이드, 개인 계정 7일 미사용 만료. API·웹 `dd29444` / 운영 DB V31 / 가이드 1.9를 확인했습니다.
+
+최신 운영 반영: [골별 기록·모바일 입력](docs/goal-events-mobile-2026-10-19.md). 2026-10-19 17:51 KST · 웹·API `dd29444` / DB V31 / 가이드 1.9.
+
+**현재 경기 흐름:** [경기 입력 3단계 통합](docs/unified-match-entry-2026-10-19.md) · [흐름도](docs/diagrams/unified-match/index.html). 01 참석 → 02 스쿼드 배치 → 03 골별 기록·결과입니다. 아래 이전 날짜의 설명은 당시 이력이며 최신 절차는 [최신 사용 가이드](docs/guides/index.html)를 따릅니다.
+
+이전 웹 운영 반영: [경기 중 대회 등록·형식 선택·작전판 자리 교환](docs/match-entry-and-tap-swap-2026-10-19.md). 2026-10-19 09:26 KST · 웹 `46ab4ce` / API `d8b2763` / DB V30 / 가이드1.7.
+
+이전 웹 운영 반영: [컴팩트한 선수단 표·선택형 일괄 입력](docs/compact-roster-table-2026-10-17.md) · [모바일 표](docs/diagrams/roster-table-mobile-20261017.jpg) · [선택형 입력](docs/diagrams/bulk-select-mobile-20261017.jpg). 2026-10-17 23:06 KST · 웹 `bdb4f04` / API `d8b2763` / DB V30 / 가이드1.6.
+
+이전 웹 운영 반영: [선수 입력·기록 집계 개선](docs/bulk-input-mobile-2026-10-17.md) · [모바일 화면](docs/diagrams/bulk-mobile-20261017.jpg) · [흐름도](docs/diagrams/bulk-input-mobile.mmd). 2026-10-17 22:50 KST · 웹 `db2391d` / API `d8b2763` / DB V30 / 가이드1.5.
+
+운영 반영: [선수 카드·등록·기록 페이지 개선](docs/roster-pagination-2026-10-17.md) · [안내 그림](docs/diagrams/roster-pagination.svg) (2026-10-17, 웹 072ac46 / 가이드1.4)
+
+[홈·본인 비밀번호 변경·백업 후속 점검](docs/home-account-followup-2026-10-16.md) · [후속 개선 그림](docs/diagrams/home-account-followup/index.html). V29/V30과 새 홈은 **운영 반영 완료**입니다. 운영진 복구 링크까지 구현했으며 자동 백업 설정은 남아 있습니다.
+
+[2026-10-16 전체 프로젝트 리뷰·로컬 UX 개선](docs/project-review-2026-10-16.md) · [한눈에 보는 분석 그림](docs/diagrams/project-review-2026-10-16/index.html). 이번 조회 화면 개선도 운영 반영했습니다.
+
+**이전 API·웹 동시 배포:** `d8b2763` · Flyway V30 · **홈·계정 보호 개선판 / 가이드 1.3**. Northflank API·웹과 기존 데이터 보존·공개 자산·조회 검증을 확인했습니다. [배포 결과·휴대폰 확인 항목](docs/release-home-account-2026-10-16.md) · [실제 배포 상태](docs/northflank-deployment.md) · [검증 기록](docs/verification.md).
+
+이번 확장판의 기능과 사용 흐름:
+
+- [대회 전·후반과 자체전 팀별 체크](docs/tournament-halves.md) · [흐름도](docs/diagrams/tournament-halves.svg): 새 대회는 전·후반 각 30분, 자체전은 01에서 A/B팀을 고른 뒤 선수를 체크합니다. 기존 4쿼터 기록은 보존합니다.
+- [자체전 사전 배정과 3백 배치](docs/internal-teams-and-three-back.md) · [설명 그림](docs/diagrams/internal-team-workflow.svg): 02는 정한 팀 안에서 편성하며 3-5-2 CAM·윙백과 3-4-3 LM/RM 배치를 지원합니다.
+- [기간 조회·경기 요약·표 정렬](docs/date-filters-and-table-sorting.md): 시작 연월~종료 연월, 올해/전체 기간, 매칭·자체전 요약과 열 제목 양방향 정렬을 지원합니다.
+- [대회 관리와 완료 전 확인](docs/tournaments-and-completion-review.md) · [업무 흐름도](docs/diagrams/tournaments-and-completion-review.svg): 연도별 대회 등록·경기 연결, 리그/대회별 조회와 04의 기록 점검 흐름입니다.
+- [선수 입력과 세부 스탯](docs/player-input-and-stat-details.md) · [설명 그림](docs/diagrams/player-stat-details.svg): 생년·가용 등번호 직접 입력/목록, FK·PK와 누적/1~4쿼터당 기록입니다.
+- [선수별 상세와 원본 경기](docs/player-season-detail.md): 개인별 기간·리그·대회 조회와 실제 경기 기록 확인을 연결합니다.
+
+[앱 안의 사용 가이드](docs/in-app-user-guide.md) · [사용자 가이드 모음](docs/guides/index.html) · [회원용 3쪽 PDF](docs/guides/jochook-on-member-guide.pdf) · [운영진용 6쪽 PDF](docs/guides/jochook-on-staff-guide.pdf). 가이드 1.19를 운영 반영했으며, [가이드 갱신 기록](docs/guides/maintenance.json)에 앱 버전과 검증 상태를 남겼습니다.
+
+[시스템 구성도·업무 흐름도](docs/system-overview.md) · [DB 테이블 관계도(ERD)](docs/database-diagram.md) · [모바일 스쿼드 한눈에 보기](docs/mobile-squad-overview.md). 구성 그림·생성 원본은 `docs/diagrams/`와 `scripts/`에 관리합니다.
+
+[GitHub 저장소](https://github.com/ksmlucky/jochook-on) · [자동 검증](https://github.com/ksmlucky/jochook-on/actions) · [배포 안내](docs/deployment.md) · [백업·복구](docs/backup-recovery.md) · [화면 디자인](docs/design-refresh.md)
+
+조기축구팀의 선수·출석·경기 기록을 모으는 웹 앱입니다. 감독·코치가 입력하고 회원이 조회하는 서비스를 단계적으로 만듭니다. **팀 생성·운영진 초대·회원 코드 접속, 선수 관리와 경기별 투표·출석·쿼터 기록**을 구현하고 Northflank 운영 앱에 적용했습니다. 자동 테스트·브라우저 확인·실제 DB 적용의 최신 결과는 [검증 기록](docs/verification.md)을 따릅니다.
+
+제품명은 **조축ON**, 기존 팀명은 **HANA FC**입니다. 영문 코드명 `jochookOn`, 저장소·패키지 slug `jochook-on`으로 통일합니다. 화면에는 현재 접속한 팀명을 표시하며 선수·경기를 팀별로 분리합니다. 이름 변경의 이력은 [브랜드 변경 명세와 화면 흐름](docs/rebranding.md)에 정리했습니다.
+
+접속 흐름은 **서비스 관리자의 팀 생성·감독 지정 → 감독의 코치 임명 → 감독·코치의 코드와 비밀번호 발급 → 회원 조회**입니다. [요구사항 정의서](docs/team-access-requirements.md), [스토리보드](docs/team-access-storyboard.md), [API 계약](docs/team-access-api.md)에 승인된 정책과 화면·서버 동작을 정리했습니다. 당분간 HANA FC에서 6종 포메이션을 시범 사용하고 안정화한 뒤 다른 팀 도입을 검토합니다. **[조축ON 시범 서비스 열기](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)** — 2026-10-14 Northflank 무료 서비스 배포와 실제 DB 이전·로그인 검증을 완료했습니다. [배포 상태·운영 안내](docs/northflank-deployment.md). Oracle 용량 확인은 병행합니다.
+
+실제 선수·경기 입력은 위 공개 주소에서 진행합니다. 로컬 DB와 클라우드 DB는 자동 동기화되지 않습니다. 아이폰은 Safari로 접속해 **공유 → 홈 화면에 추가**로 설치할 수 있으며, 실제 아이폰 설치·재접속 확인은 다음 사용자 점검 단계입니다.
+
+**이 PC에서는 `Start-JochookON.cmd`를 더블클릭한 뒤 <http://127.0.0.1:5173>으로 접속하면 됩니다.** 개발 도구를 C:의 사용자별 프로그램 폴더에 준비했으며, Docker 설정 전에는 Windows용 MySQL 8.4를 사용합니다. 실행·종료·개발 터미널·설치 상태는 [이 PC 실행 안내](docs/local-setup.md)를 먼저 읽어 주세요. 아래 Docker 실행 절차는 Docker가 준비된 환경에서 사용합니다.
+
+**직전 운영 배포 이력:** `b9d8738` · Flyway V23. [선수 시즌 기록과 포메이션 6종](docs/player-stats-and-formations.md), 작전판 직접 편집, 24시간 초안 복원, 역할별 가이드 1.1을 반영했습니다. [배포 결과·휴대폰 확인 항목](docs/release-2026-10-15.md).
+
+## 지금 구현한 범위
+
+- Java 21 / Spring Boot 4.1.1 API, React / TypeScript 화면, MySQL 8.4 실행 설정
+- 활동 중인 선수 목록 조회, 페이지 나누기, 입력 범위 검증
+- 실제 존재하는 연령대·직책·1지망 포지션 그룹(공격/미드/수비/키퍼) 조합 필터, 전체 결과를 기준으로 정렬·페이징
+- 감독·코치의 경기 삭제 전 확인, 등록·수정·삭제의 작업자·전후 내용 보관과 변경 이력 조회 ([정책·화면 흐름](docs/player-filters-and-match-history.md))
+- 감독(DIRECTOR)·코치(COACH)·조회 회원(MEMBER) 팀 권한, 세션 로그인·로그아웃과 CSRF 보호
+- 로컬 초기 관리자 생성, BCrypt 비밀번호 해시 저장
+- 서비스 관리자만 팀 생성·최초 감독 지정, 감독은 기존 계정 코치 임명 또는 24시간 일회용 초대·해제
+- 해당 팀 감독·코치만 조회 코드와 숫자 6자리 비밀번호 발급·재발급·폐기, 회원은 90일 유효한 조합으로 계정 없이 조회
+- 팀 소속·세션·요청 팀을 서버에서 검증하고 선수·경기·용병·엑셀·자동 편성의 조회와 저장을 팀별로 제한
+- 감독·코치 전용 선수 등록·수정, 이름·기본 포지션·선택 등번호와 가입일, 동시 수정 충돌 안내
+- 생년·팀 직책 저장, 생년·가용 등번호 직접 입력/목록 선택, 선수단·경기 명단·스쿼드의 연도 기준 나이·연령대 표시
+- 선호 포지션 1·2·3지망 저장 (1지망 필수, 2·3지망 선택, 중복 금지). 포지션 미확인(UN)은 세 지망을 비움
+- 여러 선수 직접 입력 및 .xlsx 양식 다운로드·업로드·행별 검토·일괄 저장
+- 경기 등록·조회·수정, 참불 투표와 실제 출석 구분, 6종 포메이션의 쿼터별 직접 배치·득점·도움·코멘트
+- 참석 명단 기반 4쿼터 또는 대회 전·후반 자동 계획: 출석 우선권·GK 전용 그룹·휴식·교체 정책 적용
+- 02에서 외부 용병 등록·재선택, 정회원과 구분하여 자동 편성·실제 경기 기록에 반영
+- 03 시작에서 계획대로 참석·출전 기록 일괄 저장, 기존 실제 기록 보호
+- 하루 4쿼터 자체전: 01의 A/B팀별 선수 체크, 팀을 섞지 않는 02 계획·자동 편성, 실제 배치와 팀별 득점
+- 대회 이름·기간·장소·부문·메모 등록/수정과 경기 연결, 새 대회 전·후반 각 30분
+- 선수별 상세·원본 경기 연결, 기간·리그/대회 필터, FK/PK·누적/1~4쿼터당 기록과 열 제목 정렬
+- 04 완료 전 출석·배치·스코어 확인, 기존 명시적 완료·초안·변경 이력 유지
+- 선수 테이블을 만드는 Flyway 마이그레이션
+- 화면의 로딩·빈 목록·실패·재시도 상태
+- 선수 도메인 / API 권한 / 페이지 검증 테스트, 실제 MySQL용 통합 테스트
+- GitHub Actions의 테스트·빌드 작업 정의
+
+초기 DB에는 선수나 경기 예시 데이터를 넣지 않습니다. 시즌 기록 조회를 지원하며 출석률·시상 정책과 가상 몸값은 후속 단계입니다. 현재 로컬 API는 내 컴퓨터(127.0.0.1)에 바인딩되며 선수·경기 기록은 팀 코드 접속 또는 소속 계정 로그인 후 조회할 수 있습니다. 운영용 Docker 구성과 GitHub 업로드·무료 호스팅 검토는 [배포 안내](docs/deployment.md)를 참고하세요. 개발 브랜치의 비밀번호 변경/복구는 운영 반영 대기이며, 공개 팀 가입과 자동 백업 운영은 후속 작업입니다.
+
+</details>
