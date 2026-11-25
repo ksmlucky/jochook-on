@@ -1,6 +1,6 @@
 #requires -Version 7.0
 param(
-    [uri]$BaseUrl = 'https://http--jochook-on-web--wmjz5mzg84j4.code.run/',
+    [Parameter(Mandatory = $true)][uri]$BaseUrl,
     [string]$OutputPath = (Join-Path $PSScriptRoot '../work/production-check-latest.json'),
     [ValidateRange(5, 60)][int]$TimeoutSeconds = 20
 )

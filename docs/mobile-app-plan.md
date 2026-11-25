@@ -8,7 +8,7 @@ PWA는 현재 React / TypeScript / Vite 웹앱의 설치 정보·안내와 기�
 
 설치한 아이콘의 이름은 **조축ON**이며 서비스 로고와 같은 아이콘을 사용한다. 색·형태는 [최신 디자인 명세](design-refresh.md)에 맞춰 통일한다. 지원하는 기기에서는 브라우저 주소창이 없는 별도 창으로 실행한다. 선수·경기 조회와 저장은 기존 서버를 이용하므로 **인터넷 연결이 필요하다.** PWA는 서버와 DB를 휴대전화에 설치하는 방식이 아니다.
 
-공개 서버는 2026-10-14 [Northflank 무료 시범 배포](northflank-deployment.md)로 마련했다. [조축ON](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)에서 PWA 실기기 설치를 확인한다. [Oracle Cloud·Cloudflare](oracle-cloudflare-deployment.md)는 용량 확보 후 이전 후보로 유지한다. 도메인 구매와 스토어 등록비 결제는 하지 않았다.
+공개 서버는 2026-10-14 [Northflank 무료 시범 배포](northflank-deployment.md)로 마련했다. 조축ON (`****`)에서 PWA 실기기 설치를 확인한다. [Oracle Cloud·Cloudflare](oracle-cloudflare-deployment.md)는 용량 확보 후 이전 후보로 유지한다. 도메인 구매와 스토어 등록비 결제는 하지 않았다.
 
 ## 2. 요구사항과 인수 기준
 

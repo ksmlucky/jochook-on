@@ -426,5 +426,10 @@
       "staff"
     ],
     "contentChanged": false
+  },
+  "publicRepository": {
+    "serviceAddress": "redacted",
+    "updatedOn": "2026-11-25",
+    "note": "공개 저장소용 HTML/PDF의 서비스 URL과 링크만 숨김. 실제 서비스의 접속 설정과 운영 배포는 변경하지 않음. 앱 안에서는 상대 주소 / 사용."
   }
 }

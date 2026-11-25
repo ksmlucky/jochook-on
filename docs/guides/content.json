@@ -3,7 +3,7 @@
   "publishedOn": "2026.10.21",
   "appCommit": "a05b872510fdfc68056f6ac3c17449d295e500ab",
   "scope": "production",
-  "publicUrl": "https://http--jochook-on-web--wmjz5mzg84j4.code.run/",
+  "publicUrl": "/",
   "guides": [
     {
       "id": "member",
@@ -17,7 +17,7 @@
             {
               "title": "처음 들어갈 때",
               "steps": [
-                "위 버튼을 눌러 Safari 또는 Chrome에서 열어요.",
+                "공유받은 주소를 Safari 또는 Chrome에서 열어요.",
                 "<b>팀 코드</b>와 <b>숫자 6자리 팀 비밀번호</b>를 입력하고 <b>우리 팀 들어가기</b>를 눌러요.",
                 "팀 이름을 확인해요. <b>우리 팀 홈 →</b>을 누르면 언제든 홈으로 돌아와요."
               ]

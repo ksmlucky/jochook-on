@@ -2,7 +2,7 @@
 
 2026-10-16 **16:31 KST** 운영 검증 완료. 웹/API 모두 `d8b27631a9204489ab1b5e16993a4e639041222f`, Flyway **V30**, 사용자 가이드 **1.3**.
 
-[휴대폰에서 조축ON 열기](https://http--jochook-on-web--wmjz5mzg84j4.code.run/) · [변경 기능과 정책](home-account-followup-2026-10-16.md) · [사용성 리뷰](project-review-2026-10-16.md)
+휴대폰에서 조축ON 열기 (`****`) · [변경 기능과 정책](home-account-followup-2026-10-16.md) · [사용성 리뷰](project-review-2026-10-16.md)
 
 ## 반영한 기능
 

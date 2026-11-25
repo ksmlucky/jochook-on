@@ -62,7 +62,7 @@ V26 이후 구 API 이미지만 롤백하지 않습니다. 기존 API 쓰기를 
 
 아래 배포별 항목은 이전 확인 시점의 이력입니다.
 
-2026-10-14 Northflank Developer Sandbox에서 API·웹·MySQL 실행, 실제 DB 이전, 공개 HTTPS 로그인·조회 검증을 완료했다. **[조축ON 접속](https://http--jochook-on-web--wmjz5mzg84j4.code.run/)**. 아이폰 실기기 설치와 팀원 시범 사용은 다음 확인 단계다. Oracle 6시간 정기 확인은 유지하며, 서버 확보 후 성능·운영 부담과 DB 복구를 검증한 뒤 이전 여부를 결정한다.
+2026-10-14 Northflank Developer Sandbox에서 API·웹·MySQL 실행, 실제 DB 이전, 공개 HTTPS 로그인·조회 검증을 완료했다. **조축ON 접속 (`****`)**. 아이폰 실기기 설치와 팀원 시범 사용은 다음 확인 단계다. Oracle 6시간 정기 확인은 유지하며, 서버 확보 후 성능·운영 부담과 DB 복구를 검증한 뒤 이전 여부를 결정한다.
 
 ## 기능확장판 운영 배포 (2026-10-15 18:57 KST)
 
@@ -128,7 +128,7 @@ web에는 다음 값을 지정한다.
 
 | 이름 | 값의 의미 |
 | --- | --- |
-| `JOCHOOK_ON_SITE_HOST` | `http--jochook-on-web--wmjz5mzg84j4.code.run` |
+| `JOCHOOK_ON_SITE_HOST` | `****` |
 | `JOCHOOK_ON_API_UPSTREAM` | `jochook-on-api:8080` |
 | `JOCHOOK_ON_TRUSTED_PROXY_CIDRS` | `private_ranges` — 실제 ingress 사설 주소 확인 및 프로젝트 내부 격리를 전제로 사용 |
 
@@ -148,7 +148,7 @@ Caddy는 전달 헤더를 정규화하고, 신뢰한 프록시에서 온 IP 목�
 
 ## 백업과 복구
 
-공개 접속 상태를 빠르게 확인하려면 PowerShell 7에서 `./scripts/Check-Production.ps1`을 실행한다. HTTPS 홈·웹 readiness·익명 선수/경기 접근 차단·비공개 actuator·PWA 파일·홈에서 참조한 JS/CSS를 GET으로만 확인하고 `work/production-check-latest.json`에 시각·상태 코드·응답 시간을 기록한다. 비밀번호·쿠키·회원 자료는 사용하거나 저장하지 않는다. 실패한 검사가 있으면 종료 코드 1을 반환한다. 로그인 이후 업무 흐름·실제 DB 백업·모바일 실기기 검증을 대신하지 않는다.
+공개 접속 상태를 빠르게 확인하려면 PowerShell 7에서 `./scripts/Check-Production.ps1 -BaseUrl <공유받은-HTTPS-주소>`을 실행한다. HTTPS 홈·웹 readiness·익명 선수/경기 접근 차단·비공개 actuator·PWA 파일·홈에서 참조한 JS/CSS를 GET으로만 확인하고 `work/production-check-latest.json`에 시각·상태 코드·응답 시간을 기록한다. 비밀번호·쿠키·회원 자료는 사용하거나 저장하지 않는다. 실패한 검사가 있으면 종료 코드 1을 반환한다. 로그인 이후 업무 흐름·실제 DB 백업·모바일 실기기 검증을 대신하지 않는다.
 
 이전 전 백업은 평문 SQL 파일을 만들지 않고 메모리에서 Windows DPAPI(CurrentUser)로 암호화했다. 비공개 CLI 터널과 인증서 검증 TLS로 새 MySQL에 복구했고, 모든 테이블의 행 수와 SHA-256 지문을 대조했다. 선수 40명(활동 39명), 경기 2건, 기존 ID·소속·계정 해시·코드 해시·Flyway 이력을 보존했다. 기존 팀 코드와 비밀번호를 재발급하지 않았다.
 

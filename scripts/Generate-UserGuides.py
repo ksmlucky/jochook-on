@@ -64,8 +64,9 @@ def build_pdf(guide, data, target):
         if page.get("openApp"):
             c.setFillColor(colors.HexColor(GREEN)); c.roundRect(M, y - 36, widths, 36, 9, stroke=0, fill=1)
             c.setFillColor(colors.white); c.setFont("GuideBold", 11.5)
-            c.drawCentredString(W / 2, y - 23, "조축ON 열기  >")
-            c.linkURL(data["publicUrl"], (M, y - 36, W - M, y), relative=0)
+            c.drawCentredString(W / 2, y - 23, "조축ON 열기  >" if data["publicUrl"].startswith(("https://", "http://")) else "접속 주소: **** · 운영진에게 문의")
+            if data["publicUrl"].startswith(("https://", "http://")):
+                c.linkURL(data["publicUrl"], (M, y - 36, W - M, y), relative=0)
             y -= 49
         for section in page["sections"]:
             p(section["title"], "section", 5)
@@ -102,7 +103,12 @@ def build_html(guide, data):
             body = ''.join(f'<p>{t}</p>' for t in s.get("body", []))
             steps = '<ol>' + ''.join(f'<li>{t}</li>' for t in s["steps"]) + '</ol>' if s.get("steps") else ''
             sections.append(f'<section><h3>{html.escape(s["title"])}</h3>{steps}{body}</section>')
-        action = f'<a class="open-app" href="{html.escape(data["publicUrl"], quote=True)}">조축ON 열기 →</a>' if page.get("openApp") else ''
+        action = ""
+        if page.get("openApp"):
+            if data["publicUrl"].startswith(("https://", "http://")):
+                action = f'<a class="open-app" href="{html.escape(data["publicUrl"], quote=True)}">조축ON 열기 →</a>'
+            else:
+                action = '<div class="open-app">접속 주소: **** · 운영진에게 문의</div>'
         note = f'<aside>{page["note"]}</aside>' if page.get("note") else ''
         pages.append(f'<article id="page-{n}"><header><strong>조축ON</strong><span>{guide["audience"]} 가이드 {data["guideVersion"]}</span></header><p class="kicker">{page["kicker"]}</p><h2>{page["title"]}</h2><p class="lead">{page["lead"]}</p>{action}{"".join(sections)}{note}<footer>{release_label} · {n} / {len(guide["pages"])}</footer></article>')
     return f'''<!doctype html><html lang="ko"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>조축ON {guide["audience"]} 사용 가이드</title>

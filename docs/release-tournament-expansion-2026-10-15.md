@@ -2,7 +2,7 @@
 
 **운영 확인: 2026-10-15 23:45 KST** · 앱 커밋 `9d3d3473fd00a31c42924d7fd47a5b4772334fe8` · Flyway **V28** · 가이드 **1.2**.
 
-[휴대폰에서 조축ON 열기](https://http--jochook-on-web--wmjz5mzg84j4.code.run/) · [GitHub 검증](https://github.com/ksmlucky/jochook-on/actions/runs/38751927872)
+휴대폰에서 조축ON 열기 (`****`) · [GitHub 검증](https://github.com/ksmlucky/jochook-on/actions/runs/38751927872)
 
 ## 반영한 기능
 
