@@ -22,12 +22,20 @@
 
 ## 실제 화면 예시
 
-가상 팀·선수로 촬영한 모바일 스쿼드 화면과, 앱에서 생성한 경기 결과 공유 이미지입니다.
+**2026-11-25 · 최신 소스 실행 화면**
 
-<p>
-  <img src="docs/diagrams/squad-number-preview/mobile.jpg" alt="가상 팀의 등번호·포지션·교체를 보여주는 실제 모바일 화면" width="300">
-  <img src="docs/diagrams/result-sharing/external.png" alt="가상 경기 데이터로 앱에서 생성한 결과 공유 이미지" width="400">
-</p>
+현재 프론트엔드를 가상 팀·선수 데이터로 실행해 촬영했습니다. 이미지를 클릭하면 원본 크기로 볼 수 있습니다.
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><strong>선수 카드 목록</strong><br><a href="docs/screenshots/players-list-20261125.jpg"><img src="docs/screenshots/players-list-20261125.jpg" alt="조축ON 최신 실행 화면: 등번호·직책·선호 포지션을 카드로 확인" width="390"></a><br><sub>등번호·직책·선호 포지션을 카드로 확인</sub></td>
+    <td width="50%" valign="top"><strong>선수 필터 · 표 보기</strong><br><a href="docs/screenshots/player-filters-20261125.jpg"><img src="docs/screenshots/player-filters-20261125.jpg" alt="조축ON 최신 실행 화면: 연령대·직책·포지션 필터와 정렬" width="390"></a><br><sub>연령대·직책·포지션 필터와 정렬</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><strong>선수 정보 관리</strong><br><a href="docs/screenshots/player-management-20261125.jpg"><img src="docs/screenshots/player-management-20261125.jpg" alt="조축ON 최신 실행 화면: 기본 정보·등번호·포지션 수정" width="390"></a><br><sub>기본 정보·등번호·포지션 수정</sub></td>
+    <td width="50%" valign="top"><strong>팀 · 코치 관리</strong><br><a href="docs/screenshots/team-management-20261125.jpg"><img src="docs/screenshots/team-management-20261125.jpg" alt="조축ON 최신 실행 화면: 팀 계정과 운영진 권한 관리" width="390"></a><br><sub>팀 계정과 운영진 권한 관리</sub></td>
+  </tr>
+</table>
 
 ---
 
