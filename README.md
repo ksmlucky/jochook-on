@@ -20,6 +20,15 @@
 
 > 서비스 접속 주소는 공개 저장소에서 `****`로 표시합니다. 이용자는 운영진에게 공유받은 주소를 사용해 주세요.
 
+## 실제 화면 예시
+
+가상 팀·선수로 촬영한 모바일 스쿼드 화면과, 앱에서 생성한 경기 결과 공유 이미지입니다.
+
+<p>
+  <img src="docs/diagrams/squad-number-preview/mobile.jpg" alt="가상 팀의 등번호·포지션·교체를 보여주는 실제 모바일 화면" width="300">
+  <img src="docs/diagrams/result-sharing/external.png" alt="가상 경기 데이터로 앱에서 생성한 결과 공유 이미지" width="400">
+</p>
+
 ---
 
 ## 개발과 실행
